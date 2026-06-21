@@ -27,39 +27,41 @@
 .metric {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75em;
   padding: 1rem;
-  background: var(--dark-background--primary);
-  border: 1px solid var(--dark-border--primary);
+  background: var(--ambient-surface-bg-elevated);
+  border: 1px solid var(--ambient-surface-border);
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: var(--font-size-sm, 1.4rem);
+  line-height: 1.25;
 }
 
 .metric:hover {
   border-color: var(--tan-primary);
-  transform: translateX(4px);
+  box-shadow: 0 0 16px rgba(229, 193, 133, 0.2);
 }
 
 .metric__icon {
-  font-size: 2rem;
-  flex-shrink: 0;
+  color: var(--brand-primary);
 }
 
 .metric__content {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
 }
 
 .metric__value {
-  font-size: 1.5rem;
+  font-size: 1.5em;
   font-weight: 700;
   color: var(--brand-primary);
   line-height: 1;
 }
 
 .metric__label {
-  font-size: 0.875rem;
+  font-size: 0.875em;
   color: var(--dark-bg__text-color--secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -110,10 +112,18 @@
 }
 
 .techCategory__title {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: var(--font-size-base, 1.6rem);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
+  line-height: 1.25;
+}
+
+.techCategory__icon {
+  color: var(--brand-primary);
 }
 
 .techBadges {
@@ -124,23 +134,22 @@
 
 .techBadge {
   padding: 0.5rem 0.875rem;
-  background: var(--dark-background--primary);
-  border: 1px solid var(--dark-border--primary);
+  background: var(--ambient-surface-bg-elevated);
+  border: 1px solid var(--ambient-surface-border);
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-secondary);
-  transition: all 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .techBadge:hover {
-  background: var(--dark-background--tertiary);
   border-color: var(--tan-primary);
-  color: var(--tan-primary);
-  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(229, 193, 133, 0.2);
+  color: var(--text-primary);
 }
 
-/* Quick Links */
+/* Quick Links — contrast-safe ambient interactive surfaces */
 .links {
   display: flex;
   flex-direction: column;
@@ -148,34 +157,39 @@
 }
 
 .link {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1rem;
-  background: var(--dark-background--primary);
-  border: 1px solid var(--dark-border--primary);
+  --contrast-safe-bg: var(--ambient-interactive-bg);
+  --contrast-safe-bg-hover: var(--ambient-interactive-bg-hover);
+  --contrast-safe-border: var(--ambient-interactive-border);
+  --contrast-safe-fg: var(--ambient-interactive-fg);
+  --contrast-safe-fg-hover: var(--ambient-interactive-fg-hover);
+
+  width: 100%;
+  padding: 0.875em 1em;
   border-radius: 8px;
-  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-sm, 1.4rem);
+  font-weight: 500;
+  line-height: 1.25;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.link:hover {
-  background: var(--dark-background--tertiary);
-  border-color: var(--tan-primary);
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(229, 193, 133, 0.2);
+.link:hover,
+.link:focus-visible {
+  border-color: var(--ambient-interactive-border-hover);
+  box-shadow: 0 0 16px rgba(229, 193, 133, 0.2);
 }
 
 .link__icon {
-  font-size: 1.25rem;
-  color: var(--brand-primary);
-  flex-shrink: 0;
+  color: inherit;
 }
 
 .link__label {
-  font-size: 0.938rem;
-  font-weight: 500;
+  font: inherit;
+  line-height: inherit;
 }
 
 /* Status */
@@ -184,8 +198,8 @@
   align-items: center;
   gap: 0.875rem;
   padding: 1rem;
-  background: var(--dark-background--primary);
-  border: 1px solid var(--dark-border--primary);
+  background: var(--ambient-surface-bg-elevated);
+  border: 1px solid var(--ambient-surface-border);
   border-radius: 8px;
 }
 
@@ -245,21 +259,17 @@
   .dashboard {
     grid-template-columns: 1fr;
   }
-  
+
   .metrics {
     gap: 0.75rem;
   }
-  
+
   .metric {
     padding: 0.875rem;
   }
-  
-  .metric__icon {
-    font-size: 1.75rem;
-  }
-  
+
   .metric__value {
-    font-size: 1.25rem;
+    font-size: 1.35em;
   }
 }
 
@@ -271,7 +281,7 @@
     transition: none;
     transform: none !important;
   }
-  
+
   .status__indicator {
     animation: none;
   }

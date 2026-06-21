@@ -98,7 +98,7 @@
   background: #E5E5E5;
   color: var(--text-primary, #ffffff);
   font-size: 1.5rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -112,7 +112,7 @@
 
 .close-button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 /* ================================
@@ -165,7 +165,7 @@
   border-radius: 8px;
   color: var(--text-secondary, #cccccc);
   font-size: 1.0rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -176,7 +176,7 @@
 
 .toggle-button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 /* ================================
@@ -215,7 +215,7 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 0.75rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .checkbox-text {
@@ -270,11 +270,11 @@
   width: 18px;
   height: 18px;
   accent-color: var(--orange-primary, #ff8c00);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .form-select {
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .form-select option {
@@ -307,7 +307,7 @@
   border: 2px solid transparent;
   border-radius: 12px;
   background: #E5E5E5;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   position: relative;
 }
@@ -395,7 +395,7 @@
   border: none;
   color: var(--orange-primary, #ff8c00);
   font-size: 1.2rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0;
   width: 20px;
   height: 20px;
@@ -413,7 +413,7 @@
 
 .dependency-remove:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 /* ================================
@@ -461,7 +461,7 @@
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -500,7 +500,7 @@
 
 .submit-button:disabled {
   opacity: 0.7;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 

@@ -14,7 +14,7 @@
 .vote-buttons__button {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   color: #6b7280;
   padding: 0.25rem;
   transition: color 0.2s;
@@ -46,7 +46,7 @@
 
 .vote-buttons__button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .vote-buttons__score {

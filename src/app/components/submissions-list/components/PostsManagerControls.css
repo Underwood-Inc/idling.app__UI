@@ -29,7 +29,7 @@
   color: var(--text-primary);
   border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-md);
   font-weight: 500;
   transition: all 0.2s ease-in-out;
@@ -127,7 +127,7 @@
   border: none;
   background-color: var(--bg-dark);
   color: var(--text-secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   border-right: 1px solid var(--grey-dark);
 }
@@ -182,7 +182,7 @@
   border-radius: 0.375rem;
   font-size: var(--font-size-md);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   text-decoration: none;
 }
@@ -196,7 +196,7 @@
 .posts-manager__new-post-button[aria-disabled="true"] {
   background-color: var(--grey-dark);
   color: var(--text-tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   opacity: 0.6;
   transform: none;
   box-shadow: none;

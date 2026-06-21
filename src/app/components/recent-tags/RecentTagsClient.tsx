@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
 import { RECENT_TAGS_SELECTORS } from '@lib/test-selectors/components/recent-tags.selectors';
 import { handleTagFilter, isTagActive } from '@lib/utils/filter-utils';
@@ -101,7 +102,7 @@ const RecentTagsClientComponent = ({
             disabled={loading}
             title="Refresh recent tags"
           >
-            🔄
+            <SiteIcon id="refresh" className="recent-tags__refresh-icon" sizeRem={1.125} />
           </button>
         </div>
       </div>

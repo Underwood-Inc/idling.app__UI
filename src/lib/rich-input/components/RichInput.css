@@ -6,7 +6,7 @@
   border: 1px solid var(--border-primary, #ccc);
   border-radius: 4px;
   background-color: var(--background-color, #fff);
-  cursor: text;
+  cursor: var(--mappy-cursor-text, text);
   outline: none;
   user-select: none;
   -webkit-user-select: none;
@@ -605,7 +605,7 @@
   border: none;
   background: none;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background-color 0.2s ease;
   font-size: var(--font-size-sm);
   color: white;
@@ -622,7 +622,7 @@
 
 .search-overlay-item--disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .search-overlay-item--disabled:hover {

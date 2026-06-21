@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
@@ -190,7 +191,9 @@ export function GenerationForm({
         {/* Read-only banner for loaded generations */}
         {isReadOnly && (
           <div className={formStyles.form__readonly__banner}>
-            <span className={formStyles.readonly__icon}>🔒</span>
+            <span className={formStyles.readonly__icon}>
+              <SiteIcon id="lock" sizeRem={1.25} />
+            </span>
             <div className={formStyles.readonly__text}>
               <strong>Viewing Loaded Generation</strong>
               <p>
@@ -204,7 +207,8 @@ export function GenerationForm({
         {/* Free Configuration Section */}
         <div className={formStyles.form__section}>
           <h4 className={formStyles.form__section__title}>
-            ⚡ Free Configuration
+            <SiteIcon id="zap" sizeRem={1.125} />
+            Free Configuration
           </h4>
 
           {/* Seeds Section */}
@@ -212,7 +216,10 @@ export function GenerationForm({
             <div className={formStyles.seed__controls}>
               <div className={formStyles.seed__control__group}>
                 <label className={formStyles.form__label}>
-                  <span className={formStyles.label__text}>🎲 Main Seed</span>
+                  <span className={formStyles.label__text}>
+                    <SiteIcon id="dices" sizeRem={1} />
+                    Main Seed
+                  </span>
                   <div className={formStyles.seed__display__container}>
                     {editingSeed === 'main' ? (
                       <div className={formStyles.seed__edit__container}>
@@ -226,14 +233,16 @@ export function GenerationForm({
                         <button
                           onClick={handleSeedSave}
                           className={formStyles.seed__save}
+                          title="Save seed"
                         >
-                          ✓
+                          <SiteIcon id="check" sizeRem={0.875} />
                         </button>
                         <button
                           onClick={handleSeedCancel}
                           className={formStyles.seed__cancel}
+                          title="Cancel edit"
                         >
-                          ✕
+                          <SiteIcon id="close" sizeRem={0.875} />
                         </button>
                       </div>
                     ) : (
@@ -251,7 +260,7 @@ export function GenerationForm({
                           title="Edit seed"
                           disabled={isReadOnly}
                         >
-                          ✏️
+                          <SiteIcon id="pencil" sizeRem={0.875} />
                         </button>
                       </div>
                     )}
@@ -261,7 +270,10 @@ export function GenerationForm({
 
               <div className={formStyles.seed__control__group}>
                 <label className={formStyles.form__label}>
-                  <span className={formStyles.label__text}>🧙‍♂️ Avatar Seed</span>
+                  <span className={formStyles.label__text}>
+                    <SiteIcon id="wand" sizeRem={1} />
+                    Avatar Seed
+                  </span>
                   <div className={formStyles.seed__display__container}>
                     {editingSeed === 'avatar' ? (
                       <div className={formStyles.seed__edit__container}>
@@ -275,14 +287,16 @@ export function GenerationForm({
                         <button
                           onClick={handleSeedSave}
                           className={formStyles.seed__save}
+                          title="Save seed"
                         >
-                          ✓
+                          <SiteIcon id="check" sizeRem={0.875} />
                         </button>
                         <button
                           onClick={handleSeedCancel}
                           className={formStyles.seed__cancel}
+                          title="Cancel edit"
                         >
-                          ✕
+                          <SiteIcon id="close" sizeRem={0.875} />
                         </button>
                       </div>
                     ) : (
@@ -300,7 +314,7 @@ export function GenerationForm({
                           title="Edit avatar seed"
                           disabled={isReadOnly}
                         >
-                          ✏️
+                          <SiteIcon id="pencil" sizeRem={0.875} />
                         </button>
                       </div>
                     )}
@@ -313,7 +327,10 @@ export function GenerationForm({
           {/* Quote and Author Section - Author first, both full width */}
           <div className={formStyles.form__section}>
             <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>👤 Author</span>
+              <span className={formStyles.label__text}>
+                <SiteIcon id="user" sizeRem={1} />
+                Author
+              </span>
               <input
                 type="text"
                 value={customAuthor}
@@ -325,7 +342,10 @@ export function GenerationForm({
             </label>
 
             <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>💬 Quote</span>
+              <span className={formStyles.label__text}>
+                <SiteIcon id="messages" sizeRem={1} />
+                Quote
+              </span>
               <textarea
                 value={customQuote}
                 onChange={(e) => setCustomQuote(e.target.value)}
@@ -340,7 +360,10 @@ export function GenerationForm({
           {/* Aspect Ratio Section */}
           <div className={formStyles.form__row}>
             <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>📐 Aspect Ratio</span>
+              <span className={formStyles.label__text}>
+                <SiteIcon id="layout" sizeRem={1} />
+                Aspect Ratio
+              </span>
               <select
                 value={selectedRatio.key}
                 onChange={(e) => {
@@ -369,7 +392,10 @@ export function GenerationForm({
           {/* Dimensions Section */}
           <div className={`${formStyles.form__row} dimensions__row`}>
             <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>📏 Width</span>
+              <span className={formStyles.label__text}>
+                <SiteIcon id="layout" sizeRem={1} />
+                Width
+              </span>
               <input
                 type="number"
                 value={customWidth}
@@ -382,7 +408,10 @@ export function GenerationForm({
               />
             </label>
             <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>📏 Height</span>
+              <span className={formStyles.label__text}>
+                <SiteIcon id="layout" sizeRem={1} />
+                Height
+              </span>
               <input
                 type="number"
                 value={customHeight}
@@ -395,7 +424,10 @@ export function GenerationForm({
               />
             </label>
             <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>🔢 Shape Count</span>
+              <span className={formStyles.label__text}>
+                <SiteIcon id="hash" sizeRem={1} />
+                Shape Count
+              </span>
               <input
                 type="number"
                 value={shapeCount}
@@ -414,7 +446,8 @@ export function GenerationForm({
         <div className={formStyles.form__pro__section}>
           <div className={formStyles.form__pro__header}>
             <h4 className={formStyles.form__section__title}>
-              ⚡ Pro Configuration Options
+              <SiteIcon id="zap" sizeRem={1.125} />
+              Pro Configuration Options
               <span className={formStyles.pro__badge}>PRO</span>
             </h4>
             <button
@@ -471,7 +504,10 @@ export function GenerationForm({
                 : 'Randomize all fields'
             }
           >
-            🎲 Randomize All
+            <>
+              <SiteIcon id="dices" sizeRem={1} />
+              Randomize All
+            </>
           </button>
 
           <button
@@ -484,17 +520,31 @@ export function GenerationForm({
             disabled={isQuotaExceeded || isGenerating || isReadOnly}
             title={isReadOnly ? 'Cannot modify loaded generation' : undefined}
           >
-            {isReadOnly
-              ? '🔒 Read-Only Generation'
-              : isGenerating
-                ? '🔮 Generating...'
-                : '⚡ Generate Image'}
+            {isReadOnly ? (
+              <>
+                <SiteIcon id="lock" sizeRem={1} />
+                Read-Only Generation
+              </>
+            ) : isGenerating ? (
+              <>
+                <SiteIcon id="sparkles" sizeRem={1} />
+                Generating...
+              </>
+            ) : (
+              <>
+                <SiteIcon id="zap" sizeRem={1} />
+                Generate Image
+              </>
+            )}
           </button>
         </div>
 
         {isQuotaExceeded && (
           <div className={formStyles.form__upgrade__notice}>
-            <h4>⚡ Daily Quota Exceeded</h4>
+            <h4>
+              <SiteIcon id="zap" sizeRem={1.125} />
+              Daily Quota Exceeded
+            </h4>
             <p>
               Upgrade to Pro for unlimited generations and advanced features!
             </p>
@@ -502,7 +552,10 @@ export function GenerationForm({
               href="/subscription"
               className={formStyles.form__upgrade__button}
             >
-              Upgrade to Pro 🚀
+              <>
+                Upgrade to Pro
+                <SiteIcon id="rocket" sizeRem={0.875} />
+              </>
             </InstantLink>
           </div>
         )}

@@ -1,7 +1,8 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { SubscriptionBadge, SubscriptionBadgeData } from './SubscriptionBadge';
 import './SubscriptionBadgesList.css';
 
@@ -9,7 +10,7 @@ export interface SubscriptionBadgesListProps {
   userId: string;
   variant?: 'default' | 'compact' | 'detailed';
   maxDisplay?: number;
-  title?: string;
+  title?: ReactNode;
   emptyMessage?: string;
   className?: string;
 }
@@ -60,14 +61,33 @@ const mockSubscriptions: SubscriptionBadgeData[] = [
   }
 ];
 
+function DefaultSubscriptionTitle() {
+  return (
+    <>
+      <SiteIcon id="ticket" sizeRem={1.125} />
+      Subscriptions
+    </>
+  );
+}
+
+function AdminTestingControlsTitle() {
+  return (
+    <>
+      <SiteIcon id="wrench" sizeRem={1} />
+      Admin Testing Controls
+    </>
+  );
+}
+
 export function SubscriptionBadgesList({
   userId,
   variant = 'default',
   maxDisplay = 10,
-  title = '🎟️ Subscriptions',
+  title,
   emptyMessage = 'No active subscriptions',
   className = ''
 }: SubscriptionBadgesListProps) {
+  const resolvedTitle = title ?? <DefaultSubscriptionTitle />;
   const [subscriptions, setSubscriptions] = useState<SubscriptionBadgeData[]>(
     []
   );
@@ -162,7 +182,7 @@ export function SubscriptionBadgesList({
     return (
       <div className={containerClassName}>
         <div className="subscription-badges-list__container">
-          <h3 className="subscription-badges-list__title">{title}</h3>
+          <h3 className="subscription-badges-list__title">{resolvedTitle}</h3>
           <div className="subscription-badges-list__loading">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="subscription-badges-list__skeleton" />
@@ -177,7 +197,7 @@ export function SubscriptionBadgesList({
     return (
       <div className={containerClassName}>
         <div className="subscription-badges-list__container">
-          <h3 className="subscription-badges-list__title">{title}</h3>
+          <h3 className="subscription-badges-list__title">{resolvedTitle}</h3>
           <div className="subscription-badges-list__error">
             Failed to load subscription data
           </div>
@@ -190,13 +210,13 @@ export function SubscriptionBadgesList({
     return (
       <div className={containerClassName}>
         <div className="subscription-badges-list__container">
-          <h3 className="subscription-badges-list__title">{title}</h3>
+          <h3 className="subscription-badges-list__title">{resolvedTitle}</h3>
 
           {/* Admin Controls */}
           {isOwnProfile && hasAdminAccess && (
             <div className="subscription-badges-list__admin-controls">
               <div className="subscription-badges-list__admin-title">
-                🛠️ Admin Testing Controls
+                <AdminTestingControlsTitle />
               </div>
               <div className="subscription-badges-list__admin-buttons">
                 <button
@@ -222,13 +242,13 @@ export function SubscriptionBadgesList({
   return (
     <div className={containerClassName}>
       <div className="subscription-badges-list__container">
-        <h3 className="subscription-badges-list__title">{title}</h3>
+        <h3 className="subscription-badges-list__title">{resolvedTitle}</h3>
 
         {/* Admin Controls */}
         {isOwnProfile && hasAdminAccess && (
           <div className="subscription-badges-list__admin-controls">
             <div className="subscription-badges-list__admin-title">
-              🛠️ Admin Testing Controls
+              <AdminTestingControlsTitle />
             </div>
             <div className="subscription-badges-list__admin-buttons">
               <button

@@ -38,7 +38,7 @@
   background: #E5E5E5;
   border: 2px solid #E5E5E5;
   border-radius: 12px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -94,7 +94,7 @@
 
 .subscription-flair-toggle__option:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none !important;
 }
 

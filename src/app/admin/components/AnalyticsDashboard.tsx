@@ -8,9 +8,45 @@
 
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsDashboardResponse } from '../../api/analytics/dashboard/route';
 import './AnalyticsDashboard.css';
+
+interface MetricIconProps {
+  id: SiteIconId;
+}
+
+const MetricIcon: React.FC<MetricIconProps> = ({ id }) => (
+  <div className="metric-icon">
+    <SiteIcon id={id} sizeRem={1.5} />
+  </div>
+);
+
+interface HeadingIconProps {
+  id: SiteIconId;
+  children: React.ReactNode;
+}
+
+const HeadingIcon: React.FC<HeadingIconProps> = ({ id, children }) => (
+  <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={id} sizeRem={1.125} />
+    {children}
+  </h3>
+);
+
+interface TabLabelProps {
+  id: SiteIconId;
+  children: React.ReactNode;
+}
+
+const TabLabel: React.FC<TabLabelProps> = ({ id, children }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={id} sizeRem={1} />
+    {children}
+  </span>
+);
 
 // ================================
 // TYPES & INTERFACES
@@ -86,7 +122,7 @@ export default function AnalyticsDashboard({
         {/* Key Metrics */}
         <div className="metrics-grid">
           <div className="metric-card">
-            <div className="metric-icon">📊</div>
+            <MetricIcon id="barChart" />
             <div className="metric-content">
               <h3>Total Sessions</h3>
               <div className="metric-value">
@@ -97,7 +133,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">👥</div>
+            <MetricIcon id="users" />
             <div className="metric-content">
               <h3>Unique Users</h3>
               <div className="metric-value">
@@ -108,7 +144,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">📄</div>
+            <MetricIcon id="fileText" />
             <div className="metric-content">
               <h3>Page Views</h3>
               <div className="metric-value">
@@ -119,7 +155,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">🖱️</div>
+            <MetricIcon id="mousePointer" />
             <div className="metric-content">
               <h3>Total Clicks</h3>
               <div className="metric-value">
@@ -130,7 +166,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">⏱️</div>
+            <MetricIcon id="clock" />
             <div className="metric-content">
               <h3>Avg Session Duration</h3>
               <div className="metric-value">
@@ -141,7 +177,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">📈</div>
+            <MetricIcon id="trendingUp" />
             <div className="metric-content">
               <h3>Bounce Rate</h3>
               <div className="metric-value">
@@ -152,7 +188,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">🔒</div>
+            <MetricIcon id="lock" />
             <div className="metric-content">
               <h3>VPN Usage</h3>
               <div className="metric-value">
@@ -163,7 +199,7 @@ export default function AnalyticsDashboard({
           </div>
 
           <div className="metric-card">
-            <div className="metric-icon">💰</div>
+            <MetricIcon id="coins" />
             <div className="metric-content">
               <h3>Conversion Rate</h3>
               <div className="metric-value">
@@ -176,7 +212,7 @@ export default function AnalyticsDashboard({
 
         {/* Time Series Chart */}
         <div className="chart-container">
-          <h3>📈 Traffic Trends</h3>
+          <HeadingIcon id="trendingUp">Traffic Trends</HeadingIcon>
           <div className="chart-placeholder">
             <div className="chart-info">
               <p>
@@ -218,7 +254,7 @@ export default function AnalyticsDashboard({
         <div className="geography-grid">
           {/* Countries */}
           <div className="geography-section">
-            <h3>🌍 Top Countries</h3>
+            <HeadingIcon id="globe">Top Countries</HeadingIcon>
             <div className="geography-list">
               {geographicData.countries.slice(0, 10).map((country, index) => (
                 <div key={country.countryCode} className="geography-item">
@@ -242,7 +278,7 @@ export default function AnalyticsDashboard({
 
           {/* Cities */}
           <div className="geography-section">
-            <h3>🏙️ Top Cities</h3>
+            <HeadingIcon id="mapPin">Top Cities</HeadingIcon>
             <div className="geography-list">
               {geographicData.cities.slice(0, 10).map((city, index) => (
                 <div
@@ -271,7 +307,7 @@ export default function AnalyticsDashboard({
 
           {/* VPN Usage */}
           <div className="geography-section">
-            <h3>🔐 VPN & Proxy Usage</h3>
+            <HeadingIcon id="lockKeyhole">VPN & Proxy Usage</HeadingIcon>
             <div className="vpn-stats">
               <div className="vpn-metric">
                 <div className="vpn-label">VPN Sessions</div>
@@ -335,7 +371,7 @@ export default function AnalyticsDashboard({
         <div className="devices-grid">
           {/* Device Types */}
           <div className="device-section">
-            <h3>📱 Device Types</h3>
+            <HeadingIcon id="smartphone">Device Types</HeadingIcon>
             <div className="device-chart">
               {deviceData.devices.map((device, index) => (
                 <div key={device.deviceType} className="device-item">
@@ -363,7 +399,7 @@ export default function AnalyticsDashboard({
 
           {/* Browsers */}
           <div className="device-section">
-            <h3>🌐 Browsers</h3>
+            <HeadingIcon id="globe">Browsers</HeadingIcon>
             <div className="device-chart">
               {deviceData.browsers.map((browser, index) => (
                 <div key={browser.browserName} className="device-item">
@@ -391,7 +427,7 @@ export default function AnalyticsDashboard({
 
           {/* Operating Systems */}
           <div className="device-section">
-            <h3>💻 Operating Systems</h3>
+            <HeadingIcon id="monitor">Operating Systems</HeadingIcon>
             <div className="device-chart">
               {deviceData.operatingSystems.map((os, index) => (
                 <div key={os.osName} className="device-item">
@@ -431,7 +467,7 @@ export default function AnalyticsDashboard({
         <div className="heatmap-grid">
           {/* Top Pages */}
           <div className="heatmap-section">
-            <h3>🔥 Top Pages by Clicks</h3>
+            <HeadingIcon id="flame">Top Pages by Clicks</HeadingIcon>
             <div className="pages-list">
               {heatmapData.topPages.map((page, index) => (
                 <div key={page.pagePath} className="page-item">
@@ -457,7 +493,7 @@ export default function AnalyticsDashboard({
 
           {/* Click Patterns */}
           <div className="heatmap-section">
-            <h3>🎯 Click Patterns</h3>
+            <HeadingIcon id="target">Click Patterns</HeadingIcon>
             <div className="patterns-list">
               {heatmapData.clickPatterns.slice(0, 15).map((pattern, index) => (
                 <div
@@ -499,7 +535,7 @@ export default function AnalyticsDashboard({
         <div className="subscriptions-grid">
           {/* Plan Performance */}
           <div className="subscription-section">
-            <h3>📊 Plan Performance</h3>
+            <HeadingIcon id="barChart">Plan Performance</HeadingIcon>
             <div className="plans-list">
               {subscriptionAnalytics.planViews.map((plan, index) => (
                 <div key={plan.planName} className="plan-item">
@@ -533,7 +569,7 @@ export default function AnalyticsDashboard({
 
           {/* Conversion Funnel */}
           <div className="subscription-section">
-            <h3>🔄 Conversion Funnel</h3>
+            <HeadingIcon id="refresh">Conversion Funnel</HeadingIcon>
             <div className="funnel-chart">
               {subscriptionAnalytics.funnelData.map((step, index) => (
                 <div key={step.step} className="funnel-step">
@@ -563,7 +599,7 @@ export default function AnalyticsDashboard({
 
           {/* Revenue Impact */}
           <div className="subscription-section">
-            <h3>💰 Revenue Impact</h3>
+            <HeadingIcon id="coins">Revenue Impact</HeadingIcon>
             <div className="revenue-metrics">
               <div className="revenue-metric">
                 <div className="revenue-label">Total Attributed Revenue</div>
@@ -607,11 +643,13 @@ export default function AnalyticsDashboard({
     return (
       <div className="analytics-dashboard">
         <div className="analytics-error">
-          <div className="error-icon">⚠️</div>
+          <div className="error-icon">
+            <SiteIcon id="alertTriangle" sizeRem={2} />
+          </div>
           <h3>Analytics Error</h3>
           <p>{error}</p>
           <button onClick={fetchAnalyticsData} className="retry-button">
-            🔄 Retry
+            <TabLabel id="refresh">Retry</TabLabel>
           </button>
         </div>
       </div>
@@ -622,7 +660,10 @@ export default function AnalyticsDashboard({
     <div className="analytics-dashboard">
       {/* Header */}
       <div className="analytics-header">
-        <h2>📊 Analytics Dashboard</h2>
+        <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+          <SiteIcon id="barChart" sizeRem={1.25} />
+          Analytics Dashboard
+        </h2>
         <div className="header-controls">
           <div className="date-range-selector">
             <label>Date Range:</label>
@@ -637,7 +678,7 @@ export default function AnalyticsDashboard({
             </select>
           </div>
           <button onClick={fetchAnalyticsData} className="refresh-button">
-            🔄 Refresh
+            <TabLabel id="refresh">Refresh</TabLabel>
           </button>
         </div>
       </div>
@@ -648,31 +689,31 @@ export default function AnalyticsDashboard({
           className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          📊 Overview
+          <TabLabel id="barChart">Overview</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'geography' ? 'active' : ''}`}
           onClick={() => setActiveTab('geography')}
         >
-          🌍 Geography
+          <TabLabel id="globe">Geography</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'devices' ? 'active' : ''}`}
           onClick={() => setActiveTab('devices')}
         >
-          📱 Devices
+          <TabLabel id="smartphone">Devices</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'heatmap' ? 'active' : ''}`}
           onClick={() => setActiveTab('heatmap')}
         >
-          🔥 Heatmap
+          <TabLabel id="flame">Heatmap</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'subscriptions' ? 'active' : ''}`}
           onClick={() => setActiveTab('subscriptions')}
         >
-          💰 Subscriptions
+          <TabLabel id="coins">Subscriptions</TabLabel>
         </button>
       </div>
 

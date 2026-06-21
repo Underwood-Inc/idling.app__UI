@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# pnpm 11 refuses to purge node_modules without a TTY; Docker has none
+export CI=true
+
 echo "🚀 Starting development container..."
 
 # Simple wait for PostgreSQL to be ready (relies on healthcheck)

@@ -82,7 +82,7 @@
   color: var(--light-bg__text-color--primary);
   border: 1px solid var(--brand-primary--light);
   border-radius: calc(var(--border-radius) / 2);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   min-width: 160px;
 }
@@ -104,7 +104,7 @@
   color: var(--font-color--primary);
   border: 1px solid var(--brand-primary--dark);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
   align-self: flex-start;
@@ -123,7 +123,7 @@
   background-color: var(--light-bg__color--tertiary, #e5e5e5);
   color: var(--light-bg__text-color--secondary);
   border-color: var(--light-bg__color--tertiary, #e5e5e5);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
   box-shadow: none;
 }

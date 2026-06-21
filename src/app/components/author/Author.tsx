@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useOverlay } from '@lib/context/OverlayContext';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
@@ -124,7 +125,10 @@ const UserProfileTooltipContent: React.FC<{
               </UserDecorationWrapper>
             </h4>
             {user.location && (
-              <p className="author-tooltip__location">📍 {user.location}</p>
+              <p className="author-tooltip__location">
+                <SiteIcon id="mapPin" className="author-tooltip__location-icon" sizeRem={0.875} />
+                {user.location}
+              </p>
             )}
             {joinDate && (
               <div className="author-tooltip__footer">
@@ -198,7 +202,9 @@ const UserProfileTooltipPrivate: React.FC<{
       <div className="author-tooltip__content">
         <div className="author-tooltip__header">
           <div>
-            <div className="author-tooltip__private-icon">🔒</div>
+            <div className="author-tooltip__private-icon">
+              <SiteIcon id="lock" sizeRem={1.25} />
+            </div>
           </div>
           <div className="author-tooltip__header-info">
             <h4 className="author-tooltip__name">

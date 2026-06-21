@@ -90,7 +90,9 @@ const customJestConfig = {
     '^@constants/(.*)$': '<rootDir>/src/constants/$1',   // Constants alias
     '^@types/(.*)$': '<rootDir>/src/types/$1',           // Types alias
     '^@interfaces/(.*)$': '<rootDir>/src/interfaces/$1', // Interfaces alias
-    '^@server/(.*)$': '<rootDir>/src/server/$1'          // Server alias
+    '^@server/(.*)$': '<rootDir>/src/server/$1',          // Server alias
+    '^@molecules/(.*)$': '<rootDir>/src/molecules/$1',    // Molecules alias
+    '^@widgets/(.*)$': '<rootDir>/src/widgets/$1'         // Widgets alias
   },
   
   /**

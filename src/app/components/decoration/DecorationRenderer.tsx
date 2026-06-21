@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { memo } from 'react';
 import './DecorationRenderer.css';
 import { TextScramblerEffect } from './TextScramblerEffect';
@@ -121,7 +122,7 @@ const DecorationRenderer = memo<DecorationRendererProps>(
             className="decoration-renderer__error"
             aria-label={`Decoration error: ${error}`}
           >
-            <small>⚠️</small>
+            <SiteIcon id="alertTriangle" sizeRem={0.75} />
           </div>
         </div>
       );
@@ -141,7 +142,7 @@ const DecorationRenderer = memo<DecorationRendererProps>(
         {decoration === 'enterprise-crown' && (
           <>
             <div className="decoration-renderer__crown" aria-hidden="true">
-              👑
+              <SiteIcon id="crown" sizeRem={1} />
             </div>
             <div
               className="decoration-renderer__glow decoration-renderer__glow--enterprise"
@@ -159,13 +160,13 @@ const DecorationRenderer = memo<DecorationRendererProps>(
             />
             <div className="decoration-renderer__particles" aria-hidden="true">
               <div className="decoration-renderer__particle decoration-renderer__particle--star">
-                ⭐
+                <SiteIcon id="star" sizeRem={0.75} />
               </div>
               <div className="decoration-renderer__particle decoration-renderer__particle--sparkle">
-                ✨
+                <SiteIcon id="sparkles" sizeRem={0.75} />
               </div>
               <div className="decoration-renderer__particle decoration-renderer__particle--diamond">
-                💎
+                <SiteIcon id="gem" sizeRem={0.75} />
               </div>
             </div>
           </>

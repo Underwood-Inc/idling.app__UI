@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { NAV_PATHS } from '@lib/routes';
 import { signOut } from 'next-auth/react';
 import { performSecureLogout } from 'src/lib/security/secure-logout';
@@ -33,7 +34,7 @@ export function OAuthAccountConflictHandler({
 
   return (
     <div className="signin__error signin__error--account-conflict">
-      <div className="signin__error-icon">🔗</div>
+      <SiteIcon id="link" className="signin__error-icon" sizeRem={2} />
       <h1 className="signin__error-title">Account Already Linked</h1>
       <div className="signin__error-message">
         <p>

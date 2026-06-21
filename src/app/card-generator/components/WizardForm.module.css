@@ -36,6 +36,11 @@
 }
 
 .wizardTitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  width: 100%;
   color: var(--dark-bg__text-color--primary);
   font-size: 1.875rem;
   font-weight: 700;
@@ -63,7 +68,7 @@
   border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.0rem;
   color: var(--light-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -229,6 +234,9 @@
 }
 
 .stepContent h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--dark-bg__text-color--primary);
   font-size: 1.5rem;
   font-weight: 700;
@@ -251,18 +259,26 @@
 }
 
 .ratioCard {
-  background: #E5E5E5;
-  border: 2px solid #d0d0d0;
+  background: linear-gradient(
+    135deg,
+    var(--dark-background--secondary),
+    var(--dark-background--tertiary)
+  );
+  border: 1px solid var(--dark-border--primary);
   border-radius: 12px;
   padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  cursor: var(--mappy-cursor-pointer, pointer);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   text-align: left;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  color: var(--dark-bg__text-color--primary);
 }
 
 .ratioInfo {
@@ -279,15 +295,21 @@
 }
 
 .ratioCard:hover {
-  background: #d8d8d8;
-  border-color: #c0c0c0;
+  border-color: rgba(139, 92, 246, 0.55);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
   transform: translateY(-2px);
 }
 
 .ratioCardSelected {
-  background: rgba(139, 92, 246, 0.2);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.18),
+    rgba(59, 130, 246, 0.12)
+  );
   border-color: #8b5cf6;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.35),
+    0 8px 24px rgba(139, 92, 246, 0.2);
 }
 
 .ratioRectangle {
@@ -299,22 +321,22 @@
 }
 
 .ratioInfo h4 {
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--primary);
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
 
 .ratioInfo p {
-  color: var(--light-bg__text-color--secondary);
-  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1rem;
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
 }
 
 .ratioDimensions {
-  color: var(--light-bg__text-color--tertiary);
-  font-size: 1.0rem;
+  color: var(--brand-primary);
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -394,11 +416,16 @@
 
 /* Confirmation Step */
 .confirmationCard {
-  background: #E5E5E5;
-  border: 1px solid #d0d0d0;
+  background: linear-gradient(
+    135deg,
+    var(--dark-background--secondary),
+    var(--dark-background--tertiary)
+  );
+  border: 1px solid var(--dark-border--primary);
   border-radius: 12px;
   padding: 2rem;
   margin-top: 2rem;
+  color: var(--dark-bg__text-color--primary);
 }
 
 .configSection {
@@ -410,7 +437,7 @@
 }
 
 .configSection h4 {
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--primary);
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -424,7 +451,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #d0d0d0;
+  border-bottom: 1px solid var(--dark-border--primary);
 }
 
 .configItem:last-child {
@@ -432,12 +459,14 @@
 }
 
 .configItem span:first-child {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1rem;
   font-weight: 500;
 }
 
 .configItem span:last-child {
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1rem;
   font-weight: 600;
 }
 
@@ -468,7 +497,7 @@
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   border: none;
   text-decoration: none;
@@ -526,7 +555,7 @@
 .generateButtonDisabled {
   background: #E5E5E5;
   color: var(--light-bg__text-color--tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .cancelButton:disabled,
@@ -534,7 +563,7 @@
 .nextButton:disabled,
 .generateButton:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 
@@ -550,6 +579,9 @@
 }
 
 .quotaExceededNotice h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: #f59e0b;
   font-size: 1.125rem;
   font-weight: 600;
@@ -591,6 +623,9 @@
 }
 
 .proNotice h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--brand-primary);
   margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
@@ -609,7 +644,7 @@
 .textarea:disabled {
   background: var(--light-background--tertiary);
   color: var(--light-bg__text-color--tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   opacity: 0.6;
 }
 

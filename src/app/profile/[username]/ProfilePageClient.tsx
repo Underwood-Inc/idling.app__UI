@@ -2,6 +2,8 @@
 
 import { updateBioAction } from '@lib/actions/profile.actions';
 import { useSession } from 'next-auth/react';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useEffect, useState, useTransition } from 'react';
 import { UserDecorationWrapper } from '../../components/decoration/UserDecorationWrapper';
 import {
@@ -19,13 +21,19 @@ interface ProfilePageClientProps {
   isOwnProfile: boolean; // Server-side calculation as fallback
 }
 
-const decorationOptions = [
-  { value: '', label: 'None' },
-  { value: 'enterprise-crown', label: '👑 Enterprise Crown' },
-  { value: 'premium-galaxy', label: '🌌 Premium Galaxy' },
-  { value: 'pro-plasma', label: '⚡ Pro Plasma' },
-  { value: 'active-glow', label: '✨ Active Glow' },
-  { value: 'trial-pulse', label: '🔄 Trial Pulse' }
+interface DecorationOption {
+  value: string;
+  label: string;
+  iconId: SiteIconId;
+}
+
+const decorationOptions: DecorationOption[] = [
+  { value: '', label: 'None', iconId: 'ban' },
+  { value: 'enterprise-crown', label: 'Enterprise Crown', iconId: 'crown' },
+  { value: 'premium-galaxy', label: 'Premium Galaxy', iconId: 'orbit' },
+  { value: 'pro-plasma', label: 'Pro Plasma', iconId: 'zap' },
+  { value: 'active-glow', label: 'Active Glow', iconId: 'sparkles' },
+  { value: 'trial-pulse', label: 'Trial Pulse', iconId: 'refresh' },
 ];
 
 export function ProfilePageClient({
@@ -99,7 +107,8 @@ export function ProfilePageClient({
   const adminControlsContent = (
     <div className="profile-admin-controls">
       <div className="profile-admin-controls__title">
-        🎭 Username Decoration Testing
+        <SiteIcon id="theater" className="profile-admin-controls__title-icon" sizeRem={1} />
+        Username Decoration Testing
       </div>
       <p className="profile-admin-controls__description">
         Test different username decorations on your profile page
@@ -115,12 +124,14 @@ export function ProfilePageClient({
             }`}
             onClick={() => setSelectedDecoration(option.value)}
           >
+            <SiteIcon id={option.iconId} className="profile-admin-controls__option-icon" sizeRem={0.875} />
             {option.label}
           </button>
         ))}
       </div>
       <div className="profile-admin-controls__note">
-        💡 This is a testing feature only visible to admins on their own profile
+        <SiteIcon id="lightbulb" className="profile-admin-controls__note-icon" sizeRem={0.875} />
+        This is a testing feature only visible to admins on their own profile
       </div>
     </div>
   );
@@ -163,7 +174,8 @@ export function ProfilePageClient({
               className="profile-admin-toggle"
               title="Username Decoration Testing (Admin Only)"
             >
-              🎨 Test Username Decorations
+              <SiteIcon id="palette" className="profile-admin-toggle__icon" sizeRem={0.875} />
+              Test Username Decorations
             </button>
           </InteractiveTooltip>
         </div>
@@ -175,7 +187,7 @@ export function ProfilePageClient({
           userId={userProfile.id}
           variant="default"
           maxDisplay={8}
-          title="🎟️ Subscriptions"
+          title="Subscriptions"
           emptyMessage="Free tier user"
         />
       </div>

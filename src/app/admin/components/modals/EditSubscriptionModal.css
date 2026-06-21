@@ -120,7 +120,7 @@
 
 /* Select specific styling */
 .edit-subscription-modal__select {
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .edit-subscription-modal__select option {
@@ -173,7 +173,7 @@
   border-radius: var(--border-radius);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   border: 1px solid transparent;
   min-width: 120px;
@@ -181,7 +181,7 @@
 
 .edit-subscription-modal__btn:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .edit-subscription-modal__btn--primary {

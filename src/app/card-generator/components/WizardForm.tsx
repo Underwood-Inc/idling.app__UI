@@ -1,8 +1,9 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
 import {
@@ -188,16 +189,36 @@ export function WizardForm({
     onSubmit(data);
   };
 
-  const getStepTitle = () => {
+  const getStepTitle = (): ReactNode => {
     switch (currentStep) {
       case 'platform':
-        return '📐 Choose Platform';
+        return (
+          <>
+            <SiteIcon id="layout" sizeRem={1.125} />
+            Choose Platform
+          </>
+        );
       case 'basic':
-        return '🎨 Basic Configuration';
+        return (
+          <>
+            <SiteIcon id="palette" sizeRem={1.125} />
+            Basic Configuration
+          </>
+        );
       case 'pro':
-        return '⚡ Pro Configuration';
+        return (
+          <>
+            <SiteIcon id="zap" sizeRem={1.125} />
+            Pro Configuration
+          </>
+        );
       case 'confirm':
-        return '🎯 Confirm & Generate';
+        return (
+          <>
+            <SiteIcon id="target" sizeRem={1.125} />
+            Confirm & Generate
+          </>
+        );
       default:
         return 'Card Generator Wizard';
     }
@@ -300,7 +321,10 @@ export function WizardForm({
 
   const renderPlatformStep = () => (
     <div className={wizardStyles.stepContent}>
-      <h3>🎯 Choose Your Platform</h3>
+      <h3>
+        <SiteIcon id="target" sizeRem={1.125} />
+        Choose Your Platform
+      </h3>
       <p>
         Select the platform where you&apos;ll be sharing your card. Each
         platform has optimized dimensions for the best visual impact.
@@ -360,7 +384,10 @@ export function WizardForm({
       <div className={wizardStyles.formGrid}>
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>🎲 Main Seed</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="dices" sizeRem={1} />
+              Main Seed
+            </span>
             <input
               type="text"
               value={currentSeed}
@@ -376,7 +403,10 @@ export function WizardForm({
 
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>👤 Avatar Seed</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="user" sizeRem={1} />
+              Avatar Seed
+            </span>
             <input
               type="text"
               value={avatarSeed}
@@ -392,7 +422,10 @@ export function WizardForm({
 
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>✍️ Author</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="pen" sizeRem={1} />
+              Author
+            </span>
             <input
               type="text"
               value={customAuthor}
@@ -408,7 +441,10 @@ export function WizardForm({
 
         <div className={wizardStyles.formGroupFull}>
           <label>
-            <span className={wizardStyles.labelText}>💬 Quote</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="messages" sizeRem={1} />
+              Quote
+            </span>
             <textarea
               value={customQuote}
               onChange={(e) => setCustomQuote(e.target.value)}
@@ -427,12 +463,18 @@ export function WizardForm({
 
   const renderProStep = () => (
     <div className={wizardStyles.stepContent}>
-      <h3>⚡ Pro Configuration</h3>
+      <h3>
+        <SiteIcon id="zap" sizeRem={1.125} />
+        Pro Configuration
+      </h3>
       <p>Fine-tune advanced settings with your Pro subscription.</p>
 
       {!isPro && (
         <div className={wizardStyles.proNotice}>
-          <h4>🚀 Upgrade to Pro</h4>
+          <h4>
+            <SiteIcon id="rocket" sizeRem={1} />
+            Upgrade to Pro
+          </h4>
           <p>
             This step contains advanced features available only to Pro
             subscribers. Wizard mode with basic configuration is completely
@@ -444,7 +486,10 @@ export function WizardForm({
       <div className={wizardStyles.formGrid}>
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>📏 Custom Width</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="layout" sizeRem={1} />
+              Custom Width
+            </span>
             <input
               type="number"
               value={customWidth}
@@ -463,7 +508,10 @@ export function WizardForm({
 
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>📏 Custom Height</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="layout" sizeRem={1} />
+              Custom Height
+            </span>
             <input
               type="number"
               value={customHeight}
@@ -482,7 +530,10 @@ export function WizardForm({
 
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>🔥 Shape Count</span>
+            <span className={wizardStyles.labelText}>
+              <SiteIcon id="flame" sizeRem={1} />
+              Shape Count
+            </span>
             <input
               type="number"
               value={shapeCount}
@@ -509,14 +560,25 @@ export function WizardForm({
 
       <div className={wizardStyles.confirmationCard}>
         <div className={wizardStyles.configSection}>
-          <h4>📐 Platform</h4>
-          <p>
-            {selectedRatio.name} ({selectedRatio.dimensions})
-          </p>
+          <h4>
+            <SiteIcon id="layout" sizeRem={1} />
+            Platform
+          </h4>
+          <div className={wizardStyles.configItem}>
+            <span>Format:</span>
+            <span>{selectedRatio.name}</span>
+          </div>
+          <div className={wizardStyles.configItem}>
+            <span>Dimensions:</span>
+            <span>{selectedRatio.dimensions}</span>
+          </div>
         </div>
 
         <div className={wizardStyles.configSection}>
-          <h4>🎨 Content</h4>
+          <h4>
+            <SiteIcon id="palette" sizeRem={1} />
+            Content
+          </h4>
           <div className={wizardStyles.configItem}>
             <span>Author:</span>
             <span>{customAuthor || 'Random'}</span>
@@ -532,7 +594,10 @@ export function WizardForm({
         </div>
 
         <div className={wizardStyles.configSection}>
-          <h4>🎲 Seeds</h4>
+          <h4>
+            <SiteIcon id="dices" sizeRem={1} />
+            Seeds
+          </h4>
           <div className={wizardStyles.configItem}>
             <span>Main:</span>
             <span>{currentSeed || 'Random'}</span>
@@ -547,7 +612,10 @@ export function WizardForm({
           isPro &&
           (customWidth || customHeight || shapeCount !== '8') && (
             <div className={wizardStyles.configSection}>
-              <h4>⚡ Pro Settings</h4>
+              <h4>
+                <SiteIcon id="zap" sizeRem={1} />
+                Pro Settings
+              </h4>
               {customWidth && (
                 <div className={wizardStyles.configItem}>
                   <span>Width:</span>
@@ -702,14 +770,27 @@ export function WizardForm({
                 }`}
                 disabled={isQuotaExceeded || isGenerating}
               >
-                {isGenerating ? '🔮 Generating...' : '⚡ Generate Card'}
+                {isGenerating ? (
+                  <>
+                    <SiteIcon id="sparkles" sizeRem={1} />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <SiteIcon id="zap" sizeRem={1} />
+                    Generate Card
+                  </>
+                )}
               </button>
             )}
           </div>
 
           {isQuotaExceeded && (
             <div className={wizardStyles.quotaExceededNotice}>
-              <h4>⚡ Daily Quota Exceeded</h4>
+              <h4>
+                <SiteIcon id="zap" sizeRem={1.125} />
+                Daily Quota Exceeded
+              </h4>
               <p>
                 Upgrade to Pro for unlimited generations and advanced features!
               </p>
@@ -717,7 +798,10 @@ export function WizardForm({
                 href="/subscription"
                 className={wizardStyles.upgradeButton}
               >
-                Upgrade to Pro 🚀
+                <>
+                  Upgrade to Pro
+                  <SiteIcon id="rocket" sizeRem={0.875} />
+                </>
               </InstantLink>
             </div>
           )}

@@ -1,4 +1,5 @@
 
+import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
@@ -76,7 +77,7 @@ export default function URLShortenerPage() {
               <h2 className="product-section__title">Key Features</h2>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">✂️</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="scissors" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Create & Manage Short URLs</h3>
                   <p className="product-feature__description">
                     Generate short links with custom codes or auto-generated slugs. Full CRUD
@@ -84,7 +85,7 @@ export default function URLShortenerPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📊</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="barChart" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Click Analytics</h3>
                   <p className="product-feature__description">
                     Track clicks, referrers, and geographic data. Real-time analytics stored in
@@ -92,7 +93,7 @@ export default function URLShortenerPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🎨</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="palette" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Custom URL Codes</h3>
                   <p className="product-feature__description">
                     Choose your own short codes for memorable, brand-friendly links. Automatic
@@ -100,7 +101,7 @@ export default function URLShortenerPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">⏰</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="clock" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Automatic Expiration</h3>
                   <p className="product-feature__description">
                     Set expiration dates for temporary links. Automatic cleanup keeps your URL
@@ -108,7 +109,7 @@ export default function URLShortenerPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🌐</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="globe" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Standalone Web Interface</h3>
                   <p className="product-feature__description">
                     Beautiful React-based web interface with SSS branding. Manage all your short
@@ -116,7 +117,7 @@ export default function URLShortenerPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔐</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="lockKeyhole" sizeRem={5} /></div>
                   <h3 className="product-feature__title">OTP Authentication</h3>
                   <p className="product-feature__description">
                     Integrated with Auth Service for secure, passwordless authentication. SSO with

@@ -1,8 +1,29 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
 import { LoadingButton } from '../../../components/ui/LoadingButton';
 import './UserSubscriptionManagementModal.css';
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const IconText: React.FC<IconTextProps> = ({ iconId, children }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1} />
+    {children}
+  </span>
+);
+
+interface QuickActionConfig {
+  label: string;
+  iconId: SiteIconId;
+  className: string;
+  confirmText: string;
+}
 
 interface SubscriptionPlan {
   id: string;
@@ -58,22 +79,25 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({
   onAction,
   isLoading
 }) => {
-  const actionConfig = {
+  const actionConfig: Record<
+    QuickActionButtonProps['action'],
+    QuickActionConfig
+  > = {
     suspend: {
       label: 'Suspend',
-      icon: '⏸️',
+      iconId: 'pause',
       className: 'btn-warning',
       confirmText: 'suspend'
     },
     cancel: {
       label: 'Cancel',
-      icon: '❌',
+      iconId: 'circleX',
       className: 'btn-danger',
       confirmText: 'cancel'
     },
     reactivate: {
       label: 'Reactivate',
-      icon: '✅',
+      iconId: 'check',
       className: 'btn-success',
       confirmText: 'reactivate'
     }
@@ -94,7 +118,12 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({
       disabled={isDisabled}
       title={`${config.label} subscription`}
     >
-      {config.icon} {config.label}
+      <span
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+      >
+        <SiteIcon id={config.iconId} sizeRem={1} />
+        {config.label}
+      </span>
     </button>
   );
 };
@@ -385,7 +414,12 @@ export const UserSubscriptionManagementModal: React.FC<
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <h3>💎 Manage Subscriptions</h3>
+          <h3
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+          >
+            <SiteIcon id="gem" sizeRem={1.125} />
+            Manage Subscriptions
+          </h3>
           <button
             className="modal-close"
             onClick={onClose}
@@ -404,7 +438,16 @@ export const UserSubscriptionManagementModal: React.FC<
           ) : (
             <>
               <div className="user-info">
-                <h4>👤 Managing subscriptions for:</h4>
+                <h4
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35em'
+                  }}
+                >
+                  <SiteIcon id="user" sizeRem={1} />
+                  Managing subscriptions for:
+                </h4>
                 <p>
                   <strong>{userName}</strong>
                 </p>
@@ -413,7 +456,16 @@ export const UserSubscriptionManagementModal: React.FC<
 
               {error && (
                 <div className="error-message">
-                  <span>❌ {error}</span>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35em'
+                    }}
+                  >
+                    <SiteIcon id="circleX" sizeRem={1} />
+                    {error}
+                  </span>
                   <button onClick={() => setError(null)}>✕</button>
                 </div>
               )}
@@ -421,13 +473,22 @@ export const UserSubscriptionManagementModal: React.FC<
               {/* Current Subscriptions */}
               <div className="current-subscriptions">
                 <div className="section-header">
-                  <h4>📋 Current Subscriptions</h4>
+                  <h4
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35em'
+                    }}
+                  >
+                    <SiteIcon id="clipboard" sizeRem={1} />
+                    Current Subscriptions
+                  </h4>
                   <button
                     className="btn btn-primary btn-sm"
                     onClick={() => setShowAddForm(true)}
                     disabled={actionLoading}
                   >
-                    ➕ Add New
+                    <IconText iconId="plusCircle">Add New</IconText>
                   </button>
                 </div>
 
@@ -492,7 +553,7 @@ export const UserSubscriptionManagementModal: React.FC<
                               }
                               disabled={actionLoading}
                             >
-                              ✏️ Edit
+                              <IconText iconId="pencil">Edit</IconText>
                             </button>
                           </div>
                         </div>
@@ -506,7 +567,16 @@ export const UserSubscriptionManagementModal: React.FC<
               {showAddForm && (
                 <div className="add-subscription-form">
                   <div className="form-header">
-                    <h4>➕ Add New Subscription</h4>
+                    <h4
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35em'
+                      }}
+                    >
+                      <SiteIcon id="plusCircle" sizeRem={1} />
+                      Add New Subscription
+                    </h4>
                     <button
                       className="btn btn-text btn-sm"
                       onClick={() => setShowAddForm(false)}
@@ -621,7 +691,16 @@ export const UserSubscriptionManagementModal: React.FC<
               {showEditForm && (
                 <div className="edit-subscription-form">
                   <div className="form-header">
-                    <h4>✏️ Edit Subscription</h4>
+                    <h4
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35em'
+                      }}
+                    >
+                      <SiteIcon id="pencil" sizeRem={1} />
+                      Edit Subscription
+                    </h4>
                     <button
                       className="btn btn-text btn-sm"
                       onClick={() => setShowEditForm(null)}

@@ -40,7 +40,7 @@
   border: none;
   color: #6c757d;
   font-size: 20px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0 4px;
   line-height: 1;
   border-radius: 4px;

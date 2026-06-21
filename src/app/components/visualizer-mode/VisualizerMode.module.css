@@ -1,0 +1,214 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--text-primary, #e0e0e0);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.trigger:hover {
+  background: rgb(255 255 255 / 8%);
+}
+
+.trigger--nav {
+  min-height: 2.5rem;
+  justify-content: center;
+  padding: 0.375rem 0.75rem;
+  border-color: rgb(229 193 133 / 28%);
+  color: var(--brand-primary, #e5c185);
+  background: rgb(229 193 133 / 6%);
+}
+
+.trigger--nav:hover {
+  border-color: rgb(229 193 133 / 45%);
+  background: rgb(229 193 133 / 12%);
+  color: var(--brand-primary, #e5c185);
+}
+
+.trigger--nav .trigger__icon {
+  color: currentColor;
+}
+
+.trigger--drawer {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
+}
+
+.trigger__icon {
+  flex-shrink: 0;
+}
+
+.trigger__label,
+.trigger__navLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.spectrumFrame {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  left: 0.75rem;
+  bottom: calc(100vh - var(--irp-dock-top, calc(100vh - var(--irp-dock-height, 7.5rem) - 0.75rem)));
+  z-index: 5000;
+  display: flex;
+  box-sizing: border-box;
+  container-type: size;
+  pointer-events: none;
+}
+
+.spectrumFrame[data-radial='true'] {
+  align-items: center;
+  justify-content: center;
+}
+
+.spectrumFrame[data-radial='false'] {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.spectrumFrame[data-radial='true'] .spectrum {
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+}
+
+.spectrumFrame[data-radial='false'] .spectrum {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
+  transform: scaleY(var(--irp-spectrum-bar-height, 1));
+  transform-origin: center bottom;
+}
+
+.spectrum :global(canvas) {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.overlay__header {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+  padding: 0.65rem 1.25rem;
+  background: linear-gradient(to bottom, rgb(8 8 12 / 72%), rgb(8 8 12 / 0));
+  pointer-events: auto;
+}
+
+.overlay__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.overlay__brandIcon {
+  color: var(--brand-primary, #e5c185);
+}
+
+.overlay__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-primary, #e0e0e0);
+}
+
+.overlay__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.overlay__emptyState {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(28rem, calc(100% - 2rem));
+  margin: 0;
+  padding: 1rem 1.25rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+  background: rgb(12 12 18 / 72%);
+  backdrop-filter: blur(20px);
+  color: var(--text-secondary, #b0b0b0);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.overlay__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.375rem;
+  height: 2.375rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 8px;
+  background: rgb(12 12 18 / 55%);
+  backdrop-filter: blur(16px);
+  color: var(--text-primary, #e0e0e0);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  line-height: 1;
+}
+
+.overlay__btn:hover {
+  border-color: rgb(255 255 255 / 24%);
+  background: rgb(18 18 24 / 72%);
+}
+
+.overlay__btn--accent {
+  border-color: rgb(229 193 133 / 35%);
+  color: var(--brand-primary, #e5c185);
+}
+
+.overlay__btn--accent:hover {
+  border-color: rgb(229 193 133 / 55%);
+  background: rgb(229 193 133 / 10%);
+}
+
+@media (max-width: 768px) {
+  .trigger__navLabel {
+    display: none;
+  }
+
+  .overlay__header {
+    flex-wrap: wrap;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .overlay__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger {
+    transition: none;
+  }
+}

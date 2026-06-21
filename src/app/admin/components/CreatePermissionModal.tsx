@@ -8,6 +8,7 @@
  * @version 1.0.0
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
 import './CreatePermissionModal.css';
@@ -261,7 +262,9 @@ export default function CreatePermissionModal({
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">
-            <span className="title-icon">🛡️</span>
+            <span className="title-icon">
+              <SiteIcon id="shield" sizeRem={1.125} />
+            </span>
             Create New Permission
           </h2>
           <button
@@ -528,7 +531,9 @@ export default function CreatePermissionModal({
                 </>
               ) : (
                 <>
-                  <span className="submit-icon">✨</span>
+                  <span className="submit-icon">
+                    <SiteIcon id="sparkles" sizeRem={1} />
+                  </span>
                   Create Permission
                 </>
               )}

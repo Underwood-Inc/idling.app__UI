@@ -172,7 +172,7 @@
   border-radius: 8px;
   font-size: 1.125rem;
   font-weight: 600;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   
   transition: all 0.3s ease;
   width: 100%;

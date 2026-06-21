@@ -26,6 +26,11 @@
 }
 
 .converter__title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  width: 100%;
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--brand-primary);
@@ -78,6 +83,9 @@
 }
 
 .error__content h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--error-color);
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
@@ -94,7 +102,7 @@
   border: none;
   border-radius: var(--border-radius-sm);
   padding: 0.5rem 1rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.0rem;
   transition: var(--transition-base);
 }
@@ -141,6 +149,9 @@
 
 .feature__list li,
 .tips__list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 1.0rem;
   line-height: 1.5;

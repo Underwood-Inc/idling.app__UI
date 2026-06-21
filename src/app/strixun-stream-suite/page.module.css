@@ -322,22 +322,32 @@
   white-space: nowrap;
 }
 
-.cta__icon {
-  font-size: 2.25rem;
-}
-
 .cta__primary {
   background: var(--brand-primary);
-  color: var(--bg-darker);
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
   border-color: var(--brand-primary);
   box-shadow: 0 16px 48px rgba(229, 193, 133, 0.6);
 }
 
+.cta__primary:visited {
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
+}
+
 .cta__primary:hover {
-  background: var(--tan-secondary);
-  border-color: var(--tan-secondary);
+  background: var(--interactive-bg-tan-hover);
+  border-color: var(--interactive-bg-tan-hover);
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
   transform: translateY(-8px);
   box-shadow: 0 24px 64px rgba(229, 193, 133, 0.8);
+}
+
+.cta__icon {
+  font-size: 2.25rem;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
 }
 
 .cta__secondary {
@@ -348,7 +358,8 @@
 
 .cta__secondary:hover {
   background: var(--brand-primary);
-  color: var(--bg-darker);
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
   transform: translateY(-8px);
   box-shadow: 0 16px 48px rgba(229, 193, 133, 0.6);
 }
@@ -360,9 +371,9 @@
 }
 
 .cta__tertiary:hover {
-  color: var(--brand-primary);
+  color: var(--interactive-fg-on-subtle-hover);
   border-color: var(--brand-primary);
-  background: rgba(229, 193, 133, 0.15);
+  background: var(--interactive-bg-subtle-hover);
   transform: translateY(-8px);
 }
 

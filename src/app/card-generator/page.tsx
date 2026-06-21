@@ -2,6 +2,7 @@
 
 import { useAtom, useSetAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useGeneratorMode } from '../../lib/context/UserPreferencesContext';
@@ -345,7 +346,10 @@ export default function OgImageViewer() {
               style={{ marginBottom: '2rem' }}
             >
               <div className={styles.header__text}>
-                <h1>🧙‍♂️ Mystical Card Generator</h1>
+                <h1>
+                  <SiteIcon id="wand" sizeRem={1.25} />
+                  Mystical Card Generator
+                </h1>
                 <p>
                   {welcomeFlow.showWelcome
                     ? 'Harness ancient wisdom to forge enchanted social media cards'
@@ -369,7 +373,16 @@ export default function OgImageViewer() {
                       content={
                         !subscriptionStatus?.isPro ? (
                           <div style={{ padding: '0.75rem' }}>
-                            <strong>🚀 Advanced Mode - Pro Feature</strong>
+                            <strong
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.35em'
+                              }}
+                            >
+                              <SiteIcon id="rocket" sizeRem={1} />
+                              Advanced Mode - Pro Feature
+                            </strong>
                             <p
                               style={{
                                 margin: '0.5rem 0 0 0',
@@ -403,9 +416,17 @@ export default function OgImageViewer() {
                         }
                         disabled={!subscriptionStatus.isPro}
                       >
-                        {generatorMode === 'wizard'
-                          ? '⚙️ Advanced'
-                          : '🪄 Wizard'}
+                        {generatorMode === 'wizard' ? (
+                          <>
+                            <SiteIcon id="settings" sizeRem={1} />
+                            Advanced
+                          </>
+                        ) : (
+                          <>
+                            <SiteIcon id="wand" sizeRem={1} />
+                            Wizard
+                          </>
+                        )}
                       </button>
                     </InteractiveTooltip>
 
@@ -415,7 +436,10 @@ export default function OgImageViewer() {
                       title="PNG - Raster image, best for social media"
                       disabled={!svgContent}
                     >
-                      📥 PNG
+                      <>
+                        <SiteIcon id="download" sizeRem={1} />
+                        PNG
+                      </>
                     </button>
                     <button
                       onClick={handleSaveAsSvg}
@@ -423,7 +447,10 @@ export default function OgImageViewer() {
                       title="SVG - Vector image, scalable and smaller"
                       disabled={!svgContent}
                     >
-                      📥 SVG
+                      <>
+                        <SiteIcon id="download" sizeRem={1} />
+                        SVG
+                      </>
                     </button>
                   </div>
 

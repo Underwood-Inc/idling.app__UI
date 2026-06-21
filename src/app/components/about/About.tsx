@@ -1,22 +1,36 @@
 import { NAV_PATHS } from '@lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '@lib/test-selectors/pages/about.selectors';
+import type { AboutSectionIconId } from '@molecules/lucide/siteIconCatalog';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
 import { InstantLink } from '../ui/InstantLink';
+import { AboutExternalLink } from './AboutExternalLink';
+import { AboutSectionTitle } from './AboutSectionTitle';
 import './About.css';
 
 const PORTFOLIO_HIGHLIGHTS = [
-  { value: '41+', label: 'Open-source projects' },
+  { value: '38+', label: 'Open-source projects' },
   { value: '7', label: 'Web applications' },
   { value: '1', label: 'Desktop map app' },
-  { value: '7', label: 'Serverless APIs' },
-  { value: '26', label: 'NPM packages' },
+  { value: '6', label: 'Serverless APIs' },
+  { value: '23', label: 'NPM packages' },
   { value: '3', label: 'Minecraft mods' },
 ];
 
-const ABOUT_SECTIONS = [
+interface AboutSectionLink {
+  href: string;
+  label: string;
+}
+
+interface AboutSectionDefinition {
+  id: AboutSectionIconId;
+  title: string;
+  highlights: string[];
+  links?: AboutSectionLink[];
+}
+
+const ABOUT_SECTIONS: AboutSectionDefinition[] = [
   {
     id: 'minecraft',
-    icon: '🎮',
     title: 'Minecraft Projects',
     highlights: [
       'Compressy — infinite block compression',
@@ -28,7 +42,6 @@ const ABOUT_SECTIONS = [
   },
   {
     id: 'web-tools',
-    icon: '🛠️',
     title: 'Web Applications & Tools',
     highlights: [
       'Card Generator — React 19 frontend',
@@ -40,7 +53,6 @@ const ABOUT_SECTIONS = [
   },
   {
     id: 'mappy',
-    icon: '🗺️',
     title: 'Mappy — Interactive Maps',
     highlights: [
       'Offline-first map platform for open-world games and homebrew campaigns',
@@ -55,7 +67,6 @@ const ABOUT_SECTIONS = [
   },
   {
     id: 'streaming',
-    icon: '📺',
     title: 'Streaming Ecosystem',
     highlights: [
       'OBS Animation Suite — Svelte 5, 60 FPS, 17+ effects, PWA',
@@ -66,12 +77,11 @@ const ABOUT_SECTIONS = [
   },
   {
     id: 'infrastructure',
-    icon: '☁️',
     title: 'Infrastructure & APIs',
     highlights: [
-      '7 Cloudflare Workers APIs — Auth, Access, Mods, Chat, Customer, Game, Streamkit',
-      '26 NPM packages — shared components, API framework, auth store, search parser, P2P storage, and more',
-      'Monorepo with 41+ projects on GitHub',
+      '6 Cloudflare Workers APIs — Auth, Access, Mods, Customer, Game, Streamkit',
+      '23 NPM packages — shared components, API framework, auth store, search parser, and more',
+      'Monorepo with 38+ projects on GitHub',
     ],
     links: [
       {
@@ -87,7 +97,7 @@ export function About() {
     <div className="about">
       <div className="about__hero">
         <p className="about__eyebrow">Portfolio &amp; ecosystem</p>
-        <h2 className="about__title">Hi! I&apos;m Strixun 👋</h2>
+        <h2 className="about__title">Hi! I&apos;m Strixun</h2>
         <p className="about__tagline">
           Full-stack developer building production web applications, Minecraft mods, streaming
           tools, and cloud services.
@@ -117,13 +127,8 @@ export function About() {
 
       <div className="about__sections">
         {ABOUT_SECTIONS.map((section) => (
-          <section key={section.id} className="about__section">
-            <h3 className="about__section-title">
-              <span className="about__section-icon" aria-hidden="true">
-                {section.icon}
-              </span>
-              {section.title}
-            </h3>
+          <div key={section.id} className="about__section">
+            <AboutSectionTitle sectionId={section.id} title={section.title} />
             <ul className="about__highlights">
               {section.highlights.map((highlight) => (
                 <li key={highlight}>{highlight}</li>
@@ -132,18 +137,11 @@ export function About() {
             {section.links && section.links.length > 0 && (
               <div className="about__section-links">
                 {section.links.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {link.label} ↗
-                  </a>
+                  <AboutExternalLink key={link.href} href={link.href} label={link.label} />
                 ))}
               </div>
             )}
-          </section>
+          </div>
         ))}
       </div>
     </div>

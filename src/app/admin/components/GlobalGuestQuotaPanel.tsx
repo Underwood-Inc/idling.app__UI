@@ -9,7 +9,21 @@
  */
 
 import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const IconText: React.FC<IconTextProps> = ({ iconId, children }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1} />
+    {children}
+  </span>
+);
 
 // ================================
 // TYPES & INTERFACES
@@ -280,7 +294,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
           marginBottom: '15px'
         }}
       >
-        🎯 Create Global Guest Quota
+        <IconText iconId="target">Create Global Guest Quota</IconText>
       </h3>
 
       <div
@@ -386,7 +400,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
               display: 'block'
             }}
           >
-            💡 Enter 0 for unlimited quota
+            <IconText iconId="lightbulb">Enter 0 for unlimited quota</IconText>
           </small>
         </div>
 
@@ -457,7 +471,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                 : 'not-allowed'
           }}
         >
-          ✅ Create Quota
+          <IconText iconId="check">Create Quota</IconText>
         </button>
         <button
           onClick={() => {
@@ -473,7 +487,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
             cursor: 'pointer'
           }}
         >
-          ❌ Cancel
+          <IconText iconId="circleX">Cancel</IconText>
         </button>
       </div>
     </div>
@@ -481,7 +495,10 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
 
   const renderQuotaList = (): React.JSX.Element => (
     <div>
-      <h3 style={{ marginBottom: '15px' }}>📊 Current Global Guest Quotas</h3>
+      <h3 style={{ marginBottom: '15px', display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+        <SiteIcon id="barChart" sizeRem={1.125} />
+        Current Global Guest Quotas
+      </h3>
 
       {quotas.length === 0 ? (
         <p style={{ color: '#666', fontStyle: 'italic' }}>
@@ -514,7 +531,9 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
               {editingQuota?.id === quota.id ? (
                 <div>
                   <h4 style={{ marginBottom: '10px' }}>
-                    🔧 Editing: {quota.service_display_name} -{' '}
+                    <IconText iconId="wrench">
+                      Editing: {quota.service_display_name} -{' '}
+                    </IconText>
                     {quota.feature_display_name}
                   </h4>
 
@@ -569,7 +588,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           display: 'block'
                         }}
                       >
-                        💡 Enter 0 for unlimited quota
+                        <IconText iconId="lightbulb">Enter 0 for unlimited quota</IconText>
                       </small>
                     </div>
 
@@ -670,7 +689,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                         cursor: 'pointer'
                       }}
                     >
-                      💾 Save Changes
+                      <IconText iconId="save">Save Changes</IconText>
                     </button>
                     <button
                       onClick={() => setEditingQuota(null)}
@@ -683,7 +702,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                         cursor: 'pointer'
                       }}
                     >
-                      ❌ Cancel
+                      <IconText iconId="circleX">Cancel</IconText>
                     </button>
                   </div>
                 </div>
@@ -719,7 +738,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           fontSize: '12px'
                         }}
                       >
-                        ✏️ Edit
+                        <IconText iconId="pencil">Edit</IconText>
                       </button>
                       <button
                         onClick={() => handleDeleteQuota(quota.id)}
@@ -733,7 +752,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           fontSize: '12px'
                         }}
                       >
-                        🗑️ Delete
+                        <IconText iconId="trash">Delete</IconText>
                       </button>
                     </div>
                   </div>
@@ -779,7 +798,9 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
   if (loading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
-        <div style={{ fontSize: '24px', marginBottom: '10px' }}>⏳</div>
+        <div style={{ marginBottom: '10px' }}>
+          <SiteIcon id="loader" sizeRem={1.5} />
+        </div>
         <p>Loading global guest quotas...</p>
       </div>
     );
@@ -795,7 +816,10 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
           marginBottom: '20px'
         }}
       >
-        <h2>🎯 Global Guest Quota Management</h2>
+        <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+          <SiteIcon id="target" sizeRem={1.25} />
+          Global Guest Quota Management
+        </h2>
         <button
           onClick={() => setShowCreateForm(true)}
           disabled={showCreateForm}
@@ -808,7 +832,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
             cursor: showCreateForm ? 'not-allowed' : 'pointer'
           }}
         >
-          ➕ Add New Quota
+          <IconText iconId="plusCircle">Add New Quota</IconText>
         </button>
       </div>
 
@@ -823,7 +847,12 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
             border: '1px solid #e57373'
           }}
         >
-          ⚠️ {error}
+          <span
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+          >
+            <SiteIcon id="alertTriangle" sizeRem={1} />
+            {error}
+          </span>
         </div>
       )}
 
@@ -844,7 +873,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
         }}
       >
         <h4 style={{ margin: '0 0 10px 0' }}>
-          💡 How Global Guest Quotas Work:
+          <IconText iconId="lightbulb">How Global Guest Quotas Work:</IconText>
         </h4>
         <ul style={{ margin: 0, paddingLeft: '20px' }}>
           <li>

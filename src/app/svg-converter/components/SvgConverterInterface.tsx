@@ -2,6 +2,7 @@
 
 import type { SvgToPngConversionOptions } from '@lib/services/svg-conversion';
 import { createSvgToPngConverter } from '@lib/services/svg-conversion';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useCallback, useRef, useState } from 'react';
 import type { ConversionResult } from '../page';
 import styles from './SvgConverterInterface.module.css';
@@ -190,13 +191,19 @@ export function SvgConverterInterface({
             className={`${styles.selector__button} ${inputMethod === 'file' ? styles['selector__button--active'] : ''}`}
             onClick={() => setInputMethod('file')}
           >
-            📁 Upload File
+            <>
+              <SiteIcon id="folder" sizeRem={1} />
+              Upload File
+            </>
           </button>
           <button
             className={`${styles.selector__button} ${inputMethod === 'text' ? styles['selector__button--active'] : ''}`}
             onClick={() => setInputMethod('text')}
           >
-            📝 Paste Code
+            <>
+              <SiteIcon id="pen" sizeRem={1} />
+              Paste Code
+            </>
           </button>
         </div>
 
@@ -217,7 +224,9 @@ export function SvgConverterInterface({
             />
             <label htmlFor="svg-file-input" className={styles.upload__label}>
               <div className={styles.upload__content}>
-                <div className={styles.upload__icon}>📤</div>
+                <div className={styles.upload__icon}>
+                  <SiteIcon id="upload" sizeRem={2} />
+                </div>
                 <div className={styles.upload__text}>
                   <strong>Click to upload</strong> or drag and drop
                 </div>
@@ -228,7 +237,8 @@ export function SvgConverterInterface({
             </label>
             {svgContent && (
               <div className={styles.upload__preview}>
-                ✅ SVG loaded ({Math.round(svgContent.length / 1024)}KB)
+                <SiteIcon id="check" sizeRem={1} />
+                SVG loaded ({Math.round(svgContent.length / 1024)}KB)
               </div>
             )}
           </div>
@@ -345,12 +355,16 @@ export function SvgConverterInterface({
           >
             {isConverting ? (
               <>
-                <span className={styles.button__spinner}>⏳</span>
+                <span className={styles.button__spinner}>
+                  <SiteIcon id="loader" sizeRem={1.125} />
+                </span>
                 Converting...
               </>
             ) : (
               <>
-                <span className={styles.button__icon}>🎨</span>
+                <span className={styles.button__icon}>
+                  <SiteIcon id="palette" sizeRem={1.125} />
+                </span>
                 Convert to PNG
               </>
             )}

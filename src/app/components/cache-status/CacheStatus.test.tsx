@@ -41,17 +41,23 @@ Object.defineProperty(navigator, 'serviceWorker', {
   writable: true
 });
 
-// Mock location
+// Mock location reads used by CacheStatus (jsdom location is non-configurable)
 const mockLocation = {
   pathname: '/',
   href: 'https://example.com/',
-  reload: jest.fn()
-};
-
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true
-});
+  reload: jest.fn(),
+  assign: jest.fn(),
+  replace: jest.fn(),
+  ancestorOrigins: {} as DOMStringList,
+  hash: '',
+  host: 'example.com',
+  hostname: 'example.com',
+  origin: 'https://example.com',
+  port: '',
+  protocol: 'https:',
+  search: '',
+  toString: () => 'https://example.com/',
+} as Location;
 
 // Mock Response with json method
 class MockResponse {
@@ -80,8 +86,16 @@ class MockResponse {
 }
 
 describe('CacheStatus', () => {
+  beforeAll(() => {
+    // @ts-expect-error jsdom allows reassignment after delete in test env
+    delete window.location;
+    // @ts-expect-error test double for CacheStatus location reads
+    window.location = mockLocation;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLocation.reload.mockClear();
     // Suppress console warnings in tests
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});

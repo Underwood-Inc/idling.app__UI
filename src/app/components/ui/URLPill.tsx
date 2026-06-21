@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { getMediaType } from '@lib/config/media-domains';
 import { getURLPillType, shouldEmbedURL } from '@lib/config/url-pills';
 import { useOverlay } from '@lib/context/OverlayContext';
@@ -7,6 +9,18 @@ import { ImageEmbed } from './ImageEmbed';
 import './URLPill.css';
 import { YouTubeEmbed } from './YouTubeEmbed';
 import { YouTubeModal } from './YouTubeModal';
+
+function UrlPillIcon({
+  id,
+  className = 'url-pill__icon',
+  sizeRem = 1,
+}: {
+  id: SiteIconId;
+  className?: string;
+  sizeRem?: number;
+}) {
+  return <SiteIcon id={id} className={className} sizeRem={sizeRem} />;
+}
 
 interface URLPillProps {
   url: string;
@@ -94,9 +108,9 @@ export function URLPill({
         className={`url-pill url-pill--modal ${className} url-pill--youtube-com`}
       >
         <a href="#" className="url-pill__link" onClick={handleModalClick}>
-          <span className="url-pill__icon">📺</span>
+          <SiteIcon id="tv" className="url-pill__icon" sizeRem={1} />
           <span className="url-pill__domain">{domain}</span>
-          <span className="url-pill__behavior-icon">⧉</span>
+          <UrlPillIcon id="maximize" className="url-pill__behavior-icon" sizeRem={0.875} />
         </a>
 
         {isEditMode && (onModeChange || onWidthChange) && (
@@ -109,7 +123,7 @@ export function URLPill({
                   onClick={() => onModeChange('embed')}
                   title="Show as embed"
                 >
-                  📺 Embed
+                  <UrlPillIcon id="tv" className="url-pill__toggle-icon" sizeRem={0.875} /> Embed
                 </button>
                 <button
                   type="button"
@@ -117,7 +131,7 @@ export function URLPill({
                   onClick={() => onModeChange('link')}
                   title="Show as link"
                 >
-                  🔗 Link
+                  <UrlPillIcon id="link" className="url-pill__toggle-icon" sizeRem={0.875} /> Link
                 </button>
                 <button
                   type="button"
@@ -125,7 +139,7 @@ export function URLPill({
                   onClick={() => onModeChange('modal')}
                   title="Show in modal"
                 >
-                  ⧉ Modal
+                  <UrlPillIcon id="maximize" className="url-pill__toggle-icon" sizeRem={0.875} /> Modal
                 </button>
               </>
             )}
@@ -186,7 +200,7 @@ export function URLPill({
                       }}
                       title="Embed video player"
                     >
-                      📺
+                      <UrlPillIcon id="tv" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                     <button
                       type="button"
@@ -202,7 +216,7 @@ export function URLPill({
                       }}
                       title="Show as clickable link"
                     >
-                      🔗
+                      <UrlPillIcon id="link" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                     <button
                       type="button"
@@ -218,7 +232,7 @@ export function URLPill({
                       }}
                       title="Open in modal popup"
                     >
-                      ⧉
+                      <UrlPillIcon id="maximize" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                   </>
                 )}
@@ -243,7 +257,7 @@ export function URLPill({
                       }}
                       title="Small size (320px)"
                     >
-                      📱
+                      <UrlPillIcon id="smartphone" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                     <button
                       type="button"
@@ -263,7 +277,7 @@ export function URLPill({
                       }}
                       title="Medium size (560px)"
                     >
-                      💻
+                      <UrlPillIcon id="monitor" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                     <button
                       type="button"
@@ -283,7 +297,7 @@ export function URLPill({
                       }}
                       title="Large size (800px)"
                     >
-                      🖥️
+                      <UrlPillIcon id="monitorPlay" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                     <button
                       type="button"
@@ -303,7 +317,7 @@ export function URLPill({
                       }}
                       title="Full width (100%)"
                     >
-                      📺
+                      <UrlPillIcon id="tv" className="url-pill__toggle-icon" sizeRem={0.875} />
                     </button>
                   </div>
                 )}
@@ -356,7 +370,7 @@ export function URLPill({
               rel="noopener noreferrer"
               className="url-pill__link"
             >
-              <span className="url-pill__icon">🔗</span>
+              <UrlPillIcon id="link" />
               <span className="url-pill__domain">
                 {new URL(url).hostname.replace('www.', '')}
               </span>
@@ -472,14 +486,16 @@ export function URLPill({
         className="url-pill__link"
         onClick={handleLinkClick}
       >
-        <span className="url-pill__icon">
-          {isYouTube ? '📺' : isImage ? '🖼️' : isVideo ? '🎥' : '🔗'}
-        </span>
+        <UrlPillIcon
+          id={isYouTube ? 'tv' : isImage ? 'image' : isVideo ? 'video' : 'link'}
+        />
         <span className="url-pill__domain">{domain}</span>
         {behavior && (
-          <span className="url-pill__behavior-icon">
-            {behavior === 'modal' ? '⧉' : '↗'}
-          </span>
+          <UrlPillIcon
+            id={behavior === 'modal' ? 'maximize' : 'arrowUpRight'}
+            className="url-pill__behavior-icon"
+            sizeRem={0.875}
+          />
         )}
       </a>
 
@@ -493,7 +509,7 @@ export function URLPill({
                 onClick={() => onModeChange('embed')}
                 title="Show as embed"
               >
-                📺 Embed
+                <UrlPillIcon id="tv" className="url-pill__toggle-icon" sizeRem={0.875} /> Embed
               </button>
               <button
                 type="button"
@@ -503,7 +519,7 @@ export function URLPill({
                 onClick={() => onModeChange('link')}
                 title="Show as link"
               >
-                🔗 Link
+                <UrlPillIcon id="link" className="url-pill__toggle-icon" sizeRem={0.875} /> Link
               </button>
               {isYouTube && (
                 <button
@@ -516,7 +532,7 @@ export function URLPill({
                   onClick={() => onModeChange('modal')}
                   title="Show in modal"
                 >
-                  ⧉ Modal
+                  <UrlPillIcon id="maximize" className="url-pill__toggle-icon" sizeRem={0.875} /> Modal
                 </button>
               )}
             </>

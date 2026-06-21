@@ -53,7 +53,7 @@
 
 /* Interactive States */
 .username--clickable {
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .username--clickable:hover {
@@ -97,7 +97,7 @@ button.username {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 button.username:hover {

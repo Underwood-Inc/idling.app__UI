@@ -2,7 +2,7 @@
   background: transparent;
   border: none;
   color: var(--brand-primary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
@@ -21,7 +21,7 @@
 
 .refresh-button:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .refresh-button--refreshing {

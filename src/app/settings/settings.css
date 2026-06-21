@@ -199,7 +199,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   text-align: left;
 }
@@ -216,10 +216,9 @@
 }
 
 .settings-category__icon {
-  font-size: 2rem;
   width: 4rem;
   height: 4rem;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(
@@ -246,7 +245,7 @@
 .settings-category__title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--brand-primary);
+  color: var(--text-on-light);
   margin-bottom: 0.5rem;
   background: linear-gradient(
     135deg,
@@ -269,7 +268,7 @@
 .settings-category__toggle {
   font-size: 2rem;
   font-weight: 300;
-  color: var(--brand-primary);
+  color: var(--text-on-light-muted);
   width: 3rem;
   height: 3rem;
   display: flex;
@@ -438,7 +437,7 @@
   
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
   width: 100%;
@@ -477,7 +476,7 @@
 
 .settings-option:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .settings-option--active {
@@ -565,7 +564,7 @@
   
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   font-family: inherit;
   text-align: left;
@@ -642,6 +641,43 @@
 .settings-toggle__button--active .settings-toggle__status {
   color: var(--brand-primary);
   opacity: 1;
+}
+
+.settings-card__hint {
+  margin: 0 0 1rem;
+  color: var(--text-secondary, #b0b0b0);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.settings-range {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settings-range__label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #e0e0e0);
+}
+
+.settings-range__input {
+  width: 100%;
+  accent-color: var(--brand-primary, #e5c185);
+  cursor: var(--mappy-cursor-pointer, pointer);
+}
+
+.settings-range__input:disabled {
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
+  opacity: 0.6;
+}
+
+.settings-range__ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: var(--text-secondary, #b0b0b0);
 }
 
 /* Error Messages */

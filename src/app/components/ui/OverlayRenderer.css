@@ -103,7 +103,7 @@
   border: none;
   font-size: 24px;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   width: 32px;
   height: 32px;
   display: flex;
@@ -150,7 +150,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: move;
+  cursor: var(--mappy-cursor-move, move);
 }
 
 .widget-title {
@@ -164,7 +164,7 @@
   border: none;
   font-size: 18px;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   width: 24px;
   height: 24px;
   display: flex;

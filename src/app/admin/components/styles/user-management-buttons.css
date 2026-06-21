@@ -11,7 +11,7 @@
   border-radius: 6px;
   font-size: var(--font-size-xs);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   text-decoration: none;
   white-space: nowrap;
@@ -80,7 +80,7 @@
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--primary);
   border-radius: 6px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   font-size: var(--font-size-base);
 }
@@ -92,7 +92,7 @@
 
 .pagination-btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .pagination-info {
@@ -115,7 +115,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -158,7 +158,7 @@
   align-items: center !important;
   justify-content: flex-start !important;
   gap: 12px !important;
-  cursor: pointer !important;
+  cursor: var(--mappy-cursor-pointer, pointer) !important;
   transition: all 0.2s ease !important;
   color: var(--dark-bg__text-color--primary) !important;
   font-size: var(--font-size-base) !important;

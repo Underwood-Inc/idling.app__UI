@@ -3,7 +3,7 @@
   position: fixed;
   border: none;
   border-radius: 50px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 6px -1px transparent, 0 2px 4px -1px transparent;
   overflow: hidden;
@@ -169,14 +169,14 @@
 /* Disabled state */
 .footer-badge--disabled.footer-badge--background {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: translateY(10px) !important;
   /* Sink even lower */
 }
 
 .footer-badge--disabled.footer-badge--clipped {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: translateY(10px) !important;
   /* Sink even lower */
   clip-path: inset(0 0 90% 0) !important;

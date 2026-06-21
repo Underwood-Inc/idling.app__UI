@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import './AdminDashboard.css';
@@ -12,14 +14,10 @@ import PermissionManagementPanel from './components/PermissionManagementPanel';
 import SubscriptionManagementPanel from './components/SubscriptionManagementPanel';
 import { UserManagementPanel } from './components/UserManagementPanel';
 
-// ================================
-// ADMIN TABS CONFIGURATION
-// ================================
-
 interface AdminTabConfig {
   id: string;
   label: string;
-  icon?: string;
+  iconId: SiteIconId;
   component: React.ComponentType;
   sortOrder: number;
   description?: string;
@@ -29,84 +27,78 @@ const ADMIN_TABS: AdminTabConfig[] = [
   {
     id: 'analytics',
     label: 'Analytics',
-    icon: '📊',
+    iconId: 'barChart',
     component: AnalyticsDashboard,
     sortOrder: 1,
-    description: 'Global app analytics and user behavior tracking'
+    description: 'Global app analytics and user behavior tracking',
   },
   {
     id: 'users',
     label: 'User Management',
-    icon: '👥',
+    iconId: 'users',
     component: UserManagementPanel,
     sortOrder: 2,
-    description: 'Manage user accounts, roles, and permissions'
+    description: 'Manage user accounts, roles, and permissions',
   },
   {
     id: 'posts',
     label: 'Posts Moderation',
-    icon: '📝',
+    iconId: 'fileText',
     component: AdminPostsList,
     sortOrder: 3,
-    description: 'Review and moderate user posts'
+    description: 'Review and moderate user posts',
   },
   {
     id: 'emojis',
     label: 'Emoji Approval',
-    icon: '😀',
+    iconId: 'smile',
     component: EmojiApprovalPanel,
     sortOrder: 4,
-    description: 'Approve or reject custom emoji submissions'
+    description: 'Approve or reject custom emoji submissions',
   },
   {
     id: 'subscriptions',
     label: 'Subscriptions',
-    icon: '💳',
+    iconId: 'creditCard',
     component: SubscriptionManagementPanel,
     sortOrder: 5,
-    description: 'Manage subscription plans and user subscriptions'
+    description: 'Manage subscription plans and user subscriptions',
   },
   {
     id: 'permissions',
     label: 'Permissions',
-    icon: '🔐',
+    iconId: 'key',
     component: PermissionManagementPanel,
     sortOrder: 6,
-    description: 'Configure system permissions and access control'
+    description: 'Configure system permissions and access control',
   },
   {
     id: 'alerts',
     label: 'Custom Alerts',
-    icon: '🔔',
+    iconId: 'bell',
     component: CustomAlertsPanel,
     sortOrder: 7,
-    description: 'Manage system alerts and notifications'
+    description: 'Manage system alerts and notifications',
   },
   {
     id: 'quotas',
     label: 'Guest Quotas',
-    icon: '📊',
+    iconId: 'barChart',
     component: GlobalGuestQuotaPanel,
     sortOrder: 8,
-    description: 'Configure guest user quotas and limits'
-  }
+    description: 'Configure guest user quotas and limits',
+  },
 ].sort((a, b) => a.sortOrder - b.sortOrder);
 
-// Generate types and validation from config
 type AdminTab = (typeof ADMIN_TABS)[number]['id'];
 const VALID_TABS = ADMIN_TABS.map((tab) => tab.id);
 const DEFAULT_TAB = ADMIN_TABS[0].id;
-
-// ================================
-// MAIN COMPONENT
-// ================================
 
 export default function AdminDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<AdminTab>(DEFAULT_TAB);
 
-  // Sync with URL parameters on mount and when URL changes
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab') as AdminTab;
     if (tabFromUrl && VALID_TABS.includes(tabFromUrl)) {
@@ -114,7 +106,6 @@ export default function AdminDashboard() {
     }
   }, [searchParams]);
 
-  // Function to handle tab changes with URL sync
   const handleTabChange = (tab: AdminTab) => {
     setActiveTab(tab);
     const newUrl = new URL(window.location.href);
@@ -122,7 +113,6 @@ export default function AdminDashboard() {
     router.push(newUrl.pathname + newUrl.search, { scroll: false });
   };
 
-  // Get the current tab component
   const getCurrentTabComponent = () => {
     const currentTab = ADMIN_TABS.find((tab) => tab.id === activeTab);
     if (!currentTab) return null;
@@ -143,7 +133,7 @@ export default function AdminDashboard() {
               onClick={() => handleTabChange(tab.id)}
               title={tab.description}
             >
-              {tab.icon && <span className="tab-icon">{tab.icon}</span>}
+              <SiteIcon id={tab.iconId} className="tab-icon" sizeRem={1} />
               {tab.label}
             </button>
           ))}

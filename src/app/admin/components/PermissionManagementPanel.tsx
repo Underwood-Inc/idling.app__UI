@@ -17,8 +17,36 @@
  */
 
 import { noCacheFetch } from '@lib/utils/no-cache-fetch';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './PermissionManagementPanel.css';
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+  sizeRem?: number;
+}
+
+const IconText: React.FC<IconTextProps> = ({
+  iconId,
+  children,
+  sizeRem = 1
+}) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={sizeRem} />
+    {children}
+  </span>
+);
+
+interface TabLabelProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const TabLabel: React.FC<TabLabelProps> = ({ iconId, children }) => (
+  <IconText iconId={iconId}>{children}</IconText>
+);
 
 // ================================
 // TYPES & INTERFACES
@@ -354,39 +382,56 @@ export default function PermissionManagementPanel() {
   const renderStatusBadge = (item: Permission | Role) => {
     if (item.is_archived) {
       return (
-        <span className="status-badge status-badge--archived">📦 Archived</span>
+        <span className="status-badge status-badge--archived">
+          <IconText iconId="archive">Archived</IconText>
+        </span>
       );
     }
     if (!item.is_active) {
       return (
-        <span className="status-badge status-badge--disabled">🔒 Disabled</span>
+        <span className="status-badge status-badge--disabled">
+          <IconText iconId="lock">Disabled</IconText>
+        </span>
       );
     }
-    return <span className="status-badge status-badge--active">✅ Active</span>;
+    return (
+      <span className="status-badge status-badge--active">
+        <IconText iconId="check">Active</IconText>
+      </span>
+    );
   };
 
   const renderRiskBadge = (riskLevel: string | null | undefined) => {
     if (!riskLevel) return null;
 
     const riskConfig = {
-      low: { emoji: '🟢', class: 'risk-low' },
-      medium: { emoji: '🟡', class: 'risk-medium' },
-      high: { emoji: '🟠', class: 'risk-high' },
-      critical: { emoji: '🔴', class: 'risk-critical' }
+      low: { class: 'risk-low' },
+      medium: { class: 'risk-medium' },
+      high: { class: 'risk-high' },
+      critical: { class: 'risk-critical' }
     };
 
     const config =
       riskConfig[riskLevel as keyof typeof riskConfig] || riskConfig.low;
     return (
       <span className={`risk-badge ${config.class}`}>
-        {config.emoji} {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
+        <SiteIcon
+          id="circle"
+          className="risk-badge__indicator"
+          sizeRem={0.625}
+        />
+        {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
       </span>
     );
   };
 
   const renderSystemBadge = (isSystem: boolean) => {
     if (!isSystem) return null;
-    return <span className="system-badge">🔒 System</span>;
+    return (
+      <span className="system-badge">
+        <IconText iconId="lock">System</IconText>
+      </span>
+    );
   };
 
   const renderOverviewStats = () => {
@@ -396,7 +441,9 @@ export default function PermissionManagementPanel() {
       <div className="overview-stats">
         <div className="stats-grid">
           <div className="stat-card stat-card--permissions">
-            <div className="stat-icon">🛡️</div>
+            <div className="stat-icon">
+              <SiteIcon id="shield" sizeRem={1.5} />
+            </div>
             <div className="stat-content">
               <h3>Permissions</h3>
               <div className="stat-number">{overview.total_permissions}</div>
@@ -415,7 +462,9 @@ export default function PermissionManagementPanel() {
           </div>
 
           <div className="stat-card stat-card--roles">
-            <div className="stat-icon">👥</div>
+            <div className="stat-icon">
+              <SiteIcon id="users" sizeRem={1.5} />
+            </div>
             <div className="stat-content">
               <h3>Roles</h3>
               <div className="stat-number">{overview.total_roles}</div>
@@ -428,7 +477,9 @@ export default function PermissionManagementPanel() {
           </div>
 
           <div className="stat-card stat-card--categories">
-            <div className="stat-icon">🗂️</div>
+            <div className="stat-icon">
+              <SiteIcon id="folder" sizeRem={1.5} />
+            </div>
             <div className="stat-content">
               <h3>Categories</h3>
               <div className="stat-number">{categoriesWithCounts.length}</div>
@@ -443,7 +494,9 @@ export default function PermissionManagementPanel() {
           </div>
 
           <div className="stat-card stat-card--risk-levels">
-            <div className="stat-icon">⚠️</div>
+            <div className="stat-icon">
+              <SiteIcon id="alertTriangle" sizeRem={1.5} />
+            </div>
             <div className="stat-content">
               <h3>Risk Levels</h3>
               <div className="stat-number">{riskLevelsWithCounts.length}</div>
@@ -471,7 +524,9 @@ export default function PermissionManagementPanel() {
           onChange={(e) => handleSearch(e.target.value)}
           className="search-input"
         />
-        <span className="search-icon">🔍</span>
+        <span className="search-icon">
+          <SiteIcon id="search" sizeRem={1} />
+        </span>
       </div>
 
       <div className="filters">
@@ -574,7 +629,9 @@ export default function PermissionManagementPanel() {
               </span>
               {permission.is_inheritable && (
                 <span className="meta-item">
-                  <span className="inheritable-badge">🔗 Inheritable</span>
+                  <span className="inheritable-badge">
+                    <IconText iconId="link">Inheritable</IconText>
+                  </span>
                 </span>
               )}
             </div>
@@ -597,7 +654,7 @@ export default function PermissionManagementPanel() {
               className="action-btn action-btn--edit"
               disabled={loading}
             >
-              ✏️ Edit
+              <IconText iconId="pencil">Edit</IconText>
             </button>
 
             <button
@@ -605,7 +662,11 @@ export default function PermissionManagementPanel() {
               className={`action-btn ${permission.is_active ? 'action-btn--disable' : 'action-btn--enable'}`}
               disabled={loading || permission.is_system}
             >
-              {permission.is_active ? '🔒 Disable' : '✅ Enable'}
+              {permission.is_active ? (
+                <IconText iconId="lock">Disable</IconText>
+              ) : (
+                <IconText iconId="check">Enable</IconText>
+              )}
             </button>
 
             {!permission.is_system && !permission.is_archived && (
@@ -614,7 +675,7 @@ export default function PermissionManagementPanel() {
                 className="action-btn action-btn--archive"
                 disabled={loading}
               >
-                📦 Archive
+                <IconText iconId="archive">Archive</IconText>
               </button>
             )}
           </div>
@@ -631,7 +692,7 @@ export default function PermissionManagementPanel() {
             <div className="item-title">
               <div className="role-title-with-icon">
                 <span className="role-icon" style={{ color: '#007bff' }}>
-                  👥
+                  <SiteIcon id="users" sizeRem={1.25} />
                 </span>
                 <h3>{role.display_name}</h3>
               </div>
@@ -684,7 +745,7 @@ export default function PermissionManagementPanel() {
               className="action-btn action-btn--edit"
               disabled={loading}
             >
-              ✏️ Edit
+              <IconText iconId="pencil">Edit</IconText>
             </button>
 
             <button
@@ -692,7 +753,11 @@ export default function PermissionManagementPanel() {
               className={`action-btn ${role.is_active ? 'action-btn--disable' : 'action-btn--enable'}`}
               disabled={loading || role.is_system}
             >
-              {role.is_active ? '🔒 Disable' : '✅ Enable'}
+              {role.is_active ? (
+                <IconText iconId="lock">Disable</IconText>
+              ) : (
+                <IconText iconId="check">Enable</IconText>
+              )}
             </button>
 
             {!role.is_system && !role.is_archived && (
@@ -701,7 +766,7 @@ export default function PermissionManagementPanel() {
                 className="action-btn action-btn--archive"
                 disabled={loading}
               >
-                📦 Archive
+                <IconText iconId="archive">Archive</IconText>
               </button>
             )}
           </div>
@@ -742,18 +807,18 @@ export default function PermissionManagementPanel() {
   // UTILITY FUNCTIONS
   // ================================
 
-  const getRoleIcon = (iconName: string) => {
-    const icons: Record<string, string> = {
-      crown: '👑',
-      shield: '🛡️',
-      eye: '👁️',
-      users: '👥',
-      pen: '✏️',
-      star: '⭐',
-      flask: '🧪',
-      user: '👤'
+  const getRoleIconId = (iconName: string): SiteIconId => {
+    const icons: Record<string, SiteIconId> = {
+      crown: 'crown',
+      shield: 'shield',
+      eye: 'eye',
+      users: 'users',
+      pen: 'pencil',
+      star: 'star',
+      flask: 'flask',
+      user: 'user'
     };
-    return icons[iconName] || '👤';
+    return icons[iconName] || 'user';
   };
 
   // ================================
@@ -766,7 +831,9 @@ export default function PermissionManagementPanel() {
       <div className="panel-header">
         <div className="header-content">
           <h1 className="panel-title">
-            <span className="title-icon">🔐</span>
+            <span className="title-icon">
+              <SiteIcon id="lockKeyhole" sizeRem={1.25} />
+            </span>
             Permission Management System
           </h1>
           <p className="panel-subtitle">
@@ -781,7 +848,9 @@ export default function PermissionManagementPanel() {
             className="create-btn"
             disabled={loading}
           >
-            <span className="btn-icon">➕</span>
+            <span className="btn-icon">
+              <SiteIcon id="plusCircle" sizeRem={1} />
+            </span>
             Create New {viewMode === 'permissions' ? 'Permission' : 'Role'}
           </button>
         </div>
@@ -793,19 +862,19 @@ export default function PermissionManagementPanel() {
           onClick={() => setViewMode('permissions')}
           className={`nav-tab ${viewMode === 'permissions' ? 'nav-tab--active' : ''}`}
         >
-          🛡️ Permissions
+          <TabLabel iconId="shield">Permissions</TabLabel>
         </button>
         <button
           onClick={() => setViewMode('roles')}
           className={`nav-tab ${viewMode === 'roles' ? 'nav-tab--active' : ''}`}
         >
-          👥 Roles
+          <TabLabel iconId="users">Roles</TabLabel>
         </button>
         <button
           onClick={() => setViewMode('audit')}
           className={`nav-tab ${viewMode === 'audit' ? 'nav-tab--active' : ''}`}
         >
-          📊 Audit Trail
+          <TabLabel iconId="barChart">Audit Trail</TabLabel>
         </button>
       </div>
 
@@ -815,7 +884,9 @@ export default function PermissionManagementPanel() {
       {/* Error Display */}
       {error && (
         <div className="error-message">
-          <span className="error-icon">⚠️</span>
+          <span className="error-icon">
+            <SiteIcon id="alertTriangle" sizeRem={1.25} />
+          </span>
           {error}
           <button onClick={() => setError(null)} className="error-close">
             ×
@@ -839,7 +910,9 @@ export default function PermissionManagementPanel() {
         {!loading && viewMode === 'roles' && renderRolesList()}
         {!loading && viewMode === 'audit' && (
           <div className="audit-placeholder">
-            <h3>📊 Audit Trail</h3>
+            <h3>
+              <IconText iconId="barChart">Audit Trail</IconText>
+            </h3>
             <p>Comprehensive audit logging coming soon...</p>
           </div>
         )}
@@ -849,7 +922,10 @@ export default function PermissionManagementPanel() {
             (viewMode === 'roles' && roles.length === 0)) && (
             <div className="empty-state">
               <div className="empty-icon">
-                {viewMode === 'permissions' ? '🛡️' : '👥'}
+                <SiteIcon
+                  id={viewMode === 'permissions' ? 'shield' : 'users'}
+                  sizeRem={3}
+                />
               </div>
               <h3>No {viewMode} found</h3>
               <p>

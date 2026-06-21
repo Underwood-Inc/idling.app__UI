@@ -103,20 +103,24 @@ export function InstantLink({
     >
       <span className="instant-link__content">{children}</span>
       {showSpinner && (
-        <span className="instant-link__loader">
-          <svg
-            className="instant-link__spinner"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 12a9 9 0 11-6.22-8.56" />
-          </svg>
+        <span className="instant-link__status" aria-live="polite">
+          <span className="instant-link__loader">
+            <svg
+              className="instant-link__spinner"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 12a9 9 0 11-6.22-8.56" />
+            </svg>
+          </span>
+          <span className="instant-link__loading-text">Loading</span>
         </span>
       )}
     </Link>

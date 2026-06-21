@@ -1,0 +1,134 @@
+/**
+ * Contrast-safe surfaces — single reusable utility.
+ *
+ * Markup: class="contrast-safe-surface"
+ * Vars:   --contrast-safe-bg, --contrast-safe-bg-hover (optional), --contrast-safe-border (optional)
+ * Fallback vars (no color-contrast support): --contrast-safe-fg, --contrast-safe-fg-hover
+ * JS helper: getContrastSafeCssVars() from @lib/color/contrastSafe
+ */
+
+.contrast-safe-surface {
+  --contrast-safe-bg-current: var(--contrast-safe-bg, #252525);
+  background: var(--contrast-safe-bg-current);
+  border: 1px solid var(--contrast-safe-border, var(--contrast-safe-bg-current));
+  text-decoration: none;
+}
+
+.contrast-safe-surface:hover,
+.contrast-safe-surface:focus-visible {
+  --contrast-safe-bg-current: var(--contrast-safe-bg-hover, var(--contrast-safe-bg, #252525));
+}
+
+.contrast-safe-surface:visited {
+  color: inherit;
+}
+
+.contrast-safe-surface--cta-primary {
+  --contrast-safe-bg: var(--interactive-bg-tan, #e5c185);
+  --contrast-safe-bg-hover: var(--interactive-bg-tan-hover, #b8935c);
+  --contrast-safe-border: var(--interactive-bg-tan, #e5c185);
+  --contrast-safe-fg: var(--text-on-tan, #1a1a1a);
+  --contrast-safe-fg-hover: var(--text-on-tan, #1a1a1a);
+}
+
+.contrast-safe-surface--cta-secondary {
+  --contrast-safe-bg: var(--dark-background--tertiary);
+  --contrast-safe-bg-hover: var(--interactive-bg-tan, #e5c185);
+  --contrast-safe-border: var(--brand-primary);
+  --contrast-safe-fg: var(--dark-bg__text-color--primary);
+  --contrast-safe-fg-hover: var(--text-on-tan, #1a1a1a);
+}
+
+.contrast-safe-surface--cta-ghost {
+  --contrast-safe-bg: transparent;
+  --contrast-safe-bg-hover: var(--interactive-bg-subtle-hover, #45382a);
+  --contrast-safe-border: var(--dark-border--primary);
+  --contrast-safe-fg: var(--dark-bg__text-color--secondary);
+  --contrast-safe-fg-hover: var(--interactive-fg-on-subtle-hover, #e0e0e0);
+}
+
+.contrast-safe-surface--cta-outline {
+  --contrast-safe-bg: transparent;
+  --contrast-safe-bg-hover: var(--interactive-bg-subtle-hover, #45382a);
+  --contrast-safe-border: var(--brand-primary);
+  --contrast-safe-fg: var(--dark-bg__text-color--primary);
+  --contrast-safe-fg-hover: var(--interactive-fg-on-subtle-hover, #e0e0e0);
+}
+
+/*
+ * Tan-filled CTAs — CSS modules keep cta__primary in the hashed class name.
+ * Resets -webkit-text-fill-color so gradient/heading styles cannot wash out label text.
+ */
+:is(
+  [class*='cta__primary'],
+  [class*='product-hero__cta--primary'],
+  [class*='product-marketing__cta--primary']
+) {
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
+}
+
+:is(
+  [class*='cta__primary'],
+  [class*='product-hero__cta--primary'],
+  [class*='product-marketing__cta--primary']
+):is(:link, :visited, :hover, :active, :focus-visible) {
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
+}
+
+:is(
+  [class*='cta__secondary'],
+  [class*='product-hero__cta--secondary'],
+  [class*='product-marketing__cta--secondary']
+):is(:hover, :focus-visible) {
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
+}
+
+:is(
+  [class*='cta__primary'],
+  [class*='cta__secondary'],
+  [class*='product-hero__cta'],
+  [class*='product-marketing__cta']
+) :is(svg, span, .lucide-icon) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+.contrast-safe-surface--cta-primary,
+.contrast-safe-surface--cta-secondary,
+.contrast-safe-surface--cta-ghost,
+.contrast-safe-surface--cta-outline {
+  -webkit-text-fill-color: currentColor;
+}
+
+.contrast-safe-surface :is(svg, span, .lucide-icon) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+@supports (color: color-contrast(#000000 vs #ffffff, #000000)) {
+  .contrast-safe-surface {
+    color: color-contrast(var(--contrast-safe-bg-current) vs #ffffff, #f9f9f9, #1a1a1a, #000000);
+  }
+
+  .contrast-safe-surface:hover,
+  .contrast-safe-surface:focus-visible {
+    color: color-contrast(var(--contrast-safe-bg-current) vs #ffffff, #f9f9f9, #1a1a1a, #000000);
+  }
+}
+
+@supports not (color: color-contrast(#000000 vs #ffffff, #000000)) {
+  .contrast-safe-surface {
+    color: var(--contrast-safe-fg, var(--text-primary, #e0e0e0));
+  }
+
+  .contrast-safe-surface:hover,
+  .contrast-safe-surface:focus-visible {
+    color: var(
+      --contrast-safe-fg-hover,
+      var(--contrast-safe-fg, var(--text-primary, #e0e0e0))
+    );
+  }
+}

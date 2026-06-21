@@ -1,3 +1,4 @@
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';
@@ -12,10 +13,8 @@ export default function UserNotFound() {
         <FadeIn>
           <Card width="full" className="user-not-found-main">
             <div className="user-not-found">
-              <div className="user-not-found__icon">
-                <span role="img" aria-label="User not found">
-                  👤❓
-                </span>
+              <div className="user-not-found__icon" aria-label="User not found">
+                <SiteIcon id="userSearch" sizeRem={3} />
               </div>
 
               <h1 className="user-not-found__title">User Not Found</h1>
@@ -50,7 +49,8 @@ export default function UserNotFound() {
 
               <div className="user-not-found__search-section">
                 <h3 className="user-not-found__search-title">
-                  🔍 Search for Users
+                  <SiteIcon id="search" className="user-not-found__search-title-icon" sizeRem={1.125} />
+                  Search for Users
                 </h3>
                 <p className="user-not-found__search-description">
                   Try searching for the user you&apos;re looking for:
@@ -71,7 +71,7 @@ export default function UserNotFound() {
             <h3 className="user-not-found-help-title">Help</h3>
             <div className="user-not-found__help">
               <div className="user-not-found__help-item">
-                <span className="user-not-found__help-icon">🔍</span>
+                <SiteIcon id="search" className="user-not-found__help-icon" sizeRem={1.125} />
                 <div className="user-not-found__help-content">
                   <span className="user-not-found__help-label">Search</span>
                   <span className="user-not-found__help-description">
@@ -81,7 +81,7 @@ export default function UserNotFound() {
               </div>
 
               <div className="user-not-found__help-item">
-                <span className="user-not-found__help-icon">📝</span>
+                <SiteIcon id="pen" className="user-not-found__help-icon" sizeRem={1.125} />
                 <div className="user-not-found__help-content">
                   <span className="user-not-found__help-label">
                     Browse Posts
@@ -93,7 +93,7 @@ export default function UserNotFound() {
               </div>
 
               <div className="user-not-found__help-item">
-                <span className="user-not-found__help-icon">👥</span>
+                <SiteIcon id="users" className="user-not-found__help-icon" sizeRem={1.125} />
                 <div className="user-not-found__help-content">
                   <span className="user-not-found__help-label">Community</span>
                   <span className="user-not-found__help-description">

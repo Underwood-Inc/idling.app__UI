@@ -1,3 +1,4 @@
+import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
@@ -72,7 +73,9 @@ export default function StreamSuitePage() {
               <h2 className="product-section__title">Key Features</h2>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">✨</div>
+                  <div className="product-feature__icon">
+                    <FeatureIcon iconId="sparkles" sizeRem={5} />
+                  </div>
                   <h3 className="product-feature__title">Source Animations</h3>
                   <p className="product-feature__description">
                     Animate source visibility with fade, slide, zoom, and pop effects. 60 FPS performance
@@ -80,7 +83,9 @@ export default function StreamSuitePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔄</div>
+                  <div className="product-feature__icon">
+                    <FeatureIcon iconId="refresh" sizeRem={5} />
+                  </div>
                   <h3 className="product-feature__title">Source Swaps</h3>
                   <p className="product-feature__description">
                     Animated position and size transitions between sources. 7 different animation styles
@@ -88,7 +93,9 @@ export default function StreamSuitePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🎨</div>
+                  <div className="product-feature__icon">
+                    <FeatureIcon iconId="palette" sizeRem={5} />
+                  </div>
                   <h3 className="product-feature__title">Layout Presets</h3>
                   <p className="product-feature__description">
                     Save and apply entire scene layouts with multi-source animation support. Switch between
@@ -96,7 +103,9 @@ export default function StreamSuitePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">💬</div>
+                  <div className="product-feature__icon">
+                    <FeatureIcon iconId="messages" sizeRem={5} />
+                  </div>
                   <h3 className="product-feature__title">Text Cycler</h3>
                   <p className="product-feature__description">
                     Dynamic text effects with transitions including fade, slide, typewriter, glitch, wave,
@@ -104,7 +113,9 @@ export default function StreamSuitePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📱</div>
+                  <div className="product-feature__icon">
+                    <FeatureIcon iconId="smartphone" sizeRem={5} />
+                  </div>
                   <h3 className="product-feature__title">Progressive Web App</h3>
                   <p className="product-feature__description">
                     Install as a PWA for offline access and native app experience. Multi-layer storage
@@ -112,7 +123,9 @@ export default function StreamSuitePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🌐</div>
+                  <div className="product-feature__icon">
+                    <FeatureIcon iconId="globe" sizeRem={5} />
+                  </div>
                   <h3 className="product-feature__title">Unified Control Panel</h3>
                   <p className="product-feature__description">
                     One web-based dock to control everything. Real-time WebSocket communication with

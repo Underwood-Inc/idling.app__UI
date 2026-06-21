@@ -1,6 +1,8 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { NAV_GROUPS } from '@lib/routes';
+import { useSession } from 'next-auth/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -18,6 +20,7 @@ interface MobileNavContentProps {
 }
 
 function MobileNavContent({ onClose }: MobileNavContentProps) {
+  const { data: session } = useSession();
   const currentPath = usePathname();
   const searchParams = useSearchParams();
 
@@ -31,7 +34,7 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
       <div className="mobile-nav-drawer__header">
         <InstantLink
           href="/"
-          className="mobile-nav-drawer__brand-link"
+          className="mobile-nav-drawer__brand-link instant-link--brand"
           onClick={handleLinkClick}
         >
           <h2 className="mobile-nav-drawer__title">Idling.app</h2>
@@ -45,9 +48,11 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
         </button>
       </div>
 
-      <div className="mobile-nav-drawer__search">
-        <UserSearch placeholder="Find users..." />
-      </div>
+      {session ? (
+        <div className="mobile-nav-drawer__search">
+          <UserSearch placeholder="Find users..." />
+        </div>
+      ) : null}
 
       <nav className="mobile-nav-drawer__nav">
         {Object.entries(NAV_GROUPS).map(([groupKey, group]) => (
@@ -81,15 +86,17 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
                   <InstantLink
                     key={`mobile-${groupKey}-${item}`}
                     href={path}
-                    className={`mobile-nav-drawer__item ${isActive ? 'mobile-nav-drawer__item--active' : ''}`}
+                    className={`instant-link instant-link--nav mobile-nav-drawer__item ${isActive ? 'mobile-nav-drawer__item--active' : ''}`}
                     target={isExternal ? '_blank' : undefined}
                     onClick={handleLinkClick}
                   >
                     {label}
                     {isExternal && (
-                      <span className="mobile-nav-drawer__external-icon">
-                        ↗
-                      </span>
+                      <SiteIcon
+                        id="arrowUpRight"
+                        className="mobile-nav-drawer__external-icon"
+                        sizeRem={0.75}
+                      />
                     )}
                   </InstantLink>
                 );

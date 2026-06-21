@@ -31,7 +31,7 @@
   font-size: 1rem;
   font-weight: 500;
   color: var(--light-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
   position: relative;

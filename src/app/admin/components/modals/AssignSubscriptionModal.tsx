@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
 import './AssignSubscriptionModal.css';
 
@@ -33,6 +35,18 @@ interface AssignSubscriptionModalProps {
   userName: string;
   userId: string;
 }
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const IconText: React.FC<IconTextProps> = ({ iconId, children }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1} />
+    {children}
+  </span>
+);
 
 export const AssignSubscriptionModal: React.FC<
   AssignSubscriptionModalProps
@@ -381,7 +395,9 @@ export const AssignSubscriptionModal: React.FC<
           ) : (
             <>
               <div className="user-info">
-                <h4>👤 Assigning to:</h4>
+                <h4>
+                  <IconText iconId="user">Assigning to:</IconText>
+                </h4>
                 <p>
                   <strong>{userName}</strong>
                 </p>
@@ -391,19 +407,30 @@ export const AssignSubscriptionModal: React.FC<
               {subscriptionPlans.length > 0 && (
                 <div className="plans-status">
                   <p>
-                    📋 Found {subscriptionPlans.length} plan
-                    {subscriptionPlans.length !== 1 ? 's' : ''} (
-                    {subscriptionPlans.filter((p) => p.is_active).length}{' '}
-                    active,{' '}
-                    {subscriptionPlans.filter((p) => !p.is_active).length}{' '}
-                    inactive)
+                    <IconText iconId="clipboard">
+                      Found {subscriptionPlans.length} plan
+                      {subscriptionPlans.length !== 1 ? 's' : ''} (
+                      {subscriptionPlans.filter((p) => p.is_active).length}{' '}
+                      active,{' '}
+                      {subscriptionPlans.filter((p) => !p.is_active).length}{' '}
+                      inactive)
+                    </IconText>
                   </p>
                 </div>
               )}
 
               {error && (
                 <div className="error-message">
-                  <span>❌ {error}</span>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35em'
+                    }}
+                  >
+                    <SiteIcon id="circleX" sizeRem={1} />
+                    {error}
+                  </span>
                   <button
                     onClick={() => {
                       // eslint-disable-next-line no-console
@@ -418,7 +445,7 @@ export const AssignSubscriptionModal: React.FC<
                       fontSize: '12px'
                     }}
                   >
-                    🔄 Retry
+                    <IconText iconId="refresh">Retry</IconText>
                   </button>
                 </div>
               )}
@@ -426,7 +453,9 @@ export const AssignSubscriptionModal: React.FC<
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label htmlFor="subscription-plan">
-                    📋 Subscription Plan <span className="required">*</span>
+                    <IconText iconId="clipboard">
+                      Subscription Plan <span className="required">*</span>
+                    </IconText>
                   </label>
                   <select
                     id="subscription-plan"
@@ -458,7 +487,9 @@ export const AssignSubscriptionModal: React.FC<
                 {selectedPlanId && (
                   <div className="form-group">
                     <label htmlFor="billing-cycle">
-                      💳 Billing Cycle <span className="required">*</span>
+                      <IconText iconId="creditCard">
+                        Billing Cycle <span className="required">*</span>
+                      </IconText>
                     </label>
                     <select
                       id="billing-cycle"
@@ -485,7 +516,7 @@ export const AssignSubscriptionModal: React.FC<
                       onChange={(e) => setHasExpiration(e.target.checked)}
                       disabled={assigning}
                     />
-                    📅 Set expiration date
+                    <IconText iconId="calendar">Set expiration date</IconText>
                   </label>
                 </div>
 
@@ -497,7 +528,7 @@ export const AssignSubscriptionModal: React.FC<
                       onChange={(e) => setHasPriceOverride(e.target.checked)}
                       disabled={assigning}
                     />
-                    💰 Override plan pricing
+                    <IconText iconId="coins">Override plan pricing</IconText>
                   </label>
                 </div>
 
@@ -521,8 +552,10 @@ export const AssignSubscriptionModal: React.FC<
                   <>
                     <div className="form-group">
                       <label htmlFor="price-override">
-                        💰 Custom Price (USD){' '}
-                        <span className="required">*</span>
+                        <IconText iconId="coins">
+                          Custom Price (USD){' '}
+                          <span className="required">*</span>
+                        </IconText>
                       </label>
                       <input
                         type="number"
@@ -541,8 +574,10 @@ export const AssignSubscriptionModal: React.FC<
 
                     <div className="form-group">
                       <label htmlFor="price-override-reason">
-                        💡 Price Override Reason{' '}
-                        <span className="required">*</span>
+                        <IconText iconId="lightbulb">
+                          Price Override Reason{' '}
+                          <span className="required">*</span>
+                        </IconText>
                       </label>
                       <textarea
                         id="price-override-reason"
@@ -558,7 +593,9 @@ export const AssignSubscriptionModal: React.FC<
                 )}
 
                 <div className="form-group">
-                  <label htmlFor="reason">📝 Assignment Reason</label>
+                  <label htmlFor="reason">
+                    <IconText iconId="pen">Assignment Reason</IconText>
+                  </label>
                   <textarea
                     id="reason"
                     value={reason}
@@ -583,7 +620,11 @@ export const AssignSubscriptionModal: React.FC<
                     className="btn btn-primary"
                     disabled={assigning || !selectedPlanId}
                   >
-                    {assigning ? '🔄 Assigning...' : '✅ Assign Subscription'}
+                    {assigning ? (
+                      <IconText iconId="refresh">Assigning...</IconText>
+                    ) : (
+                      <IconText iconId="check">Assign Subscription</IconText>
+                    )}
                   </button>
                 </div>
               </form>

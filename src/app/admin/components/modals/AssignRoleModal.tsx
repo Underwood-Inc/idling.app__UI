@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useEffect, useState } from 'react';
 
 export interface Role {
@@ -97,7 +99,12 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
       >
         <div className="modal-header">
           <div>
-            <h3>🎭 Assign Role to {userName}</h3>
+            <h3
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+            >
+              <SiteIcon id="theater" sizeRem={1.125} />
+              Assign Role to {userName}
+            </h3>
             <p
               style={{
                 margin: '4px 0 0 0',
@@ -253,7 +260,29 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                 className="btn btn--primary"
                 disabled={!selectedRole || isSubmitting || loading}
               >
-                {isSubmitting ? '🔄 Assigning...' : '🎭 Assign Role'}
+                {isSubmitting ? (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35em'
+                    }}
+                  >
+                    <SiteIcon id="refresh" sizeRem={1} />
+                    Assigning...
+                  </span>
+                ) : (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35em'
+                    }}
+                  >
+                    <SiteIcon id="theater" sizeRem={1} />
+                    Assign Role
+                  </span>
+                )}
               </button>
             </div>
           </div>

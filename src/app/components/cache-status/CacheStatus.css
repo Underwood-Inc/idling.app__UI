@@ -54,7 +54,7 @@
   background: none;
   border: none;
   color: #9ca3af;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: 0.25rem;
   font-size: --font-size-base;
@@ -78,7 +78,7 @@
 
 .cache-status__refresh:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   animation: spin 1s linear infinite;
 }
 

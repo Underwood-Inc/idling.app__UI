@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { InteractiveTooltip } from '../../components/tooltip/InteractiveTooltip';
 import { InstantLink } from '../../components/ui/InstantLink';
 import { TimestampWithTooltip } from '../../components/ui/TimestampWithTooltip';
@@ -65,7 +66,8 @@ export function QuotaDisplay({
             marginBottom: '6px'
           }}
         >
-          🔄 Quota Resets
+          <SiteIcon id="refresh" className={styles.quota__tooltipIcon} sizeRem={0.875} />
+          Quota Resets
         </div>
         <TimestampWithTooltip
           date={resetDate}
@@ -100,7 +102,10 @@ export function QuotaDisplay({
 
   return (
     <div className={containerClass}>
-      <h3>⚡ Mystical Energy</h3>
+      <h3 className={styles.quota__heading}>
+        <SiteIcon id="zap" className={styles.quota__headingIcon} sizeRem={1.125} />
+        Mystical Energy
+      </h3>
       <div className={styles.quota__display}>
         {showMeter ? (
           <div className={styles.quota__meter}>
@@ -120,7 +125,17 @@ export function QuotaDisplay({
 
         {isQuotaExceeded && (
           <InstantLink href="/subscription" className={styles.quota__upgrade}>
-            {mobile ? 'Upgrade 🔮' : 'Ascend to Archmage 🔮'}
+            {mobile ? (
+              <>
+                Upgrade
+                <SiteIcon id="wand" className={styles.quota__upgradeIcon} sizeRem={0.875} />
+              </>
+            ) : (
+              <>
+                Ascend to Archmage
+                <SiteIcon id="wand" className={styles.quota__upgradeIcon} sizeRem={0.875} />
+              </>
+            )}
           </InstantLink>
         )}
       </div>

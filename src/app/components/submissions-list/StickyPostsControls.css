@@ -40,7 +40,7 @@
   color: var(--light-bg__text-color--primary);
   border: 1px solid var(--brand-tertiary--light);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease-in-out;
@@ -120,7 +120,7 @@
   border: none;
   background-color: var(--light-background--quinary);
   color: var(--light-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   border-right: 1px solid var(--brand-tertiary--dark);
   min-width: 32px;
@@ -159,7 +159,7 @@
   color: var(--font-color--primary);
   border: 1px solid var(--brand-primary--dark);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   text-decoration: none;
   min-width: 32px;
@@ -182,7 +182,7 @@
 .sticky-posts-controls__new-post[aria-disabled='true'] {
   background-color: var(--light-bg__text-color--tertiary);
   color: var(--light-bg__text-color--secondary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   opacity: 0.6;
   transform: none;
   box-shadow: none;

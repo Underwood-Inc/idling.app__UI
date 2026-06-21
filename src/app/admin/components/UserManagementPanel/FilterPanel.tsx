@@ -5,6 +5,7 @@
  * and remove filters. This component is focused solely on filter management.
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React from 'react';
 import {
   FILTERABLE_COLUMNS,
@@ -222,7 +223,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   onClick={() => onRemoveFilter(index)}
                   title="Remove filter"
                 >
-                  🗑️
+                  <SiteIcon id="trash" sizeRem={1} title="Remove filter" />
                 </button>
               </div>
             </div>

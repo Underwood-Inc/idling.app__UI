@@ -1,0 +1,318 @@
+<!doctype html>
+<!--
+  IDLING RADIO PLAYER — one-file embed (no sibling assets)
+  ==========================================================
+  1. Copy this entire file, OR copy the <style>, mount <div>, and <script> blocks
+     into your page before </body>.
+  2. Change the mount selector in the boot line at the bottom if needed.
+  3. Streams load from public CDNs; visualizer needs CORS-friendly responses.
+
+  Modular split (easier to maintain): see radio-player.css + radio-player.js + index.html
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Idling Radio Player</title>
+    <style>
+      .irp {
+        --irp-bg: rgb(13 13 13 / 94%);
+        --irp-border: rgb(255 255 255 / 10%);
+        --irp-text: #e8e4dc;
+        --irp-muted: #a8a095;
+        --irp-accent: #e5c185;
+        --irp-accent-soft: rgb(229 193 133 / 18%);
+        --irp-shadow: 0 -8px 32px rgb(0 0 0 / 45%);
+        position: fixed;
+        inset-inline: 0;
+        bottom: 0;
+        z-index: 9990;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: var(--irp-text);
+        pointer-events: none;
+      }
+      .irp__shell {
+        pointer-events: auto;
+        position: relative;
+        border-top: 1px solid var(--irp-border);
+        background: var(--irp-bg);
+        backdrop-filter: blur(14px);
+        box-shadow: var(--irp-shadow);
+      }
+      .irp__inner {
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
+        gap: 0.75rem 1rem;
+        align-items: center;
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 0.65rem 1rem 0.75rem;
+      }
+      .irp__viz {
+        display: block;
+        width: 100%;
+        height: 56px;
+        border-radius: 8px;
+        background: linear-gradient(180deg, rgb(255 255 255 / 4%), rgb(255 255 255 / 1%));
+        border: 1px solid var(--irp-border);
+      }
+      .irp__controls {
+        display: grid;
+        grid-template-columns: minmax(8rem, 1.2fr) auto minmax(5rem, 0.8fr);
+        grid-template-areas: 'station play volume' 'label label label';
+        gap: 0.45rem 0.65rem;
+        align-items: center;
+        min-width: 0;
+      }
+      .irp__station {
+        grid-area: station;
+        min-width: 0;
+        width: 100%;
+        padding: 0.45rem 0.55rem;
+        border: 1px solid var(--irp-border);
+        border-radius: 8px;
+        background: rgb(255 255 255 / 5%);
+        color: var(--irp-text);
+        font: inherit;
+        font-size: 0.875rem;
+      }
+      .irp__play {
+        grid-area: play;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+        padding: 0;
+        border: 1px solid var(--irp-border);
+        border-radius: 999px;
+        background: var(--irp-accent-soft);
+        color: var(--irp-accent);
+        cursor: pointer;
+        font: inherit;
+      }
+      .irp__volume {
+        grid-area: volume;
+        width: 100%;
+        accent-color: var(--irp-accent);
+      }
+      .irp__label {
+        grid-area: label;
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--irp-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .irp__tap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgb(8 8 12 / 82%);
+        backdrop-filter: blur(6px);
+        pointer-events: auto;
+      }
+      .irp__tap[hidden] {
+        display: none !important;
+      }
+      .irp__tap-btn {
+        padding: 0.75rem 1.25rem;
+        border: 1px solid var(--irp-accent);
+        border-radius: 999px;
+        background: var(--irp-accent-soft);
+        color: var(--irp-text);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 600;
+      }
+      @media (max-width: 640px) {
+        .irp__inner {
+          grid-template-columns: 1fr;
+        }
+        .irp__viz {
+          height: 48px;
+        }
+        .irp__controls {
+          grid-template-columns: 1fr auto;
+          grid-template-areas: 'station station' 'play volume' 'label label';
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="idling-radio"></div>
+    <script>
+      (function () {
+        var STATIONS = {
+          'Chillhop Lofi': 'https://stream.chillhop.com/lofi',
+          'Lofi Girl': 'https://stream.lofigirl.com/lofi',
+          'Public Domain Lofi': 'https://stream.zeno.fm/lofi',
+          Jazz24: 'https://live.wostreaming.net/direct/ppm-jazz24mp3-ibc1',
+        };
+        var STORAGE_KEY = 'idling-radio-player-station';
+        var BAR_COUNT = 40;
+
+        function mount(mountNode, options) {
+          options = options || {};
+          var stations = options.stations || STATIONS;
+          var storageKey = options.storageKey || STORAGE_KEY;
+          var stationNames = Object.keys(stations);
+          var saved = localStorage.getItem(storageKey);
+          var activeName = saved && stations[saved] ? saved : stationNames[0];
+
+          var root = document.createElement('div');
+          root.className = 'irp';
+          root.innerHTML =
+            '<div class="irp__shell"><div class="irp__tap" hidden><button type="button" class="irp__tap-btn">Tap to start radio</button></div><div class="irp__inner"><canvas class="irp__viz" aria-hidden="true"></canvas><div class="irp__controls"><select class="irp__station" aria-label="Radio station"></select><button type="button" class="irp__play" aria-label="Play">▶</button><input class="irp__volume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Volume" /><p class="irp__label"></p></div></div></div>';
+          mountNode.appendChild(root);
+
+          var tap = root.querySelector('.irp__tap');
+          var tapBtn = root.querySelector('.irp__tap-btn');
+          var canvas = root.querySelector('.irp__viz');
+          var ctx = canvas.getContext('2d');
+          var select = root.querySelector('.irp__station');
+          var playBtn = root.querySelector('.irp__play');
+          var volume = root.querySelector('.irp__volume');
+          var label = root.querySelector('.irp__label');
+          var audio = new Audio();
+          var audioCtx = null;
+          var analyser = null;
+          var source = null;
+          var rafId = 0;
+          var playing = false;
+          var needsTap = true;
+          var freq = new Uint8Array(BAR_COUNT);
+          var rawFreq = new Uint8Array(BAR_COUNT);
+
+          stationNames.forEach(function (name) {
+            var opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            select.appendChild(opt);
+          });
+          select.value = activeName;
+          audio.crossOrigin = 'anonymous';
+          audio.preload = 'none';
+
+          function setLabel() {
+            label.textContent = playing ? 'Now playing · ' + activeName : activeName;
+          }
+
+          function resizeCanvas() {
+            var dpr = Math.min(window.devicePixelRatio || 1, 2);
+            var rect = canvas.getBoundingClientRect();
+            canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+            canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          }
+
+          function ensureAudioGraph() {
+            return Promise.resolve().then(function () {
+              if (!audioCtx) {
+                var Ctx = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new Ctx();
+              }
+              if (audioCtx.state === 'suspended') return audioCtx.resume();
+            }).then(function () {
+              if (source) return;
+              try {
+                source = audioCtx.createMediaElementSource(audio);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 128;
+                analyser.smoothingTimeConstant = 0.82;
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                rawFreq = new Uint8Array(analyser.frequencyBinCount);
+              } catch (e) {
+                analyser = null;
+              }
+            });
+          }
+
+          function drawBars() {
+            var w = canvas.clientWidth;
+            var h = canvas.clientHeight;
+            ctx.clearRect(0, 0, w, h);
+            if (analyser && playing) {
+              analyser.getByteFrequencyData(rawFreq);
+              for (var i = 0; i < BAR_COUNT; i++) {
+                freq[i] = rawFreq[Math.floor((i / BAR_COUNT) * rawFreq.length)];
+              }
+            } else freq.fill(0);
+            var gap = 2;
+            var barW = (w - gap * (BAR_COUNT - 1)) / BAR_COUNT;
+            for (var j = 0; j < BAR_COUNT; j++) {
+              var v = freq[j] / 255;
+              var barH = Math.max(3, v * h * 0.92);
+              ctx.fillStyle = 'rgb(229,' + (200 + Math.floor(v * 55)) + ',' + (120 + Math.floor(v * 80)) + ')';
+              ctx.fillRect(j * (barW + gap), h - barH, barW, barH);
+            }
+            rafId = requestAnimationFrame(drawBars);
+          }
+
+          function loadStation(name, autoplay) {
+            activeName = name;
+            select.value = name;
+            localStorage.setItem(storageKey, name);
+            audio.src = stations[name];
+            audio.load();
+            setLabel();
+            if (autoplay && !needsTap) play();
+          }
+
+          function play() {
+            return ensureAudioGraph().then(function () {
+              return audio.play();
+            }).then(function () {
+              playing = true;
+              playBtn.textContent = '⏸';
+              playBtn.setAttribute('aria-label', 'Pause');
+              tap.hidden = true;
+              needsTap = false;
+              setLabel();
+            }).catch(function () {
+              tap.hidden = false;
+              needsTap = true;
+            });
+          }
+
+          function pause() {
+            audio.pause();
+            playing = false;
+            playBtn.textContent = '▶';
+            playBtn.setAttribute('aria-label', 'Play');
+            setLabel();
+          }
+
+          playBtn.addEventListener('click', function () {
+            if (playing) pause(); else play();
+          });
+          select.addEventListener('change', function () {
+            loadStation(select.value, playing);
+          });
+          volume.addEventListener('input', function () {
+            audio.volume = Number(volume.value);
+          });
+          tapBtn.addEventListener('click', function () {
+            play();
+          });
+
+          audio.volume = Number(volume.value);
+          loadStation(activeName, false);
+          resizeCanvas();
+          window.addEventListener('resize', resizeCanvas);
+          rafId = requestAnimationFrame(drawBars);
+          if (options.autoplay !== false) play();
+
+          return { play: play, pause: pause, getStation: function () { return activeName; } };
+        }
+
+        window.IdlingRadioPlayer = { mount: mount, STATIONS: STATIONS };
+        mount(document.getElementById('idling-radio'));
+      })();
+    </script>
+  </body>
+</html>

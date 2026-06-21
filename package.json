@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.479.0",
+  "version": "0.480.0",
   "private": true,
   "engines": {
     "node": ">=22.0.0",
@@ -46,6 +46,7 @@
     "lint:css": "stylelint \"src/**/*.{css,scss,module.css}\" --cache",
     "lint:css:fix": "stylelint \"src/**/*.{css,scss,module.css}\" --fix --cache",
     "lint:css:vars": "node scripts/validate-css-variables.js",
+    "build:radio-widget-embed": "tsc -p src/widgets/radio-player/tsconfig.embed.json",
     "migrations": "tsx scripts/migrations.ts main",
     "migrate:og-table": "node scripts/run-migration.js",
     "test:og-tracking": "node scripts/test-og-tracking.js",
@@ -76,7 +77,10 @@
     "version:help": "node scripts/version-bump-from-msg.js --test \"help\"",
     "debug:parser": "node debug-content-parser.js",
     "debug:parser:interactive": "node debug-content-parser.js --interactive",
-    "debrief": "node scripts/generate-feature-debrief.js"
+    "debrief": "node scripts/generate-feature-debrief.js",
+    "clad:audit": "clad-audit audit --root . --preset structure --depth standard",
+    "clad:audit:full": "clad-audit audit --root . --preset full --depth standard --verbose",
+    "clad:report": "clad-audit audit --root . --preset exhaustive --report clad-report.md"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
@@ -110,6 +114,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/og": "^0.11.1",
     "@vercel/speed-insights": "^2.0.0",
+    "audiomotion-analyzer": "^4.5.4",
     "buffer": "^6.0.3",
     "canvas-prebuilt": "npm:@napi-rs/canvas@^1.0.0",
     "date-fns": "^4.4.0",
@@ -123,6 +128,7 @@
     "jose": "^6.2.3",
     "jotai": "2.20.1",
     "lorem-ipsum": "^3.0.0",
+    "lucide": "~1.16.0",
     "next": "^16.2.9",
     "next-auth": "5.0.0-beta.31",
     "pg": "8.22.0",
@@ -131,7 +137,6 @@
     "process": "^0.11.10",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "react-icons": "^5.6.0",
     "react-spinners": "^0.17.0",
     "react-string-replace": "^2.0.1",
     "redocusaurus": "^2.5.0",
@@ -158,6 +163,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-react": "^5.18.0",
+    "@underwoodinc/clad-audit": "^0.4.0",
     "auto-changelog": "^2.6.0",
     "chalk": "^5.6.2",
     "css-loader": "^7.1.4",

@@ -46,7 +46,7 @@
   color: var(--dark-bg__text-color--secondary);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   position: relative;
 }
@@ -94,7 +94,7 @@
   color: var(--font-color--primary);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -124,8 +124,12 @@
 }
 
 .panel-title::before {
-  content: '👥';
-  font-size: var(--font-size-xl);
+  content: none;
+}
+
+.panel-title__icon {
+  color: inherit;
+  flex-shrink: 0;
 }
 
 .panel-description {
@@ -229,7 +233,7 @@
   background: var(--dark-background--tertiary);
   color: var(--text-secondary);
   border-radius: 6px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   font-size: var(--font-size-xs);
 }

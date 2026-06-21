@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import styles from './GenerationDisplay.module.css';
 
 interface GenerationDisplayProps {
@@ -21,7 +22,10 @@ export function GenerationDisplay({
   return (
     <div className={styles.generation__display__container}>
       <div className={styles.generation__header}>
-        <h4 className={styles.generation__title}>🎨 Generated Image</h4>
+        <h4 className={styles.generation__title}>
+          <SiteIcon id="palette" className={styles.generation__titleIcon} sizeRem={1.125} />
+          Generated Image
+        </h4>
         {generationId && (
           <div className={styles.generation__id}>
             <span className={styles.id__label}>ID:</span>
@@ -31,7 +35,8 @@ export function GenerationDisplay({
               className={styles.copy__button}
               title="Copy Generation ID"
             >
-              📋 Copy
+              <SiteIcon id="copy" className={styles.copy__buttonIcon} sizeRem={0.875} />
+              Copy
             </button>
           </div>
         )}

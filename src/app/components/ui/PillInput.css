@@ -4,7 +4,7 @@
   border: 2px solid var(--brand-tertiary);
   border-radius: 0.5rem;
   background-color: var(--light-bg__background-color--primary);
-  cursor: text;
+  cursor: var(--mappy-cursor-text, text);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;

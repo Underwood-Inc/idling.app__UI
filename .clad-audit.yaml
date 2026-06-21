@@ -1,0 +1,108 @@
+# CLAD audit config — Next.js App Router (idling.app)
+# Docs: https://github.com/Underwood-Inc/clad-audit#copy-paste-configs
+#
+# Maps Next.js App Router layout onto CLAD tiers so the auditor produces
+# meaningful boundary/placement findings instead of blanket unknown-tier noise.
+# A future @underwoodinc/clad-audit preset may ship this block verbatim.
+#
+# Run: pnpm clad:audit  (or: npx clad-audit audit --root . --preset structure)
+
+srcRoot: src
+
+# Folder → CLAD tier (paths relative to srcRoot)
+tiers:
+  apps: app
+  recipes: lib
+  plugs: widgets
+  molecules: hooks
+
+importAliases:
+  '@lib/': lib
+  '@components/': components
+  '@constants/': constants
+  '@types/': types
+  '@interfaces/': interfaces
+  '@server/': server
+  '@widgets/': widgets
+  '@rich-text-editor': app/components/rich-text
+  '@rich-text-editor/': app/components/rich-text/
+
+views:
+  extensions:
+    - .tsx
+    - .jsx
+  extraViewPaths:
+    - app/components
+    - app/admin/components
+    - app/card-generator/components
+    - app/svg-converter/components
+    - lib/context
+    - lib/rich-input/components
+    - lib/rich-input/renderers
+    - lib/observability
+    - lib/state
+    - lib/security
+
+apps:
+  allowedFilenamePatterns:
+    # Generic CLAD composition roots (defaults deep-merge; repeat for clarity)
+    - '^mount[A-Za-z0-9_-]*\.(ts|tsx|js)$'
+    - '^wire[A-Za-z0-9_-]*\.(ts|tsx|js)$'
+    - 'AppSession\.(svelte\.ts|tsx|ts)$'
+    - 'AppContext\.(ts|tsx)$'
+    - 'App\.types\.(ts|tsx)$'
+    - 'Bridge\.(ts|tsx)$'
+    - 'WireContext\.types\.(ts|tsx)$'
+    - '^create[A-Za-z0-9_-]*\.(ts|tsx)$'
+    - '^run[A-Za-z0-9_-]*(Boot|App)\.(ts|tsx)$'
+    - '^bootstrap[A-Za-z0-9_-]*\.(ts|tsx)$'
+    - '^createApp\.(ts|tsx)$'
+    # Next.js App Router route segments (composition roots)
+    - '^page\.(tsx|jsx|ts|js)$'
+    - '^layout\.(tsx|jsx|ts|js)$'
+    - '^loading\.(tsx|jsx|ts|js)$'
+    - '^error\.(tsx|jsx|ts|js)$'
+    - '^not-found\.(tsx|jsx|ts|js)$'
+    - '^template\.(tsx|jsx|ts|js)$'
+    - '^default\.(tsx|jsx|ts|js)$'
+    - '^route\.(tsx|jsx|ts|js)$'
+    - '^middleware\.(tsx|jsx|ts|js)$'
+    - '.*PageClient\.(tsx|jsx)$'
+    - '.*Client\.(tsx|jsx)$'
+
+# Next.js pages/layouts are .tsx composition roots — exclude .tsx from the
+# "no markup in apps/" rule until clad-audit ships a native Next.js preset.
+forbiddenInApps:
+  extensions:
+    - .svelte
+    - .jsx
+    - .vue
+
+ignoreGlobs:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/*.d.ts'
+  - '**/coverage/**'
+  - '**/.git/**'
+  - '**/.next/**'
+  - '**/build/**'
+  - '**/templates/**'
+  - '**/test-utils.tsx'
+  - 'src/proxy.ts'
+  # Next.js bootstrap files at src/ root (outside app/ tree)
+  - 'src/auth.config.ts'
+  - 'src/instrumentation.ts'
+
+analysis:
+  defaultDepth: standard
+  useTsMorph: true
+
+# Optional VS Code / Cursor extension defaults (ignored by clad-audit CLI):
+editor:
+  audit:
+    depth: standard
+    strict: false
+  findings:
+    groupBy: rule
+    sortBy: count-desc
+    showInfo: true

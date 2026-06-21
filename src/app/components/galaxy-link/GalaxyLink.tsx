@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useOverlay } from '@lib/context/OverlayContext';
 import React from 'react';
 import { NAV_PATHS } from 'src/lib/routes';
@@ -21,7 +22,10 @@ const GalaxyModalContent = ({ onClose }: { onClose?: () => void }) => {
           background: 'var(--dark-background--secondary)'
         }}
       >
-        <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>🌌 Galaxy</h3>
+        <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <SiteIcon id="orbit" sizeRem={1.125} />
+          Galaxy
+        </h3>
         <button
           onClick={onClose}
           style={{

@@ -52,7 +52,7 @@
   border: none;
   background: none;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background-color 0.2s ease;
   font-size: var(--font-size-sm);
   color: white;
@@ -147,7 +147,7 @@
   border: none;
   background: none;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background-color 0.2s ease;
   font-size: var(--font-size-sm);
   color: white;
@@ -233,7 +233,7 @@
     padding: 16px;
     touch-action: manipulation;
     /* Remove hover effects on mobile */
-    cursor: default;
+    cursor: var(--mappy-cursor-default, default);
   }
 
   .mention-tooltip__option:hover {

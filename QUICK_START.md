@@ -69,7 +69,6 @@ New "Strixun Suite" dropdown with:
 - Mods Hub (external)
 - Auth Service (external)
 - URL Shortener (external)
-- Chat Hub (external)
 - Access Hub (external)
 
 ### Pages

@@ -1,4 +1,5 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
+import { auth } from '@lib/auth';
 import { NAV_PATHS } from '@lib/routes';
 import { unstable_noStore as noStore } from 'next/cache';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
@@ -13,6 +14,7 @@ import { NavPaths } from './NavPaths';
 export default async function Nav() {
   // Prevent caching to ensure fresh permission checks
   noStore();
+  const session = await auth();
 
   return (
     <Navbar>
@@ -31,6 +33,7 @@ export default async function Nav() {
         <Navbar.Content justify="center" className="nav__brand">
           <InstantLink
             href={NAV_PATHS.ROOT}
+            className="instant-link--brand"
             data-testid={NAV_SELECTORS.HOME_LINK}
           >
             <h1 className="nav__header">Idling.app</h1>
@@ -42,9 +45,11 @@ export default async function Nav() {
           justify="flex-end"
           className="nav--as-flex-end nav__desktop-only"
         >
-          <Navbar.Item className="nav__search">
-            <UserSearch placeholder="Find users..." />
-          </Navbar.Item>
+          {session ? (
+            <Navbar.Item className="nav__search">
+              <UserSearch placeholder="Find users..." />
+            </Navbar.Item>
+          ) : null}
           <Navbar.Item className="nav__auth">
             <NavAuth />
           </Navbar.Item>

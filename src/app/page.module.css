@@ -30,16 +30,14 @@
   width: 100%;
 }
 
+.home__projects {
+  overflow: visible;
+  padding-top: 1.25rem;
+  padding-bottom: 1.5rem;
+}
+
 .home__container_item_full {
   width: 100%;
-}
-
-.stats_aside {
-  max-height: none !important;
-}
-
-.stats_aside :global(.page-aside__panel) {
-  padding: 0 !important;
 }
 
 /* Tablet/Mobile: Stack aside below content */

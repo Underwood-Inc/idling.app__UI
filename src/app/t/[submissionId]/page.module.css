@@ -61,7 +61,7 @@
   border-radius: 1.5rem;
   font-size: var(--font-size-xs);
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -79,7 +79,7 @@
   border-radius: 1.5rem;
   font-size: var(--font-size-xs);
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 

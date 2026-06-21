@@ -8,9 +8,23 @@
  * - Simplified interface focused on administrative overrides
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useEffect, useState } from 'react';
 import { TimestampWithTooltip } from '../../../components/ui/TimestampWithTooltip';
 import type { ManagementUser } from './types';
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const IconText: React.FC<IconTextProps> = ({ iconId, children }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1} />
+    {children}
+  </span>
+);
 
 interface EffectiveQuotaData {
   service_name: string;
@@ -265,19 +279,19 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
       case 'subscription_plan':
         return (
           <span className="quota-source-badge quota-source--subscription">
-            📋 Subscription
+            <IconText iconId="clipboard">Subscription</IconText>
           </span>
         );
       case 'user_override':
         return (
           <span className="quota-source-badge quota-source--override">
-            ⚡ Override
+            <IconText iconId="zap">Override</IconText>
           </span>
         );
       default:
         return (
           <span className="quota-source-badge quota-source--none">
-            ❌ No Quota
+            <IconText iconId="circleX">No Quota</IconText>
           </span>
         );
     }
@@ -381,7 +395,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                   fontWeight: '600'
                 }}
               >
-                🎯 Quota Management
+                <IconText iconId="target">Quota Management</IconText>
               </h3>
               <p
                 style={{
@@ -437,7 +451,9 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                   color: 'var(--dark-bg__text-color--secondary)'
                 }}
               >
-                <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
+                <div style={{ marginBottom: '16px' }}>
+                  <SiteIcon id="loader" sizeRem={2} />
+                </div>
                 <p>Loading quota data...</p>
               </div>
             ) : error ? (
@@ -451,7 +467,9 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                   marginBottom: '20px'
                 }}
               >
-                <div style={{ fontSize: '24px', marginBottom: '12px' }}>⚠️</div>
+                <div style={{ marginBottom: '12px' }}>
+                  <SiteIcon id="alertTriangle" sizeRem={1.5} />
+                </div>
                 <p style={{ color: '#ef4444', margin: '0 0 16px 0' }}>
                   {error}
                 </p>
@@ -469,7 +487,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                     cursor: 'pointer'
                   }}
                 >
-                  🔄 Retry
+                  <IconText iconId="refresh">Retry</IconText>
                 </button>
               </div>
             ) : (
@@ -488,8 +506,8 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                       color: 'var(--dark-bg__text-color--secondary)'
                     }}
                   >
-                    <div style={{ fontSize: '32px', marginBottom: '16px' }}>
-                      📊
+                    <div style={{ marginBottom: '16px' }}>
+                      <SiteIcon id="barChart" sizeRem={2} />
                     </div>
                     <p>No quota data available for this user.</p>
                     <p style={{ fontSize: '14px', marginTop: '8px' }}>
@@ -885,9 +903,11 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                 }}
                               >
                                 {savingQuota ===
-                                `${quota.service_name}.${quota.feature_name}`
-                                  ? '⏳ Saving...'
-                                  : '✅ Save Override'}
+                                `${quota.service_name}.${quota.feature_name}` ? (
+                                  <IconText iconId="loader">Saving...</IconText>
+                                ) : (
+                                  <IconText iconId="check">Save Override</IconText>
+                                )}
                               </button>
                               <button
                                 onClick={() => setEditingQuota(null)}
@@ -904,7 +924,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   fontWeight: '500'
                                 }}
                               >
-                                ❌ Cancel
+                                <IconText iconId="circleX">Cancel</IconText>
                               </button>
                             </div>
                           </div>
@@ -939,7 +959,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   fontWeight: '500'
                                 }}
                               >
-                                ✏️ Edit Override
+                                <IconText iconId="pencil">Edit Override</IconText>
                               </button>
                             ) : (
                               <button
@@ -962,7 +982,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   fontWeight: '500'
                                 }}
                               >
-                                ⚡ Add Override
+                                <IconText iconId="zap">Add Override</IconText>
                               </button>
                             )}
 
@@ -986,7 +1006,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   fontWeight: '500'
                                 }}
                               >
-                                🗑️ Remove Override
+                                <IconText iconId="trash">Remove Override</IconText>
                               </button>
                             )}
 
@@ -1010,7 +1030,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   fontWeight: '500'
                                 }}
                               >
-                                🔄 Reset Usage
+                                <IconText iconId="refresh">Reset Usage</IconText>
                               </button>
                             )}
                           </div>
@@ -1040,7 +1060,9 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                 color: 'var(--dark-bg__text-color--secondary)'
               }}
             >
-              💡 Overrides are only used when they provide higher quotas than
+              <IconText iconId="lightbulb">
+                Overrides are only used when they provide higher quotas than
+              </IconText>
               subscriptions
             </div>
             <button

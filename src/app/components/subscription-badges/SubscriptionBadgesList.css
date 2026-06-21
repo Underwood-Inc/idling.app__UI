@@ -137,7 +137,7 @@ h3.subscription-badges-list__title {
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
   font-size: 1.0rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 

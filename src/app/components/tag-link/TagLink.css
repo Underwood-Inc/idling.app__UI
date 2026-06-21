@@ -9,7 +9,7 @@
   font-size: 1.0rem;
   font-weight: 600;
   text-decoration: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   line-height: 1.4;
   letter-spacing: 0.01em;
@@ -40,6 +40,7 @@
 
 .tag-link.active:hover {
   background-color: var(--tan-secondary);
+  color: var(--text-on-tan);
   border-color: var(--tan-primary);
   box-shadow: 0 3px 10px rgba(229, 193, 133, 0.4);
 }

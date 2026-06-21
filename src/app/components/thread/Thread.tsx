@@ -1,5 +1,7 @@
 'use client';
 
+import { LucideIcon } from '@molecules/lucide/LucideIcon';
+import { Pencil, X } from 'lucide';
 import { NAV_PATHS } from '@lib/routes';
 import {
   generateScrollKey,
@@ -437,7 +439,11 @@ export default function Thread({
                     className="submission__edit-btn"
                     aria-label={isEditing ? 'Cancel edit' : 'Edit submission'}
                   >
-                    {isEditing ? '✕' : '✏️'}
+                    {isEditing ? (
+                      <LucideIcon icon={X} sizeRem={1} />
+                    ) : (
+                      <LucideIcon icon={Pencil} sizeRem={1} />
+                    )}
                   </button>
 
                   <DeleteSubmissionForm

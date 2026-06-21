@@ -5,6 +5,8 @@ import {
   useProfileVisibility,
   useUserPreferences
 } from '@lib/context/UserPreferencesContext';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { SubscriptionFlairToggle } from '../components/subscription-badges/SubscriptionFlairToggle';
@@ -14,8 +16,20 @@ interface SettingsCategory {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  iconId: SiteIconId;
   expanded: boolean;
+}
+
+function SettingsIcon({
+  id,
+  className,
+  sizeRem = 1.125,
+}: {
+  id: SiteIconId;
+  className: string;
+  sizeRem?: number;
+}) {
+  return <SiteIcon id={id} className={className} sizeRem={sizeRem} />;
 }
 
 export default function SettingsPage() {
@@ -37,6 +51,8 @@ export default function SettingsPage() {
     setBackgroundMovementSpeed,
     backgroundAnimationLayers,
     setBackgroundAnimationLayers,
+    ambientAudioReactivityPercent,
+    setAmbientAudioReactivityPercent,
     isUpdatingSpacingTheme,
     isUpdatingPaginationMode,
     isUpdatingEmojiPanelBehavior,
@@ -45,6 +61,7 @@ export default function SettingsPage() {
     isUpdatingBackgroundMovementDirection,
     isUpdatingBackgroundMovementSpeed,
     isUpdatingBackgroundAnimationLayers,
+    isUpdatingAmbientAudioReactivity,
     spacingThemeError,
     paginationModeError,
     emojiPanelBehaviorError,
@@ -52,7 +69,8 @@ export default function SettingsPage() {
     accessibilityFocusModeError,
     backgroundMovementDirectionError,
     backgroundMovementSpeedError,
-    backgroundAnimationLayersError
+    backgroundAnimationLayersError,
+    ambientAudioReactivityError
   } = useUserPreferences();
 
   const {
@@ -75,35 +93,35 @@ export default function SettingsPage() {
       id: 'appearance',
       title: 'Appearance',
       description: 'Customize how the site looks and feels',
-      icon: '🎨',
+      iconId: 'palette',
       expanded: true
     },
     {
       id: 'behavior',
       title: 'Behavior',
       description: 'Control how the site behaves and responds',
-      icon: '⚙️',
+      iconId: 'settings',
       expanded: true
     },
     {
       id: 'accessibility',
       title: 'Accessibility',
       description: 'Make the site easier to use for everyone',
-      icon: '♿',
+      iconId: 'accessibility',
       expanded: true
     },
     {
       id: 'background',
       title: 'Background Effects',
       description: 'Customize the animated space background',
-      icon: '🌌',
+      iconId: 'orbit',
       expanded: true
     },
     {
       id: 'privacy',
       title: 'Privacy & Profile',
       description: 'Control your profile visibility and data',
-      icon: '🔒',
+      iconId: 'lock',
       expanded: session?.user ? true : false
     }
   ]);
@@ -148,7 +166,7 @@ export default function SettingsPage() {
               }
             >
               <div className="settings-category__header-content">
-                <span className="settings-category__icon">🎨</span>
+                <SettingsIcon id="palette" className="settings-category__icon" />
                 <div className="settings-category__header-text">
                   <h2 className="settings-category__title">Appearance</h2>
                   <p className="settings-category__description">
@@ -181,7 +199,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingFontPreference}
                         aria-pressed={fontPreference === 'monospace'}
                       >
-                        <span className="settings-option__icon">🔤</span>
+                        <SettingsIcon id="type" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Code</span>
                           <span className="settings-option__desc">
@@ -195,7 +213,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingFontPreference}
                         aria-pressed={fontPreference === 'default'}
                       >
-                        <span className="settings-option__icon">📖</span>
+                        <SettingsIcon id="bookOpen" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Reading
@@ -228,7 +246,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingSpacingTheme}
                         aria-pressed={spacingTheme === 'cozy'}
                       >
-                        <span className="settings-option__icon">📖</span>
+                        <SettingsIcon id="bookOpen" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Cozy</span>
                           <span className="settings-option__desc">
@@ -242,7 +260,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingSpacingTheme}
                         aria-pressed={spacingTheme === 'compact'}
                       >
-                        <span className="settings-option__icon">📊</span>
+                        <SettingsIcon id="barChart" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Compact
@@ -274,7 +292,7 @@ export default function SettingsPage() {
               }
             >
               <div className="settings-category__header-content">
-                <span className="settings-category__icon">⚙️</span>
+                <SettingsIcon id="settings" className="settings-category__icon" />
                 <div className="settings-category__header-text">
                   <h2 className="settings-category__title">Behavior</h2>
                   <p className="settings-category__description">
@@ -309,7 +327,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingPaginationMode}
                         aria-pressed={paginationMode === 'traditional'}
                       >
-                        <span className="settings-option__icon">📄</span>
+                        <SettingsIcon id="fileText" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Traditional
@@ -325,7 +343,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingPaginationMode}
                         aria-pressed={paginationMode === 'infinite'}
                       >
-                        <span className="settings-option__icon">∞</span>
+                        <SettingsIcon id="infinity" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Infinite Scroll
@@ -364,7 +382,7 @@ export default function SettingsPage() {
                           emojiPanelBehavior === 'close_after_select'
                         }
                       >
-                        <span className="settings-option__icon">🎯</span>
+                        <SettingsIcon id="target" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Close After Select
@@ -380,7 +398,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingEmojiPanelBehavior}
                         aria-pressed={emojiPanelBehavior === 'stay_open'}
                       >
-                        <span className="settings-option__icon">📌</span>
+                        <SettingsIcon id="pin" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Stay Open
@@ -412,7 +430,7 @@ export default function SettingsPage() {
               }
             >
               <div className="settings-category__header-content">
-                <span className="settings-category__icon">♿</span>
+                <SettingsIcon id="accessibility" className="settings-category__icon" />
                 <div className="settings-category__header-text">
                   <h2 className="settings-category__title">Accessibility</h2>
                   <p className="settings-category__description">
@@ -447,7 +465,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingAccessibilityFocusMode}
                         aria-pressed={accessibilityFocusMode === 'disabled'}
                       >
-                        <span className="settings-option__icon">🎯</span>
+                        <SettingsIcon id="target" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Disabled
@@ -463,7 +481,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingAccessibilityFocusMode}
                         aria-pressed={accessibilityFocusMode === 'enabled'}
                       >
-                        <span className="settings-option__icon">🔍</span>
+                        <SettingsIcon id="search" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Enabled
@@ -495,7 +513,7 @@ export default function SettingsPage() {
               }
             >
               <div className="settings-category__header-content">
-                <span className="settings-category__icon">🌌</span>
+                <SettingsIcon id="orbit" className="settings-category__icon" />
                 <div className="settings-category__header-text">
                   <h2 className="settings-category__title">
                     Background Effects
@@ -544,7 +562,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementDirection}
                         aria-pressed={backgroundMovementDirection === 'static'}
                       >
-                        <span className="settings-option__icon">⏸️</span>
+                        <SettingsIcon id="pause" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Static</span>
                           <span className="settings-option__desc">
@@ -560,7 +578,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementDirection}
                         aria-pressed={backgroundMovementDirection === 'forward'}
                       >
-                        <span className="settings-option__icon">⬆️</span>
+                        <SettingsIcon id="arrowUp" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Forward
@@ -580,7 +598,7 @@ export default function SettingsPage() {
                           backgroundMovementDirection === 'backward'
                         }
                       >
-                        <span className="settings-option__icon">⬇️</span>
+                        <SettingsIcon id="arrowDown" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
                             Backward
@@ -596,7 +614,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementDirection}
                         aria-pressed={backgroundMovementDirection === 'left'}
                       >
-                        <span className="settings-option__icon">⬅️</span>
+                        <SettingsIcon id="arrowLeft" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Left</span>
                           <span className="settings-option__desc">
@@ -610,7 +628,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementDirection}
                         aria-pressed={backgroundMovementDirection === 'right'}
                       >
-                        <span className="settings-option__icon">➡️</span>
+                        <SettingsIcon id="arrowRight" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Right</span>
                           <span className="settings-option__desc">
@@ -624,7 +642,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementDirection}
                         aria-pressed={backgroundMovementDirection === 'up'}
                       >
-                        <span className="settings-option__icon">⬆️</span>
+                        <SettingsIcon id="arrowUp" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Up</span>
                           <span className="settings-option__desc">
@@ -638,7 +656,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementDirection}
                         aria-pressed={backgroundMovementDirection === 'down'}
                       >
-                        <span className="settings-option__icon">⬇️</span>
+                        <SettingsIcon id="arrowDown" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Down</span>
                           <span className="settings-option__desc">
@@ -673,7 +691,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementSpeed}
                         aria-pressed={backgroundMovementSpeed === 'slow'}
                       >
-                        <span className="settings-option__icon">🐢</span>
+                        <SettingsIcon id="turtle" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Slow</span>
                           <span className="settings-option__desc">
@@ -687,7 +705,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementSpeed}
                         aria-pressed={backgroundMovementSpeed === 'normal'}
                       >
-                        <span className="settings-option__icon">🚀</span>
+                        <SettingsIcon id="rocket" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Normal</span>
                           <span className="settings-option__desc">
@@ -701,7 +719,7 @@ export default function SettingsPage() {
                         disabled={isUpdatingBackgroundMovementSpeed}
                         aria-pressed={backgroundMovementSpeed === 'fast'}
                       >
-                        <span className="settings-option__icon">⚡</span>
+                        <SettingsIcon id="zap" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">Fast</span>
                           <span className="settings-option__desc">
@@ -713,6 +731,56 @@ export default function SettingsPage() {
                     {backgroundMovementSpeedError && (
                       <div className="settings-card__error">
                         {backgroundMovementSpeedError}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Background audio reactivity */}
+                  <div className="settings-card settings-card--wide">
+                    <div className="settings-card__header">
+                      <h3 className="settings-card__title">
+                        Background Audio Reactivity
+                      </h3>
+                      <span className="settings-card__current">
+                        {ambientAudioReactivityPercent}%
+                      </span>
+                    </div>
+                    <p className="settings-card__hint">
+                      How strongly the galaxy background responds to radio
+                      playback. 0% keeps the static background; 100% is full
+                      reactivity.
+                    </p>
+                    <div className="settings-range">
+                      <label className="settings-range__label" htmlFor="ambient-audio-reactivity">
+                        Reactivity intensity
+                      </label>
+                      <input
+                        id="ambient-audio-reactivity"
+                        className="settings-range__input"
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={ambientAudioReactivityPercent}
+                        onChange={(event) => {
+                          void setAmbientAudioReactivityPercent(
+                            Number(event.target.value)
+                          );
+                        }}
+                        disabled={isUpdatingAmbientAudioReactivity}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={ambientAudioReactivityPercent}
+                        aria-valuetext={`${ambientAudioReactivityPercent}%`}
+                      />
+                      <div className="settings-range__ticks" aria-hidden="true">
+                        <span>Off</span>
+                        <span>Full</span>
+                      </div>
+                    </div>
+                    {ambientAudioReactivityError && (
+                      <div className="settings-card__error">
+                        {ambientAudioReactivityError}
                       </div>
                     )}
                   </div>
@@ -743,7 +811,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingBackgroundAnimationLayers}
                           aria-pressed={backgroundAnimationLayers.stars}
                         >
-                          <span className="settings-toggle__icon">⭐</span>
+                          <SettingsIcon id="star" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">Stars</span>
                           <span className="settings-toggle__status">
                             {backgroundAnimationLayers.stars ? 'On' : 'Off'}
@@ -762,7 +830,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingBackgroundAnimationLayers}
                           aria-pressed={backgroundAnimationLayers.particles}
                         >
-                          <span className="settings-toggle__icon">✨</span>
+                          <SettingsIcon id="sparkles" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">
                             Particles
                           </span>
@@ -783,7 +851,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingBackgroundAnimationLayers}
                           aria-pressed={backgroundAnimationLayers.nebula}
                         >
-                          <span className="settings-toggle__icon">🌫️</span>
+                          <SettingsIcon id="cloudFog" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">Nebula</span>
                           <span className="settings-toggle__status">
                             {backgroundAnimationLayers.nebula ? 'On' : 'Off'}
@@ -802,7 +870,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingBackgroundAnimationLayers}
                           aria-pressed={backgroundAnimationLayers.planets}
                         >
-                          <span className="settings-toggle__icon">🪐</span>
+                          <SettingsIcon id="orbit" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">
                             Planets
                           </span>
@@ -823,7 +891,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingBackgroundAnimationLayers}
                           aria-pressed={backgroundAnimationLayers.aurora}
                         >
-                          <span className="settings-toggle__icon">🌈</span>
+                          <SettingsIcon id="rainbow" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">Aurora</span>
                           <span className="settings-toggle__status">
                             {backgroundAnimationLayers.aurora ? 'On' : 'Off'}
@@ -853,7 +921,7 @@ export default function SettingsPage() {
                 }
               >
                 <div className="settings-category__header-content">
-                  <span className="settings-category__icon">🔒</span>
+                  <SettingsIcon id="lock" className="settings-category__icon" />
                   <div className="settings-category__header-text">
                     <h2 className="settings-category__title">
                       Privacy & Profile
@@ -892,7 +960,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingProfileVisibility}
                           aria-pressed={profileVisibility === 'public'}
                         >
-                          <span className="settings-option__icon">🌐</span>
+                          <SettingsIcon id="globe" className="settings-option__icon" />
                           <div className="settings-option__content">
                             <span className="settings-option__label">
                               Public
@@ -908,7 +976,7 @@ export default function SettingsPage() {
                           disabled={isUpdatingProfileVisibility}
                           aria-pressed={profileVisibility === 'private'}
                         >
-                          <span className="settings-option__icon">🔒</span>
+                          <SettingsIcon id="lock" className="settings-option__icon" />
                           <div className="settings-option__content">
                             <span className="settings-option__label">
                               Private
@@ -944,7 +1012,7 @@ export default function SettingsPage() {
             {session?.user ? (
               <div className="settings-account-status__content">
                 <div className="settings-account-status__info">
-                  <span className="settings-account-status__icon">✅</span>
+                  <SettingsIcon id="check" className="settings-account-status__icon" />
                   <div className="settings-account-status__details">
                     <div className="settings-account-status__status">
                       Signed in as{' '}
@@ -959,7 +1027,7 @@ export default function SettingsPage() {
             ) : (
               <div className="settings-account-status__content">
                 <div className="settings-account-status__info">
-                  <span className="settings-account-status__icon">⚠️</span>
+                  <SettingsIcon id="alertTriangle" className="settings-account-status__icon" />
                   <div className="settings-account-status__details">
                     <div className="settings-account-status__status">
                       <strong>Not signed in</strong>

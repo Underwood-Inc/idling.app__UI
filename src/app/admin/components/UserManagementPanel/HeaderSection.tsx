@@ -5,6 +5,7 @@
  * and action buttons. This component is focused solely on the header area.
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React from 'react';
 import { InteractiveTooltip } from '../../../components/tooltip/InteractiveTooltip';
 
@@ -40,7 +41,10 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   return (
     <div className="panel-header">
       <div className="header-content">
-        <h2 className="panel-title">User Management</h2>
+        <h2 className="panel-title">
+          <SiteIcon id="users" className="panel-title__icon" sizeRem={1.25} />
+          User Management
+        </h2>
         <p className="panel-description">
           Manage user accounts, roles, subscriptions, and permissions
         </p>
@@ -52,7 +56,9 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           onClick={onToggleFilterPanel}
           title="Toggle column filters"
         >
-          <span className="filter-icon">🔍</span>
+          <span className="filter-icon">
+            <SiteIcon id="search" sizeRem={1} />
+          </span>
           <span className="filter-label">Filters</span>
           {activeFiltersCount > 0 && (
             <span className="filter-count">{activeFiltersCount}</span>
@@ -64,7 +70,9 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           onClick={onExportAll}
           title="Export all user data"
         >
-          <span className="export-icon">📊</span>
+          <span className="export-icon">
+            <SiteIcon id="barChart" sizeRem={1} />
+          </span>
           <span className="export-label">Export All</span>
         </button>
 
@@ -81,7 +89,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
                 {isSearching ? (
                   <div className="search-spinner"></div>
                 ) : (
-                  <span>🔍</span>
+                  <SiteIcon id="search" sizeRem={1} />
                 )}
               </div>
               <input

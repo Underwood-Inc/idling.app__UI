@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import FadeIn from '../components/fade-in/FadeIn';
@@ -76,7 +77,8 @@ export default function SvgConverter() {
           <div className={styles.converter}>
             <div className={styles.converter__header}>
               <h1 className={styles.converter__title}>
-                🎨 SVG to PNG Converter
+                <SiteIcon id="palette" sizeRem={1.25} />
+                SVG to PNG Converter
               </h1>
               <p className={styles.converter__description}>
                 Transform your SVG vector graphics into high-quality PNG images
@@ -109,7 +111,10 @@ export default function SvgConverter() {
               {error && (
                 <div className={styles.converter__error}>
                   <div className={styles.error__content}>
-                    <h3>⚠️ Conversion Failed</h3>
+                    <h3>
+                      <SiteIcon id="alertTriangle" sizeRem={1.125} />
+                      Conversion Failed
+                    </h3>
                     <p>{error}</p>
                     <button
                       onClick={() => setError('')}
@@ -128,19 +133,43 @@ export default function SvgConverter() {
       <PageAside className={styles.converter__aside}>
         <div className={styles.sidebar}>
           <div className={styles.sidebar__section}>
-            <h3 className={styles.sidebar__title}>✨ Features</h3>
+            <h3 className={styles.sidebar__title}>
+              <SiteIcon id="sparkles" sizeRem={1.125} />
+              Features
+            </h3>
             <ul className={styles.feature__list}>
-              <li>🎯 High-quality PNG output</li>
-              <li>⚙️ Custom scaling & dimensions</li>
-              <li>🔒 Security validation</li>
-              <li>📊 Batch processing</li>
-              <li>🎨 Background customization</li>
-              <li>⏱️ Real-time progress</li>
+              <li>
+                <SiteIcon id="target" sizeRem={1} />
+                High-quality PNG output
+              </li>
+              <li>
+                <SiteIcon id="settings" sizeRem={1} />
+                Custom scaling & dimensions
+              </li>
+              <li>
+                <SiteIcon id="lock" sizeRem={1} />
+                Security validation
+              </li>
+              <li>
+                <SiteIcon id="barChart" sizeRem={1} />
+                Batch processing
+              </li>
+              <li>
+                <SiteIcon id="palette" sizeRem={1} />
+                Background customization
+              </li>
+              <li>
+                <SiteIcon id="clock" sizeRem={1} />
+                Real-time progress
+              </li>
             </ul>
           </div>
 
           <div className={styles.sidebar__section}>
-            <h3 className={styles.sidebar__title}>📋 Supported</h3>
+            <h3 className={styles.sidebar__title}>
+              <SiteIcon id="clipboard" sizeRem={1.125} />
+              Supported
+            </h3>
             <div className={styles.format__grid}>
               <div className={styles.format__item}>
                 <span className={styles.format__label}>Input:</span>
@@ -173,7 +202,10 @@ export default function SvgConverter() {
           )}
 
           <div className={styles.sidebar__section}>
-            <h3 className={styles.sidebar__title}>💡 Tips</h3>
+            <h3 className={styles.sidebar__title}>
+              <SiteIcon id="lightbulb" sizeRem={1.125} />
+              Tips
+            </h3>
             <ul className={styles.tips__list}>
               <li>Remove script tags for security</li>
               <li>Use simple SVGs for faster conversion</li>
@@ -184,7 +216,10 @@ export default function SvgConverter() {
 
           {session?.user && (
             <div className={styles.sidebar__section}>
-              <h3 className={styles.sidebar__title}>👤 Signed In</h3>
+              <h3 className={styles.sidebar__title}>
+                <SiteIcon id="user" sizeRem={1.125} />
+                Signed In
+              </h3>
               <p className={styles.user__info}>
                 Welcome back, {session.user.name || session.user.email}!
                 <br />

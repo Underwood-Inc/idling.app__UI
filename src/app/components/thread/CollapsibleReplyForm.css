@@ -16,7 +16,7 @@
   border: 1px solid var(--glass-border-medium);
   box-shadow: var(--glass-shadow-light);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);

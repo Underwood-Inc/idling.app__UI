@@ -72,6 +72,7 @@ RUN echo 'source /etc/zsh/zshrc' > /root/.zshrc
 
 # Set SHELL environment variable to zsh
 ENV SHELL=/usr/bin/zsh
+ENV CI=true
 
 # Set the working directory
 WORKDIR /app

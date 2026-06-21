@@ -7,6 +7,7 @@
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/not-found
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import Link from 'next/link';
 
 export default function NotFound() {
@@ -39,9 +40,13 @@ export default function NotFound() {
           fontSize: '1.5rem',
           marginBottom: '1rem',
           color: 'var(--text-primary, #f9f9f9)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
         }}
       >
-        🧙‍♂️ Page Not Found
+        <SiteIcon id="wand" sizeRem={1.25} />
+        Page Not Found
       </h2>
       <p
         style={{

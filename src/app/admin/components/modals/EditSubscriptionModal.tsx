@@ -1,6 +1,7 @@
 'use client';
 
 import { useOverlay } from '@lib/context/OverlayContext';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useState } from 'react';
 import './EditSubscriptionModal.css';
 
@@ -84,11 +85,21 @@ export function EditSubscriptionModal({
   return (
     <div className="edit-subscription-modal">
       <div className="edit-subscription-modal__header">
-        <h2>✏️ Edit Subscription</h2>
+        <h2
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="pencil" sizeRem={1.125} />
+          Edit Subscription
+        </h2>
       </div>
 
       <div className="edit-subscription-modal__user-info">
-        <h3>👤 {subscription.user_name || 'Unknown User'}</h3>
+        <h3
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="user" sizeRem={1} />
+          {subscription.user_name || 'Unknown User'}
+        </h3>
         <p>{subscription.user_email}</p>
         <p>
           <strong>Plan:</strong> {subscription.plan_display_name}
@@ -211,7 +222,12 @@ export function EditSubscriptionModal({
 
         {error && (
           <div className="edit-subscription-modal__error">
-            <span>❌ {error}</span>
+            <span
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+            >
+              <SiteIcon id="circleX" sizeRem={1} />
+              {error}
+            </span>
           </div>
         )}
 
@@ -221,7 +237,21 @@ export function EditSubscriptionModal({
             className="edit-subscription-modal__btn edit-subscription-modal__btn--primary"
             disabled={isLoading}
           >
-            {isLoading ? '⏳ Saving...' : '💾 Save Changes'}
+            {isLoading ? (
+              <span
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+              >
+                <SiteIcon id="loader" sizeRem={1} />
+                Saving...
+              </span>
+            ) : (
+              <span
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+              >
+                <SiteIcon id="save" sizeRem={1} />
+                Save Changes
+              </span>
+            )}
           </button>
         </div>
       </form>

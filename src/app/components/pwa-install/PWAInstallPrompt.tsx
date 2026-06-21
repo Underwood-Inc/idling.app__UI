@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useEffect, useState } from 'react';
 import './PWAInstallPrompt.css';
 
@@ -123,7 +124,7 @@ const PWAInstallPrompt: React.FC = () => {
   return (
     <div className="pwa-install-prompt">
       <div className="pwa-install-prompt__content">
-        <div className="pwa-install-prompt__icon">📱</div>
+        <SiteIcon id="smartphone" className="pwa-install-prompt__icon" sizeRem={1.5} />
         <div className="pwa-install-prompt__text">
           <span className="pwa-install-prompt__title">Install App</span>
           <span className="pwa-install-prompt__subtitle">

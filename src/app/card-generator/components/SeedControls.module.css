@@ -28,7 +28,7 @@
 .seed__value {
   font-size: 1.0rem;
   color: var(--dark-bg__text-color--primary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   transition: background-color 0.2s ease;
@@ -42,7 +42,7 @@
 .seed__random {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: 4px;
   transition: background-color 0.2s ease;
@@ -79,7 +79,7 @@
 .seed__cancel {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 1rem;

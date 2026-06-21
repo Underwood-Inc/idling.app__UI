@@ -79,7 +79,7 @@
   /* Ensure interactive tooltip content is touch-friendly */
   .interactive-tooltip .info-tooltip-content {
     /* Remove hover effects on mobile */
-    cursor: default;
+    cursor: var(--mappy-cursor-default, default);
   }
 
   /* Make buttons and interactive elements more touch-friendly */

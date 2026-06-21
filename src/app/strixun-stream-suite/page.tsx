@@ -1,4 +1,5 @@
 import { NAV_PATHS } from '@lib/routes';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import Link from 'next/link';
 import FadeIn from '../components/fade-in/FadeIn';
 import styles from './page.module.css';
@@ -107,28 +108,6 @@ const PRODUCTS: Product[] = [
     detailsPath: NAV_PATHS.URL_SHORTENER_DETAIL
   },
   {
-    id: 'chat-hub',
-    image: '/red_panda/animated/256x256/extra/Bubble tea.gif',
-    name: 'Chat Hub',
-    tagline: 'P2P Encrypted Chat',
-    description: 'Privacy-first real-time chat using WebRTC for direct peer-to-peer connections. Your messages never touch our servers - they go straight from you to your recipient. No message storage, automatic cleanup, and end-to-end security built in. Perfect for sensitive conversations where privacy actually matters.',
-    keyFeatures: [
-      'True peer-to-peer via WebRTC - no server storage',
-      'Room management with automatic discovery',
-      'Typing indicators and presence for better UX',
-      'Automatic cleanup ensures total privacy',
-      'Heartbeat system with graceful reconnection'
-    ],
-    highlights: [
-      { label: 'Privacy', value: 'P2P Only' },
-      { label: 'Storage', value: 'Zero' },
-      { label: 'Status', value: 'In Dev' }
-    ],
-    status: 'development',
-    url: 'https://chat.idling.app',
-    detailsPath: NAV_PATHS.CHAT_HUB_DETAIL
-  },
-  {
     id: 'access-hub',
     image: '/red_panda/animated/256x256/extra/Ban.gif',
     name: 'Access Hub',
@@ -172,11 +151,13 @@ export default function StrixunSuitePage() {
             <div className={styles.hero__actions}>
               <a
                 href="https://github.com/Underwood-Inc/strixun-stream-suite"
-                className={styles.cta__primary}
+                className={`${styles.cta__primary} contrast-safe-surface contrast-safe-surface--cta-primary`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className={styles.cta__icon}>📦</span>
+                <span className={styles.cta__icon}>
+                  <SiteIcon id="folderGit" sizeRem={1.125} />
+                </span>
                 View on GitHub
               </a>
             </div>
@@ -256,11 +237,13 @@ export default function StrixunSuitePage() {
             </p>
             <a
               href="https://github.com/Underwood-Inc/strixun-stream-suite"
-              className={styles.cta__primary}
+              className={`${styles.cta__primary} contrast-safe-surface contrast-safe-surface--cta-primary`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className={styles.cta__icon}>⭐</span>
+              <span className={styles.cta__icon}>
+                <SiteIcon id="star" sizeRem={1.125} />
+              </span>
               Star on GitHub
             </a>
           </div>

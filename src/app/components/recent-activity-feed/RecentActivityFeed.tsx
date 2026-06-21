@@ -45,7 +45,10 @@ export const RecentActivityFeed: React.FC<RecentActivityFeedProps> = ({
     <div className={`recent-activity-feed ${className}`}>
       <div className="recent-activity-feed__header">
         <h3 className="recent-activity-feed__title">Recent Activity</h3>
-        <Link href="/posts" className="recent-activity-feed__view-all">
+        <Link
+          href="/posts"
+          className="contrast-safe-surface contrast-safe-surface--cta-primary recent-activity-feed__view-all"
+        >
           View All →
         </Link>
       </div>

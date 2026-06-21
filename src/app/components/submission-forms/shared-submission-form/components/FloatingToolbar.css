@@ -29,7 +29,7 @@
   color: var(--light-bg__text-color--primary);
   font-size: 1.0rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -46,7 +46,7 @@
 
 .toolbar-button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 /* Tooltip Panel Styles */
@@ -101,7 +101,7 @@
   background: none;
   color: white;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background-color 0.2s ease;
 }
 
@@ -111,7 +111,7 @@
 
 .toolbar-result-item--disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .toolbar-result-item--disabled:hover {

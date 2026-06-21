@@ -1,0 +1,275 @@
+/*
+ * Port of apps/mappy/site/scss/_cursor.scss — Mappy marketing site document cursors.
+ * idling.app adds shell selectors beside the site originals (harmless if unmatched).
+ * Override: data-mappy-cursor="<keyword>".
+ */
+
+@media (pointer: fine) {
+  html {
+    cursor: var(--mappy-cursor-default);
+  }
+
+  html :is(
+    a[href],
+    button,
+    summary,
+    label[for],
+    select,
+    .btn,
+    .site-nav a:not(.site-nav__cta),
+    .instant-link,
+    .nav__group-trigger,
+    .nav__group-item,
+    .mobile-nav-drawer__item,
+    .mobile-nav-drawer__close,
+    .chapter-card,
+    .section-drawer__summary,
+    .catalog-highlight,
+    .catalog-highlight__jump,
+    .catalog__filter-pill,
+    .catalog__chapter-toggle,
+    .instrument__toggle,
+    .instrument__wiki-link,
+    .lightbox__close,
+    .footer-links a,
+    .filter__button,
+    .project__link,
+    .tab,
+    .wiki-sidebar__link,
+    .wiki-article__pager-link,
+    .wiki-article__toc-list a,
+    .wiki-article__breadcrumb a,
+    [role='button'],
+    [role='link'],
+    [role='tab'],
+    [role='menuitem'],
+    [role='menuitemradio'],
+    [role='menuitemcheckbox'],
+    [role='option'],
+    [role='switch'],
+    [role='treeitem'],
+    [tabindex]:not([tabindex='-1']),
+    input[type='button'],
+    input[type='submit'],
+    input[type='reset'],
+    input[type='checkbox'],
+    input[type='radio'],
+    input[type='color'],
+    input[type='file'],
+    input[type='range'],
+    [data-mappy-cursor='pointer']
+  ):not(:disabled):not([aria-disabled='true']) {
+    cursor: var(--mappy-cursor-pointer);
+  }
+
+  html :is(summary, [role='button'], [role='menuitem'], label, button, a[href])
+    :is(*:not(input):not(textarea):not(select):not([contenteditable='true'])) {
+    cursor: inherit;
+  }
+
+  html :is(
+    .btn--primary,
+    .site-nav__cta,
+    a.btn--primary,
+    [data-mappy-cursor='cta']
+  ):not(:disabled):not([aria-disabled='true']) {
+    cursor: var(--mappy-cursor-cta);
+  }
+
+  html :is(.context-menu, [data-mappy-cursor='context-menu']) {
+    cursor: var(--mappy-cursor-context-menu);
+  }
+
+  html :is(
+    input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+    textarea,
+    [contenteditable='true'],
+    .catalog__search-input,
+    .wiki-mobile-bar__search,
+    .rich-input,
+    .rich-input-content,
+    [data-mappy-selectable-text],
+    .mappy-selectable-text,
+    p,
+    li,
+    blockquote,
+    pre,
+    figcaption,
+    dd,
+    dt,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    td,
+    th,
+    code,
+    .wiki-article,
+    .wiki-article__hook,
+    .wiki-article__footer,
+    .tooltip__body,
+    .tooltip__lead,
+    [data-mappy-cursor='text']
+  ) {
+    cursor: var(--mappy-cursor-text) !important;
+  }
+
+  html :is([data-mappy-cursor='vertical-text']) {
+    cursor: var(--mappy-cursor-vertical-text);
+  }
+
+  html :is(
+    .rich-help:not(.rich-help--badge),
+    .rich-help--badge,
+    [data-tip-heading],
+    [title],
+    .mappy-help-underline,
+    [data-mappy-cursor='help']
+  ) {
+    cursor: var(--mappy-cursor-help);
+  }
+
+  html :is(
+    [data-state='waiting'],
+    [aria-busy='true'],
+    .is-waiting,
+    [data-mappy-cursor='wait']
+  ) {
+    cursor: var(--mappy-cursor-wait);
+  }
+
+  html :is([data-mappy-cursor='progress']) {
+    cursor: var(--mappy-cursor-progress);
+  }
+
+  html :is(
+    :disabled,
+    input:disabled + label,
+    [aria-disabled='true'],
+    .is-disabled,
+    .catalog__filter-pill--disabled
+  ) {
+    cursor: var(--mappy-cursor-disabled);
+  }
+
+  html :is([data-mappy-cursor='not-allowed']) {
+    cursor: var(--mappy-cursor-not-allowed);
+  }
+
+  html :is([data-mappy-cursor='no-drop']) {
+    cursor: var(--mappy-cursor-no-drop);
+  }
+
+  html :is(
+    [data-lightbox],
+    [data-media-zoom],
+    .showcase__shot,
+    .hero__visual,
+    .screenshot-card__frame,
+    .landing-section__figure,
+    .lightbox__img,
+    [data-mappy-cursor='zoom-in']
+  ) {
+    cursor: var(--mappy-cursor-zoom-in);
+  }
+
+  html :is([data-mappy-cursor='zoom-out']) {
+    cursor: var(--mappy-cursor-zoom-out);
+  }
+
+  html :is(
+    [data-site-drag-handle],
+    .mermaid,
+    .mermaid svg,
+    .mermaid-container[data-mermaid-interactive='true'],
+    [data-mappy-cursor='grab']
+  ) {
+    cursor: var(--mappy-cursor-grab);
+  }
+
+  html :is(
+    [data-site-drag-handle]:active,
+    .mermaid:active,
+    .mermaid svg:active,
+    [data-mappy-cursor='grabbing']
+  ) {
+    cursor: var(--mappy-cursor-grabbing);
+  }
+
+  html :is([data-mappy-cursor='move']) {
+    cursor: var(--mappy-cursor-move);
+  }
+
+  html :is([data-mappy-cursor='all-scroll']) {
+    cursor: var(--mappy-cursor-all-scroll);
+  }
+
+  html :is([data-mappy-cursor='copy']) {
+    cursor: var(--mappy-cursor-copy);
+  }
+
+  html :is([data-mappy-cursor='alias']) {
+    cursor: var(--mappy-cursor-alias);
+  }
+
+  html :is([data-mappy-cursor='cell']) {
+    cursor: var(--mappy-cursor-cell);
+  }
+
+  html :is(
+    [data-mappy-cursor='ns-resize'],
+    [data-mappy-cursor='n-resize'],
+    [data-mappy-cursor='s-resize'],
+    [data-mappy-cursor='row-resize']
+  ) {
+    cursor: var(--mappy-cursor-row-resize);
+  }
+
+  html :is(
+    [data-mappy-cursor='col-resize'],
+    [data-mappy-cursor='ew-resize'],
+    [data-mappy-cursor='e-resize'],
+    [data-mappy-cursor='w-resize']
+  ) {
+    cursor: var(--mappy-cursor-col-resize);
+  }
+
+  html :is(
+    [data-mappy-cursor='nesw-resize'],
+    [data-mappy-cursor='ne-resize'],
+    [data-mappy-cursor='sw-resize']
+  ) {
+    cursor: var(--mappy-cursor-nesw-resize);
+  }
+
+  html :is(
+    [data-mappy-cursor='nwse-resize'],
+    [data-mappy-cursor='nw-resize'],
+    [data-mappy-cursor='se-resize']
+  ) {
+    cursor: var(--mappy-cursor-nwse-resize);
+  }
+
+  html :is(
+    [data-map-draw-surface='true'],
+    [data-mappy-cursor='draw']
+  ) {
+    cursor: var(--mappy-cursor-draw);
+  }
+
+  html :is([data-mappy-cursor='crosshair']) {
+    cursor: var(--mappy-cursor-crosshair);
+  }
+
+  html :is([data-mappy-cursor='default']) {
+    cursor: var(--mappy-cursor-default);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    cursor: auto;
+  }
+}

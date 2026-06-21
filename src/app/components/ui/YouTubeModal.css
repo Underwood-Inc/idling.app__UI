@@ -80,7 +80,7 @@
 .youtube-modal__close {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 8px;
   border-radius: 6px;
   color: var(--dark-bg__text-color--secondary);

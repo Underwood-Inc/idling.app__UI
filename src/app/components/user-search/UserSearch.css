@@ -109,7 +109,7 @@
   margin: 0;
   border: none;
   background: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   border-bottom: 1px solid rgba(255, 140, 0, 0.1);
   display: block;
@@ -226,7 +226,7 @@
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   text-decoration: none;
   display: inline-flex;

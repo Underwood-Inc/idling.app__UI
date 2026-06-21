@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect, useState } from 'react';
 import './AdminUserTooltip.css';
 
@@ -99,7 +100,12 @@ export function AdminUserTooltip({
         onMouseLeave={() => !showTimeoutForm && setShowTooltip(false)}
         onClick={() => setShowTooltip(!showTooltip)}
       >
-        👤 {username}
+        <span
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="user" sizeRem={1} />
+          {username}
+        </span>
       </button>
 
       {showTooltip && (
@@ -118,8 +124,16 @@ export function AdminUserTooltip({
                 <span>Checking timeout status...</span>
               ) : timeoutStatus?.is_timed_out ? (
                 <div className="admin-user-tooltip__timeout-active">
-                  <span className="admin-user-tooltip__timeout-indicator">
-                    ⏰ Timed Out
+                  <span
+                    className="admin-user-tooltip__timeout-indicator"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35em'
+                    }}
+                  >
+                    <SiteIcon id="clock" sizeRem={0.875} />
+                    Timed Out
                   </span>
                   <div className="admin-user-tooltip__timeout-details">
                     <div>Reason: {timeoutStatus.reason}</div>
@@ -129,8 +143,16 @@ export function AdminUserTooltip({
                   </div>
                 </div>
               ) : (
-                <span className="admin-user-tooltip__status-normal">
-                  ✅ Normal Status
+                <span
+                  className="admin-user-tooltip__status-normal"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35em'
+                  }}
+                >
+                  <SiteIcon id="check" sizeRem={0.875} />
+                  Normal Status
                 </span>
               )}
             </div>

@@ -156,8 +156,7 @@ useEffect(() => {
 3. **Mods Hub** - Modern mod hosting platform (CurseForge alternative)
 4. **Auth Service** - Multi-tenant OTP authentication system
 5. **URL Shortener** - Short links with analytics
-6. **Chat Hub** - P2P encrypted chat with WebRTC
-7. **Access Hub** - Role-based access control dashboard
+6. **Access Hub** - Role-based access control dashboard
 
 **Developer Tools & Packages:**
 8. **API Framework** - Type-safe API client with advanced features
@@ -571,7 +570,6 @@ const PROJECT_CATEGORIES = {
     'Mods Hub',
     'Auth Service',
     'URL Shortener',
-    'Chat Hub',
     'Access Hub'
   ],
   'Minecraft Projects': [
@@ -1546,13 +1544,12 @@ export const metadata = {
 3. Ad Carousel - Twitch-integrated ad system
 4. Idle Game Overlay - Stream overlay game components
 
-**Web Services (6 projects):**
+**Web Services (5 projects):**
 1. Mods Hub - Mod hosting platform
 2. Auth Service - Multi-tenant OTP authentication
 3. URL Shortener - Link shortening with analytics
-4. Chat Hub - P2P encrypted chat
-5. Access Hub - Access control dashboard
-6. Twitch API Proxy - API proxy with cloud storage
+4. Access Hub - Access control dashboard
+5. Twitch API Proxy - API proxy with cloud storage
 
 **Gaming (4 projects):**
 1. Compressy - Fabric mod for infinite block compression

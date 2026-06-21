@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React from 'react';
 import { InteractiveTooltip } from '../../components/tooltip/InteractiveTooltip';
 import './AlertStatusTooltip.css';
@@ -14,7 +16,7 @@ export interface AlertStatusTooltipProps {
 interface StatusInfo {
   title: string;
   description: string;
-  icon: string;
+  iconId: SiteIconId;
   purpose: string;
   examples: string[];
   currentState?: {
@@ -23,6 +25,25 @@ interface StatusInfo {
     color: 'success' | 'warning' | 'danger' | 'info';
   };
 }
+
+interface IconLabelProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+  sizeRem?: number;
+}
+
+const IconLabel: React.FC<IconLabelProps> = ({
+  iconId,
+  children,
+  sizeRem = 1
+}) => (
+  <span
+    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+  >
+    <SiteIcon id={iconId} sizeRem={sizeRem} />
+    {children}
+  </span>
+);
 
 const getStatusInfo = (
   type: 'active' | 'published',
@@ -33,7 +54,7 @@ const getStatusInfo = (
     active: {
       title: 'Active Status',
       description: 'Internal system control for alert functionality',
-      icon: '🔧',
+      iconId: 'wrench' as SiteIconId,
       purpose: 'Technical enable/disable switch for administrators',
       examples: [
         'Temporarily disable during maintenance',
@@ -45,7 +66,7 @@ const getStatusInfo = (
     published: {
       title: 'Published Status',
       description: 'Public visibility control for end users',
-      icon: '📢',
+      iconId: 'megaphone' as SiteIconId,
       purpose: 'Editorial control over what users can see',
       examples: [
         'Draft → Review → Publish workflow',
@@ -58,7 +79,6 @@ const getStatusInfo = (
 
   const info = baseInfo[type];
 
-  // Add current state information if values are provided
   let currentState;
   if (isActive !== undefined && isPublished !== undefined) {
     if (type === 'active') {
@@ -83,6 +103,24 @@ const getStatusInfo = (
   return { ...info, currentState };
 };
 
+interface MatrixStatusIconsProps {
+  active: boolean;
+  published: boolean;
+}
+
+const MatrixStatusIcons: React.FC<MatrixStatusIconsProps> = ({
+  active,
+  published
+}) => (
+  <span
+    className="alert-status-tooltip__matrix-status"
+    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25em' }}
+  >
+    <SiteIcon id={active ? 'check' : 'circleX'} sizeRem={0.875} />
+    <SiteIcon id={published ? 'check' : 'circleX'} sizeRem={0.875} />
+  </span>
+);
+
 const AlertStatusTooltipContent: React.FC<{
   info: StatusInfo;
   type: 'active' | 'published';
@@ -95,7 +133,9 @@ const AlertStatusTooltipContent: React.FC<{
   return (
     <div className="alert-status-tooltip">
       <div className="alert-status-tooltip__header">
-        <span className="alert-status-tooltip__icon">{info.icon}</span>
+        <span className="alert-status-tooltip__icon">
+          <SiteIcon id={info.iconId} sizeRem={1.25} />
+        </span>
         <h4 className="alert-status-tooltip__title">{info.title}</h4>
       </div>
 
@@ -137,7 +177,7 @@ const AlertStatusTooltipContent: React.FC<{
                   : ''
               }`}
             >
-              <span className="alert-status-tooltip__matrix-status">❌ ❌</span>
+              <MatrixStatusIcons active={false} published={false} />
               <span className="alert-status-tooltip__matrix-label">
                 Disabled Draft
               </span>
@@ -152,7 +192,7 @@ const AlertStatusTooltipContent: React.FC<{
                   : ''
               }`}
             >
-              <span className="alert-status-tooltip__matrix-status">✅ ❌</span>
+              <MatrixStatusIcons active={true} published={false} />
               <span className="alert-status-tooltip__matrix-label">
                 Active Draft
               </span>
@@ -167,7 +207,7 @@ const AlertStatusTooltipContent: React.FC<{
                   : ''
               }`}
             >
-              <span className="alert-status-tooltip__matrix-status">❌ ✅</span>
+              <MatrixStatusIcons active={false} published={true} />
               <span className="alert-status-tooltip__matrix-label">
                 Published Inactive
               </span>
@@ -182,10 +222,12 @@ const AlertStatusTooltipContent: React.FC<{
                   : ''
               }`}
             >
-              <span className="alert-status-tooltip__matrix-status">✅ ✅</span>
+              <MatrixStatusIcons active={true} published={true} />
               <span className="alert-status-tooltip__matrix-label">Live</span>
               <span className="alert-status-tooltip__matrix-result">
-                🟢 Visible
+                <IconLabel iconId="circle" sizeRem={0.75}>
+                  Visible
+                </IconLabel>
               </span>
             </div>
           </div>
@@ -196,7 +238,9 @@ const AlertStatusTooltipContent: React.FC<{
       )}
 
       <div className="alert-status-tooltip__key-point">
-        <strong>💡 Key Point:</strong>{' '}
+        <strong>
+          <IconLabel iconId="lightbulb">Key Point:</IconLabel>
+        </strong>{' '}
         {type === 'active'
           ? 'Active controls system functionality - Published controls user visibility'
           : 'Published controls user visibility - Active controls system functionality'}

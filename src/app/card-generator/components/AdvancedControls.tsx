@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { GenerationOptions } from '../types/generation';
 import styles from './AdvancedControls.module.css';
 import formStyles from './FormElements.module.css';
@@ -97,13 +98,19 @@ export function AdvancedControls({
     <div className={styles.advanced__options}>
       {!isProUser && (
         <div className={styles.advanced__paywall__notice}>
-          <h4>🚀 Unlock Advanced Magic</h4>
+          <h4>
+            <SiteIcon id="rocket" sizeRem={1.125} />
+            Unlock Advanced Magic
+          </h4>
           <p>
             Get precise control over avatar positioning, text layout, visual
             styling, and more with Pro subscription.
           </p>
           <a href="/subscription" className={styles.advanced__upgrade__link}>
-            Upgrade to Pro ⚡
+            <>
+              Upgrade to Pro
+              <SiteIcon id="zap" sizeRem={0.875} />
+            </>
           </a>
         </div>
       )}
@@ -112,7 +119,8 @@ export function AdvancedControls({
         {/* Positioning Controls */}
         <div className={formStyles.form__section}>
           <h5 className={formStyles.form__subsection__title}>
-            📍 Avatar Positioning
+            <SiteIcon id="mapPin" sizeRem={1} />
+            Avatar Positioning
           </h5>
           <div className={formStyles.form__row}>
             <label className={formStyles.form__label}>
@@ -168,7 +176,10 @@ export function AdvancedControls({
 
         {/* Text Controls */}
         <div className={formStyles.form__section}>
-          <h5 className={formStyles.form__subsection__title}>📝 Text Layout</h5>
+          <h5 className={formStyles.form__subsection__title}>
+            <SiteIcon id="fileText" sizeRem={1} />
+            Text Layout
+          </h5>
           <div className={formStyles.form__row}>
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>Text Max Width</span>
@@ -230,7 +241,8 @@ export function AdvancedControls({
         {/* Visual Controls */}
         <div className={formStyles.form__section}>
           <h5 className={formStyles.form__subsection__title}>
-            🎨 Visual Effects
+            <SiteIcon id="palette" sizeRem={1} />
+            Visual Effects
           </h5>
           <div className={formStyles.form__row}>
             <label className={formStyles.form__label}>
@@ -295,7 +307,8 @@ export function AdvancedControls({
         {/* Pattern Controls */}
         <div className={formStyles.form__section}>
           <h5 className={formStyles.form__subsection__title}>
-            🌟 Pattern Magic
+            <SiteIcon id="sparkles" sizeRem={1} />
+            Pattern Magic
           </h5>
           <div className={formStyles.form__row}>
             <label className={formStyles.form__label}>
@@ -343,7 +356,8 @@ export function AdvancedControls({
         {isProUser && (
           <div className={formStyles.form__section}>
             <h5 className={formStyles.form__subsection__title}>
-              🏷️ Watermark Controls
+              <SiteIcon id="pin" sizeRem={1} />
+              Watermark Controls
             </h5>
             <div className={formStyles.form__row}>
               <label className={formStyles.form__checkbox__label}>
@@ -504,7 +518,10 @@ export function AdvancedControls({
       {disabled && (
         <div className={styles.upgrade__overlay}>
           <div className={styles.upgrade__content}>
-            <h4>🔮 Unlock Advanced Magic</h4>
+            <h4>
+              <SiteIcon id="sparkles" sizeRem={1.125} />
+              Unlock Advanced Magic
+            </h4>
             <p>
               Gain precise control over every aspect of your mystical cards!
             </p>
@@ -512,7 +529,10 @@ export function AdvancedControls({
               className={styles.upgrade__button}
               onClick={() => (window.location.href = '/subscription')}
             >
-              Ascend to Archmage ⚡
+              <>
+                Ascend to Archmage
+                <SiteIcon id="zap" sizeRem={0.875} />
+              </>
             </button>
           </div>
         </div>

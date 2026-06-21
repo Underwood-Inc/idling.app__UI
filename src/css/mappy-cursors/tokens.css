@@ -1,0 +1,47 @@
+/*
+ * Mappy compass / functional cursors — no calligraphy pen variants on idling.app.
+ * Source: apps/mappy/src/ui/foundation/tokens.css (cursor block).
+ */
+:root {
+  --mappy-cursor-default: url('/assets/cursors/mappy-default.svg') 16 16, default;
+  --mappy-cursor-pointer: url('/assets/cursors/mappy-pointer.svg') 5 3, pointer;
+  --mappy-cursor-cta: url('/assets/cursors/mappy-cta.svg') 16 16, pointer;
+  --mappy-cursor-draw: url('/assets/cursors/mappy-draw.svg') 9 23, crosshair;
+  --mappy-cursor-text: url('/assets/cursors/mappy-text.svg') 16 16, text;
+  --mappy-cursor-zoom-in: url('/assets/cursors/mappy-zoom.svg') 18 12, zoom-in;
+  --mappy-cursor-zoom: var(--mappy-cursor-zoom-in);
+  --mappy-cursor-disabled: var(--mappy-cursor-not-allowed);
+  --mappy-cursor-help: url('/assets/cursors/mappy-help.svg') 16 16, help;
+  --mappy-rich-help-cursor: var(--mappy-cursor-help);
+  --mappy-cursor-context-menu: url('/assets/cursors/mappy-context-menu.svg') 8 7, context-menu;
+  --mappy-cursor-progress: url('/assets/cursors/mappy-progress.svg') 16 16, progress;
+  --mappy-cursor-wait: url('/assets/cursors/mappy-wait.svg') 16 16, wait;
+  --mappy-cursor-cell: url('/assets/cursors/mappy-cell.svg') 16 16, cell;
+  --mappy-cursor-crosshair: url('/assets/cursors/mappy-crosshair.svg') 16 16, crosshair;
+  --mappy-cursor-vertical-text: url('/assets/cursors/mappy-vertical-text.svg') 16 16, vertical-text;
+  --mappy-cursor-alias: url('/assets/cursors/mappy-alias.svg') 22 18, alias;
+  --mappy-cursor-copy: url('/assets/cursors/mappy-copy.svg') 12 7, copy;
+  --mappy-cursor-move: url('/assets/cursors/mappy-move.svg') 16 16, move;
+  --mappy-cursor-no-drop: url('/assets/cursors/mappy-no-drop.svg') 16 16, no-drop;
+  --mappy-cursor-not-allowed: url('/assets/cursors/mappy-disabled.svg') 16 16, not-allowed;
+  --mappy-cursor-grab: url('/assets/cursors/mappy-grab.svg') 16 16, grab;
+  --mappy-cursor-grabbing: url('/assets/cursors/mappy-grabbing.svg') 16 16, grabbing;
+  --mappy-cursor-col-resize: url('/assets/cursors/mappy-col-resize.svg') 16 16, col-resize;
+  --mappy-cursor-row-resize: url('/assets/cursors/mappy-row-resize.svg') 16 16, row-resize;
+  --mappy-cursor-ew-resize: url('/assets/cursors/mappy-col-resize.svg') 16 16, ew-resize;
+  --mappy-cursor-ns-resize: url('/assets/cursors/mappy-row-resize.svg') 16 16, ns-resize;
+  --mappy-cursor-n-resize: url('/assets/cursors/mappy-row-resize.svg') 16 5, n-resize;
+  --mappy-cursor-s-resize: url('/assets/cursors/mappy-row-resize.svg') 16 27, s-resize;
+  --mappy-cursor-e-resize: url('/assets/cursors/mappy-col-resize.svg') 27 16, e-resize;
+  --mappy-cursor-w-resize: url('/assets/cursors/mappy-col-resize.svg') 5 16, w-resize;
+  --mappy-cursor-nesw-resize: url('/assets/cursors/mappy-resize-nesw.svg') 16 16, nesw-resize;
+  --mappy-cursor-nwse-resize: url('/assets/cursors/mappy-resize-nwse.svg') 16 16, nwse-resize;
+  --mappy-cursor-ne-resize: url('/assets/cursors/mappy-resize-nesw.svg') 16 16, ne-resize;
+  --mappy-cursor-nw-resize: url('/assets/cursors/mappy-resize-nwse.svg') 16 16, nw-resize;
+  --mappy-cursor-se-resize: url('/assets/cursors/mappy-resize-nwse.svg') 16 16, se-resize;
+  --mappy-cursor-sw-resize: url('/assets/cursors/mappy-resize-nesw.svg') 16 16, sw-resize;
+  --mappy-cursor-all-scroll: url('/assets/cursors/mappy-all-scroll.svg') 16 16, all-scroll;
+  --mappy-cursor-zoom-out: url('/assets/cursors/mappy-zoom-out.svg') 18 12, zoom-out;
+  --mappy-cursor-resize-h: var(--mappy-cursor-col-resize);
+  --mappy-cursor-resize-v: var(--mappy-cursor-row-resize);
+}

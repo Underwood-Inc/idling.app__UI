@@ -1,42 +1,105 @@
-/* Glass Effects System - DISABLED
- * All glassmorphism and backdrop-filter effects have been removed
- * for performance and to match the new retro sunset theme
+/* Glass Effects System - Ambient backdrop surfaces
+ * Semi-transparent panels with blur so AmbientBackground shows through.
+ * Legacy .glass-* classes remain no-ops for compatibility.
  */
 
-/* Define variables with solid dark colors for backward compatibility */
 :root {
-  /* Glass variables now use dark theme colors */
-  --glass-bg-light: #2f2f2f;
-  --glass-bg-medium: #2f2f2f;
-  --glass-bg-heavy: #3a3a3a;
-  --glass-bg-ultra: #3a3a3a;
+  /* Ambient content surfaces — warm orange-brown tint, starlight still visible */
+  --ambient-surface-bg: rgb(42 34 24 / 36%);
+  --ambient-surface-bg-elevated: rgb(50 40 28 / 34%);
+  --ambient-surface-border: rgb(229 193 133 / 14%);
+  --ambient-surface-blur: blur(16px) saturate(1.1);
+  --ambient-surface-fallback: #2a2318;
+
+  /* Accent glass — controls, toolbars, interactive overlays */
+  --ambient-glass-panel-bg: rgb(38 30 22 / 52%);
+  --ambient-glass-panel-border: rgb(229 193 133 / 20%);
+  --ambient-glass-accent-bg: rgb(237 174 73 / 16%);
+  --ambient-glass-accent-bg-hover: rgb(237 174 73 / 30%);
+  --ambient-glass-accent-border: rgb(229 193 133 / 32%);
+  --ambient-glass-accent-border-hover: rgb(229 193 133 / 48%);
+  --ambient-glass-control-text: var(--brand-primary-light, #f9df74);
+  --ambient-glass-control-text-hover: var(--text-primary, #f9f9f9);
+
+  /* Opaque interactive surfaces — use with .contrast-safe-surface on links/buttons */
+  --ambient-interactive-bg: var(--ambient-surface-fallback, #2a2318);
+  --ambient-interactive-bg-hover: #45382a;
+  --ambient-interactive-border: rgb(229 193 133 / 22%);
+  --ambient-interactive-border-hover: var(--tan-primary, #e5c185);
+  --ambient-interactive-fg: var(--text-primary, #f9f9f9);
+  --ambient-interactive-fg-hover: var(--text-primary, #f9f9f9);
+
+  /* Aliases for diagram / card shells */
+  --glass-background-medium: var(--ambient-surface-bg);
+  --glass-background-strong: var(--ambient-surface-bg-elevated);
+  --glass-border-color: var(--ambient-surface-border);
+  --text-primary-color: var(--text-primary, #f9f9f9);
+  --text-secondary-color: var(--text-secondary, #b8b8b8);
+
+  /* Glass variables — translucent for ambient, solid fallback elsewhere */
+  --glass-bg-light: var(--ambient-surface-bg);
+  --glass-bg-medium: var(--ambient-surface-bg-elevated);
+  --glass-bg-heavy: rgb(58 58 58 / 42%);
+  --glass-bg-ultra: rgb(58 58 58 / 48%);
   
-  --glass-border-light: #3a3a3a;
-  --glass-border-medium: #3a3a3a;
+  --glass-border-light: var(--ambient-surface-border);
+  --glass-border-medium: rgb(229 193 133 / 14%);
   --glass-border-heavy: #E5C185;
   
-  --glass-overlay-light: #2f2f2f;
-  --glass-overlay-medium: #2f2f2f;
-  --glass-overlay-heavy: #3a3a3a;
-  --glass-overlay-ultra: #3a3a3a;
+  --glass-overlay-light: var(--ambient-surface-bg);
+  --glass-overlay-medium: var(--ambient-surface-bg-elevated);
+  --glass-overlay-heavy: rgb(58 58 58 / 42%);
+  --glass-overlay-ultra: rgb(58 58 58 / 48%);
   
-  --glass-border-overlay-light: #3a3a3a;
-  --glass-border-overlay-medium: #3a3a3a;
+  --glass-border-overlay-light: var(--ambient-surface-border);
+  --glass-border-overlay-medium: rgb(229 193 133 / 14%);
   --glass-border-overlay-heavy: #E5C185;
   
   --glass-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.3);
   --glass-shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
   --glass-shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
+
+  --glass-blur-light: blur(10px);
+  --glass-blur-medium: var(--ambient-surface-blur);
+  --glass-blur-strong: blur(20px);
   
   /* Tooltip variables - dark theme */
-  --tooltip-glass-bg: #2f2f2f;
+  --tooltip-glass-bg: var(--ambient-surface-fallback);
   --tooltip-glass-border: #3a3a3a;
   --tooltip-glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   
   /* Modal control variables - dark theme */
-  --modal-control-glass-bg: #252525;
+  --modal-control-glass-bg: var(--ambient-surface-fallback);
   --modal-control-glass-border: #3a3a3a;
   --modal-control-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .ambient-surface,
+  .ambient-surface--elevated {
+    -webkit-backdrop-filter: var(--ambient-surface-blur);
+    backdrop-filter: var(--ambient-surface-blur);
+  }
+}
+
+.ambient-surface {
+  background: var(--ambient-surface-bg);
+  border-color: var(--ambient-surface-border);
+}
+
+.ambient-surface--elevated {
+  background: var(--ambient-surface-bg-elevated);
+  border-color: var(--ambient-surface-border);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .ambient-surface {
+    background: var(--ambient-surface-fallback);
+  }
+
+  .ambient-surface--elevated {
+    background: var(--bg-medium, #2f2f2f);
+  }
 }
 
 /* No-op classes for compatibility */

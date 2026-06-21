@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useCallback, useMemo, useState } from 'react';
 import './ExportModal.css';
 
@@ -36,30 +38,37 @@ interface ExportModalProps {
 type ExportFormat = 'csv' | 'html' | 'markdown' | 'json';
 type ExportScope = 'all' | 'current' | 'selected';
 
-const EXPORT_FORMATS = [
+interface ExportFormatOption {
+  value: ExportFormat;
+  label: string;
+  description: string;
+  iconId: SiteIconId;
+}
+
+const EXPORT_FORMATS: ExportFormatOption[] = [
   {
-    value: 'csv' as const,
+    value: 'csv',
     label: 'CSV',
     description: 'Comma-separated values for spreadsheets',
-    icon: '📊'
+    iconId: 'barChart'
   },
   {
-    value: 'html' as const,
+    value: 'html',
     label: 'HTML Table',
     description: 'Rich HTML table with styling',
-    icon: '🌐'
+    iconId: 'globe'
   },
   {
-    value: 'markdown' as const,
+    value: 'markdown',
     label: 'Markdown',
     description: 'Markdown table format',
-    icon: '📝'
+    iconId: 'pen'
   },
   {
-    value: 'json' as const,
+    value: 'json',
     label: 'JSON',
     description: 'Structured JSON data',
-    icon: '🔧'
+    iconId: 'wrench'
   }
 ];
 
@@ -351,7 +360,10 @@ export function ExportModal({
     <div className="export-modal-overlay" onClick={onClose}>
       <div className="export-modal" onClick={(e) => e.stopPropagation()}>
         <div className="export-modal__header">
-          <h2 className="export-modal__title">Export User Data</h2>
+          <h2 className="export-modal__title">
+            <SiteIcon id="barChart" sizeRem={1.25} />
+            Export User Data
+          </h2>
           <button
             type="button"
             className="export-modal__close"
@@ -379,7 +391,9 @@ export function ExportModal({
                   />
                   <div className="export-format-content">
                     <div className="export-format-header">
-                      <span className="export-format-icon">{fmt.icon}</span>
+                      <span className="export-format-icon">
+                        <SiteIcon id={fmt.iconId} sizeRem={1.25} />
+                      </span>
                       <span className="export-format-label">{fmt.label}</span>
                     </div>
                     <span className="export-format-description">

@@ -107,7 +107,7 @@ function NavGroup({
             <InstantLink
               key={`group-${groupKey}-${item}`}
               href={path}
-              className={`nav__group-item ${isActive ? 'active' : ''}`}
+              className={`instant-link instant-link--nav nav__group-item ${isActive ? 'active' : ''}`}
               aria-disabled={isDisabled}
               target={isExternal ? '_blank' : undefined}
             >

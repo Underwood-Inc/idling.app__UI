@@ -1,5 +1,6 @@
 import { auth } from '@lib/auth';
 import { NAV_PATHS } from '@lib/routes';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import Loader from '../../components/loader/Loader';
@@ -23,7 +24,9 @@ function OAuthAccountConflictHandler({ provider }: { provider?: string }) {
 
   return (
     <div className="callback__error callback__error--account-conflict">
-      <div className="callback__icon callback__icon--error">🔗</div>
+      <div className="callback__icon callback__icon--error">
+        <SiteIcon id="link" sizeRem={2.5} />
+      </div>
       <h2 className="callback__title">Account Already Linked</h2>
       <div className="callback__message">
         <p>
@@ -110,7 +113,9 @@ function CallbackContent({
 
     return (
       <div className="callback__error">
-        <div className="callback__icon callback__icon--error">⚠️</div>
+        <div className="callback__icon callback__icon--error">
+          <SiteIcon id="alertTriangle" sizeRem={2.5} />
+        </div>
         <h2 className="callback__title">Authentication Error</h2>
         <p className="callback__message">
           {error === 'OAuthSignin' &&

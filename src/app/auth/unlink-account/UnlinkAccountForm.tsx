@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { NAV_PATHS } from '@lib/routes';
 import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -203,13 +204,19 @@ export function UnlinkAccountForm({
 
       {error && (
         <div className="unlink-account-form__error">
-          <p>❌ {error}</p>
+          <p>
+            <SiteIcon id="circleX" sizeRem={0.875} />
+            {error}
+          </p>
         </div>
       )}
 
       {success && (
         <div className="unlink-account-form__success">
-          <p>✅ {success}</p>
+          <p>
+            <SiteIcon id="check" sizeRem={0.875} />
+            {success}
+          </p>
           <div className="unlink-account-form__success-actions">
             <button
               onClick={handleShowInstructions}

@@ -43,7 +43,7 @@
   
   color: var(--dark-bg__text-color--secondary);
   border: 1px solid var(--glass-border-overlay-light, var(--glass-border-light));
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   display: flex;
   align-items: center;
   justify-content: center;
