@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.478.2",
+  "version": "0.478.3",
   "private": true,
   "engines": {
     "node": ">=22.0.0",
@@ -9,7 +9,7 @@
   "engineStrict": true,
   "scripts": {
     "setup:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-windows.ps1",
-    "build": "next build",
+    "build": "next build --webpack",
     "prebuild": "node scripts/update-sw-version.js",
     "postbuild": "node scripts/update-sw-version.js --restore",
     "dev:docker": "./scripts/docker-dev.sh",
