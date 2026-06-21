@@ -12,26 +12,54 @@ jobs:
     steps:
       - name: deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          CI: true
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASS }}
+          envs: CI
           script: |
+            #!/usr/bin/env bash
+            set -euo pipefail
+            trap 'echo "::error::Deploy failed at line ${LINENO} (exit $?)" >&2' ERR
+
             cd repos/idling.app__UI/
+
             git checkout -- .
             git reset --hard
             git clean -fd
             git checkout master
             git pull origin master
+
             export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] || { echo "nvm is required for Node 22"; exit 1; }
-            . "$NVM_DIR/nvm.sh"
+            if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
+              echo "::error::nvm is required for Node 22"
+              exit 1
+            fi
+            # shellcheck source=/dev/null
+            source "$NVM_DIR/nvm.sh"
+
             nvm install 22
             nvm use 22
-            node --version
+
+            echo "Node: $(node --version)"
+
             corepack enable
             corepack install
-            pnpm --version
-            pnpm install
+
+            echo "pnpm: $(pnpm --version)"
+
+            # Required for non-TTY installs (pnpm modules dir purge prompt)
+            export CI=true
+
+            pnpm install --frozen-lockfile
             pnpm build
+
+            if [[ ! -d .next ]]; then
+              echo "::error::Next.js build output missing (.next directory not found)"
+              exit 1
+            fi
+
             pm2 restart 0
+            echo "Deploy completed successfully"
