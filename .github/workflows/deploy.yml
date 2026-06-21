@@ -23,8 +23,15 @@ jobs:
             git clean -fd
             git checkout master
             git pull origin master
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] || { echo "nvm is required for Node 22"; exit 1; }
+            . "$NVM_DIR/nvm.sh"
+            nvm install 22
+            nvm use 22
+            node --version
             corepack enable
             corepack install
+            pnpm --version
             pnpm install
             pnpm build
             pm2 restart 0
