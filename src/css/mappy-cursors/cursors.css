@@ -1,0 +1,218 @@
+/*
+ * Idling.app brand cursors — loaded after globals (layout.tsx).
+ * Idle = compass default. Clickables = arrow. Text fields = I-beam. Tools = grab/resize/etc.
+ * Never blanket inherit; never OS default/pointer/text keywords.
+ */
+
+@media (pointer: fine) {
+  html[data-brand-cursors='on'],
+  html[data-brand-cursors='on'] body {
+    cursor: var(--mappy-cursor-default);
+  }
+
+  /* Beat scattered `cursor: pointer` in component CSS — inherit compass idle, not OS hand */
+  html[data-brand-cursors='on'] * {
+    cursor: inherit !important;
+  }
+
+  /* --- Clickable controls (arrow — only here, not site-wide default) --- */
+  html[data-brand-cursors='on'] :is(
+    a[href],
+    button,
+    summary,
+    label[for],
+    select,
+    .btn,
+    .instant-link,
+    .nav__group-trigger,
+    .nav__group-item,
+    .mobile-nav-drawer__item,
+    .mobile-nav-drawer__close,
+    [role='button'],
+    [role='link'],
+    [role='tab'],
+    [role='menuitem'],
+    [role='menuitemradio'],
+    [role='menuitemcheckbox'],
+    [role='option'],
+    [role='switch'],
+    [role='treeitem'],
+    [tabindex]:not([tabindex='-1']),
+    input[type='button'],
+    input[type='submit'],
+    input[type='reset'],
+    input[type='checkbox'],
+    input[type='radio'],
+    input[type='color'],
+    input[type='file'],
+    input[type='range'],
+    .cursor--pointer,
+    [data-mappy-cursor='pointer']
+  ):not(:disabled):not([aria-disabled='true']) {
+    cursor: var(--mappy-cursor-pointer) !important;
+  }
+
+  html[data-brand-cursors='on']
+    :is(summary, [role='button'], [role='menuitem'], label, button, a[href])
+    :is(*:not(input):not(textarea):not(select):not([contenteditable='true'])) {
+    cursor: inherit !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    .btn--primary,
+    [data-mappy-cursor='cta']
+  ):not(:disabled):not([aria-disabled='true']) {
+    cursor: var(--mappy-cursor-cta) !important;
+  }
+
+  /* --- Text entry (I-beam) --- */
+  html[data-brand-cursors='on'] :is(
+    input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+    textarea,
+    [contenteditable='true'],
+    .rich-input,
+    .rich-input-content,
+    [data-mappy-selectable-text],
+    [data-mappy-cursor='text']
+  ) {
+    cursor: var(--mappy-cursor-text) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='vertical-text']) {
+    cursor: var(--mappy-cursor-vertical-text) !important;
+  }
+
+  /* --- Help --- */
+  html[data-brand-cursors='on'] :is(
+    [title],
+    .rich-help:not(.rich-help--badge),
+    [data-tip-heading],
+    [data-mappy-cursor='help']
+  ) {
+    cursor: var(--mappy-cursor-help) !important;
+  }
+
+  /* --- Disabled / blocked --- */
+  html[data-brand-cursors='on'] :is(
+    :disabled,
+    input:disabled + label,
+    [aria-disabled='true'],
+    .is-disabled,
+    .instant-link--disabled
+  ) {
+    cursor: var(--mappy-cursor-disabled) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='not-allowed']) {
+    cursor: var(--mappy-cursor-not-allowed) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='no-drop']) {
+    cursor: var(--mappy-cursor-no-drop) !important;
+  }
+
+  /* --- Pan / drag --- */
+  html[data-brand-cursors='on'] :is(
+    .mermaid,
+    .mermaid svg,
+    .mermaid-container[data-mermaid-interactive='true'],
+    [data-site-drag-handle],
+    [data-mappy-cursor='grab']
+  ) {
+    cursor: var(--mappy-cursor-grab) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    .mermaid:active,
+    .mermaid svg:active,
+    [data-site-drag-handle]:active,
+    [data-mappy-cursor='grabbing']
+  ) {
+    cursor: var(--mappy-cursor-grabbing) !important;
+  }
+
+  /* --- Busy / zoom / resize / draw --- */
+  html[data-brand-cursors='on'] :is(
+    [data-state='waiting'],
+    [aria-busy='true'],
+    .is-waiting,
+    [data-mappy-cursor='wait']
+  ) {
+    cursor: var(--mappy-cursor-wait) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='progress']) {
+    cursor: var(--mappy-cursor-progress) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    [data-lightbox],
+    [data-media-zoom],
+    [data-mappy-cursor='zoom-in']
+  ) {
+    cursor: var(--mappy-cursor-zoom-in) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='zoom-out']) {
+    cursor: var(--mappy-cursor-zoom-out) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    [data-mappy-cursor='col-resize'],
+    [data-mappy-cursor='ew-resize'],
+    [data-mappy-cursor='e-resize'],
+    [data-mappy-cursor='w-resize']
+  ) {
+    cursor: var(--mappy-cursor-col-resize) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    [data-mappy-cursor='ns-resize'],
+    [data-mappy-cursor='n-resize'],
+    [data-mappy-cursor='s-resize'],
+    [data-mappy-cursor='row-resize']
+  ) {
+    cursor: var(--mappy-cursor-row-resize) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    [data-mappy-cursor='nesw-resize'],
+    [data-mappy-cursor='ne-resize'],
+    [data-mappy-cursor='sw-resize']
+  ) {
+    cursor: var(--mappy-cursor-nesw-resize) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    [data-mappy-cursor='nwse-resize'],
+    [data-mappy-cursor='nw-resize'],
+    [data-mappy-cursor='se-resize']
+  ) {
+    cursor: var(--mappy-cursor-nwse-resize) !important;
+  }
+
+  html[data-brand-cursors='on'] :is(
+    [data-map-draw-surface='true'],
+    [data-mappy-cursor='draw']
+  ) {
+    cursor: var(--mappy-cursor-draw) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='crosshair']) {
+    cursor: var(--mappy-cursor-crosshair) !important;
+  }
+
+  html[data-brand-cursors='on'] :is([data-mappy-cursor='default']) {
+    cursor: var(--mappy-cursor-default) !important;
+  }
+
+  html[data-brand-cursors='on'] .cursor--default {
+    cursor: var(--mappy-cursor-default) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-brand-cursors='on'] {
+    cursor: auto;
+  }
+}

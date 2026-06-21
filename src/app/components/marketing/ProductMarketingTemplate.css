@@ -75,13 +75,19 @@
 
 .product-marketing__cta--primary {
   background: var(--brand-primary);
-  color: var(--bg-darker);
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
   border-color: var(--brand-primary);
 }
 
+.product-marketing__cta--primary:is(:link, :visited, :hover, :focus-visible) {
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
+}
+
 .product-marketing__cta--primary:hover {
-  background: var(--tan-secondary);
-  border-color: var(--tan-secondary);
+  background: var(--interactive-bg-tan-hover);
+  border-color: var(--interactive-bg-tan-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(229, 193, 133, 0.4);
 }
@@ -95,6 +101,7 @@
 .product-marketing__cta--secondary:hover {
   background: var(--dark-background--tertiary);
   border-color: var(--brand-primary);
+  color: var(--dark-bg__text-color--primary);
   transform: translateY(-2px);
 }
 
@@ -261,9 +268,9 @@
 }
 
 .product-marketing__tech-tag:hover {
-  background: var(--dark-background--tertiary);
+  background: var(--interactive-bg-subtle-hover);
   border-color: var(--brand-primary);
-  color: var(--brand-primary);
+  color: var(--text-primary);
 }
 
 /* ==================== TESTIMONIAL SECTION ==================== */

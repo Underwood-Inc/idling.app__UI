@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React from 'react';
 import type { ConversionResult } from '../page';
 import styles from './ConversionHistory.module.css';
@@ -58,13 +59,16 @@ export function ConversionHistory({
   return (
     <div className={styles.history}>
       <div className={styles.history__header}>
-        <h3 className={styles.history__title}>📚 History</h3>
+        <h3 className={styles.history__title}>
+          <SiteIcon id="library" sizeRem={1.125} />
+          History
+        </h3>
         <button
           onClick={onClearHistory}
           className={styles.history__clear}
           title="Clear all history"
         >
-          🗑️
+          <SiteIcon id="trash" sizeRem={1} />
         </button>
       </div>
 
@@ -88,7 +92,7 @@ export function ConversionHistory({
                 className={styles.item__download}
                 title="Download this conversion"
               >
-                ⬇️
+                <SiteIcon id="download" sizeRem={1} />
               </button>
             </div>
 

@@ -1,8 +1,22 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
 import { Username } from '../../../components/username';
+
+interface SectionHeadingProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const SectionHeading: React.FC<SectionHeadingProps> = ({ iconId, children }) => (
+  <h4 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1} />
+    {children}
+  </h4>
+);
 
 interface UserRole {
   id: string;
@@ -96,9 +110,25 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   const getStatusBadge = () => {
     if (user.is_timed_out) {
-      return <span className="timeout-status active">⏰ Timed Out</span>;
+      return (
+        <span
+          className="timeout-status active"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="clock" sizeRem={0.875} />
+          Timed Out
+        </span>
+      );
     }
-    return <span className="status-badge active">✅ Active</span>;
+    return (
+      <span
+        className="status-badge active"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+      >
+        <SiteIcon id="check" sizeRem={0.875} />
+        Active
+      </span>
+    );
   };
 
   return (
@@ -147,7 +177,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           <div className="user-details-grid">
             {/* Basic Information Section */}
             <div className="detail-section">
-              <h4>👤 Basic Information</h4>
+              <SectionHeading iconId="user">Basic Information</SectionHeading>
               <div className="detail-item">
                 <label>Status:</label>
                 <span>{getStatusBadge()}</span>
@@ -183,7 +213,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             {/* Bio Section */}
             {user.bio && (
               <div className="detail-section">
-                <h4>📝 Bio</h4>
+                <SectionHeading iconId="pen">Bio</SectionHeading>
                 <div className="bio-content">
                   <p>{user.bio}</p>
                 </div>
@@ -192,7 +222,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
             {/* Roles Section */}
             <div className="detail-section">
-              <h4>🎭 Roles & Permissions</h4>
+              <SectionHeading iconId="theater">Roles & Permissions</SectionHeading>
               <div className="roles-management">
                 {user.roles && user.roles.length > 0 ? (
                   user.roles.map((role) => (
@@ -220,7 +250,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
             {/* Subscriptions Section */}
             <div className="detail-section">
-              <h4>💎 Subscriptions</h4>
+              <SectionHeading iconId="gem">Subscriptions</SectionHeading>
               <div className="subscriptions-management">
                 {user.subscriptions && user.subscriptions.length > 0 ? (
                   user.subscriptions.map((subscription) => (
@@ -255,7 +285,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             {/* Timeout Information */}
             {user.is_timed_out && (
               <div className="detail-section">
-                <h4>⏰ Current Timeout</h4>
+                <SectionHeading iconId="clock">Current Timeout</SectionHeading>
                 <div className="timeout-info-detailed">
                   <div className="detail-item">
                     <label>Status:</label>
@@ -280,7 +310,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             {/* Timeout History */}
             {user.timeouts && user.timeouts.length > 0 && (
               <div className="detail-section">
-                <h4>📋 Timeout History</h4>
+                <SectionHeading iconId="clipboard">Timeout History</SectionHeading>
                 <div className="timeouts-management">
                   {user.timeouts.map((timeout) => (
                     <div key={timeout.id} className="timeout-item">

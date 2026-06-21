@@ -2,6 +2,8 @@
 
 import { FlairPreference } from '@lib/actions/subscription.actions';
 import { useFlairPreference } from '@lib/context/UserPreferencesContext';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useEffect, useState } from 'react';
 import { SubscriptionBadgeData } from './SubscriptionBadge';
 import './SubscriptionFlairToggle.css';
@@ -30,20 +32,20 @@ const getFlairForSubscription = (
 
 const getFlairDisplay = (
   flairType: string
-): { icon: string; label: string } => {
+): { iconId: SiteIconId; label: string } => {
   switch (flairType) {
     case 'enterprise-crown':
-      return { icon: '👑', label: 'Enterprise Crown' };
+      return { iconId: 'crown', label: 'Enterprise Crown' };
     case 'premium-galaxy':
-      return { icon: '🌌', label: 'Premium Galaxy' };
+      return { iconId: 'orbit', label: 'Premium Galaxy' };
     case 'pro-plasma':
-      return { icon: '⚡', label: 'Pro Plasma' };
+      return { iconId: 'zap', label: 'Pro Plasma' };
     case 'active-glow':
-      return { icon: '✨', label: 'Active Glow' };
+      return { iconId: 'sparkles', label: 'Active Glow' };
     case 'trial-pulse':
-      return { icon: '🔄', label: 'Trial Pulse' };
+      return { iconId: 'refresh', label: 'Trial Pulse' };
     default:
-      return { icon: '✨', label: 'Unknown' };
+      return { iconId: 'sparkles', label: 'Unknown' };
   }
 };
 
@@ -120,7 +122,10 @@ export function SubscriptionFlairToggle({
   return (
     <div className={containerClassName}>
       <div className="subscription-flair-toggle__header">
-        <h4 className="subscription-flair-toggle__title">✨ Username Flair</h4>
+        <h4 className="subscription-flair-toggle__title">
+          <SiteIcon id="sparkles" className="subscription-flair-toggle__title-icon" sizeRem={1} />
+          Username Flair
+        </h4>
         <p className="subscription-flair-toggle__description">
           Choose which subscription flair to display on your username
         </p>
@@ -138,7 +143,9 @@ export function SubscriptionFlairToggle({
           disabled={isUpdatingFlairPreference}
           aria-pressed={flairPreference === 'auto'}
         >
-          <span className="subscription-flair-toggle__icon">✨</span>
+          <span className="subscription-flair-toggle__icon">
+            <SiteIcon id="sparkles" sizeRem={1.125} />
+          </span>
           <div className="subscription-flair-toggle__content">
             <span className="subscription-flair-toggle__label">Auto</span>
             <span className="subscription-flair-toggle__desc">
@@ -166,7 +173,7 @@ export function SubscriptionFlairToggle({
               aria-pressed={flairPreference === flairType}
             >
               <span className="subscription-flair-toggle__icon">
-                {display.icon}
+                <SiteIcon id={display.iconId} sizeRem={1.125} />
               </span>
               <div className="subscription-flair-toggle__content">
                 <span className="subscription-flair-toggle__label">
@@ -200,7 +207,9 @@ export function SubscriptionFlairToggle({
           disabled={isUpdatingFlairPreference}
           aria-pressed={flairPreference === 'none'}
         >
-          <span className="subscription-flair-toggle__icon">🚫</span>
+          <span className="subscription-flair-toggle__icon">
+            <SiteIcon id="ban" sizeRem={1.125} />
+          </span>
           <div className="subscription-flair-toggle__content">
             <span className="subscription-flair-toggle__label">None</span>
             <span className="subscription-flair-toggle__desc">

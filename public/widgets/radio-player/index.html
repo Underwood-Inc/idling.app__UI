@@ -1,0 +1,54 @@
+<!doctype html>
+<!--
+  IDLING RADIO PLAYER — demo / embed template
+  ===========================================
+  Copy this folder (radio-player.css + radio-player.js + your mount div) to any host.
+
+  Minimal embed:
+    <link rel="stylesheet" href="path/to/radio-player.css">
+    <div id="idling-radio"></div>
+    <script type="module">
+      import { mountRadioPlayer } from './radio-player.js';
+      mountRadioPlayer(document.getElementById('idling-radio'));
+    </script>
+
+  Canonical source: src/widgets/radio-player/ (synced to public/ for external embed).
+  Demo: open index.html or visit /widgets/radio-player/ on idling.app.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Idling Radio Player</title>
+    <link rel="stylesheet" href="./radio-player.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, sans-serif;
+        background: #121218;
+        color: #e8e4dc;
+      }
+
+      main {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 6rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Radio player demo</h1>
+      <p>
+        The bar is fixed to the bottom. Switch stations, adjust volume, and watch the
+        canvas visualizer react to the stream.
+      </p>
+    </main>
+    <div id="idling-radio"></div>
+    <script type="module">
+      import { mountRadioPlayer } from './radio-player.js';
+      mountRadioPlayer(document.getElementById('idling-radio'));
+    </script>
+  </body>
+</html>

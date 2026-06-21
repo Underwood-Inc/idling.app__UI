@@ -2,11 +2,37 @@
 
 import { useOverlay } from '@lib/context/OverlayContext';
 import { noCacheFetch } from '@lib/utils/no-cache-fetch';
-import { useCallback, useEffect, useState } from 'react';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AssignSubscriptionModal } from './modals/AssignSubscriptionModal';
 import { EditPlanModal } from './modals/EditPlanModal';
 import { EditSubscriptionModal } from './modals/EditSubscriptionModal';
 import './SubscriptionManagementPanel.css';
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const IconText: React.FC<IconTextProps> = ({ iconId, children }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1} />
+    {children}
+  </span>
+);
+
+interface SectionTitleProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+}
+
+const SectionTitle: React.FC<SectionTitleProps> = ({ iconId, children }) => (
+  <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={1.125} />
+    {children}
+  </h3>
+);
 
 // ================================
 // TYPES & INTERFACES
@@ -576,7 +602,7 @@ export default function SubscriptionManagementPanel() {
       <div className="subscription-overview">
         <div className="stats-grid">
           <div className="stat-card">
-            <h3>📋 Total Plans</h3>
+            <SectionTitle iconId="clipboard">Total Plans</SectionTitle>
             <div className="stat-value">{subscriptionStats.total_plans}</div>
             <div className="stat-subtitle">
               {subscriptionStats.active_plans} active
@@ -584,7 +610,7 @@ export default function SubscriptionManagementPanel() {
           </div>
 
           <div className="stat-card">
-            <h3>👥 Total Subscriptions</h3>
+            <SectionTitle iconId="users">Total Subscriptions</SectionTitle>
             <div className="stat-value">
               {subscriptionStats.total_subscriptions}
             </div>
@@ -594,7 +620,7 @@ export default function SubscriptionManagementPanel() {
           </div>
 
           <div className="stat-card">
-            <h3>🚀 Trial Users</h3>
+            <SectionTitle iconId="rocket">Trial Users</SectionTitle>
             <div className="stat-value">
               {subscriptionStats.trialing_subscriptions}
             </div>
@@ -602,7 +628,7 @@ export default function SubscriptionManagementPanel() {
           </div>
 
           <div className="stat-card">
-            <h3>💰 Monthly Revenue</h3>
+            <SectionTitle iconId="coins">Monthly Revenue</SectionTitle>
             <div className="stat-value">
               {formatPrice(subscriptionStats.revenue_monthly_cents)}
             </div>
@@ -611,7 +637,7 @@ export default function SubscriptionManagementPanel() {
         </div>
 
         <div className="plan-distribution">
-          <h3>📊 Plan Distribution</h3>
+          <SectionTitle iconId="barChart">Plan Distribution</SectionTitle>
           <div className="distribution-list">
             {subscriptionStats.plan_distribution.map((plan) => (
               <div key={plan.plan_name} className="distribution-item">
@@ -635,9 +661,9 @@ export default function SubscriptionManagementPanel() {
   const renderPlans = () => (
     <div className="subscription-plans">
       <div className="plans-header">
-        <h3>📋 Subscription Plans</h3>
+        <SectionTitle iconId="clipboard">Subscription Plans</SectionTitle>
         <button className="btn btn-primary" onClick={handleCreatePlan}>
-          ➕ Create New Plan
+          <IconText iconId="plusCircle">Create New Plan</IconText>
         </button>
       </div>
 
@@ -694,13 +720,17 @@ export default function SubscriptionManagementPanel() {
                 className="btn btn-secondary btn-sm"
                 onClick={() => handleEditPlan(plan)}
               >
-                ✏️ Edit
+                <IconText iconId="pencil">Edit</IconText>
               </button>
               <button
                 className={`btn btn-sm ${plan.is_active ? 'btn-danger' : 'btn-success'}`}
                 onClick={() => handleTogglePlan(plan)}
               >
-                {plan.is_active ? '🚫 Disable' : '✅ Enable'}
+                {plan.is_active ? (
+                  <IconText iconId="ban">Disable</IconText>
+                ) : (
+                  <IconText iconId="check">Enable</IconText>
+                )}
               </button>
             </div>
           </div>
@@ -712,13 +742,13 @@ export default function SubscriptionManagementPanel() {
   const renderSubscriptions = () => (
     <div className="user-subscriptions">
       <div className="subscriptions-header">
-        <h3>👥 User Subscriptions</h3>
+        <SectionTitle iconId="users">User Subscriptions</SectionTitle>
         <div className="subscriptions-actions">
           <button
             className="btn btn-primary"
             onClick={() => setShowAssignModal(true)}
           >
-            ➕ Assign Subscription
+            <IconText iconId="plusCircle">Assign Subscription</IconText>
           </button>
         </div>
       </div>
@@ -805,13 +835,13 @@ export default function SubscriptionManagementPanel() {
                       className="btn btn-sm btn-secondary"
                       onClick={() => handleEditSubscription(subscription)}
                     >
-                      ✏️ Edit
+                      <IconText iconId="pencil">Edit</IconText>
                     </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleCancelSubscription(subscription)}
                     >
-                      🚫 Cancel
+                      <IconText iconId="ban">Cancel</IconText>
                     </button>
                   </div>
                 </td>
@@ -869,14 +899,16 @@ export default function SubscriptionManagementPanel() {
     return (
       <div className="subscription-management-panel">
         <div className="error-state">
-          <div className="error-icon">⚠️</div>
+          <div className="error-icon">
+            <SiteIcon id="alertTriangle" sizeRem={2} />
+          </div>
           <h3>Subscription System Not Available</h3>
           <p>The subscription system is not configured or available.</p>
           <button
             className="btn btn-primary"
             onClick={() => window.location.reload()}
           >
-            🔄 Retry
+            <IconText iconId="refresh">Retry</IconText>
           </button>
         </div>
       </div>
@@ -886,7 +918,10 @@ export default function SubscriptionManagementPanel() {
   return (
     <div className="subscription-management-panel">
       <div className="panel-header">
-        <h2>💳 Subscription Management</h2>
+        <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+          <SiteIcon id="creditCard" sizeRem={1.25} />
+          Subscription Management
+        </h2>
         <p>
           Manage subscription plans, user subscriptions, and quota system
           integration
@@ -895,7 +930,12 @@ export default function SubscriptionManagementPanel() {
 
       {error && (
         <div className="error-message">
-          <span>❌ {error}</span>
+          <span
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+          >
+            <SiteIcon id="circleX" sizeRem={1} />
+            {error}
+          </span>
           <button onClick={() => setError(null)}>✕</button>
         </div>
       )}
@@ -905,19 +945,19 @@ export default function SubscriptionManagementPanel() {
           className={`tab-button ${activeTab === 'overview' ? 'tab-button--active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          📊 Overview
+          <IconText iconId="barChart">Overview</IconText>
         </button>
         <button
           className={`tab-button ${activeTab === 'plans' ? 'tab-button--active' : ''}`}
           onClick={() => setActiveTab('plans')}
         >
-          📋 Plans
+          <IconText iconId="clipboard">Plans</IconText>
         </button>
         <button
           className={`tab-button ${activeTab === 'subscriptions' ? 'tab-button--active' : ''}`}
           onClick={() => setActiveTab('subscriptions')}
         >
-          👥 Subscriptions
+          <IconText iconId="users">Subscriptions</IconText>
         </button>
       </div>
 

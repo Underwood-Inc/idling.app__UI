@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import './SubscriptionBadge.css';
 
 export interface SubscriptionBadgeData {
@@ -71,37 +73,35 @@ export function SubscriptionBadge({
     return baseClasses.join(' ');
   };
 
-  // Get plan type icon
-  const getPlanTypeIcon = () => {
+  const getPlanTypeIcon = (): SiteIconId => {
     switch (plan_type) {
       case 'tier':
-        return '👑';
+        return 'crown';
       case 'addon':
-        return '🔧';
+        return 'wrench';
       case 'bundle':
-        return '📦';
+        return 'package';
       default:
-        return '⭐';
+        return 'star';
     }
   };
 
-  // Get status icon
-  const getStatusIcon = () => {
+  const getStatusIcon = (): SiteIconId => {
     switch (status) {
       case 'active':
-        return '✅';
+        return 'check';
       case 'trialing':
-        return '🔄';
+        return 'refresh';
       case 'cancelled':
-        return '❌';
+        return 'circleX';
       case 'expired':
-        return '⏰';
+        return 'clock';
       case 'suspended':
-        return '⏸️';
+        return 'pause';
       case 'pending':
-        return '⏳';
+        return 'loader';
       default:
-        return '❓';
+        return 'circleHelp';
     }
   };
 
@@ -139,11 +139,13 @@ export function SubscriptionBadge({
   if (variant === 'compact') {
     return (
       <div className={`${getBadgeStyle()} ${className}`}>
-        <span className="subscription-badge__icon">{getPlanTypeIcon()}</span>
+        <span className="subscription-badge__icon">
+          <SiteIcon id={getPlanTypeIcon()} sizeRem={0.875} />
+        </span>
         <span className="subscription-badge__name">{display_name}</span>
         {showStatus && (
           <span className="subscription-badge__status-icon">
-            {getStatusIcon()}
+            <SiteIcon id={getStatusIcon()} sizeRem={0.75} />
           </span>
         )}
       </div>
@@ -154,7 +156,9 @@ export function SubscriptionBadge({
     return (
       <div className={`${getBadgeStyle()} ${className}`}>
         <div className="subscription-badge__header">
-          <span className="subscription-badge__icon">{getPlanTypeIcon()}</span>
+          <span className="subscription-badge__icon">
+          <SiteIcon id={getPlanTypeIcon()} sizeRem={0.875} />
+        </span>
           <div className="subscription-badge__title-section">
             <span className="subscription-badge__name">{display_name}</span>
             <span className="subscription-badge__type">
@@ -163,7 +167,7 @@ export function SubscriptionBadge({
           </div>
           {showStatus && (
             <span className="subscription-badge__status-icon">
-              {getStatusIcon()}
+              <SiteIcon id={getStatusIcon()} sizeRem={0.75} />
             </span>
           )}
         </div>
@@ -198,7 +202,8 @@ export function SubscriptionBadge({
           {has_price_override && (
             <div className="subscription-badge__detail-item">
               <span className="subscription-badge__override-notice">
-                🎁 Special Pricing
+                <SiteIcon id="gift" sizeRem={0.75} />
+                Special Pricing
               </span>
             </div>
           )}
@@ -210,13 +215,15 @@ export function SubscriptionBadge({
   // Default variant
   return (
     <div className={`${getBadgeStyle()} ${className}`}>
-      <span className="subscription-badge__icon">{getPlanTypeIcon()}</span>
+      <span className="subscription-badge__icon">
+        <SiteIcon id={getPlanTypeIcon()} sizeRem={0.875} />
+      </span>
       <div className="subscription-badge__content">
         <span className="subscription-badge__name">{display_name}</span>
         <div className="subscription-badge__meta">
           {showStatus && (
             <span className="subscription-badge__status">
-              {getStatusIcon()}{' '}
+              <SiteIcon id={getStatusIcon()} sizeRem={0.75} />
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
           )}
@@ -235,7 +242,9 @@ export function SubscriptionBadge({
       )}
 
       {has_price_override && (
-        <div className="subscription-badge__override-indicator">🎁</div>
+        <div className="subscription-badge__override-indicator">
+          <SiteIcon id="gift" sizeRem={0.75} />
+        </div>
       )}
     </div>
   );

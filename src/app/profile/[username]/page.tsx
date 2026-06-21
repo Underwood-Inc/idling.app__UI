@@ -1,5 +1,6 @@
 import { getUserProfileByDatabaseId } from '@lib/actions/profile.actions';
 import { auth } from '@lib/auth';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import {
   cleanContentForSocialSharing,
   extractEmbedUrls,
@@ -77,7 +78,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <FadeIn className="profile-page__fade">
                 <Card width="full" className="profile-page__main-card">
                   <div className="profile-page__private-notice">
-                    <div className="profile-page__private-icon">🔒</div>
+                    <div className="profile-page__private-icon">
+                      <SiteIcon id="lock" sizeRem={2} />
+                    </div>
                     <h2 className="profile-page__private-title">
                       Private Profile
                     </h2>
@@ -137,7 +140,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <div className="profile-page__info-grid">
                 {joinDate && (
                   <div className="profile-page__info-item">
-                    <span className="profile-page__info-icon">📅</span>
+                    <SiteIcon id="calendar" className="profile-page__info-icon" sizeRem={1.125} />
                     <div className="profile-page__info-content">
                       <span className="profile-page__info-label">Joined</span>
                       <span className="profile-page__info-value">
@@ -149,7 +152,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
                 {lastActivity && (
                   <div className="profile-page__info-item">
-                    <span className="profile-page__info-icon">🔥</span>
+                    <SiteIcon id="flame" className="profile-page__info-icon" sizeRem={1.125} />
                     <div className="profile-page__info-content">
                       <span className="profile-page__info-label">
                         Last Active
@@ -168,7 +171,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   aria-label={`View all ${userProfile.posts_count || 0} posts by ${userProfile.username || userProfile.name}`}
                 >
                   <div className="profile-page__info-wrapper">
-                    <span className="profile-page__info-icon">📝</span>
+                    <SiteIcon id="pen" className="profile-page__info-icon" sizeRem={1.125} />
                     <div className="profile-page__info-content">
                       <span className="profile-page__info-label">
                         {userProfile.posts_count || 0} Posts
@@ -187,7 +190,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   aria-label={`View all ${userProfile.replies_count || 0} replies by ${userProfile.username || userProfile.name}`}
                 >
                   <div className="profile-page__info-wrapper">
-                    <span className="profile-page__info-icon">💬</span>
+                    <SiteIcon id="messages" className="profile-page__info-icon" sizeRem={1.125} />
                     <div className="profile-page__info-content">
                       <span className="profile-page__info-label">
                         {userProfile.replies_count || 0} Replies
@@ -200,7 +203,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </InstantLink>
 
                 <div className="profile-page__info-item">
-                  <span className="profile-page__info-icon">🌟</span>
+                  <SiteIcon id="star" className="profile-page__info-icon" sizeRem={1.125} />
                   <div className="profile-page__info-content">
                     <span className="profile-page__info-label">Profile</span>
                     <span className="profile-page__info-value">
@@ -215,7 +218,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {isOwnProfile && (
                 <div className="profile-page__owner-actions">
                   <div className="profile-page__owner-note">
-                    <span className="profile-page__owner-icon">ℹ️</span>
+                    <SiteIcon id="info" className="profile-page__owner-icon" sizeRem={1} />
                     <p>
                       This is your profile. You can edit your bio in the main
                       section.

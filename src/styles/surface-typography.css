@@ -1,0 +1,58 @@
+/**
+ * Surface typography — default foreground on dark chrome + guardrails so
+ * prose link styles and gradient fills cannot wash out component labels.
+ *
+ * Filled controls: use .contrast-safe-surface (+ --cta-* variants) from contrast-safe.css
+ */
+
+:root {
+  --fg-on-dark: var(--text-primary, #e0e0e0);
+  --fg-on-dark-muted: var(--text-secondary, #b0b0b0);
+  --fg-on-dark-subtle: var(--text-tertiary, #808080);
+  --fg-on-brand-fill: var(--text-on-tan, #1a1a1a);
+  --fg-on-light-fill: var(--text-on-light, #1a1a1a);
+}
+
+body {
+  color: var(--fg-on-dark);
+  -webkit-text-fill-color: currentColor;
+}
+
+main,
+article,
+section,
+.card {
+  color: var(--fg-on-dark);
+}
+
+p,
+li,
+label,
+span,
+small,
+td,
+th,
+figcaption {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Only h1 uses gradient clip in base.css — keep other headings readable solids */
+:where(h2, h3, h4, h5, h6) {
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Tan / brand-filled controls must stay dark-on-light (fallback when contrast-safe vars absent) */
+:is(a, button)[class*='__view-all'],
+:is(a, button)[class*='__hashtag'],
+:is(a, button).btn-filled-brand {
+  color: var(--fg-on-brand-fill);
+  -webkit-text-fill-color: currentColor;
+}
+
+:is(a, button)[class*='__view-all']:is(:link, :visited, :hover, :active, :focus-visible),
+:is(a, button)[class*='__hashtag']:is(:link, :visited, :hover, :active, :focus-visible),
+:is(a, button).btn-filled-brand:is(:link, :visited, :hover, :active, :focus-visible) {
+  color: var(--fg-on-brand-fill);
+  -webkit-text-fill-color: currentColor;
+}

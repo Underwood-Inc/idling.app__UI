@@ -3,6 +3,8 @@ import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext
 import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
+import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
+import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
@@ -13,9 +15,10 @@ import Header from './components/header/Header';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
-import { OverlayRendererWrapper } from './components/ui/ClientWrappers';
+import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import './globals.css';
+import '../css/mappy-cursors/cursors.css';
 
 export const metadata: Metadata = {
   title: {
@@ -64,12 +67,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-brand-cursors="on">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ff6b35" />
       </head>
       <body>
+        <AmbientBackgroundWrapper />
         {/* Google AdSense */}
         <Script
           async
@@ -87,14 +91,33 @@ export default function RootLayout({
               <NavigationLoadingProvider>
                 <GlobalLoadingProvider>
                   <UserDataBatchProvider>
-                    <NavigationLoadingBar />
-                    <Header />
-                    <MessageTickerWithInterval />
-                    <main>{children}</main>
-                    <Footer />
-                    <OverlayRendererWrapper />
-                    <ServiceWorkerRegistration />
-                    <PWAInstallPrompt />
+                    <RadioPlayerProvider>
+                      <VisualizerModeProvider>
+                      <div data-visualizer-layout>
+                        <NavigationLoadingBar />
+                      </div>
+                      <div data-visualizer-layout className="sticky-header-wrapper">
+                        <Header />
+                      </div>
+                      <div data-visualizer-layout>
+                        <MessageTickerWithInterval />
+                      </div>
+                      <main data-visualizer-layout>{children}</main>
+                      <div data-visualizer-layout>
+                        <Footer />
+                      </div>
+                      <div data-visualizer-layout>
+                        <OverlayRendererWrapper />
+                      </div>
+                      <div data-visualizer-layout>
+                        <ServiceWorkerRegistration />
+                      </div>
+                      <div data-visualizer-layout>
+                        <PWAInstallPrompt />
+                      </div>
+                      <RadioPlayerMountWrapper />
+                      </VisualizerModeProvider>
+                    </RadioPlayerProvider>
                   </UserDataBatchProvider>
                 </GlobalLoadingProvider>
               </NavigationLoadingProvider>

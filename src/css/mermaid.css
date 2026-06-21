@@ -28,11 +28,11 @@
   max-width: 100% !important;
   height: auto !important;
   background: transparent !important;
-  cursor: grab;
+  cursor: var(--mappy-cursor-grab);
 }
 
 .mermaid svg:active {
-  cursor: grabbing;
+  cursor: var(--mappy-cursor-grabbing);
 }
 
 /* Enhanced Mermaid diagram container with advanced viewing capabilities */
@@ -46,41 +46,101 @@
   border: 1px solid var(--glass-border-light);
 }
 
+/* Interactive viewer: clip only at the viewport edge, not the scaled SVG box */
+.mermaid-container[data-mermaid-interactive='true'] {
+  min-height: min(70vh, 60rem);
+  height: min(70vh, 60rem);
+  margin: 0;
+  cursor: var(--mappy-cursor-grab);
+}
+
+.mermaid-container[data-mermaid-interactive='true'] .mermaid {
+  position: absolute;
+  inset: 0;
+  display: block;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.mermaid-container[data-mermaid-interactive='true'] .mermaid:hover {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.mermaid-container[data-mermaid-interactive='true'] .mermaid svg {
+  max-width: none !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
 /* Diagram viewer controls */
 .mermaid-controls {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 1.2rem;
+  right: 1.2rem;
   display: flex;
-  gap: var(--spacing-sm);
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm);
-  opacity: 0;
-  transition: var(--transition-slow);
+  gap: 0.6rem;
+  background: var(--ambient-glass-panel-bg);
+  border: 1px solid var(--ambient-glass-panel-border);
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.65rem;
+  opacity: 0.92;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
   z-index: var(--z-index-dropdown);
-  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--ambient-surface-blur);
+  backdrop-filter: var(--ambient-surface-blur);
+  box-shadow:
+    0 4px 16px rgb(0 0 0 / 22%),
+    inset 0 1px 0 rgb(229 193 133 / 10%);
 }
 
 .mermaid-container:hover .mermaid-controls {
   opacity: 1;
+  border-color: var(--ambient-glass-accent-border-hover);
 }
 
 .mermaid-control-btn {
-  background: var(--brand-primary);
-  color: var(--dark-bg-primary);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  padding: 4px var(--spacing-sm);
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.4rem;
+  min-height: 4.4rem;
+  padding: 0.6rem;
+  background: var(--ambient-glass-accent-bg);
+  color: var(--ambient-glass-control-text);
+  border: 1px solid var(--ambient-glass-accent-border);
+  border-radius: 0.5rem;
+  font-size: 2rem;
+  line-height: 1;
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--transition-base);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   font-family: var(--font-family-base);
+  box-shadow: none;
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  backdrop-filter: var(--glass-blur-light);
 }
 
 .mermaid-control-btn:hover {
-  background: var(--brand-primary-light);
+  background: var(--ambient-glass-accent-bg-hover);
+  color: var(--ambient-glass-control-text-hover);
+  border-color: var(--ambient-glass-accent-border-hover);
+  box-shadow: 0 2px 10px rgb(237 174 73 / 18%);
   transform: translateY(-1px);
 }
 
@@ -89,49 +149,70 @@
 }
 
 /* Fullscreen viewer */
-.mermaid-fullscreen {
+.mermaid-container.mermaid-fullscreen {
   position: fixed !important;
+  inset: 0 !important;
   top: 0 !important;
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  z-index: var(--z-index-overlay) !important;
+  min-height: 100vh !important;
+  z-index: 10001 !important;
   background: var(--dark-bg-primary) !important;
   margin: 0 !important;
   border-radius: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  border: none !important;
+  display: block !important;
+  overflow: hidden !important;
 }
 
-.mermaid-fullscreen .mermaid {
-  max-width: 95vw !important;
-  max-height: 95vh !important;
+.mermaid-container.mermaid-fullscreen[data-mermaid-interactive='true'] {
+  min-height: 100vh !important;
+}
+
+.mermaid-container.mermaid-fullscreen[data-mermaid-interactive='true'] .mermaid {
+  position: absolute !important;
+  inset: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
   margin: 0 !important;
 }
 
-.mermaid-fullscreen .mermaid-controls {
+.mermaid-container.mermaid-fullscreen .mermaid-controls {
   opacity: 1 !important;
-  top: 20px !important;
-  right: 20px !important;
+  top: 1.6rem !important;
+  right: 1.6rem !important;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.mermaid-container.mermaid-fullscreen .mermaid-control-btn {
+  min-width: 4.8rem;
+  min-height: 4.8rem;
+  font-size: 2.2rem;
 }
 
 /* Enhanced diagram info overlay */
 .mermaid-info {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(0, 0, 0, 0.8);
+  bottom: 1.2rem;
+  left: 1.2rem;
+  background: var(--ambient-glass-panel-bg);
+  border: 1px solid var(--ambient-glass-panel-border);
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: 1.25rem;
   font-family: var(--font-family-base);
-  padding: var(--spacing-sm) 12px;
-  border-radius: var(--border-radius-md);
-  opacity: 0;
-  transition: var(--transition-slow);
-  backdrop-filter: var(--glass-blur-medium);
-  max-width: 300px;
-  line-height: 1.4;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  opacity: 0.92;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+  -webkit-backdrop-filter: var(--ambient-surface-blur);
+  backdrop-filter: var(--ambient-surface-blur);
+  box-shadow:
+    0 4px 16px rgb(0 0 0 / 22%),
+    inset 0 1px 0 rgb(229 193 133 / 8%);
+  max-width: min(42rem, calc(100% - 2.4rem));
+  line-height: 1.45;
 }
 
 .mermaid-container:hover .mermaid-info {

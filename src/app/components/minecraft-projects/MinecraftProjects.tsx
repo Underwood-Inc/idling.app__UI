@@ -1,7 +1,8 @@
 'use client';
 
-import { FaGithub } from 'react-icons/fa';
-import { SiModrinth } from 'react-icons/si';
+import { LucideIcon } from '@molecules/lucide/LucideIcon';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { Download, FolderGit2, Gamepad2, Package } from 'lucide';
 import './MinecraftProjects.css';
 
 interface MinecraftProject {
@@ -29,8 +30,8 @@ const projects: MinecraftProject[] = [
       'Fire Sacrifice System',
       'Visual Pattern Guides',
       'Custom Textures & Animations',
-      'Fully Configurable'
-    ]
+      'Fully Configurable',
+    ],
   },
   {
     title: 'Trials of the Wild',
@@ -43,16 +44,19 @@ const projects: MinecraftProject[] = [
       'Quality of Life Mods',
       'New Content & Mechanics',
       'Balanced Gameplay',
-      'Regular Updates'
-    ]
-  }
+      'Regular Updates',
+    ],
+  },
 ];
 
 export function MinecraftProjects() {
   return (
     <div className="minecraft-projects">
       <div className="minecraft-projects__header">
-        <h3 className="minecraft-projects__title">🎮 Minecraft Projects</h3>
+        <h3 className="minecraft-projects__title">
+          <SiteIcon id="gamepad" className="minecraft-projects__title-icon" sizeRem={1.25} />
+          Minecraft Projects
+        </h3>
         <p className="minecraft-projects__subtitle">
           Custom datapacks, mods, and modpacks for Minecraft
         </p>
@@ -68,20 +72,17 @@ export function MinecraftProjects() {
               </div>
               {project.downloads && (
                 <div className="minecraft-project__downloads">
-                  📥 {project.downloads} downloads
+                  <LucideIcon icon={Download} sizeRem={0.875} className="minecraft-project__downloads-icon" />
+                  {project.downloads} downloads
                 </div>
               )}
             </div>
 
-            <p className="minecraft-project__description">
-              {project.description}
-            </p>
+            <p className="minecraft-project__description">{project.description}</p>
 
             {project.features && (
               <div className="minecraft-project__features">
-                <h5 className="minecraft-project__features-title">
-                  Key Features:
-                </h5>
+                <h5 className="minecraft-project__features-title">Key Features:</h5>
                 <ul className="minecraft-project__features-list">
                   {project.features.map((feature) => (
                     <li key={feature}>{feature}</li>
@@ -98,7 +99,7 @@ export function MinecraftProjects() {
                   rel="noopener noreferrer"
                   className="minecraft-project__link minecraft-project__link--modrinth"
                 >
-                  <SiModrinth className="minecraft-project__link-icon" />
+                  <LucideIcon icon={Package} sizeRem={1} className="minecraft-project__link-icon" />
                   View on Modrinth
                 </a>
               )}
@@ -109,7 +110,7 @@ export function MinecraftProjects() {
                   rel="noopener noreferrer"
                   className="minecraft-project__link minecraft-project__link--github"
                 >
-                  <FaGithub className="minecraft-project__link-icon" />
+                  <LucideIcon icon={FolderGit2} sizeRem={1} className="minecraft-project__link-icon" />
                   View on GitHub
                 </a>
               )}
@@ -120,11 +121,10 @@ export function MinecraftProjects() {
 
       <div className="minecraft-projects__footer">
         <p className="minecraft-projects__footer-text">
-          These projects are open source and available on Modrinth. Feel free
-          to check them out, provide feedback, or contribute!
+          These projects are open source and available on Modrinth. Feel free to check them out,
+          provide feedback, or contribute!
         </p>
       </div>
     </div>
   );
 }
-

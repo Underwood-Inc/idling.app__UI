@@ -1,3 +1,6 @@
+'use client';
+
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React from 'react';
 import './URLPill.css';
 
@@ -153,9 +156,7 @@ export function ImageEmbed({
         {hasError ? (
           <div className="image-embed__error">
             <div className="image-embed__error-content">
-              <div className="image-embed__error-icon">
-                {isVideo ? '🎥' : '🖼️'}
-              </div>
+              <SiteIcon id={isVideo ? 'video' : 'image'} className="image-embed__error-icon" sizeRem={1.5} />
               <div className="image-embed__error-text">
                 Failed to load {isVideo ? 'video' : 'image'}
               </div>

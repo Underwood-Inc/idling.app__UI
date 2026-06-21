@@ -50,8 +50,7 @@
 }
 
 .export-modal__title::before {
-  content: '📊';
-  font-size: 1.25em;
+  content: none;
 }
 
 .export-modal__close {

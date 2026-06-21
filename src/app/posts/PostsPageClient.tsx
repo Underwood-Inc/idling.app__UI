@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { CONTEXT_IDS } from '@lib/context-ids';
 import { useOverlay } from '@lib/context/OverlayContext';
 import { shouldUpdateAtom } from '@lib/state/atoms';
@@ -52,7 +53,10 @@ const AddPostModalContent: React.FC<{ onClose?: () => void }> = ({
   return (
     <div className="floating-add-post__modal-content">
       <div className="floating-add-post__header">
-        <h2 className="floating-add-post__title">✨ Share Something New</h2>
+        <h2 className="floating-add-post__title">
+          <SiteIcon id="sparkles" className="floating-add-post__title-icon" sizeRem={1.125} />
+          Share Something New
+        </h2>
       </div>
       <SharedSubmissionForm
         mode="create"

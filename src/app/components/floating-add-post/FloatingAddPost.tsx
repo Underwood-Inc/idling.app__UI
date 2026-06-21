@@ -1,12 +1,12 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { CONTEXT_IDS } from '@lib/context-ids';
 import { useOverlay } from '@lib/context/OverlayContext';
 import { shouldUpdateAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import React, { useEffect } from 'react';
-import { GiQuill } from 'react-icons/gi';
 import { SharedSubmissionForm } from '../submission-forms/shared-submission-form/SharedSubmissionForm';
 import './FloatingAddPost.css';
 
@@ -40,7 +40,10 @@ const AddPostModalContent: React.FC<{ onClose?: () => void }> = ({
   return (
     <div className="floating-add-post__modal-content">
       <div className="floating-add-post__header">
-        <h2 className="floating-add-post__title">✨ Share Something New</h2>
+        <h2 className="floating-add-post__title">
+          <SiteIcon id="sparkles" className="floating-add-post__title-icon" sizeRem={1.125} />
+          Share Something New
+        </h2>
       </div>
       <SharedSubmissionForm
         mode="create"
@@ -98,7 +101,7 @@ const FloatingAddPost: React.FC<FloatingAddPostProps> = ({
       aria-label="Create new post"
       title="Create new post"
     >
-      <GiQuill className="floating-add-post__icon" />
+      <SiteIcon id="pen" className="floating-add-post__icon" sizeRem={1.5} />
     </button>
   );
 };

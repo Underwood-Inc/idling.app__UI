@@ -1,5 +1,6 @@
 import { auth } from '@lib/auth';
 import { NAV_PATHS } from '@lib/routes';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { redirect } from 'next/navigation';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import { InstantLink } from '../../components/ui/InstantLink';
@@ -32,7 +33,9 @@ export default async function UnlinkAccountPage({
       <PageContainer>
         <div className="unlink-account__container">
           <div className="unlink-account__header">
-            <div className="unlink-account__icon">🔗</div>
+            <div className="unlink-account__icon">
+              <SiteIcon id="unlink" sizeRem={2.5} />
+            </div>
             <h1 className="unlink-account__title">Unlink OAuth Account</h1>
             <p className="unlink-account__subtitle">
               Resolve account linking conflicts
@@ -62,7 +65,10 @@ export default async function UnlinkAccountPage({
               </div>
 
               <div className="unlink-account__warning">
-                <h3>⚠️ Important Notes:</h3>
+                <h3 className="unlink-account__warning-title">
+                  <SiteIcon id="alertTriangle" className="unlink-account__warning-icon" sizeRem={1} />
+                  Important Notes:
+                </h3>
                 <ul>
                   <li>
                     This will only unlink the OAuth provider, not delete any
@@ -111,7 +117,9 @@ export default async function UnlinkAccountPage({
     <PageContainer>
       <div className="unlink-account__container">
         <div className="unlink-account__header">
-          <div className="unlink-account__icon">🔗</div>
+          <div className="unlink-account__icon">
+            <SiteIcon id="unlink" sizeRem={2.5} />
+          </div>
           <h1 className="unlink-account__title">Unlink OAuth Account</h1>
           <p className="unlink-account__subtitle">
             Resolve account linking conflicts
@@ -141,7 +149,10 @@ export default async function UnlinkAccountPage({
             </div>
 
             <div className="unlink-account__warning">
-              <h3>⚠️ Important Notes:</h3>
+              <h3 className="unlink-account__warning-title">
+                <SiteIcon id="alertTriangle" className="unlink-account__warning-icon" sizeRem={1} />
+                Important Notes:
+              </h3>
               <ul>
                 <li>
                   This will only unlink the OAuth provider, not delete any user

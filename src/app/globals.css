@@ -1,7 +1,13 @@
 @import url('./fonts.css');
+@import url('../css/mappy-cursors/tokens.css');
 @import url('./styles/glass-effects.css');
 @import url('./styles/scroll-restore-animation.css');
-@import '../styles/global-selects.css';
+@import url('./styles/visualizer-mode.css');
+@import url('../widgets/radio-player/radio-player.css');
+@import url('../styles/global-selects.css');
+@import url('../styles/contrast-safe.css');
+@import url('../styles/surface-typography.css');
+@import url('../molecules/lucide/lucide-icon.css');
 
 :root {
   /* START PALATTES REGION */
@@ -51,6 +57,16 @@
   --brand-primary--dark: var(--tan-dark);
   --brand-primary--light: #fbf2c4;
   --text-on-tan: #1a1a1a;
+  --text-on-light: #1a1a1a;
+  --text-on-light-muted: #3a3a3a;
+
+  /* Inline links on dark surfaces + filled control hovers */
+  --inline-link-fg: var(--brand-primary);
+  --inline-link-fg-hover: var(--brand-primary--light);
+  --interactive-bg-tan: var(--brand-primary);
+  --interactive-bg-tan-hover: var(--tan-dark);
+  --interactive-bg-subtle-hover: var(--ambient-interactive-bg-hover, #45382a);
+  --interactive-fg-on-subtle-hover: var(--text-primary);
 
   --brand-secondary: var(--tan-secondary);
   --brand-secondary--dark: var(--brown-dark);
@@ -173,6 +189,12 @@
   --z-tooltip: 3000;
   --z-overlay: 500;
   --z-content: 1;
+
+  --ambient-audio-bass: 0;
+  --ambient-audio-mid: 0;
+  --ambient-audio-treble: 0;
+  --ambient-audio-energy: 0;
+  --ambient-audio-intensity: 1;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -351,7 +373,7 @@ h6 {
 /* Make elements with title attribute italic */
 [title] {
   font-style: italic;
-  cursor: help;
+  cursor: var(--mappy-cursor-help);
 }
 
 /* Removed global font-size rule to prevent specificity conflicts */
@@ -366,15 +388,21 @@ caption {
   font-size: var(--font-size-base);
 }
 
-input {
-  background-color: var(--brand-tertiary);
-  color: var(--font-color--primary);
+input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='color']):not(
+    [type='file']
+  ) {
+  background-color: var(--dark-background--secondary);
+  color: var(--fg-on-dark);
+  border: 1px solid var(--dark-border--primary);
+  -webkit-text-fill-color: currentColor;
   transition: all 0.2s ease-in-out;
 }
 
-button {
-  background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+button:not(.no-glass):not(.contrast-safe-surface) {
+  background-color: var(--ambient-interactive-bg, #2a2318);
+  color: var(--ambient-interactive-fg, var(--fg-on-dark));
+  border: 1px solid var(--ambient-interactive-border, rgb(229 193 133 / 22%));
+  -webkit-text-fill-color: currentColor;
   border-radius: 0.5rem;
   transition: all 0.2s ease-in-out;
   font-size: var(--font-size-base);
@@ -382,13 +410,17 @@ button {
 }
 
 button:disabled {
-  background-color: var(--light-bg__text-color--tertiary);
+  background-color: var(--dark-background--quaternary);
+  color: var(--fg-on-dark-subtle);
+  opacity: 0.7;
 }
 
-button:hover:not(:disabled) {
-  background-color: var(--tan-dark);
+button:not(.no-glass):not(.contrast-safe-surface):hover:not(:disabled) {
+  background-color: var(--ambient-interactive-bg-hover, #45382a);
+  color: var(--ambient-interactive-fg-hover, var(--fg-on-dark));
+  -webkit-text-fill-color: currentColor;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(229, 193, 133, 0.3);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
 }
 
 button:focus {
@@ -405,30 +437,33 @@ code {
   font-family: var(--font-mono);
 }
 
-a {
-  color: var(--anchor__light-bg--primary);
+/* Inline prose links — unclassed anchors only; classed links use component or contrast-safe styles */
+:where(a:not([class]):not(.contrast-safe-surface):not(.instant-link)):is(:link, :visited) {
+  color: var(--inline-link-fg);
   text-decoration: underline;
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out;
+  -webkit-text-fill-color: currentColor;
 }
 
-a:hover {
-  color: var(--anchor__light-bg--primary-hover);
+:where(a:not([class]):not(.contrast-safe-surface):not(.instant-link)):is(:link, :visited):hover {
+  color: var(--inline-link-fg-hover);
   text-decoration: underline;
+}
+
+:where(
+  a:not(.contrast-safe-surface) h1,
+  a:not(.contrast-safe-surface) h2,
+  a:not(.contrast-safe-surface) h3,
+  a:not(.contrast-safe-surface) h4,
+  a:not(.contrast-safe-surface) h5,
+  a:not(.contrast-safe-surface) h6
+) {
+  text-decoration: none;
+  color: inherit;
 }
 
 a:focus {
   outline: none;
-}
-
-a h1,
-a h2,
-a h3,
-a h4,
-a h5,
-a h6,
-a {
-  text-decoration: none;
-  color: var(--brand-primary);
 }
 
 html {
@@ -436,13 +471,14 @@ html {
   /* Explicit base font size for rem calculations */
   max-width: 100vw;
   height: 100%;
+  background: var(--bg-darker, #1a1a1a);
 }
 
 body {
   max-width: 100vw;
   min-height: 100vh;
-  /* Clean solid background */
-  background: #1a1a1a;
+  /* Transparent so AmbientBackground shows between glass panels */
+  background: transparent;
   overflow-y: auto;
   overflow-x: hidden;
   font-size: var(--font-size-base);
@@ -623,25 +659,26 @@ section:not(:last-of-type) {
 /* END LAYOUT */
 
 .cursor--pointer {
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer);
 }
 
 .cursor--default {
-  cursor: default;
+  cursor: var(--mappy-cursor-default);
 }
 
 @media (hover: hover) {
-  input:hover {
-    background-color: var(--brand-tertiary--dark);
+  input:not([type='range']):not([type='checkbox']):not([type='radio']):hover {
+    background-color: var(--dark-background--tertiary);
+    border-color: var(--dark-border--secondary);
   }
 
   button:disabled:hover {
     cursor: not-allowed;
   }
 
-  a:hover {
+  :where(a:not([class]):not(.contrast-safe-surface):not(.instant-link):hover) {
     text-decoration: underline;
-    color: var(--anchor__light-bg--primary-hover);
+    color: var(--inline-link-fg-hover);
   }
 
   [aria-disabled='true']:hover,
@@ -670,17 +707,10 @@ section:not(:last-of-type) {
   color: var(--selection-text);
 }
 
-/* 4k Displays */
+/* 4k Displays — cap main content width only; do not restyle every nested section */
 @media (min-width: 2160px) {
-  section {
-    flex-direction: row;
-    align-items: flex-start;
+  main > .page-content__section {
     max-width: 2460px;
-  }
-
-  section:not(:last-of-type) {
-    margin-right: 1rem;
-    margin-bottom: 0;
   }
 }
 
@@ -849,13 +879,13 @@ textarea,
 }
 
 /* Global Button Effects - Clean and Simple */
-button:not(.no-glass) {
+button:not(.no-glass):not(.contrast-safe-surface) {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
 }
 
-button:not(.no-glass)::before {
+button:not(.no-glass):not(.contrast-safe-surface)::before {
   content: '';
   position: absolute;
   top: 0;
@@ -872,12 +902,12 @@ button:not(.no-glass)::before {
   pointer-events: none;
 }
 
-button:not(.no-glass):hover::before {
+button:not(.no-glass):not(.contrast-safe-surface):hover::before {
   left: 100%;
 }
 
 /* Enhanced hover effects for buttons */
-button:not(.no-glass):hover:not(:disabled) {
+button:not(.no-glass):not(.contrast-safe-surface):hover:not(:disabled) {
   box-shadow: 0 4px 12px rgba(229, 193, 133, 0.3);
 }
 

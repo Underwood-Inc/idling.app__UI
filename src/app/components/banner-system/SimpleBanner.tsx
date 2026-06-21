@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface SimpleBannerProps {
@@ -87,7 +89,7 @@ export function SimpleBanner({
 
     if (isRateLimit) {
       return {
-        icon: '⚡',
+        iconId: 'zap' as SiteIconId,
         bgGradient: 'linear-gradient(135deg, #fef3c7, #fde68a)',
         borderColor: '#f59e0b',
         textColor: '#92400e',
@@ -98,7 +100,7 @@ export function SimpleBanner({
 
     if (isTimeout) {
       return {
-        icon: '⏰',
+        iconId: 'clock' as SiteIconId,
         bgGradient: 'linear-gradient(135deg, #fed7aa, #fdba74)',
         borderColor: '#f97316',
         textColor: '#9a3412',
@@ -112,7 +114,7 @@ export function SimpleBanner({
       switch (metadata?.alertType) {
         case 'warning':
           return {
-            icon: '⚠️',
+            iconId: 'alertTriangle' as SiteIconId,
             bgGradient: 'linear-gradient(135deg, #fef3c7, #fde68a)',
             borderColor: '#f59e0b',
             textColor: '#92400e',
@@ -121,7 +123,7 @@ export function SimpleBanner({
           };
         case 'error':
           return {
-            icon: '❌',
+            iconId: 'circleX' as SiteIconId,
             bgGradient: 'linear-gradient(135deg, #fee2e2, #fecaca)',
             borderColor: '#f87171',
             textColor: '#991b1b',
@@ -130,7 +132,7 @@ export function SimpleBanner({
           };
         case 'success':
           return {
-            icon: '✅',
+            iconId: 'check' as SiteIconId,
             bgGradient: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
             borderColor: '#34d399',
             textColor: '#065f46',
@@ -139,7 +141,7 @@ export function SimpleBanner({
           };
         case 'maintenance':
           return {
-            icon: '🔧',
+            iconId: 'wrench' as SiteIconId,
             bgGradient: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
             borderColor: '#818cf8',
             textColor: '#3730a3',
@@ -148,7 +150,7 @@ export function SimpleBanner({
           };
         default:
           return {
-            icon: 'ℹ️',
+            iconId: 'info' as SiteIconId,
             bgGradient: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
             borderColor: '#60a5fa',
             textColor: '#1e40af',
@@ -160,7 +162,7 @@ export function SimpleBanner({
 
     // Default
     return {
-      icon: 'ℹ️',
+      iconId: 'info' as SiteIconId,
       bgGradient: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
       borderColor: '#60a5fa',
       textColor: '#1e40af',
@@ -221,7 +223,9 @@ export function SimpleBanner({
             style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}
           >
             {/* Icon */}
-            <div style={{ flexShrink: 0, fontSize: '20px' }}>{config.icon}</div>
+            <div style={{ flexShrink: 0, display: 'inline-flex', color: 'inherit' }}>
+              <SiteIcon id={config.iconId} sizeRem={1.25} />
+            </div>
 
             {/* Content */}
             <div style={{ flex: 1, minWidth: 0 }}>

@@ -66,14 +66,14 @@ export function NavigationLoadingBar() {
       <div
         className="navigation-loading-bar__progress"
         style={{ width: `${progress}%` }}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress)}
+        aria-label={displayMessage ?? 'Loading page'}
       >
         <div className="navigation-loading-bar__glow" />
       </div>
-      {displayMessage && (
-        <div className="navigation-loading-bar__info">
-          <span className="navigation-loading-bar__text">{displayMessage}</span>
-        </div>
-      )}
     </div>
   );
 }

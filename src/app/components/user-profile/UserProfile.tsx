@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { UserProfileData } from '@lib/types/profile';
 import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { useSession } from 'next-auth/react';
@@ -131,7 +132,10 @@ export function UserProfile({
               <span className="user-profile__join-date">Joined {joinDate}</span>
             )}
             {user.location && (
-              <p className="user-profile__location">📍 {user.location}</p>
+              <p className="user-profile__location">
+                <SiteIcon id="mapPin" className="user-profile__meta-icon" sizeRem={0.875} />
+                {user.location}
+              </p>
             )}
           </div>
         </div>
@@ -250,11 +254,15 @@ export function UserProfile({
           </h2>
           <div className="user-profile__meta-row">
             {user.location && (
-              <p className="user-profile__location">📍 {user.location}</p>
+              <p className="user-profile__location">
+                <SiteIcon id="mapPin" className="user-profile__meta-icon" sizeRem={0.875} />
+                {user.location}
+              </p>
             )}
             {joinDate && (
               <p className="user-profile__join-date">
-                👤 Member since {joinDate}
+                <SiteIcon id="user" className="user-profile__meta-icon" sizeRem={0.875} />
+                Member since {joinDate}
               </p>
             )}
           </div>
@@ -271,7 +279,7 @@ export function UserProfile({
                 onClick={() => setIsEditingBio(true)}
                 title="Edit bio"
               >
-                ✏️ Edit
+                <SiteIcon id="pencil" className="user-profile__action-icon" sizeRem={0.875} /> Edit
               </button>
             )}
             {isOwnProfile && (
@@ -280,7 +288,7 @@ export function UserProfile({
                 className="user-profile__settings-link"
                 title="User settings"
               >
-                ⚙️ Settings
+                <SiteIcon id="settings" className="user-profile__action-icon" sizeRem={0.875} /> Settings
               </InstantLink>
             )}
             {hasAdminAccess && isOwnProfile && (
@@ -289,7 +297,7 @@ export function UserProfile({
                 className="user-profile__admin-link"
                 title="Admin Dashboard"
               >
-                🛡️ Admin
+                <SiteIcon id="shield" className="user-profile__action-icon" sizeRem={0.875} /> Admin
               </InstantLink>
             )}
           </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { AuthAvatar } from '../auth-avatar/AuthAvatar';
 
@@ -48,7 +49,7 @@ export function NavbarBrand() {
         aria-label="Default user avatar"
         title="Welcome to Idling.app"
       >
-        👤
+        <SiteIcon id="user" sizeRem={1.2} />
       </div>
     );
   }

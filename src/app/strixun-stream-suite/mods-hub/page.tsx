@@ -1,3 +1,4 @@
+import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
@@ -71,7 +72,7 @@ export default function ModsHubPage() {
               <h2 className="product-section__title">Key Features</h2>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">📤</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="upload" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Mod Upload & Management</h3>
                   <p className="product-feature__description">
                     Upload, update, and manage your mods with drag-and-drop interface. Full CRUD
@@ -79,7 +80,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔢</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="hash" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Semantic Versioning</h3>
                   <p className="product-feature__description">
                     Full version control with semantic versioning support. Track changes, publish
@@ -87,7 +88,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔍</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="search" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Advanced Search</h3>
                   <p className="product-feature__description">
                     Powerful search with @strixun/search-query-parser supporting categories, tags,
@@ -95,7 +96,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">⬇️</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="arrowDown" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Direct Download Links</h3>
                   <p className="product-feature__description">
                     Share direct download links in any application. No redirects, no waiting -
@@ -103,7 +104,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🎨</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="palette" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Beautiful Gold UI</h3>
                   <p className="product-feature__description">
                     Stunning gold-themed responsive interface built with styled-components. Modern,
@@ -111,7 +112,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔐</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="lockKeyhole" sizeRem={5} /></div>
                   <h3 className="product-feature__title">R2 Cloud Storage with Encryption</h3>
                   <p className="product-feature__description">
                     Cloudflare R2 storage with optional client-side encryption, default compression,
@@ -130,7 +131,7 @@ export default function ModsHubPage() {
               </p>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">⚡</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="zap" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Signals Layer</h3>
                   <p className="product-feature__description">
                     @preact/signals-react for UI state - form fields, toggles, and filters with
@@ -138,7 +139,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🌐</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="globe" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Zustand Layer</h3>
                   <p className="product-feature__description">
                     Global client state management for auth, UI state, and notifications with zero
@@ -146,7 +147,7 @@ export default function ModsHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔄</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="refresh" sizeRem={5} /></div>
                   <h3 className="product-feature__title">TanStack Query Layer</h3>
                   <p className="product-feature__description">
                     Server state management with automatic caching, background refetching, and

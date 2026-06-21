@@ -2,8 +2,10 @@
 .card {
   padding: 2rem 2.4rem;
   border-radius: var(--border-radius);
-  background: var(--bg-dark);
-  border: 1px solid var(--bg-light);
+  background: var(--ambient-surface-bg);
+  border: 1px solid var(--ambient-surface-border);
+  -webkit-backdrop-filter: var(--ambient-surface-blur);
+  backdrop-filter: var(--ambient-surface-blur);
   transition: all 0.2s ease;
   overflow: auto;
   display: flex;
@@ -74,5 +76,13 @@
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .card {
+    background: var(--ambient-surface-fallback);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

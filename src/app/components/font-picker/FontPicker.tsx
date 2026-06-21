@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useEffect, useState } from 'react';
 import { useFontPreference } from '../../../lib/context/UserPreferencesContext';
 import './FontPicker.css';
@@ -118,7 +119,7 @@ export const FontPicker: React.FC<FontPickerProps> = ({
         title="Change application font family"
         disabled={isUpdating}
       >
-        <span className="font-picker__icon">🔤</span>
+        <SiteIcon id="type" className="font-picker__icon" sizeRem={1.125} />
         <span className="font-picker__label">
           {FONT_OPTIONS[selectedFont].name}
         </span>

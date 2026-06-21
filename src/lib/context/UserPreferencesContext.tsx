@@ -11,6 +11,13 @@ import {
 } from 'react';
 import { updateUserPreferencesAction } from '../actions/profile.actions';
 import { FlairPreference } from '../actions/subscription.actions';
+import {
+  AMBIENT_AUDIO_REACTIVITY_STORAGE_KEY,
+  applyAmbientAudioReactivityToDocument,
+  clampAmbientAudioReactivityPercent,
+  DEFAULT_AMBIENT_AUDIO_REACTIVITY_PERCENT,
+  parseAmbientAudioReactivityPercent,
+} from '../audio/ambientAudioReactivity';
 import { createLogger } from '../logging';
 
 // Create logger for user preferences
@@ -91,6 +98,8 @@ interface UserPreferencesContextType {
   setBackgroundAnimationLayers: (
     layers: BackgroundAnimationLayers
   ) => Promise<void>;
+  ambientAudioReactivityPercent: number;
+  setAmbientAudioReactivityPercent: (percent: number) => Promise<void>;
 
   // Loading states
   isUpdatingSpacingTheme: boolean;
@@ -104,6 +113,7 @@ interface UserPreferencesContextType {
   isUpdatingBackgroundMovementDirection: boolean;
   isUpdatingBackgroundMovementSpeed: boolean;
   isUpdatingBackgroundAnimationLayers: boolean;
+  isUpdatingAmbientAudioReactivity: boolean;
 
   // Error states
   spacingThemeError: string | null;
@@ -117,6 +127,7 @@ interface UserPreferencesContextType {
   backgroundMovementDirectionError: string | null;
   backgroundMovementSpeedError: string | null;
   backgroundAnimationLayersError: string | null;
+  ambientAudioReactivityError: string | null;
 }
 
 const UserPreferencesContext = createContext<
@@ -157,6 +168,9 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       aurora: true
     });
 
+  const [ambientAudioReactivityPercent, setAmbientAudioReactivityPercentState] =
+    useState<number>(DEFAULT_AMBIENT_AUDIO_REACTIVITY_PERCENT);
+
   // Loading states
   const [isUpdatingSpacingTheme, setIsUpdatingSpacingTheme] = useState(false);
   const [isUpdatingPaginationMode, setIsUpdatingPaginationMode] =
@@ -186,6 +200,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     isUpdatingBackgroundAnimationLayers,
     setIsUpdatingBackgroundAnimationLayers
   ] = useState(false);
+  const [isUpdatingAmbientAudioReactivity, setIsUpdatingAmbientAudioReactivity] =
+    useState(false);
 
   // Error states
   const [spacingThemeError, setSpacingThemeError] = useState<string | null>(
@@ -218,6 +234,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [backgroundMovementSpeedError, setBackgroundMovementSpeedError] =
     useState<string | null>(null);
   const [backgroundAnimationLayersError, setBackgroundAnimationLayersError] =
+    useState<string | null>(null);
+  const [ambientAudioReactivityError, setAmbientAudioReactivityError] =
     useState<string | null>(null);
 
   // Apply font preference to document
@@ -266,6 +284,10 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     });
   }, [accessibilityFocusMode]);
 
+  useEffect(() => {
+    applyAmbientAudioReactivityToDocument(ambientAudioReactivityPercent);
+  }, [ambientAudioReactivityPercent]);
+
   // Initialize preferences from user profile and localStorage
   useEffect(() => {
     if (status === 'loading') return;
@@ -298,6 +320,9 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       );
       const savedBackgroundAnimationLayers = localStorage.getItem(
         'background-animation-layers-global'
+      );
+      const savedAmbientAudioReactivity = localStorage.getItem(
+        AMBIENT_AUDIO_REACTIVITY_STORAGE_KEY
       );
 
       // Set from localStorage immediately
@@ -383,6 +408,13 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
             error as Error
           );
         }
+      }
+
+      const parsedAmbientAudioReactivity = parseAmbientAudioReactivityPercent({
+        raw: savedAmbientAudioReactivity,
+      });
+      if (parsedAmbientAudioReactivity !== null) {
+        setAmbientAudioReactivityPercentState(parsedAmbientAudioReactivity);
       }
     }
 
@@ -1050,6 +1082,50 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     [session]
   );
 
+  const setAmbientAudioReactivityPercent = useCallback(
+    async (percent: number) => {
+      const clampedPercent = clampAmbientAudioReactivityPercent(percent);
+
+      setIsUpdatingAmbientAudioReactivity(true);
+      setAmbientAudioReactivityError(null);
+
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            AMBIENT_AUDIO_REACTIVITY_STORAGE_KEY,
+            String(clampedPercent)
+          );
+        }
+
+        setAmbientAudioReactivityPercentState(clampedPercent);
+
+        if (session?.user?.id) {
+          logger.debug('Updated ambient audio reactivity', {
+            userId: session.user.id,
+            percent: clampedPercent,
+          });
+        }
+      } catch (error) {
+        logger.error(
+          'Failed to update ambient audio reactivity',
+          error as Error,
+          {
+            userId: session?.user?.id,
+            percent: clampedPercent,
+          }
+        );
+        setAmbientAudioReactivityError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update background audio reactivity'
+        );
+      } finally {
+        setIsUpdatingAmbientAudioReactivity(false);
+      }
+    },
+    [session]
+  );
+
   return (
     <UserPreferencesContext.Provider
       value={{
@@ -1075,6 +1151,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setBackgroundMovementSpeed,
         backgroundAnimationLayers,
         setBackgroundAnimationLayers,
+        ambientAudioReactivityPercent,
+        setAmbientAudioReactivityPercent,
         isUpdatingSpacingTheme,
         isUpdatingPaginationMode,
         isUpdatingEmojiPanelBehavior,
@@ -1086,6 +1164,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         isUpdatingBackgroundMovementDirection,
         isUpdatingBackgroundMovementSpeed,
         isUpdatingBackgroundAnimationLayers,
+        isUpdatingAmbientAudioReactivity,
         spacingThemeError,
         paginationModeError,
         emojiPanelBehaviorError,
@@ -1096,7 +1175,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         generatorModeError,
         backgroundMovementDirectionError,
         backgroundMovementSpeedError,
-        backgroundAnimationLayersError
+        backgroundAnimationLayersError,
+        ambientAudioReactivityError
       }}
     >
       <div

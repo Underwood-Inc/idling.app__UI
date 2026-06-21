@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -49,7 +50,7 @@ export function UserSearch({
 
       // Check if user is authenticated
       if (status === 'unauthenticated') {
-        setAuthError('🔒 Please login to search for users');
+        setAuthError('Please login to search for users');
         setResults([]);
         setIsOpen(true);
         return;
@@ -69,7 +70,7 @@ export function UserSearch({
 
         if (!response.ok) {
           if (response.status === 401 || response.status === 403) {
-            setAuthError('🔒 Please login to search for users');
+            setAuthError('Please login to search for users');
           } else {
             setAuthError(`Search failed (${response.status})`);
           }
@@ -168,6 +169,10 @@ export function UserSearch({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  if (status !== 'authenticated') {
+    return null;
+  }
+
   return (
     <div className={`user-search ${className}`} ref={searchRef}>
       <div className="user-search__input-container">
@@ -185,7 +190,7 @@ export function UserSearch({
           {isLoading ? (
             <div className="user-search__spinner" />
           ) : (
-            <span>🔍</span>
+            <SiteIcon id="search" sizeRem={1} />
           )}
         </div>
       </div>
@@ -233,7 +238,7 @@ export function UserSearch({
       {isOpen && query.length >= 2 && !isLoading && authError && (
         <div className="user-search__dropdown">
           <div className="user-search__auth-error">
-            <span className="user-search__auth-error-icon">🔒</span>
+            <SiteIcon id="lock" className="user-search__auth-error-icon" sizeRem={1} />
             <span className="user-search__auth-error-text">{authError}</span>
             {status === 'unauthenticated' && (
               <button
@@ -254,7 +259,7 @@ export function UserSearch({
         results.length === 0 && (
           <div className="user-search__dropdown">
             <div className="user-search__no-results">
-              <span className="user-search__no-results-icon">🤷‍♂️</span>
+              <SiteIcon id="circleHelp" className="user-search__no-results-icon" sizeRem={1.25} />
               <span className="user-search__no-results-text">
                 No users found for &quot;{query}&quot;
               </span>

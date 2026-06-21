@@ -53,7 +53,6 @@ This document summarizes the comprehensive marketing system implementation for t
 - `https://mods.idling.app` - Mods Hub (external)
 - `https://auth.idling.app` - Auth Service (external)
 - `https://s.idling.app` - URL Shortener (external)
-- `https://chat.idling.app` - Chat Hub (external)
 - `https://access.idling.app` - Access Hub (external)
 
 ### 4. **Removed Interactive Demos** ✓
@@ -81,7 +80,7 @@ This document summarizes the comprehensive marketing system implementation for t
 
 ### 5. **Strixun Suite Marketing Pages** ✓
 - Created comprehensive Suite overview page
-- Lists all 6 applications with details
+- Lists all 5 applications with details
 - Clean, professional design
 - Highlights SSO, open source, privacy, modern stack
 
@@ -94,8 +93,7 @@ This document summarizes the comprehensive marketing system implementation for t
 2. **Mods Hub** (Live) - Mod hosting platform
 3. **Auth Service** (Live) - Multi-tenant OTP authentication
 4. **URL Shortener** (Live) - Short links with analytics
-5. **Chat Hub** (Live) - P2P encrypted chat
-6. **Access Hub** (Beta) - Access control dashboard
+5. **Access Hub** (Beta) - Access control dashboard
 
 ### 6. **Linting Rules Verified** ✓
 - Confirmed `enforce-link-target-blank` rule exists
@@ -199,7 +197,6 @@ Main Navigation
 │   ├── Mods Hub (external)
 │   ├── Auth Service (external)
 │   ├── URL Shortener (external)
-│   ├── Chat Hub (external)
 │   └── Access Hub (external)
 └── External
     └── Galaxy

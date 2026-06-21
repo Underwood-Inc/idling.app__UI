@@ -20,14 +20,12 @@ export enum ROUTE_KEYS {
   MODS_HUB = 'MODS_HUB',
   AUTH_SERVICE = 'AUTH_SERVICE',
   URL_SHORTENER = 'URL_SHORTENER',
-  CHAT_HUB = 'CHAT_HUB',
   ACCESS_HUB = 'ACCESS_HUB',
   // Strixun Stream Suite Detail Pages
   STREAM_SUITE_DETAIL = 'STREAM_SUITE_DETAIL',
   MODS_HUB_DETAIL = 'MODS_HUB_DETAIL',
   AUTH_SERVICE_DETAIL = 'AUTH_SERVICE_DETAIL',
   URL_SHORTENER_DETAIL = 'URL_SHORTENER_DETAIL',
-  CHAT_HUB_DETAIL = 'CHAT_HUB_DETAIL',
   ACCESS_HUB_DETAIL = 'ACCESS_HUB_DETAIL'
 }
 
@@ -53,14 +51,12 @@ export const NAV_PATHS: Record<ROUTE_KEYS, string> = {
   [ROUTE_KEYS.MODS_HUB]: 'https://mods.idling.app',
   [ROUTE_KEYS.AUTH_SERVICE]: 'https://auth.idling.app',
   [ROUTE_KEYS.URL_SHORTENER]: 'https://s.idling.app',
-  [ROUTE_KEYS.CHAT_HUB]: 'https://chat.idling.app',
   [ROUTE_KEYS.ACCESS_HUB]: 'https://access.idling.app',
   // Strixun Stream Suite Detail Pages
   [ROUTE_KEYS.STREAM_SUITE_DETAIL]: '/strixun-stream-suite/stream-suite',
   [ROUTE_KEYS.MODS_HUB_DETAIL]: '/strixun-stream-suite/mods-hub',
   [ROUTE_KEYS.AUTH_SERVICE_DETAIL]: '/strixun-stream-suite/auth-service',
   [ROUTE_KEYS.URL_SHORTENER_DETAIL]: '/strixun-stream-suite/url-shortener',
-  [ROUTE_KEYS.CHAT_HUB_DETAIL]: '/strixun-stream-suite/chat-hub',
   [ROUTE_KEYS.ACCESS_HUB_DETAIL]: '/strixun-stream-suite/access-hub'
 };
 
@@ -104,7 +100,6 @@ export const NAV_GROUPS: NavGroups = {
       ROUTE_KEYS.MODS_HUB,
       ROUTE_KEYS.AUTH_SERVICE,
       ROUTE_KEYS.URL_SHORTENER,
-      ROUTE_KEYS.CHAT_HUB,
       ROUTE_KEYS.ACCESS_HUB
     ]
   }
@@ -124,7 +119,6 @@ export const HEADER_NAV_PATHS: Record<
     | ROUTE_KEYS.MODS_HUB_DETAIL
     | ROUTE_KEYS.AUTH_SERVICE_DETAIL
     | ROUTE_KEYS.URL_SHORTENER_DETAIL
-    | ROUTE_KEYS.CHAT_HUB_DETAIL
     | ROUTE_KEYS.ACCESS_HUB_DETAIL
   >,
   string
@@ -141,7 +135,6 @@ export const HEADER_NAV_PATHS: Record<
   [ROUTE_KEYS.MODS_HUB]: NAV_PATHS[ROUTE_KEYS.MODS_HUB],
   [ROUTE_KEYS.AUTH_SERVICE]: NAV_PATHS[ROUTE_KEYS.AUTH_SERVICE],
   [ROUTE_KEYS.URL_SHORTENER]: NAV_PATHS[ROUTE_KEYS.URL_SHORTENER],
-  [ROUTE_KEYS.CHAT_HUB]: NAV_PATHS[ROUTE_KEYS.CHAT_HUB],
   [ROUTE_KEYS.ACCESS_HUB]: NAV_PATHS[ROUTE_KEYS.ACCESS_HUB]
 };
 
@@ -167,14 +160,12 @@ export const NAV_PATH_LABELS: Record<ROUTE_KEYS, string> = {
   [ROUTE_KEYS.MODS_HUB]: 'Mods Hub',
   [ROUTE_KEYS.AUTH_SERVICE]: 'Auth Service',
   [ROUTE_KEYS.URL_SHORTENER]: 'URL Shortener',
-  [ROUTE_KEYS.CHAT_HUB]: 'Chat Hub',
   [ROUTE_KEYS.ACCESS_HUB]: 'Access Hub',
   // Strixun Stream Suite Detail Page Labels
   [ROUTE_KEYS.STREAM_SUITE_DETAIL]: 'Stream Suite Details',
   [ROUTE_KEYS.MODS_HUB_DETAIL]: 'Mods Hub Details',
   [ROUTE_KEYS.AUTH_SERVICE_DETAIL]: 'Auth Service Details',
   [ROUTE_KEYS.URL_SHORTENER_DETAIL]: 'URL Shortener Details',
-  [ROUTE_KEYS.CHAT_HUB_DETAIL]: 'Chat Hub Details',
   [ROUTE_KEYS.ACCESS_HUB_DETAIL]: 'Access Hub Details'
 };
 
@@ -190,7 +181,6 @@ export const PUBLIC_ROUTES = [
   NAV_PATHS.MODS_HUB_DETAIL,
   NAV_PATHS.AUTH_SERVICE_DETAIL,
   NAV_PATHS.URL_SHORTENER_DETAIL,
-  NAV_PATHS.CHAT_HUB_DETAIL,
   NAV_PATHS.ACCESS_HUB_DETAIL,
   '/auth/unlink-account'
 ];

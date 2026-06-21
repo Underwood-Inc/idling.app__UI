@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { InstantLink } from '../../components/ui/InstantLink';
@@ -146,7 +147,10 @@ export function UnauthenticatedUnlinkForm({
 
       {error && (
         <div className="unlink-account-form__error">
-          <p>❌ {error}</p>
+          <p>
+            <SiteIcon id="circleX" sizeRem={0.875} />
+            {error}
+          </p>
         </div>
       )}
 

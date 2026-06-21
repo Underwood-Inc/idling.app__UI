@@ -115,14 +115,20 @@
 
 .product-hero__cta--primary {
   background: var(--brand-primary);
-  color: var(--bg-darker);
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
   border-color: var(--brand-primary);
   box-shadow: 0 12px 32px rgba(229, 193, 133, 0.5);
 }
 
+.product-hero__cta--primary:is(:link, :visited, :hover, :focus-visible) {
+  color: var(--text-on-tan, #1a1a1a);
+  -webkit-text-fill-color: currentColor;
+}
+
 .product-hero__cta--primary:hover {
-  background: var(--tan-secondary);
-  border-color: var(--tan-secondary);
+  background: var(--interactive-bg-tan-hover);
+  border-color: var(--interactive-bg-tan-hover);
   transform: translateY(-6px);
   box-shadow: 0 16px 48px rgba(229, 193, 133, 0.7);
 }
@@ -134,8 +140,9 @@
 }
 
 .product-hero__cta--secondary:hover {
-  background: rgba(229, 193, 133, 0.15);
-  border-color: var(--tan-secondary);
+  background: var(--interactive-bg-subtle-hover);
+  border-color: var(--brand-primary);
+  color: var(--interactive-fg-on-subtle-hover);
   transform: translateY(-6px);
   box-shadow: 0 12px 32px rgba(229, 193, 133, 0.3);
 }
@@ -256,9 +263,11 @@
 }
 
 .product-feature__icon {
-  font-size: 5rem;
   margin-bottom: 2rem;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
   transition: transform 0.3s ease;
 }
 
@@ -308,11 +317,11 @@
 .product-tech__tag:hover {
   background: linear-gradient(
     135deg,
-    var(--dark-background--tertiary) 0%,
+    var(--interactive-bg-subtle-hover) 0%,
     var(--dark-background--secondary) 100%
   );
   border-color: var(--brand-primary);
-  color: var(--brand-primary);
+  color: var(--text-primary);
   transform: translateY(-6px) scale(1.05);
   box-shadow: 0 8px 24px rgba(229, 193, 133, 0.3);
 }

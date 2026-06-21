@@ -903,6 +903,9 @@
 }
 
 .form__upgrade__notice h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--brand-primary);
   font-size: 1.25rem;
   font-weight: 700;

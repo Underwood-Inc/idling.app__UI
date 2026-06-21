@@ -1,0 +1,31 @@
+/** @typedef {import('./radioPlayer.types').RadioStationCatalog} RadioStationCatalog */
+
+/** @type {RadioStationCatalog} */
+export const RADIO_STATIONS = {
+  'Radio Paradise': 'https://stream-dc1.radioparadise.com/mp3-128',
+  'Radio Paradise (EU)': 'https://stream-uk1.radioparadise.com/mp3-128',
+  Jazz24: 'https://live.wostreaming.net/direct/ppm-jazz24mp3-ibc1',
+  'WFMU Freeform': 'https://stream0.wfmu.org/freeform-128k.mp3',
+  WNYC: 'https://fm939.wnyc.org/wnycfm',
+  'WQXR Classical': 'https://stream.wqxr.org/wqxr',
+  'Classical MPR': 'https://cms.stream.publicradio.org/cms.mp3',
+  'MPR News': 'https://nis.stream.publicradio.org/nis.mp3',
+  'KEXP Seattle': 'https://kexp-mp3-128.streamguys1.com/kexp128.mp3',
+  FIP: 'https://icecast.radiofrance.fr/fip-midfi.mp3',
+  'France Inter': 'https://icecast.radiofrance.fr/franceinter-midfi.mp3',
+  'France Musique': 'https://icecast.radiofrance.fr/francemusique-midfi.mp3',
+  'France Culture': 'https://icecast.radiofrance.fr/franceculture-midfi.mp3',
+  Mouv: 'https://icecast.radiofrance.fr/mouv-midfi.mp3',
+  'Radio Swiss Jazz': 'https://stream.srg-ssr.ch/m/rsj/mp3_128',
+  'Radio Swiss Classic': 'https://stream.srg-ssr.ch/m/rsc_de/mp3_128',
+  'Radio Swiss Pop': 'https://stream.srg-ssr.ch/m/rsp/mp3_128',
+  'Couleur 3': 'https://stream.srg-ssr.ch/m/couleur3/mp3_128',
+  FluxFM: 'https://channels.fluxfm.de/FluxFM/externalembedflxhp/stream.mp3',
+  'NTS Radio 1': 'https://stream-relay-geo.ntslive.net/stream',
+  'NTS Radio 2': 'https://stream-relay-geo.ntslive.net/stream2',
+  'Ambient Sleeping Pill': 'https://radio.stereoscenic.com/asp-s',
+  'Radio Nova Paris': 'https://novazz.ice.infomaniak.ch/novazz-128.mp3',
+  'Radio Caroline': 'https://radiocaroline.ice.infomaniak.ch/radiocaroline-128.mp3',
+  'RTR FM Perth': 'https://live.rtrfm.com.au/stream.mp3',
+  'RNZ National': 'https://radionz.co.nz/audio/national',
+};

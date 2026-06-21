@@ -1,6 +1,7 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { createLogger } from '@lib/logging';
 import { NAV_PATHS } from '@lib/routes';
 import { ContentParser, ContentSegment } from '@lib/utils/content-parsers';
@@ -282,7 +283,7 @@ function ContentWithPillsInternal({
               }}
               title="Show posts authored by this user"
             >
-              <span className="mention-tooltip__icon">👤</span>
+              <SiteIcon id="user" className="mention-tooltip__icon" sizeRem={1} />
               <div>
                 Filter by Author
                 <span className="mention-tooltip__description">
@@ -298,7 +299,7 @@ function ContentWithPillsInternal({
               }}
               title="Show posts that mention this user"
             >
-              <span className="mention-tooltip__icon">💬</span>
+              <SiteIcon id="messages" className="mention-tooltip__icon" sizeRem={1} />
               <div>
                 Filter by Mentions
                 <span className="mention-tooltip__description">

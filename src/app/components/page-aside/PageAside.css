@@ -1,20 +1,19 @@
 /* PageAside Component - Proper sticky behavior with internal scrolling */
 .page-aside__container {
-  --page-aside-hover-lift: 2px;
   position: sticky;
   top: calc(var(--header-height, 11rem) + 1rem);
   /* Header height + 1rem gap */
   right: 0;
   width: calc(26vw - 2rem);
-  max-height: calc(100vh - var(--header-height, 11rem) - 6rem);
   /* Viewport minus header and footer (4.5rem + gap) */
   z-index: 5;
   /* Below header (header is z-index: 1000) */
-  overflow: scroll;
-  padding-top: 1rem;
-  transform: translateY(-1rem);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  height: calc(100vh - var(--header-height, 11rem) - 6rem);
+  max-height: calc(100vh - var(--header-height, 11rem) - 6rem);
   margin-inline-start: auto;
   margin-inline-end: 2rem;
   align-self: flex-start;
@@ -28,8 +27,9 @@
   top: auto !important;
   right: auto !important;
   width: 100% !important;
+  height: 100% !important;
   max-height: 100% !important;
-  min-height: auto !important;
+  min-height: 0 !important;
   flex: 1 1 auto !important;
 
   /* Structural shell only — visual chrome lives on .page-aside__panel */
@@ -39,7 +39,7 @@
   padding: 0;
   box-shadow: none;
   font-size: 1rem;
-  overflow: scroll;
+  overflow: visible;
 
   /* Ensure proper display */
   display: flex !important;
@@ -55,31 +55,21 @@
   flex: 1 1 auto;
   min-height: 0;
   max-height: 100%;
-  overflow: visible;
-  background: #E5E5E5;
-  border: 1px solid rgba(237, 174, 73, 0.2);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow:
-    0 8px 24px transparent,
-    inset 0 1px 0 #E5E5E5;
-  transition:
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    background 0.3s ease;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .page-aside__scroll {
   flex: 1 1 auto;
   min-height: 0;
+  max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-.page-aside__container aside:hover .page-aside__panel {
-  background: #E5E5E5;
-  border-color: rgba(237, 174, 73, 0.25);
-  transform: translateY(calc(-1 * var(--page-aside-hover-lift)));
+  overscroll-behavior: contain;
 }
 
 /* Discord aside override - target CSS module class */
@@ -94,7 +84,7 @@
 }
 
 .page-aside__scroll::-webkit-scrollbar-track {
-  background: #E5E5E5 !important;
+  background: var(--dark-background--primary) !important;
   border-radius: 8px !important;
   border: none !important;
   box-shadow: none !important;
@@ -103,7 +93,7 @@
 .page-aside__scroll::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary--dark)) !important;
   border-radius: 8px !important;
-  border: 1px solid #E5E5E5 !important;
+  border: 1px solid var(--dark-background--primary) !important;
   box-shadow: 0 1px 3px transparent !important;
 }
 
@@ -115,22 +105,6 @@
 /* Hide scrollbar corners */
 .page-aside__scroll::-webkit-scrollbar-corner {
   background: transparent !important;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .page-aside__panel {
-    background: transparent;
-    border-color: rgba(237, 174, 73, 0.25);
-    box-shadow:
-      0 12px 32px transparent,
-      inset 0 1px 0 #E5E5E5;
-  }
-
-  .page-aside__container aside:hover .page-aside__panel {
-    background: transparent;
-    border-color: rgba(237, 174, 73, 0.3);
-  }
 }
 
 /* Ensure page aside is completely hidden at smaller viewport widths */
@@ -157,11 +131,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .page-aside__panel {
-    transition: none;
-  }
-
-  .page-aside__container aside:hover .page-aside__panel {
-    transform: none;
+  .page-aside__scroll {
+    scroll-behavior: auto;
   }
 }

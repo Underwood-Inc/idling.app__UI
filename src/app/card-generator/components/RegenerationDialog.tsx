@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import styles from './RegenerationDialog.module.css';
 
 interface RegenerationDialogProps {
@@ -19,7 +20,10 @@ export function RegenerationDialog({
     <div className={styles.dialog__overlay}>
       <div className={styles.dialog__container}>
         <div className={styles.dialog__header}>
-          <h3 className={styles.dialog__title}>🔮 Regeneration Options</h3>
+          <h3 className={styles.dialog__title}>
+            <SiteIcon id="wand" className={styles.dialog__titleIcon} sizeRem={1.125} />
+            Regeneration Options
+          </h3>
           <button
             onClick={onClose}
             className={styles.dialog__close}
@@ -40,7 +44,9 @@ export function RegenerationDialog({
               onClick={() => onChoice('same')}
               className={`${styles.dialog__button} ${styles.dialog__button__primary}`}
             >
-              <div className={styles.dialog__button__icon}>🔄</div>
+              <div className={styles.dialog__button__icon}>
+                <SiteIcon id="refresh" sizeRem={1.25} />
+              </div>
               <div className={styles.dialog__button__content}>
                 <h4>Same Configuration</h4>
                 <p>Regenerate with current settings</p>
@@ -51,7 +57,9 @@ export function RegenerationDialog({
               onClick={() => onChoice('random')}
               className={`${styles.dialog__button} ${styles.dialog__button__secondary}`}
             >
-              <div className={styles.dialog__button__icon}>🎲</div>
+              <div className={styles.dialog__button__icon}>
+                <SiteIcon id="dices" sizeRem={1.25} />
+              </div>
               <div className={styles.dialog__button__content}>
                 <h4>Use Random</h4>
                 <p>Clear form and generate with random values</p>

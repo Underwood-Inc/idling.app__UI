@@ -9,6 +9,7 @@
  * @see https://nextjs.org/docs/app/building-your-application/routing/error-handling
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect } from 'react';
 
 interface ErrorProps {
@@ -41,9 +42,13 @@ export default function Error({ error, reset }: ErrorProps) {
           fontSize: '2rem',
           marginBottom: '1rem',
           color: 'var(--brand-primary, #edae49)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
         }}
       >
-        🧙‍♂️ Oops! Something went wrong
+        <SiteIcon id="wand" sizeRem={1.5} />
+        Oops! Something went wrong
       </h2>
       <p
         style={{

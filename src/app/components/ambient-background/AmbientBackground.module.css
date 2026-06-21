@@ -1,0 +1,655 @@
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgb(12 10 22 / 95%) 0%, transparent 55%),
+    radial-gradient(90% 60% at 80% 10%, rgb(22 18 32 / 80%) 0%, transparent 50%),
+    var(--bg-darkest, #0d0d0d);
+  isolation: isolate;
+}
+
+/* Driven by RadioAudioEnergyBridge via documentElement custom properties. */
+.audioReactive {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.audioReactive__pulse {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  will-change: opacity, transform;
+}
+
+.audioReactive__pulse--bass {
+  bottom: -18%;
+  left: 10%;
+  width: 95vmax;
+  height: 70vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(229 193 133 / 28%) 0%,
+    rgb(237 174 73 / 12%) 38%,
+    transparent 72%
+  );
+  opacity: calc(var(--ambient-audio-bass, 0) * var(--ambient-audio-intensity, 1) * 0.95);
+  transform: scale(calc(1 + var(--ambient-audio-bass, 0) * var(--ambient-audio-intensity, 1) * 0.18));
+}
+
+.audioReactive__pulse--mid {
+  top: 8%;
+  right: -8%;
+  width: 75vmax;
+  height: 58vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(140 170 210 / 24%) 0%,
+    rgb(118 92 168 / 10%) 42%,
+    transparent 72%
+  );
+  opacity: calc(var(--ambient-audio-mid, 0) * var(--ambient-audio-intensity, 1) * 0.85);
+  transform: scale(calc(1 + var(--ambient-audio-mid, 0) * var(--ambient-audio-intensity, 1) * 0.14));
+}
+
+.audioReactive__pulse--treble {
+  top: 28%;
+  left: 22%;
+  width: 55vmax;
+  height: 42vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(251 242 196 / 22%) 0%,
+    rgb(74 158 204 / 10%) 45%,
+    transparent 74%
+  );
+  opacity: calc(var(--ambient-audio-treble, 0) * var(--ambient-audio-intensity, 1) * 0.75);
+  transform: scale(calc(1 + var(--ambient-audio-treble, 0) * var(--ambient-audio-intensity, 1) * 0.12));
+}
+
+/* Galaxy nebula — soft color clouds, drift only */
+.nebula {
+  position: absolute;
+  inset: 0;
+}
+
+.nebula__cloud {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.nebula__cloud--violet {
+  top: -10%;
+  left: -8%;
+  width: 70vmax;
+  height: 55vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(118 92 168 / 16%) 0%,
+    rgb(88 72 132 / 8%) 42%,
+    transparent 72%
+  );
+  animation: ambient-nebula-violet 72s ease-in-out infinite alternate;
+}
+
+.nebula__cloud--gold {
+  top: 35%;
+  right: -12%;
+  width: 65vmax;
+  height: 50vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(237 174 73 / 14%) 0%,
+    rgb(251 242 196 / 6%) 38%,
+    transparent 70%
+  );
+  opacity: calc(0.82 + var(--ambient-audio-bass, 0) * var(--ambient-audio-intensity, 1) * 0.35);
+  animation: ambient-nebula-gold 64s ease-in-out infinite alternate;
+}
+
+.nebula__cloud--teal {
+  bottom: -15%;
+  left: 20%;
+  width: 60vmax;
+  height: 45vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(74 158 204 / 10%) 0%,
+    rgb(90 130 160 / 5%) 45%,
+    transparent 72%
+  );
+  animation: ambient-nebula-teal 58s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-nebula-violet {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(3vw, 2vh, 0) scale(1.05);
+  }
+}
+
+@keyframes ambient-nebula-gold {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(-4vw, 3vh, 0) scale(1.06);
+  }
+}
+
+@keyframes ambient-nebula-teal {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(2vw, -3vh, 0) scale(1.04);
+  }
+}
+
+/* Layer 1: slow depth gradients */
+.depth {
+  position: absolute;
+  inset: 0;
+}
+
+.depth__layer {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.depth__layer--one {
+  top: -35%;
+  left: -25%;
+  width: 90vmax;
+  height: 90vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(45 42 58 / 45%) 0%,
+    transparent 68%
+  );
+  animation: ambient-depth-one 82s ease-in-out infinite alternate;
+}
+
+.depth__layer--two {
+  bottom: -40%;
+  right: -30%;
+  width: 100vmax;
+  height: 100vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(28 26 38 / 42%) 0%,
+    transparent 70%
+  );
+  animation: ambient-depth-two 96s ease-in-out infinite alternate;
+}
+
+.depth__layer--three {
+  top: 20%;
+  left: 35%;
+  width: 75vmax;
+  height: 75vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(55 48 68 / 16%) 0%,
+    transparent 72%
+  );
+  animation: ambient-depth-three 68s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-depth-one {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(4vw, 3vh, 0) scale(1.06);
+  }
+}
+
+@keyframes ambient-depth-two {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(-5vw, -2vh, 0) scale(1.04);
+  }
+}
+
+@keyframes ambient-depth-three {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(-2vw, 4vh, 0) scale(1.08);
+  }
+}
+
+/* Aurora washes — no CSS blur (avoids repaint flicker) */
+.aurora {
+  position: absolute;
+  inset: 0;
+}
+
+.aurora__wash {
+  position: absolute;
+}
+
+.aurora__wash--primary {
+  top: -20%;
+  left: -15%;
+  width: 85%;
+  height: 70%;
+  opacity: calc(0.35 + var(--ambient-audio-mid, 0) * var(--ambient-audio-intensity, 1) * 0.45);
+  background: radial-gradient(
+    80% 70% at 35% 45%,
+    rgb(237 174 73 / 18%) 0%,
+    rgb(251 242 196 / 8%) 38%,
+    transparent 72%
+  );
+  animation: ambient-aurora-drift-primary 40s ease-in-out infinite alternate;
+}
+
+.aurora__wash--secondary {
+  bottom: -15%;
+  right: -10%;
+  width: 80%;
+  height: 65%;
+  opacity: calc(0.28 + var(--ambient-audio-treble, 0) * var(--ambient-audio-intensity, 1) * 0.4);
+  background: radial-gradient(
+    75% 65% at 60% 55%,
+    rgb(140 170 210 / 12%) 0%,
+    rgb(168 153 132 / 8%) 42%,
+    transparent 74%
+  );
+  animation: ambient-aurora-drift-secondary 48s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-aurora-drift-primary {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(5vw, 7vh, 0);
+  }
+}
+
+@keyframes ambient-aurora-drift-secondary {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-4vw, -5vh, 0);
+  }
+}
+
+/* Starfield — static dust + animated 80s anime twinkle */
+.stars {
+  position: absolute;
+  inset: 0;
+}
+
+.stars__dust,
+.stars__medium {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.stars__dust {
+  opacity: 0.7;
+  animation: ambient-dust-grain 3.5s steps(6, jump-end) infinite;
+}
+
+.stars__medium {
+  opacity: 0.88;
+  animation: ambient-medium-grain 5s steps(5, jump-end) infinite;
+  animation-delay: -1.2s;
+}
+
+@keyframes ambient-dust-grain {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  18% {
+    opacity: 0.92;
+  }
+
+  36% {
+    opacity: 0.55;
+  }
+
+  62% {
+    opacity: 0.78;
+  }
+
+  81% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ambient-medium-grain {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  28% {
+    opacity: 0.68;
+  }
+
+  54% {
+    opacity: 0.95;
+  }
+
+  73% {
+    opacity: 0.62;
+  }
+}
+
+.star {
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg));
+  transform-origin: center center;
+}
+
+.star--tone-warm {
+  --star-core: 255 248 225;
+  --star-glow: 251 242 196;
+  --star-flare: 237 174 73;
+}
+
+.star--tone-cool {
+  --star-core: 220 240 255;
+  --star-glow: 140 200 255;
+  --star-flare: 100 180 255;
+}
+
+.star--tone-pink {
+  --star-core: 255 220 240;
+  --star-glow: 255 158 210;
+  --star-flare: 255 120 190;
+}
+
+/* Fast pin-prick twinkle — cel animation stutter */
+.star--twinkle {
+  border-radius: 50%;
+  background: rgb(var(--star-core) / 95%);
+  opacity: var(--star-opacity-min, 0.12);
+  box-shadow:
+    0 0 2px rgb(var(--star-glow) / 80%),
+    0 0 5px rgb(var(--star-flare) / 35%);
+  animation-name: anime-twinkle-fast;
+  animation-timing-function: steps(3, jump-end);
+  animation-iteration-count: infinite;
+}
+
+@keyframes anime-twinkle-fast {
+  0%,
+  70%,
+  100% {
+    opacity: var(--star-opacity-min, 0.1);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(0.75);
+  }
+
+  8% {
+    opacity: var(--star-opacity-max, 1);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.35);
+  }
+
+  14% {
+    opacity: calc(var(--star-opacity-min, 0.1) + 0.15);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(0.85);
+  }
+
+  38% {
+    opacity: calc(var(--star-opacity-min, 0.1) + 0.45);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.05);
+  }
+}
+
+/* Four-point anime flare */
+.star--cross {
+  width: auto !important;
+  height: auto !important;
+  background: transparent;
+  opacity: var(--star-opacity-min, 0.2);
+  animation-name: anime-cross-flare;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.star__flare {
+  position: relative;
+  display: block;
+  width: var(--flare-size, 10px);
+  height: var(--flare-size, 10px);
+}
+
+.star__flare::before,
+.star__flare::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--star-glow) / 90%) 42%,
+    rgb(var(--star-core) / 100%) 50%,
+    rgb(var(--star-glow) / 90%) 58%,
+    transparent 100%
+  );
+  transform: translate(-50%, -50%);
+}
+
+.star__flare::before {
+  width: calc(var(--flare-size, 10px) * 2.8);
+  height: 1px;
+}
+
+.star__flare::after {
+  width: 1px;
+  height: calc(var(--flare-size, 10px) * 2.8);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(var(--star-glow) / 90%) 42%,
+    rgb(var(--star-core) / 100%) 50%,
+    rgb(var(--star-glow) / 90%) 58%,
+    transparent 100%
+  );
+}
+
+.star--cross .star__flare::before,
+.star--cross .star__flare::after {
+  filter: drop-shadow(0 0 3px rgb(var(--star-flare) / 70%));
+}
+
+@keyframes anime-cross-flare {
+  0%,
+  62%,
+  100% {
+    opacity: var(--star-opacity-min, 0.18);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(0.82);
+  }
+
+  6% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.25);
+  }
+
+  12% {
+    opacity: var(--star-opacity-max, 0.95);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.08);
+  }
+
+  28% {
+    opacity: calc(var(--star-opacity-min, 0.18) + 0.25);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(0.95);
+  }
+
+  44% {
+    opacity: calc(var(--star-opacity-max, 0.95) * 0.65);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.12);
+  }
+}
+
+/* Hard spark pop — OVA night-sky accent */
+.star--spark {
+  border-radius: 50%;
+  background: rgb(var(--star-core) / 100%);
+  opacity: var(--star-opacity-min, 0.08);
+  box-shadow:
+    0 0 4px rgb(var(--star-glow) / 100%),
+    0 0 10px rgb(var(--star-flare) / 65%),
+    0 0 18px rgb(var(--star-flare) / 30%);
+  animation-name: anime-spark-pop;
+  animation-timing-function: steps(2, jump-end);
+  animation-iteration-count: infinite;
+}
+
+.star__spark {
+  position: absolute;
+  inset: -120%;
+  border: 1px solid rgb(var(--star-glow) / 35%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: anime-spark-ring 4.5s ease-out infinite;
+  animation-delay: inherit;
+}
+
+@keyframes anime-spark-pop {
+  0%,
+  78%,
+  100% {
+    opacity: var(--star-opacity-min, 0.06);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(0.6);
+  }
+
+  4% {
+    opacity: var(--star-opacity-max, 1);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.55);
+  }
+
+  10% {
+    opacity: calc(var(--star-opacity-max, 1) * 0.55);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(0.9);
+  }
+
+  22% {
+    opacity: calc(var(--star-opacity-min, 0.06) + 0.35);
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg)) scale(1.15);
+  }
+}
+
+@keyframes anime-spark-ring {
+  0%,
+  76%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  6% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+
+  18% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@media (max-width: 768px) {
+  .depth__layer--three {
+    opacity: 0.7;
+  }
+
+  .aurora__wash--primary {
+    opacity: 0.46;
+  }
+
+  .aurora__wash--secondary {
+    opacity: 0.34;
+  }
+
+  .stars__dust {
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula__cloud,
+  .depth__layer,
+  .aurora__wash,
+  .audioReactive__pulse,
+  .stars__dust,
+  .stars__medium,
+  .star--twinkle,
+  .star--cross,
+  .star--spark,
+  .star__spark {
+    animation: none !important;
+  }
+
+  .depth__layer--one {
+    transform: translate3d(2vw, 1vh, 0) scale(1.03);
+  }
+
+  .depth__layer--two {
+    transform: translate3d(-2vw, -1vh, 0) scale(1.02);
+  }
+
+  .depth__layer--three {
+    transform: translate3d(-1vw, 2vh, 0) scale(1.04);
+  }
+
+  .stars__dust {
+    opacity: 0.65;
+  }
+
+  .stars__medium {
+    opacity: 0.8;
+  }
+
+  .star--twinkle,
+  .star--cross,
+  .star--spark {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) rotate(var(--star-rotation, 0deg));
+  }
+
+  .audioReactive__pulse {
+    opacity: 0 !important;
+    transform: none !important;
+  }
+}
+
+:global(html.visualizer-mode) .ambient {
+  z-index: 0;
+}

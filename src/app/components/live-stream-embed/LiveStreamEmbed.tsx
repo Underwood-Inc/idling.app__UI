@@ -1,7 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect, useState } from 'react';
-import { FaTwitch, FaYoutube } from 'react-icons/fa';
 import './LiveStreamEmbed.css';
 
 type Platform = 'twitch' | 'youtube';
@@ -123,7 +123,8 @@ export function LiveStreamEmbed({
     <div className="live-stream-embed" style={{ width: '100%' }}>
       <div className="live-stream-embed__header">
         <h3 className="live-stream-embed__title">
-          📺 Live Streams
+          <SiteIcon id="clapperboard" className="live-stream-embed__title-icon" sizeRem={1.125} />
+          Live Streams
           {isAnyStreamLive && (
             <span className="live-stream-embed__live-badge">
               <span className="live-stream-embed__live-dot">●</span> LIVE
@@ -147,7 +148,7 @@ export function LiveStreamEmbed({
               }`}
               aria-label="Switch to Twitch"
             >
-              <FaTwitch className="live-stream-embed__platform-icon" />
+              <SiteIcon id="radio" className="live-stream-embed__platform-icon" sizeRem={1.125} />
               <span>Twitch</span>
               {twitchStatus.viewers && (
                 <span className="live-stream-embed__viewer-count">
@@ -166,7 +167,7 @@ export function LiveStreamEmbed({
               }`}
               aria-label="Switch to YouTube"
             >
-              <FaYoutube className="live-stream-embed__platform-icon" />
+              <SiteIcon id="tv" className="live-stream-embed__platform-icon" sizeRem={1.125} />
               <span>YouTube</span>
             </button>
           )}
@@ -178,7 +179,8 @@ export function LiveStreamEmbed({
           rel="noopener noreferrer"
           className="live-stream-embed__external-link"
         >
-          Open in {selectedPlatform === 'twitch' ? 'Twitch' : 'YouTube'} →
+          Open in {selectedPlatform === 'twitch' ? 'Twitch' : 'YouTube'}
+          <SiteIcon id="arrowUpRight" className="live-stream-embed__external-link-icon" sizeRem={0.875} />
         </a>
       </div>
 
@@ -212,7 +214,11 @@ export function LiveStreamEmbed({
       <div className="live-stream-embed__info">
         <div className="live-stream-embed__channels">
           <div className="live-stream-embed__channel">
-            <FaTwitch className="live-stream-embed__channel-icon live-stream-embed__channel-icon--twitch" />
+            <SiteIcon
+              id="radio"
+              className="live-stream-embed__channel-icon live-stream-embed__channel-icon--twitch"
+              sizeRem={1}
+            />
             <a
               href={`https://www.twitch.tv/${twitchChannel}`}
               target="_blank"
@@ -223,7 +229,11 @@ export function LiveStreamEmbed({
             </a>
           </div>
           <div className="live-stream-embed__channel">
-            <FaYoutube className="live-stream-embed__channel-icon live-stream-embed__channel-icon--youtube" />
+            <SiteIcon
+              id="tv"
+              className="live-stream-embed__channel-icon live-stream-embed__channel-icon--youtube"
+              sizeRem={1}
+            />
             <a
               href={`https://www.youtube.com/${youtubeChannel}`}
               target="_blank"

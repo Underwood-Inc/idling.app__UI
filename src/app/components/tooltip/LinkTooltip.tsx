@@ -67,7 +67,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       if (!response.ok) {
         // Handle auth failures differently from other errors
         if (response.status === 401 || response.status === 403) {
-          state.setError('🔒 Login required to view this preview');
+          state.setError('Login required to view this preview');
         } else if (response.status === 404) {
           state.setError('Preview not found for this URL');
         } else {
@@ -102,7 +102,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       if (!response.ok) {
         // Handle auth failures differently from other errors
         if (response.status === 401 || response.status === 403) {
-          state.setError('🔒 Login required to view this preview');
+          state.setError('Login required to view this preview');
         } else if (response.status === 404) {
           state.setError('Preview not found for this URL');
         } else {

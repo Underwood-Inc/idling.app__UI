@@ -36,6 +36,11 @@
 }
 
 .wizardTitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  width: 100%;
   color: var(--dark-bg__text-color--primary);
   font-size: 1.875rem;
   font-weight: 700;
@@ -229,6 +234,9 @@
 }
 
 .stepContent h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--dark-bg__text-color--primary);
   font-size: 1.5rem;
   font-weight: 700;
@@ -550,6 +558,9 @@
 }
 
 .quotaExceededNotice h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: #f59e0b;
   font-size: 1.125rem;
   font-weight: 600;
@@ -591,6 +602,9 @@
 }
 
 .proNotice h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--brand-primary);
   margin: 0 0 0.5rem 0;
   font-size: 1.1rem;

@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+
 /**
  * Global Error Boundary
  *
@@ -47,9 +49,13 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.75rem',
             }}
           >
-            🧙‍♂️ Critical Error
+            <SiteIcon id="wand" sizeRem={2} />
+            Critical Error
           </h1>
           <p
             style={{

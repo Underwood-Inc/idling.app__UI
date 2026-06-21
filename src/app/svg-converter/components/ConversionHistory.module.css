@@ -12,6 +12,9 @@
 }
 
 .history__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--brand-primary);
@@ -19,6 +22,9 @@
 }
 
 .history__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.375rem;
   background: transparent;
   border: 1px solid var(--glass-border-light);
@@ -81,6 +87,9 @@
 }
 
 .item__download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.25rem;
   background: transparent;
   border: none;

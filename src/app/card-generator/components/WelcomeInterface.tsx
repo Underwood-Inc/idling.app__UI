@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { InstantLink } from '../../components/ui/InstantLink';
 import { QuotaDisplay } from './QuotaDisplay';
 import styles from './WelcomeInterface.module.css';
@@ -31,7 +32,11 @@ export function WelcomeInterface({
     <article className={styles.welcome__container}>
       <div className={styles.welcome__container_fade}>
         <div className={styles.welcome__intro}>
-          <h2>🔮 Enter the Realm of Mystical Creation 🔮</h2>
+          <h2 className={styles.welcome__title}>
+            <SiteIcon id="wand" className={styles.welcome__titleIcon} sizeRem={1.25} />
+            Enter the Realm of Mystical Creation
+            <SiteIcon id="wand" className={styles.welcome__titleIcon} sizeRem={1.25} />
+          </h2>
           <p>
             Ancient energies await your command. Choose your sacred path to
             weave enchanted social media cards blessed with mystical geometry
@@ -58,7 +63,9 @@ export function WelcomeInterface({
             className={`${styles.path__button__large} ${styles.path__button__new}`}
             disabled={!hasInitializedQuota || isQuotaExceeded}
           >
-            <div className={styles.button__icon}>🆕</div>
+            <div className={styles.button__icon}>
+              <SiteIcon id="plusCircle" sizeRem={1.5} />
+            </div>
             <div className={styles.button__content}>
               <h3>{hasInitializedQuota ? 'Create New' : 'Loading...'}</h3>
               <p>
@@ -74,7 +81,9 @@ export function WelcomeInterface({
             className={`${styles.path__button__large} ${styles.path__button__load}`}
             disabled={!hasInitializedQuota}
           >
-            <div className={styles.button__icon}>🔍</div>
+            <div className={styles.button__icon}>
+              <SiteIcon id="search" sizeRem={1.5} />
+            </div>
             <div className={styles.button__content}>
               <h3>{hasInitializedQuota ? 'Load Previous' : 'Loading...'}</h3>
               <p>
@@ -88,7 +97,10 @@ export function WelcomeInterface({
 
         {loadGenerationId && (
           <div className={styles.load__input__group}>
-            <label className={styles.load__label}>🔮 Generation ID:</label>
+            <label className={styles.load__label}>
+              <SiteIcon id="wand" className={styles.load__labelIcon} sizeRem={1} />
+              Generation ID:
+            </label>
             <div className={styles.load__input__container}>
               <input
                 type="text"
@@ -102,11 +114,13 @@ export function WelcomeInterface({
                 className={styles.load__button}
                 disabled={!loadGenerationId.trim()}
               >
-                Load 🔮
+                Load
+                <SiteIcon id="wand" className={styles.load__buttonIcon} sizeRem={0.875} />
               </button>
             </div>
             <p className={styles.load__help}>
-              💡 Generation IDs look like:{' '}
+              <SiteIcon id="lightbulb" className={styles.load__helpIcon} sizeRem={0.875} />
+              Generation IDs look like:{' '}
               <code>01234567-89ab-cdef-0123-456789abcdef</code>
             </p>
           </div>
@@ -114,9 +128,13 @@ export function WelcomeInterface({
 
         {isQuotaExceeded && (
           <div className={styles.quota__notice}>
-            <p>⚡ Daily quota reached!</p>
+            <p>
+              <SiteIcon id="zap" className={styles.quota__noticeIcon} sizeRem={1} />
+              Daily quota reached!
+            </p>
             <InstantLink href="/subscription" className={styles.upgrade__link}>
-              Upgrade to Pro for unlimited generations 🚀
+              Upgrade to Pro for unlimited generations
+              <SiteIcon id="rocket" className={styles.upgrade__linkIcon} sizeRem={0.875} />
             </InstantLink>
           </div>
         )}

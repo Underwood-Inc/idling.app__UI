@@ -6,6 +6,8 @@
  * composition and reusability.
  */
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
 import { LoadingButton } from '../../../components/ui/LoadingButton';
@@ -15,6 +17,16 @@ import type {
   SearchResult,
   UserActionsMenuProps
 } from './types';
+
+interface ActionIconProps {
+  id: SiteIconId;
+}
+
+const ActionIcon: React.FC<ActionIconProps> = ({ id }) => (
+  <span className="action-icon">
+    <SiteIcon id={id} sizeRem={1} />
+  </span>
+);
 
 // ================================
 // USER ACTIONS MENU COMPONENT
@@ -47,7 +59,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       variant="ghost"
       size="sm"
     >
-      <span className="action-icon">👁️</span>
+      <ActionIcon id="eye" />
       <span className="action-label">View Details</span>
     </LoadingButton>
 
@@ -58,7 +70,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         closeTooltip?.();
       }}
     >
-      <span className="action-icon">🎭</span>
+      <ActionIcon id="theater" />
       <span className="action-label">Assign Role</span>
     </button>
 
@@ -69,7 +81,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         closeTooltip?.();
       }}
     >
-      <span className="action-icon">💎</span>
+      <ActionIcon id="gem" />
       <span className="action-label">Manage Subscription</span>
     </button>
 
@@ -80,7 +92,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         closeTooltip?.();
       }}
     >
-      <span className="action-icon">⚡</span>
+      <ActionIcon id="zap" />
       <span className="action-label">Manage Quota</span>
     </button>
 
@@ -91,7 +103,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         closeTooltip?.();
       }}
     >
-      <span className="action-icon">📊</span>
+      <ActionIcon id="barChart" />
       <span className="action-label">Export Data</span>
     </button>
 
@@ -109,7 +121,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         variant="danger"
         size="sm"
       >
-        <span className="action-icon">🔓</span>
+        <ActionIcon id="lockOpen" />
         <span className="action-label">Revoke Timeout</span>
       </LoadingButton>
     ) : (
@@ -124,7 +136,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         variant="secondary"
         size="sm"
       >
-        <span className="action-icon">⏰</span>
+        <ActionIcon id="clock" />
         <span className="action-label">Timeout User</span>
       </LoadingButton>
     )}
@@ -160,7 +172,12 @@ export const SearchOverlayContent: React.FC<SearchOverlayProps> = ({
   if (isSearching) {
     return (
       <div className="search-overlay-loading">
-        <span>🔍</span> Searching users...
+        <span
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="search" sizeRem={1} />
+          Searching users...
+        </span>
       </div>
     );
   }
@@ -168,7 +185,12 @@ export const SearchOverlayContent: React.FC<SearchOverlayProps> = ({
   if (searchResults.length === 0 && searchQuery.trim().length >= 2) {
     return (
       <div className="search-overlay-no-results">
-        <span>👤</span> No users found for &ldquo;{searchQuery}&rdquo;
+        <span
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="user" sizeRem={1} />
+          No users found for &ldquo;{searchQuery}&rdquo;
+        </span>
       </div>
     );
   }
@@ -306,8 +328,12 @@ export const TimeoutDetailsCell: React.FC<TimeoutDetailsCellProps> = ({
       <div className="timeout-info">
         {user.active_timeout_reason && (
           <div className="timeout-reason-row">
-            <span className="timeout-reason">
-              ⏰ {user.active_timeout_reason}
+            <span
+              className="timeout-reason"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+            >
+              <SiteIcon id="clock" sizeRem={0.875} />
+              {user.active_timeout_reason}
             </span>
           </div>
         )}

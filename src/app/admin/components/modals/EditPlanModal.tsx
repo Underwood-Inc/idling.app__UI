@@ -1,6 +1,7 @@
 'use client';
 
 import { useOverlay } from '@lib/context/OverlayContext';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useState } from 'react';
 import './EditPlanModal.css';
 
@@ -75,7 +76,12 @@ export function EditPlanModal({ onSave, plan }: EditPlanModalProps) {
   return (
     <div className="edit-plan-modal">
       <div className="edit-plan-modal__header">
-        <h2>✏️ Edit Plan: {plan.display_name}</h2>
+        <h2
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+        >
+          <SiteIcon id="pencil" sizeRem={1.125} />
+          Edit Plan: {plan.display_name}
+        </h2>
       </div>
 
       <form onSubmit={handleSubmit} className="edit-plan-modal__form">
@@ -236,7 +242,12 @@ export function EditPlanModal({ onSave, plan }: EditPlanModalProps) {
 
         {error && (
           <div className="edit-plan-modal__error">
-            <span>❌ {error}</span>
+            <span
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+            >
+              <SiteIcon id="circleX" sizeRem={1} />
+              {error}
+            </span>
           </div>
         )}
 
@@ -246,7 +257,21 @@ export function EditPlanModal({ onSave, plan }: EditPlanModalProps) {
             className="edit-plan-modal__btn edit-plan-modal__btn--primary"
             disabled={isLoading}
           >
-            {isLoading ? '⏳ Saving...' : '💾 Save Changes'}
+            {isLoading ? (
+              <span
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+              >
+                <SiteIcon id="loader" sizeRem={1} />
+                Saving...
+              </span>
+            ) : (
+              <span
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+              >
+                <SiteIcon id="save" sizeRem={1} />
+                Save Changes
+              </span>
+            )}
           </button>
         </div>
       </form>

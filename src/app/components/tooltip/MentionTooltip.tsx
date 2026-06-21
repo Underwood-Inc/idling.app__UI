@@ -1,3 +1,6 @@
+'use client';
+
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect, useRef } from 'react';
 import './MentionTooltip.css';
 
@@ -72,7 +75,7 @@ export function MentionTooltip({
           onClick={onFilterByAuthor}
           title="Show posts authored by this user"
         >
-          <span className="mention-tooltip__icon">👤</span>
+          <SiteIcon id="user" className="mention-tooltip__icon" sizeRem={1} />
           Filter by Author
           <span className="mention-tooltip__description">
             Posts by this user
@@ -83,7 +86,7 @@ export function MentionTooltip({
           onClick={onFilterByContent}
           title="Show posts that mention this user"
         >
-          <span className="mention-tooltip__icon">💬</span>
+          <SiteIcon id="messages" className="mention-tooltip__icon" sizeRem={1} />
           Filter by Mentions
           <span className="mention-tooltip__description">
             Posts mentioning this user

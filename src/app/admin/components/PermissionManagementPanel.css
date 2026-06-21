@@ -511,6 +511,15 @@
 
 .risk-badge {
   border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.risk-badge__indicator {
+  fill: currentColor;
+  color: inherit;
+  flex-shrink: 0;
 }
 
 .risk-low {

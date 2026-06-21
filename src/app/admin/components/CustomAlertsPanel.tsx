@@ -14,6 +14,8 @@
  */
 
 import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, {
   useCallback,
   useEffect,
@@ -23,6 +25,41 @@ import React, {
 } from 'react';
 import { AlertStatusTooltip } from './AlertStatusTooltip';
 import './CustomAlertsPanel.css';
+
+interface IconTextProps {
+  iconId: SiteIconId;
+  children: React.ReactNode;
+  sizeRem?: number;
+}
+
+const IconText: React.FC<IconTextProps> = ({
+  iconId,
+  children,
+  sizeRem = 1
+}) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+    <SiteIcon id={iconId} sizeRem={sizeRem} />
+    {children}
+  </span>
+);
+
+interface AlertTypeIconIdMap {
+  info: SiteIconId;
+  warning: SiteIconId;
+  error: SiteIconId;
+  success: SiteIconId;
+  maintenance: SiteIconId;
+  custom: SiteIconId;
+}
+
+const ALERT_TYPE_ICON_IDS: AlertTypeIconIdMap = {
+  info: 'lightbulb',
+  warning: 'alertTriangle',
+  error: 'circleX',
+  success: 'check',
+  maintenance: 'wrench',
+  custom: 'palette'
+};
 
 // Force logging function to bypass console silencer
 const forceLog = (
@@ -490,17 +527,10 @@ export default function CustomAlertsPanel() {
   // UTILITY FUNCTIONS (MEMOIZED)
   // ================================
 
-  const getAlertTypeIcon = useCallback((type: CustomAlert['alert_type']) => {
-    const icons = {
-      info: '💡',
-      warning: '⚠️',
-      error: '❌',
-      success: '✅',
-      maintenance: '🔧',
-      custom: '🎨'
-    };
-    return icons[type];
-  }, []);
+  const getAlertTypeIcon = useCallback(
+    (type: CustomAlert['alert_type']): SiteIconId => ALERT_TYPE_ICON_IDS[type],
+    []
+  );
 
   const getTargetAudienceLabel = useCallback(
     (audience: CustomAlert['target_audience']) => {
@@ -564,7 +594,9 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❌</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            <SiteIcon id="circleX" sizeRem={3} />
+          </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
             Error Loading Alerts
           </h3>
@@ -601,13 +633,13 @@ export default function CustomAlertsPanel() {
                 fetchAlerts();
               }}
             >
-              🔄 Retry
+              <IconText iconId="refresh">Retry</IconText>
             </button>
             <button
               className="btn btn-secondary"
               onClick={() => (window.location.href = '/api/auth/signin')}
             >
-              🔑 Sign In Again
+              <IconText iconId="key">Sign In Again</IconText>
             </button>
           </div>
         </div>
@@ -624,7 +656,9 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            <SiteIcon id="lockKeyhole" sizeRem={3} />
+          </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
             Authentication Required
           </h3>
@@ -635,7 +669,7 @@ export default function CustomAlertsPanel() {
             className="btn btn-primary"
             onClick={() => (window.location.href = '/api/auth/signin')}
           >
-            🔑 Sign In
+            <IconText iconId="key">Sign In</IconText>
           </button>
         </div>
       </div>
@@ -647,7 +681,9 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚫</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            <SiteIcon id="ban" sizeRem={3} />
+          </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
             Admin Access Required
           </h3>
@@ -658,7 +694,7 @@ export default function CustomAlertsPanel() {
             className="btn btn-secondary"
             onClick={() => (window.location.href = '/')}
           >
-            🏠 Go Home
+            <IconText iconId="home">Go Home</IconText>
           </button>
         </div>
       </div>
@@ -668,7 +704,10 @@ export default function CustomAlertsPanel() {
   return (
     <div className="custom-alerts-panel">
       <div className="panel-header">
-        <h2>Custom Alerts Management 🎯</h2>
+        <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+          Custom Alerts Management
+          <SiteIcon id="target" sizeRem={1.125} />
+        </h2>
         <p>Create, edit, and manage custom alerts for different user groups</p>
         {lastRefreshTime && (
           <p
@@ -684,13 +723,18 @@ export default function CustomAlertsPanel() {
           className="btn btn-primary"
           onClick={() => setShowCreateModal(true)}
         >
-          ➕ Create New Alert
+          <IconText iconId="plusCircle">Create New Alert</IconText>
         </button>
       </div>
 
       {error && (
         <div className="error-message">
-          <span>❌ {error}</span>
+          <span
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}
+          >
+            <SiteIcon id="circleX" sizeRem={1} />
+            {error}
+          </span>
           <button onClick={() => setError(null)}>✕</button>
         </div>
       )}
@@ -705,7 +749,14 @@ export default function CustomAlertsPanel() {
               <div className="alert-card__header">
                 <div className="alert-card__title">
                   <span className="alert-icon">
-                    {alert.icon || getAlertTypeIcon(alert.alert_type)}
+                    {alert.icon ? (
+                      alert.icon
+                    ) : (
+                      <SiteIcon
+                        id={getAlertTypeIcon(alert.alert_type)}
+                        sizeRem={1.25}
+                      />
+                    )}
                   </span>
                   <h3>{alert.title}</h3>
                 </div>
@@ -715,14 +766,14 @@ export default function CustomAlertsPanel() {
                     onClick={() => handleEdit(alert)}
                     title="Edit alert"
                   >
-                    ✏️
+                    <SiteIcon id="pencil" sizeRem={1} title="Edit alert" />
                   </button>
                   <button
                     className="btn btn-sm btn-danger"
                     onClick={() => handleDelete(alert.id)}
                     title="Delete alert"
                   >
-                    🗑️
+                    <SiteIcon id="trash" sizeRem={1} title="Delete alert" />
                   </button>
                 </div>
               </div>
@@ -789,7 +840,10 @@ export default function CustomAlertsPanel() {
 
       {Array.isArray(sortedAlerts) && sortedAlerts.length === 0 && (
         <div className="empty-state">
-          <h3>No Custom Alerts Yet 📢</h3>
+          <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+            No Custom Alerts Yet
+            <SiteIcon id="megaphone" sizeRem={1.125} />
+          </h3>
           <p>
             Create your first custom alert to start engaging with your users!
           </p>
@@ -797,7 +851,7 @@ export default function CustomAlertsPanel() {
             className="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
-            ➕ Create First Alert
+            <IconText iconId="plusCircle">Create First Alert</IconText>
           </button>
         </div>
       )}
@@ -842,12 +896,12 @@ export default function CustomAlertsPanel() {
                       handleInputChange('alert_type', e.target.value)
                     }
                   >
-                    <option value="info">Info 💡</option>
-                    <option value="warning">Warning ⚠️</option>
-                    <option value="error">Error ❌</option>
-                    <option value="success">Success ✅</option>
-                    <option value="maintenance">Maintenance 🔧</option>
-                    <option value="custom">Custom 🎨</option>
+                    <option value="info">Info</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                    <option value="success">Success</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="custom">Custom</option>
                   </select>
                 </div>
 

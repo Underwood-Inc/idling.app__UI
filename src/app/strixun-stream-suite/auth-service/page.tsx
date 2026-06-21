@@ -1,4 +1,5 @@
 
+import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
@@ -77,7 +78,7 @@ export default function AuthServicePage() {
               <h2 className="product-section__title">Key Features</h2>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔑</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="key" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Passwordless OTP</h3>
                   <p className="product-feature__description">
                     Email-based one-time password authentication with no password storage. Secure,
@@ -85,7 +86,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🎫</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="ticket" sizeRem={5} /></div>
                   <h3 className="product-feature__title">JWT Token Management</h3>
                   <p className="product-feature__description">
                     Industry-standard JWT tokens with HttpOnly cookies for maximum security. Automatic
@@ -93,7 +94,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔧</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="wrench" sizeRem={5} /></div>
                   <h3 className="product-feature__title">API Key Management</h3>
                   <p className="product-feature__description">
                     Multi-tenant API key system with granular permissions. Create, rotate, and revoke
@@ -101,7 +102,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📊</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="barChart" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Analytics Dashboard</h3>
                   <p className="product-feature__description">
                     Built with Svelte 5, track authentication events, monitor usage, and analyze
@@ -109,7 +110,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📖</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="bookOpen" sizeRem={5} /></div>
                   <h3 className="product-feature__title">OpenAPI 3.1.0 Spec</h3>
                   <p className="product-feature__description">
                     Complete OpenAPI specification with Swagger UI integration. Interactive API
@@ -117,7 +118,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔗</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="link" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Single Sign-On</h3>
                   <p className="product-feature__description">
                     SSO across all *.idling.app domains with HttpOnly cookies. Login once on any
@@ -138,7 +139,7 @@ export default function AuthServicePage() {
               </p>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">🎨</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="palette" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Embeddable UI Components</h3>
                   <p className="product-feature__description">
                     Drop-in authentication components for React, Svelte, and vanilla JavaScript. No
@@ -146,7 +147,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📚</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="library" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Comprehensive Docs</h3>
                   <p className="product-feature__description">
                     300+ pages of documentation in PANDA_CORE covering integration guides, API
@@ -154,7 +155,7 @@ export default function AuthServicePage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🧪</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="flask" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Full Test Coverage</h3>
                   <p className="product-feature__description">
                     E2E integration tests with Playwright, unit tests with Vitest, and CI/CD

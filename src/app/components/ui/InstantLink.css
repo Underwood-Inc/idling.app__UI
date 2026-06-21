@@ -9,6 +9,10 @@
   border-radius: 0.25rem;
 }
 
+.instant-link:is(:link, :visited) {
+  color: inherit;
+}
+
 .instant-link:hover {
   opacity: 0.8;
 }
@@ -50,6 +54,36 @@
   flex-shrink: 0;
 }
 
+.instant-link__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.instant-link__loading-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--brand-primary);
+  white-space: nowrap;
+}
+
+/* Nav dropdown: spinner + label inline immediately after the link text */
+.nav__group-item.instant-link--nav {
+  flex-wrap: nowrap;
+}
+
+.nav__group-item .instant-link__status {
+  margin-left: 0.375rem;
+}
+
+.nav__group-item .instant-link__loading-text {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .instant-link__spinner {
   animation: spin 1s linear infinite;
   color: var(--brand-primary);
@@ -72,7 +106,7 @@
 .instant-link--button {
   padding: 0.5rem 1rem;
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-tan);
   border-radius: 0.375rem;
   font-weight: 500;
   gap: 0.5rem;
@@ -80,6 +114,7 @@
 
 .instant-link--button:hover {
   background: var(--brand-primary--dark);
+  color: var(--text-on-tan);
   opacity: 1;
 }
 
@@ -131,7 +166,7 @@
 
 .submission__thread-link.instant-link:hover {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-tan);
   opacity: 1;
 }
 
@@ -145,15 +180,31 @@
   opacity: 1;
 }
 
-/* Nav header link */
+/* Nav header / site wordmark — brand tan on dark header; block browser :visited purple */
+.instant-link--brand,
+.nav__brand .instant-link,
+.nav__brand .instant-link:is(:link, :visited, :hover, :active) {
+  color: var(--brand-primary);
+  text-decoration: none;
+  opacity: 1;
+}
+
+.instant-link--brand:hover,
+.nav__brand .instant-link:hover {
+  color: var(--brand-primary--light);
+  opacity: 1;
+}
+
 .nav__header {
   color: inherit;
   text-decoration: none;
+  -webkit-text-fill-color: currentColor;
 }
 
-/* Auth links */
-.nav__auth-links .instant-link {
-  color: var(--light-bg__text-color--primary);
+/* Auth links on dark header */
+.nav__auth-links .instant-link,
+.nav__auth-links .instant-link:is(:link, :visited) {
+  color: var(--brand-primary);
   text-decoration: none;
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
@@ -162,7 +213,8 @@
 }
 
 .nav__auth-links .instant-link:hover {
-  background: var(--brand-tertiary);
+  color: var(--brand-primary--light);
+  background: var(--interactive-bg-subtle-hover);
   opacity: 1;
 }
 
@@ -182,13 +234,13 @@
 
 .tag-link.instant-link:hover {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-tan);
   opacity: 1;
 }
 
 .tag-link.instant-link.active {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-tan);
 }
 
 /* Content pills */
@@ -212,11 +264,12 @@
 
 .callback__button--primary.instant-link {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-tan);
 }
 
 .callback__button--primary.instant-link:hover {
   background: var(--brand-primary--dark);
+  color: var(--text-on-tan);
   opacity: 1;
 }
 
@@ -228,6 +281,7 @@
 
 .callback__button--secondary.instant-link:hover {
   background: var(--brand-tertiary);
+  color: var(--text-on-tan);
   opacity: 1;
 }
 
@@ -334,10 +388,6 @@
 
   .instant-link--button:hover {
     background: var(--brand-primary--dark);
-  }
-
-  .nav__auth-links .instant-link {
-    color: var(--dark-bg__text-color--primary);
   }
 
   .callback__button--secondary.instant-link {

@@ -1,12 +1,29 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { enhanceMermaidDiagrams } from '@lib/mermaid/mermaidViewer';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { ECOSYSTEM_TABS } from '@molecules/lucide/siteIconCatalog';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import '../../../css/mermaid.css';
 import { Card } from '../card/Card';
 import styles from './EcosystemDiagram.module.css';
 
+interface MermaidApi {
+  initialize: (config: Record<string, unknown>) => void;
+  run: (config: { nodes: Element[] }) => Promise<void>;
+}
+
+declare global {
+  interface Window {
+    mermaid?: MermaidApi;
+  }
+}
+
+type DiagramTab = 'overview' | 'dataflow' | 'packages';
+
 /**
  * Ecosystem Architecture Diagram - COMPREHENSIVE VERSION
- * 
+ *
  * Shows 3 comprehensive diagrams via tabs:
  * 1. System Overview - All major applications and services
  * 2. Data Flow - How data moves through the ecosystem
@@ -15,65 +32,73 @@ import styles from './EcosystemDiagram.module.css';
 export function EcosystemDiagram() {
   const diagramRef = useRef<HTMLDivElement>(null);
   const scriptLoadedRef = useRef(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'dataflow' | 'packages'>('overview');
+  const [activeTab, setActiveTab] = useState<DiagramTab>('overview');
 
-  useEffect(() => {
-    // Load mermaid from CDN if not already loaded
-    if (!scriptLoadedRef.current && typeof window !== 'undefined') {
-      const existingScript = document.querySelector('script[src*="mermaid"]');
-      
-      if (!existingScript) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-        script.async = true;
-        script.onload = () => {
-          scriptLoadedRef.current = true;
-          initializeMermaid();
-        };
-        document.head.appendChild(script);
-      } else {
-        scriptLoadedRef.current = true;
-        initializeMermaid();
-      }
+  const initializeMermaid = useCallback(async () => {
+    if (typeof window === 'undefined' || !window.mermaid || !diagramRef.current) {
+      return;
     }
+
+    window.mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#edae49',
+        primaryTextColor: '#d5c4a1',
+        primaryBorderColor: '#edae49',
+        lineColor: '#a89984',
+        secondaryColor: '#98971a',
+        tertiaryColor: '#458588',
+        background: '#1d2021',
+        mainBkg: '#282828',
+        secondBkg: '#3c3836',
+        textColor: '#ebdbb2',
+        border1: '#665c54',
+        border2: '#7c6f64',
+      },
+    });
+
+    const node = diagramRef.current.querySelector('.mermaid');
+    if (!node) return;
+
+    node.removeAttribute('data-enhanced');
+    await window.mermaid.run({ nodes: [node] });
+    enhanceMermaidDiagrams(diagramRef.current);
   }, []);
 
   useEffect(() => {
-    // Re-render diagram when tab changes
-    if (scriptLoadedRef.current && diagramRef.current) {
-      initializeMermaid();
+    if (typeof window === 'undefined') return;
+
+    const onScriptReady = () => {
+      scriptLoadedRef.current = true;
+      void initializeMermaid();
+    };
+
+    if (window.mermaid) {
+      onScriptReady();
+      return;
     }
-  }, [activeTab]);
 
-  const initializeMermaid = () => {
-    if (typeof window !== 'undefined' && (window as any).mermaid) {
-      (window as any).mermaid.initialize({
-        startOnLoad: true,
-        theme: 'dark',
-        themeVariables: {
-          primaryColor: '#edae49',
-          primaryTextColor: '#d5c4a1',
-          primaryBorderColor: '#edae49',
-          lineColor: '#a89984',
-          secondaryColor: '#98971a',
-          tertiaryColor: '#458588',
-          background: '#1d2021',
-          mainBkg: '#282828',
-          secondBkg: '#3c3836',
-          textColor: '#ebdbb2',
-          border1: '#665c54',
-          border2: '#7c6f64',
-        },
-      });
-
-      // Re-render diagram
-      if (diagramRef.current) {
-        (window as any).mermaid.contentLoaded();
-      }
+    const existingScript = document.querySelector('script[src*="mermaid"]');
+    if (existingScript) {
+      existingScript.addEventListener('load', onScriptReady, { once: true });
+      return;
     }
-  };
 
-  const diagrams = {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+    script.async = true;
+    script.onload = onScriptReady;
+    document.head.appendChild(script);
+  }, [initializeMermaid]);
+
+  useEffect(() => {
+    if (scriptLoadedRef.current) {
+      void initializeMermaid();
+    }
+  }, [activeTab, initializeMermaid]);
+
+  const diagrams: Record<DiagramTab, string> = {
     overview: `
 graph TB
     subgraph WebApps["🌐 Web Applications"]
@@ -90,7 +115,6 @@ graph TB
         Auth[Auth Service]
         Access[Access Hub]
         ModsAPI[Mods API]
-        ChatSig[Chat Signaling]
         Customer[Customer API]
         Game[Game API]
         Streamkit[Streamkit API]
@@ -124,7 +148,6 @@ graph TB
     Access --> KV
     ModsAPI --> R2
     ModsAPI --> KV
-    ChatSig --> KV
     Customer --> KV
     Game --> KV
     Streamkit --> KV
@@ -139,7 +162,7 @@ graph TB
     classDef storage fill:#cc241d,stroke:#fb4934,stroke-width:2px,color:#ebdbb2
     
     class Main,Card,SVG,Social,ModsHub,ControlPanel,Mappy web
-    class Auth,Access,ModsAPI,ChatSig,Customer,Game,Streamkit api
+    class Auth,Access,ModsAPI,Customer,Game,Streamkit api
     class Compressy,Rituals,Trials mc
     class PG,KV,R2,IDB storage
     `,
@@ -209,7 +232,6 @@ graph TB
     end
     
     subgraph UI["🎨 UI Packages"]
-        Chat[chat]
         OTPLogin[otp-login]
         AudioPlayer[audio-player]
         IdleGame[idle-game-overlay]
@@ -220,10 +242,8 @@ graph TB
     end
     
     subgraph Utils["🛠️ Utility Packages"]
-        P2PStorage[p2p-storage]
         SearchParser[search-query-parser]
         VirtTable[virtualized-table]
-        ASCIIMoji[asciimoji]
         DOMUtils[dom-utils]
         ErrorUtils[error-utils]
         AnimUtils[animation-utils]
@@ -243,7 +263,6 @@ graph TB
     APIFw --> AuthStore
     APIFw --> ServiceClient
     SharedComp --> DOMUtils
-    Chat --> P2PStorage
     OTPLogin --> AuthStore
     AudioPlayer --> DOMUtils
     IdleGame --> AnimUtils
@@ -259,8 +278,8 @@ graph TB
     classDef test fill:#689d6a,stroke:#8ec07c,stroke-width:2px,color:#ebdbb2
     
     class APIFw,AuthStore,ServiceClient,Schemas,SharedComp core
-    class Chat,OTPLogin,AudioPlayer,IdleGame,AdCarousel,Tooltip,StatusFlair,PortalSelect ui
-    class P2PStorage,SearchParser,VirtTable,ASCIIMoji,DOMUtils,ErrorUtils,AnimUtils util
+    class OTPLogin,AudioPlayer,IdleGame,AdCarousel,Tooltip,StatusFlair,PortalSelect ui
+    class SearchParser,VirtTable,DOMUtils,ErrorUtils,AnimUtils util
     class Use3D,UseCursor,UseFlip hook
     class E2E,ErrorMap test
     `,
@@ -269,48 +288,40 @@ graph TB
   return (
     <Card width="full" className={styles.diagram}>
       <div className={styles.diagram__header}>
-        <h3 className={styles.diagram__title}>🏗️ Ecosystem Architecture</h3>
+        <h3 className={styles.diagram__title}>
+          <SiteIcon id="construction" className={styles.diagram__titleIcon} sizeRem={1} />
+          Ecosystem Architecture
+        </h3>
         <p className={styles.diagram__subtitle}>
-          How 41+ projects connect — pick a lens below
+          How 38+ projects connect — pick a lens below
         </p>
       </div>
 
-      {/* Tab Navigation */}
       <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'overview' ? styles['tab--active'] : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          🏢 System Overview
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'dataflow' ? styles['tab--active'] : ''}`}
-          onClick={() => setActiveTab('dataflow')}
-        >
-          🔄 Data Flow
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'packages' ? styles['tab--active'] : ''}`}
-          onClick={() => setActiveTab('packages')}
-        >
-          📦 Package Ecosystem
-        </button>
+        {ECOSYSTEM_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            className={`${styles.tab} ${activeTab === tab.id ? styles['tab--active'] : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <SiteIcon id={tab.iconId} className={styles.tab__icon} sizeRem={1} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Diagram Content */}
-      <div 
-        ref={diagramRef} 
+      <div
+        ref={diagramRef}
         className={styles.diagram__content}
-        dangerouslySetInnerHTML={{ 
-          __html: `<div class="mermaid">${diagrams[activeTab]}</div>` 
+        dangerouslySetInnerHTML={{
+          __html: `<div class="mermaid">${diagrams[activeTab]}</div>`,
         }}
       />
 
-      {/* Description based on active tab */}
       <div className={styles.diagram__footer}>
         {activeTab === 'overview' && (
           <p className={styles.footer__text}>
-            <strong>System overview:</strong> 7 web/desktop apps (including Mappy), 7 Cloudflare
+            <strong>System overview:</strong> 7 web/desktop apps (including Mappy), 6 Cloudflare
             Workers APIs, 3 Minecraft mods via Mods API, and storage across PostgreSQL, KV, R2, and
             IndexedDB.
           </p>
@@ -324,7 +335,7 @@ graph TB
         )}
         {activeTab === 'packages' && (
           <p className={styles.footer__text}>
-            <strong>Package ecosystem:</strong> 26 NPM packages — core framework, UI, utilities,
+            <strong>Package ecosystem:</strong> 23 NPM packages — core framework, UI, utilities,
             hooks, and testing helpers — shared across React, Svelte, and Cloudflare surfaces.
           </p>
         )}

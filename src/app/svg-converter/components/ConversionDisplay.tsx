@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect, useState } from 'react';
 import type { ConversionResult } from '../page';
 import styles from './ConversionDisplay.module.css';
@@ -62,26 +63,35 @@ export function ConversionDisplay({
   return (
     <div className={styles.display}>
       <div className={styles.display__header}>
-        <h3 className={styles.display__title}>✅ Conversion Complete!</h3>
+        <h3 className={styles.display__title}>
+          <SiteIcon id="check" sizeRem={1.125} />
+          Conversion Complete!
+        </h3>
         <button
           onClick={onNewConversion}
           className={styles.display__new}
           title="Start new conversion"
         >
-          🆕 New
+          <SiteIcon id="plusCircle" sizeRem={1} />
+          New
         </button>
       </div>
 
       <div className={styles.display__content}>
         {/* Image Preview Section */}
         <div className={styles.preview__section}>
-          <h4 className={styles.preview__title}>🖼️ Preview</h4>
+          <h4 className={styles.preview__title}>
+            <SiteIcon id="image" sizeRem={1} />
+            Preview
+          </h4>
           <div className={styles.preview__container}>
             {previewUrl && (
               <div className={styles.preview__wrapper}>
                 {!imageLoaded && (
                   <div className={styles.preview__loading}>
-                    <div className={styles.loading__spinner}>⏳</div>
+                    <div className={styles.loading__spinner}>
+                      <SiteIcon id="loader" sizeRem={1.25} />
+                    </div>
                     <span className={styles.loading__text}>
                       Loading preview...
                     </span>
@@ -142,7 +152,9 @@ export function ConversionDisplay({
         {/* Actions */}
         <div className={styles.result__actions}>
           <button onClick={handleDownload} className={styles.download__button}>
-            <span className={styles.button__icon}>⬇️</span>
+            <span className={styles.button__icon}>
+              <SiteIcon id="download" sizeRem={1.125} />
+            </span>
             Download PNG
           </button>
 

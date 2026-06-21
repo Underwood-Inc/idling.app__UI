@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { getUserDecoration } from '@lib/actions/subscription.actions';
 import { useFlairPreference } from '@lib/context/UserPreferencesContext';
 import React, { useEffect, useState, useTransition } from 'react';
@@ -70,7 +71,9 @@ export function UsernameDecoration({
       {/* Enterprise Crown Effect */}
       {decoration === 'enterprise-crown' && (
         <>
-          <div className="username-decoration__crown">👑</div>
+          <div className="username-decoration__crown">
+            <SiteIcon id="crown" sizeRem={0.75} />
+          </div>
           <div className="username-decoration__glow username-decoration__glow--enterprise" />
         </>
       )}
@@ -81,13 +84,13 @@ export function UsernameDecoration({
           <div className="username-decoration__glow username-decoration__glow--galaxy" />
           <div className="username-decoration__particles">
             <div className="username-decoration__particle username-decoration__particle--star">
-              ⭐
+              <SiteIcon id="star" sizeRem={0.625} />
             </div>
             <div className="username-decoration__particle username-decoration__particle--sparkle">
-              ✨
+              <SiteIcon id="sparkles" sizeRem={0.625} />
             </div>
             <div className="username-decoration__particle username-decoration__particle--diamond">
-              💎
+              <SiteIcon id="gem" sizeRem={0.625} />
             </div>
           </div>
         </>
@@ -121,7 +124,7 @@ export function UsernameDecoration({
       {/* Error handling - subtle, doesn't interfere with UX */}
       {error && process.env.NODE_ENV === 'development' && (
         <div className="username-decoration__error" title={error}>
-          <small>⚠️</small>
+          <SiteIcon id="alertTriangle" sizeRem={0.625} />
         </div>
       )}
     </div>

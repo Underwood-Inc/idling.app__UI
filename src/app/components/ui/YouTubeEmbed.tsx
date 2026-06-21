@@ -1,3 +1,6 @@
+'use client';
+
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React from 'react';
 import './URLPill.css';
 
@@ -67,7 +70,9 @@ export function YouTubeEmbed({
     return (
       <div className={`youtube-embed-error ${className}`}>
         <div className="youtube-embed-error__content">
-          <div className="youtube-embed-error__icon">📺</div>
+          <div className="youtube-embed-error__icon">
+            <SiteIcon id="tv" sizeRem={2} />
+          </div>
           <div className="youtube-embed-error__text">Invalid YouTube URL</div>
           <div className="youtube-embed-error__url">{url}</div>
         </div>
@@ -96,7 +101,9 @@ export function YouTubeEmbed({
         ) : (
           <div className="youtube-embed__placeholder">
             <div className="youtube-embed__placeholder-content">
-              <div className="youtube-embed__placeholder-icon">📺</div>
+              <div className="youtube-embed__placeholder-icon">
+                <SiteIcon id="tv" sizeRem={2} />
+              </div>
               <div className="youtube-embed__placeholder-text">
                 YouTube video will load when visible
               </div>

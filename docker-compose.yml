@@ -33,6 +33,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-idling_app}
       IS_DOCKERIZED: true
+      CI: 'true'
       SHELL: /usr/bin/zsh
     healthcheck:
       test: |

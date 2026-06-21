@@ -170,6 +170,9 @@
 }
 
 .advanced__paywall__notice h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   margin: 0 0 0.75rem 0;
   font-size: 1.125rem;
   font-weight: 700;
@@ -226,6 +229,9 @@
 }
 
 .upgrade__content h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   margin: 0 0 0.75rem 0;
   color: var(--brand-primary);
   font-size: 1.125rem;

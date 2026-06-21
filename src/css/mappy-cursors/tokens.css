@@ -1,0 +1,44 @@
+/*
+ * Idling.app cursor tokens — always custom SVG art; no system default/pointer/text.
+ * Fallback chain stays within branded assets. Override: data-mappy-cursor="<keyword>".
+ */
+:root {
+  --mappy-cursor-default: url('/assets/cursors/mappy-default.svg') 16 16, auto;
+  --mappy-cursor-pointer: url('/assets/cursors/mappy-pointer.svg') 5 3, auto;
+  --mappy-cursor-cta: url('/assets/cursors/mappy-cta.svg') 16 16, auto;
+  --mappy-cursor-draw: url('/assets/cursors/mappy-draw.svg') 9 23, crosshair;
+  --mappy-cursor-text: url('/assets/cursors/mappy-text.svg') 16 16, auto;
+  --mappy-cursor-zoom-in: url('/assets/cursors/mappy-zoom.svg') 18 12, auto;
+  --mappy-cursor-zoom-out: url('/assets/cursors/mappy-zoom-out.svg') 18 12, auto;
+  --mappy-cursor-disabled: url('/assets/cursors/mappy-disabled.svg') 16 16, auto;
+  --mappy-cursor-help: url('/assets/cursors/mappy-help.svg') 16 16, auto;
+  --mappy-cursor-context-menu: url('/assets/cursors/mappy-context-menu.svg') 8 7, auto;
+  --mappy-cursor-progress: url('/assets/cursors/mappy-progress.svg') 16 16, auto;
+  --mappy-cursor-wait: url('/assets/cursors/mappy-wait.svg') 16 16, auto;
+  --mappy-cursor-cell: url('/assets/cursors/mappy-cell.svg') 16 16, auto;
+  --mappy-cursor-crosshair: url('/assets/cursors/mappy-crosshair.svg') 16 16, auto;
+  --mappy-cursor-vertical-text: url('/assets/cursors/mappy-vertical-text.svg') 16 16, auto;
+  --mappy-cursor-alias: url('/assets/cursors/mappy-alias.svg') 22 18, auto;
+  --mappy-cursor-copy: url('/assets/cursors/mappy-copy.svg') 12 7, auto;
+  --mappy-cursor-move: url('/assets/cursors/mappy-move.svg') 16 16, auto;
+  --mappy-cursor-no-drop: url('/assets/cursors/mappy-no-drop.svg') 16 16, auto;
+  --mappy-cursor-not-allowed: url('/assets/cursors/mappy-disabled.svg') 16 16, auto;
+  --mappy-cursor-grab: url('/assets/cursors/mappy-grab.svg') 16 16, auto;
+  --mappy-cursor-grabbing: url('/assets/cursors/mappy-grabbing.svg') 16 16, auto;
+  --mappy-cursor-col-resize: url('/assets/cursors/mappy-col-resize.svg') 16 16, auto;
+  --mappy-cursor-row-resize: url('/assets/cursors/mappy-row-resize.svg') 16 16, auto;
+  --mappy-cursor-ew-resize: url('/assets/cursors/mappy-col-resize.svg') 16 16, auto;
+  --mappy-cursor-ns-resize: url('/assets/cursors/mappy-row-resize.svg') 16 16, auto;
+  --mappy-cursor-n-resize: url('/assets/cursors/mappy-row-resize.svg') 16 5, auto;
+  --mappy-cursor-s-resize: url('/assets/cursors/mappy-row-resize.svg') 16 27, auto;
+  --mappy-cursor-e-resize: url('/assets/cursors/mappy-col-resize.svg') 27 16, auto;
+  --mappy-cursor-w-resize: url('/assets/cursors/mappy-col-resize.svg') 5 16, auto;
+  --mappy-cursor-nesw-resize: url('/assets/cursors/mappy-resize-nesw.svg') 16 16, auto;
+  --mappy-cursor-nwse-resize: url('/assets/cursors/mappy-resize-nwse.svg') 16 16, auto;
+  --mappy-cursor-ne-resize: url('/assets/cursors/mappy-resize-nesw.svg') 16 16, auto;
+  --mappy-cursor-nw-resize: url('/assets/cursors/mappy-resize-nwse.svg') 16 16, auto;
+  --mappy-cursor-se-resize: url('/assets/cursors/mappy-resize-nwse.svg') 16 16, auto;
+  --mappy-cursor-sw-resize: url('/assets/cursors/mappy-resize-nesw.svg') 16 16, auto;
+  --mappy-cursor-all-scroll: url('/assets/cursors/mappy-all-scroll.svg') 16 16, auto;
+  --mappy-rich-help-cursor: var(--mappy-cursor-help);
+}

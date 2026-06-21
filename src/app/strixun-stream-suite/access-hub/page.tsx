@@ -1,4 +1,5 @@
 
+import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
@@ -76,7 +77,7 @@ export default function AccessHubPage() {
               <h2 className="product-section__title">Key Features</h2>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">👥</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="users" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Role-Based Access Control</h3>
                   <p className="product-feature__description">
                     Define and manage roles with granular permissions. Assign users to roles for
@@ -84,7 +85,7 @@ export default function AccessHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">✅</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="check" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Permission Management</h3>
                   <p className="product-feature__description">
                     View all available permissions and their assignments. Fine-grained control over
@@ -92,7 +93,7 @@ export default function AccessHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📝</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="pen" sizeRem={5} /></div>
                   <h3 className="product-feature__title">User Access Auditing</h3>
                   <p className="product-feature__description">
                     Track who has access to what and when. Complete audit trail for compliance and
@@ -100,7 +101,7 @@ export default function AccessHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🔧</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="wrench" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Service-Agnostic Design</h3>
                   <p className="product-feature__description">
                     Works with any service in the SSS ecosystem. Unified access control across all
@@ -108,7 +109,7 @@ export default function AccessHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">📊</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="barChart" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Quota Management</h3>
                   <p className="product-feature__description">
                     Monitor and manage usage quotas per user or role. Prevent abuse and ensure fair
@@ -116,7 +117,7 @@ export default function AccessHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">🎯</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="target" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Simple, Clean UI</h3>
                   <p className="product-feature__description">
                     Intuitive interface that gets out of your way. Direct API integration with
@@ -136,7 +137,7 @@ export default function AccessHubPage() {
               </p>
               <div className="product-features">
                 <div className="product-feature">
-                  <div className="product-feature__icon">🌐</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="globe" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Frontend @ access.idling.app</h3>
                   <p className="product-feature__description">
                     React 18 frontend deployed on Cloudflare Pages with automatic builds via GitHub
@@ -144,7 +145,7 @@ export default function AccessHubPage() {
                   </p>
                 </div>
                 <div className="product-feature">
-                  <div className="product-feature__icon">⚙️</div>
+                  <div className="product-feature__icon"><FeatureIcon iconId="settings" sizeRem={5} /></div>
                   <h3 className="product-feature__title">Backend @ access-api.idling.app</h3>
                   <p className="product-feature__description">
                     Cloudflare Worker API handling all access control logic, storage, and

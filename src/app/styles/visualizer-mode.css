@@ -1,0 +1,50 @@
+html.visualizer-mode {
+  overflow: hidden;
+}
+
+html.visualizer-mode body {
+  overflow: hidden;
+}
+
+html.visualizer-mode [data-visualizer-layout] {
+  display: none !important;
+}
+
+.sticky-header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+}
+
+html.visualizer-mode #overlay-portal {
+  display: none !important;
+}
+
+/* Audio engine stays mounted headless; UI is the global React bar. */
+html.visualizer-mode .irp--headless {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border: 0;
+}
+
+html.visualizer-mode .irp {
+  padding: 0;
+}
+
+html.visualizer-mode .irp__shell {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border: 0;
+}

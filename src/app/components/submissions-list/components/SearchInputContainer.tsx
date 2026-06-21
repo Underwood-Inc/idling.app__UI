@@ -1,5 +1,7 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useState } from 'react';
 import { InteractiveTooltip } from '../../tooltip/InteractiveTooltip';
 import { SmartFilterInput } from './SmartFilterInput';
@@ -95,11 +97,7 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
     return 'Replies';
   };
 
-  const getRepliesFilterIcon = () => {
-    if (onlyReplies) return '💬';
-    if (includeThreadReplies) return '💬';
-    return '💬';
-  };
+  const getRepliesFilterIcon = (): SiteIconId => 'messages';
 
   const handleRepliesOptionClick = (option: 'none' | 'thread' | 'only') => {
     switch (option) {
@@ -125,7 +123,9 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
         className={`text-search-input__replies-option ${!includeThreadReplies && !onlyReplies ? 'text-search-input__replies-option--active' : ''}`}
         onClick={() => handleRepliesOptionClick('none')}
       >
-        <div className="text-search-input__replies-option-icon">📝</div>
+        <div className="text-search-input__replies-option-icon">
+          <SiteIcon id="pen" sizeRem={1} />
+        </div>
         <div className="text-search-input__replies-option-text">
           <div>Main Posts Only</div>
           <div className="text-search-input__replies-option-description">
@@ -138,7 +138,9 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
         className={`text-search-input__replies-option ${includeThreadReplies && !onlyReplies ? 'text-search-input__replies-option--active' : ''}`}
         onClick={() => handleRepliesOptionClick('thread')}
       >
-        <div className="text-search-input__replies-option-icon">💬</div>
+        <div className="text-search-input__replies-option-icon">
+          <SiteIcon id="messages" sizeRem={1} />
+        </div>
         <div className="text-search-input__replies-option-text">
           <div>With Replies</div>
           <div className="text-search-input__replies-option-description">
@@ -151,7 +153,9 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
         className={`text-search-input__replies-option ${onlyReplies ? 'text-search-input__replies-option--active' : ''}`}
         onClick={() => handleRepliesOptionClick('only')}
       >
-        <div className="text-search-input__replies-option-icon">↩️</div>
+        <div className="text-search-input__replies-option-icon">
+          <SiteIcon id="reply" sizeRem={1} />
+        </div>
         <div className="text-search-input__replies-option-text">
           <div>Only Replies</div>
           <div className="text-search-input__replies-option-description">
@@ -234,7 +238,7 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
             title="Configure reply filtering options"
           >
             <div className="text-search-input__replies-icon">
-              {getRepliesFilterIcon()}
+              <SiteIcon id={getRepliesFilterIcon()} sizeRem={1} />
             </div>
             <span className="text-search-input__replies-label">
               {getRepliesFilterLabel()}

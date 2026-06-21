@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -168,7 +169,10 @@ export function withClientAdminGuard<P extends object>(
       return (
         <div className="admin-security-loading">
           <div className="security-spinner"></div>
-          <p>🔐 Validating admin permissions...</p>
+          <p className="admin-security-loading__message">
+            <SiteIcon id="lockKeyhole" className="admin-security-loading__icon" sizeRem={1} />
+            Validating admin permissions...
+          </p>
         </div>
       );
     }
@@ -176,7 +180,10 @@ export function withClientAdminGuard<P extends object>(
     if (!isAuthorized || error) {
       return (
         <div className="admin-security-error">
-          <h3>🚫 Access Denied</h3>
+          <h3 className="admin-security-error__title">
+            <SiteIcon id="ban" className="admin-security-error__icon" sizeRem={1.125} />
+            Access Denied
+          </h3>
           <p>{error || 'You do not have admin permissions'}</p>
           <button onClick={() => (window.location.href = '/')}>
             Return Home

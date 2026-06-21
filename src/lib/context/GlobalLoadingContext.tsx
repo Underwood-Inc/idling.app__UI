@@ -84,6 +84,8 @@ export function GlobalLoadingProvider({
           url.includes('/api/link-preview') || // Skip link preview requests
           url.includes('/api/test/health') || // Skip health checks
           url.includes('/api/notifications/poll') || // Skip notification polling
+          url.includes('/api/radio/now-playing') || // Skip radio metadata polling
+          url.includes('api.modrinth.com') || // Skip Modrinth stats on showcase cards
           url.includes('/api/profile/') || // Skip profile data requests (per-post author data)
           url.includes('/api/decoration') || // Skip decoration/flair requests
           url.includes('buddha-api.com') // Skip Buddha API requests
@@ -176,11 +178,7 @@ export function GlobalLoadingProvider({
 
           return response;
         } catch (error) {
-          // Debug: Log failed requests
-          // eslint-disable-next-line no-console
-          console.error('❌ LOADING: Request failed:', { requestId, error });
-
-          // Stop loading on error
+          // Stop loading on error — background/polling fetches handle failures locally.
           const timeoutId = loadingTimeoutRef.current.get(requestId);
           if (timeoutId) {
             clearTimeout(timeoutId);

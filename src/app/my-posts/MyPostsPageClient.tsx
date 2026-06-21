@@ -5,6 +5,7 @@ import { useOverlay } from '@lib/context/OverlayContext';
 import { shouldUpdateAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSkeletonWrapper';
@@ -53,7 +54,10 @@ const AddPostModalContent: React.FC<{ onClose?: () => void }> = ({
   return (
     <div className="floating-add-post__modal-content">
       <div className="floating-add-post__header">
-        <h2 className="floating-add-post__title">✨ Share Something New</h2>
+        <h2 className="floating-add-post__title">
+          <SiteIcon id="sparkles" className="floating-add-post__title-icon" sizeRem={1.125} />
+          Share Something New
+        </h2>
       </div>
       <SharedSubmissionForm
         mode="create"
