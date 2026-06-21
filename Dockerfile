@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:20
+FROM node:22
 
 # Install zsh, git, Go and Playwright browser dependencies for development environment
 RUN apt-get update && apt-get install -y \
@@ -77,13 +77,13 @@ ENV SHELL=/usr/bin/zsh
 WORKDIR /app
 
 # Copy package.json and pnpm-lock.yaml first for better caching
-COPY package*.json pnpm-lock.yaml ./
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy custom eslint rules (needed for local package reference)
 COPY custom-eslint-rules/ ./custom-eslint-rules/
 
 # Install Node.js dependencies
-RUN corepack enable && pnpm install
+RUN corepack enable && corepack prepare pnpm@11.8.0 --activate && pnpm install --config.strict-dep-builds=false
 
 # Install Playwright browsers after dependencies are installed
 RUN npx playwright install --with-deps

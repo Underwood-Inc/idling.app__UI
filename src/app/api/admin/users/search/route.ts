@@ -51,7 +51,7 @@ async function getHandler(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid search parameters',
-          details: paramsResult.error.errors
+          details: paramsResult.error.issues
         },
         { status: 400 }
       );
@@ -104,7 +104,7 @@ async function getHandler(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid request parameters',
-          details: error.errors
+          details: error.issues
         },
         { status: 400 }
       );

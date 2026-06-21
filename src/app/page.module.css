@@ -35,8 +35,11 @@
 }
 
 .stats_aside {
-  padding: 0 !important;
   max-height: none !important;
+}
+
+.stats_aside :global(.page-aside__panel) {
+  padding: 0 !important;
 }
 
 /* Tablet/Mobile: Stack aside below content */

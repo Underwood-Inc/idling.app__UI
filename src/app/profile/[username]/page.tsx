@@ -15,14 +15,16 @@ import { InstantLink } from '../../components/ui/InstantLink';
 import { ProfilePageClient } from './ProfilePageClient';
 import './profile-page.scss';
 
+interface ProfilePageParams {
+  username: string;
+}
+
 interface ProfilePageProps {
-  params: {
-    username: string;
-  };
+  params: Promise<ProfilePageParams>;
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const { username } = params;
+  const { username } = await params;
 
   // Decode username in case it contains special characters
   const decodedUsername = decodeURIComponent(username);
@@ -237,7 +239,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
 // Generate metadata for the page
 export async function generateMetadata({ params }: ProfilePageProps) {
-  const { username } = params;
+  const { username } = await params;
   const decodedUsername = decodeURIComponent(username);
 
   try {

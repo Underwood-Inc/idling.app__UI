@@ -59,7 +59,7 @@ const RoleCreateSchema = z.object({
   role_icon: z.string().min(1).max(50).optional().default('user'),
   is_default: z.boolean().optional().default(false),
   permissions: z.array(z.number()).optional().default([]),
-  metadata: z.record(z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
   reason: z.string().optional()
 });
 
@@ -75,7 +75,7 @@ const RoleUpdateSchema = z.object({
   is_default: z.boolean().optional(),
   sort_order: z.number().min(0).optional(),
   permissions: z.array(z.number()).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   reason: z.string().optional()
 });
 
@@ -259,7 +259,7 @@ async function getHandler(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request parameters', details: error.errors },
+        { error: 'Invalid request parameters', details: error.issues },
         { status: 400 }
       );
     }
@@ -365,7 +365,7 @@ async function postHandler(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

@@ -187,12 +187,12 @@
 }
 
 /* Override react-spinners animation to ensure consistency */
-.avatar__loader :global(.react-spinners-GridLoader-grid) {
+.avatar__loader .react-spinners-GridLoader-grid {
   animation: react-spinners-GridLoader-grid 1s infinite ease !important;
   animation-delay: 0.1s !important;
 }
 
-.avatar__loader :global(.react-spinners-GridLoader-grid) > span {
+.avatar__loader .react-spinners-GridLoader-grid > span {
   animation: react-spinners-GridLoader-grid 1s infinite ease !important;
   animation-delay: 0.1s !important;
 }

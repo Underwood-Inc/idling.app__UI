@@ -14,7 +14,7 @@ export function useMouseHandlers(
   state: RichInputState,
   config: RichInputConfig,
   handlers: RichInputEventHandlers,
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
 ) {
   const handleClick = useCallback(
     (e: React.MouseEvent) => {

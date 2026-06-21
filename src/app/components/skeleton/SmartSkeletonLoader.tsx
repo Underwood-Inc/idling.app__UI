@@ -549,7 +549,7 @@ const generateRealisticSkeleton = (
 };
 
 // Smart Skeleton Hook
-export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
+export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement | null>) => {
   const [skeletonContent, setSkeletonContent] = useState<React.ReactNode>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [capturedLayout, setCapturedLayout] =
@@ -599,7 +599,7 @@ export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
 
 // Main Smart Skeleton Loader Component
 interface SmartSkeletonLoaderProps {
-  targetRef: React.RefObject<HTMLElement>;
+  targetRef: React.RefObject<HTMLElement | null>;
   isLoading?: boolean;
   forceShow?: boolean;
   fallback?: React.ReactNode;

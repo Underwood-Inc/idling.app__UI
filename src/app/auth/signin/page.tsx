@@ -7,16 +7,24 @@ import { SignInProviders } from '../../components/auth-buttons/types';
 import { OAuthAccountConflictHandler } from './OAuthAccountConflictHandler';
 import './page.css';
 
+interface SignInSearchParams {
+  redirect?: string;
+  error?: string;
+  provider?: string;
+  reason?: string;
+}
+
 export default async function Page({
   searchParams
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Promise<SignInSearchParams>;
 }) {
+  const params = await searchParams;
   const session = await auth();
   let providers: SignInProviders[] = ['twitch', 'google'];
-  const redirectTo = searchParams.redirect || NAV_PATHS.ROOT;
-  const error = searchParams.error;
-  const provider = searchParams.provider;
+  const redirectTo = params.redirect || NAV_PATHS.ROOT;
+  const error = params.error;
+  const provider = params.provider;
 
   // Handle OAuth account linking conflicts
   if (error === 'OAuthAccountNotLinked') {
@@ -29,9 +37,9 @@ export default async function Page({
     );
   }
 
-  if (session && searchParams.redirect) {
-    redirect(searchParams.redirect);
-  } else if (session && !searchParams.redirect) {
+  if (session && params.redirect) {
+    redirect(params.redirect);
+  } else if (session && !params.redirect) {
     redirect(NAV_PATHS.ROOT);
   }
 

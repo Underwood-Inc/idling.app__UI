@@ -39,7 +39,7 @@ async function postHandler(
       return NextResponse.json(
         {
           error: 'Invalid user ID format',
-          details: postUserIdValidation.error.errors
+          details: postUserIdValidation.error.issues
         },
         { status: 400 }
       );
@@ -55,7 +55,7 @@ async function postHandler(
       return NextResponse.json(
         {
           error: 'Invalid request data',
-          details: bodyResult.error.errors
+          details: bodyResult.error.issues
         },
         { status: 400 }
       );
@@ -131,7 +131,7 @@ async function deleteHandler(
       return NextResponse.json(
         {
           error: 'Invalid user ID format',
-          details: deleteUserIdValidation.error.errors
+          details: deleteUserIdValidation.error.issues
         },
         { status: 400 }
       );
@@ -149,7 +149,7 @@ async function deleteHandler(
       return NextResponse.json(
         {
           error: 'Invalid role removal parameters',
-          details: queryValidation.error.errors
+          details: queryValidation.error.issues
         },
         { status: 400 }
       );
@@ -173,7 +173,7 @@ async function deleteHandler(
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

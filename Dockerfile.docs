@@ -1,5 +1,5 @@
 # Dockerfile for Docusaurus Documentation Service
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Install dependencies for any native packages
 RUN apk add --no-cache \
@@ -18,11 +18,11 @@ RUN corepack enable
 WORKDIR /app
 
 # Copy package files and custom eslint rules (needed for pnpm install)
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY custom-eslint-rules/ ./custom-eslint-rules/
 
 # Install dependencies
-RUN pnpm install
+RUN corepack enable && corepack prepare pnpm@11.8.0 --activate && pnpm install --config.strict-dep-builds=false
 
 # Copy Docusaurus configuration
 COPY docusaurus.config.js sidebars.js ./

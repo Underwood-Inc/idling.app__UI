@@ -73,7 +73,7 @@ async function getHandler(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid query parameters',
-          details: paramsResult.error.errors
+          details: paramsResult.error.issues
         },
         { status: 400 }
       );
@@ -207,7 +207,7 @@ async function postHandler(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid request data',
-          details: bodyResult.error.errors
+          details: bodyResult.error.issues
         },
         { status: 400 }
       );

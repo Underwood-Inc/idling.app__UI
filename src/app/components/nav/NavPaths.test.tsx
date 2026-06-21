@@ -1,5 +1,6 @@
 import {
   HEADER_NAV_PATHS,
+  isExternalLink,
   NAV_PATH_LABELS,
   NAV_PATHS
 } from '../../../lib/routes';
@@ -57,12 +58,10 @@ describe('NavPaths', () => {
     render(<NavPaths />);
 
     Object.entries(HEADER_NAV_PATHS).forEach(([key, path]) => {
-      // Handle external links that have aria-label from icon
       const routeKey = key as keyof typeof HEADER_NAV_PATHS;
-      const expectedName =
-        routeKey === 'GALAXY'
-          ? `${NAV_PATH_LABELS[routeKey]} External link`
-          : NAV_PATH_LABELS[routeKey];
+      const expectedName = isExternalLink(path)
+        ? `${NAV_PATH_LABELS[routeKey]} External link`
+        : NAV_PATH_LABELS[routeKey];
 
       const element = screen.getByRole('link', {
         name: expectedName

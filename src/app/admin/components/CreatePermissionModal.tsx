@@ -167,7 +167,7 @@ export default function CreatePermissionModal({
       if (error instanceof z.ZodError) {
         const fieldErrors: Partial<Record<keyof PermissionFormData, string>> =
           {};
-        error.errors.forEach((err) => {
+        error.issues.forEach((err) => {
           const field = err.path[0] as keyof PermissionFormData;
           fieldErrors[field] = err.message;
         });

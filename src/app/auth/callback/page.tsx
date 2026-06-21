@@ -185,13 +185,14 @@ function CallbackContent({
 export default async function CallbackPage({
   searchParams
 }: {
-  searchParams: CallbackSearchParams;
+  searchParams: Promise<CallbackSearchParams>;
 }) {
+  const params = await searchParams;
   const session = await auth();
 
   // If user is already authenticated, redirect them immediately
   if (session) {
-    const redirectTo = searchParams.redirect || NAV_PATHS.ROOT;
+    const redirectTo = params.redirect || NAV_PATHS.ROOT;
     redirect(redirectTo);
   }
 
@@ -199,7 +200,7 @@ export default async function CallbackPage({
     <PageContainer>
       <div className="callback__container">
         <Suspense fallback={<Loader />}>
-          <CallbackContent searchParams={searchParams} />
+          <CallbackContent searchParams={params} />
         </Suspense>
       </div>
     </PageContainer>

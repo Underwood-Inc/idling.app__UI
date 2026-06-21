@@ -178,6 +178,10 @@ export function StatsDashboard() {
             <span className={styles.link__icon}>🎮</span>
             <span className={styles.link__label}>Mods Hub</span>
           </a>
+          <a href="https://short.army/mappy" target="_blank" rel="noopener noreferrer" className={styles.link}>
+            <span className={styles.link__icon}>🗺️</span>
+            <span className={styles.link__label}>Mappy</span>
+          </a>
           <a href="https://auth.idling.app" target="_blank" rel="noopener noreferrer" className={styles.link}>
             <span className={styles.link__icon}>🔐</span>
             <span className={styles.link__label}>Auth Service</span>
@@ -208,7 +212,7 @@ export function StatsDashboard() {
           </a>
           <a href="https://github.com/Underwood-Inc/strixun-stream-suite" target="_blank" rel="noopener noreferrer" className={styles.link}>
             <FaGithub className={styles.link__icon} />
-            <span className={styles.link__label}>Monorepo (40+)</span>
+            <span className={styles.link__label}>Monorepo (41+)</span>
           </a>
           <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener noreferrer" className={styles.link}>
             <FaGithub className={styles.link__icon} />

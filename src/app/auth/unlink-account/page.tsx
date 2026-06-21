@@ -15,10 +15,11 @@ interface UnlinkAccountSearchParams {
 export default async function UnlinkAccountPage({
   searchParams
 }: {
-  searchParams: UnlinkAccountSearchParams;
+  searchParams: Promise<UnlinkAccountSearchParams>;
 }) {
+  const params = await searchParams;
   const session = await auth();
-  const { provider, redirect: redirectTo } = searchParams;
+  const { provider, redirect: redirectTo } = params;
 
   // If no provider specified, redirect to callback with error
   if (!provider) {

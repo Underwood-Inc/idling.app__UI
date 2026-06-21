@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseFocusManagementProps {
-  containerRef: React.RefObject<HTMLElement>;
+  containerRef: React.RefObject<HTMLElement | null>;
   onFocusChange?: (isFocused: boolean) => void;
   blurDelay?: number;
 }

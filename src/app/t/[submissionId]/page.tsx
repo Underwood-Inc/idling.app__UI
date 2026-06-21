@@ -9,10 +9,12 @@ import { Submission } from '../../components/submission-forms/schema';
 import { getSubmissionThread } from '../../components/thread/actions';
 import ThreadPageClient from './ThreadPageClient';
 
+interface ThreadPageParams {
+  submissionId: string;
+}
+
 interface ThreadPageProps {
-  params: {
-    submissionId: string;
-  };
+  params: Promise<ThreadPageParams>;
 }
 
 interface ThreadData {
@@ -24,7 +26,8 @@ interface ThreadData {
 export async function generateMetadata({
   params
 }: ThreadPageProps): Promise<Metadata> {
-  const submissionId = parseInt(params.submissionId);
+  const { submissionId: submissionIdParam } = await params;
+  const submissionId = parseInt(submissionIdParam);
 
   if (isNaN(submissionId)) {
     return {
@@ -269,7 +272,8 @@ function isImageUrl(url: string): boolean {
 }
 
 export default async function ThreadPage({ params }: ThreadPageProps) {
-  const submissionId = parseInt(params.submissionId);
+  const { submissionId: submissionIdParam } = await params;
+  const submissionId = parseInt(submissionIdParam);
 
   if (isNaN(submissionId)) {
     notFound();

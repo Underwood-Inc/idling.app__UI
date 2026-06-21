@@ -71,7 +71,7 @@ const EmojiPanelWrapper = (props: {
 }) => <EmojiPanelContent {...props} />;
 
 interface FloatingToolbarProps {
-  inputRef: React.RefObject<HTMLInputElement | HTMLTextAreaElement>;
+  inputRef: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>;
   onHashtagInsert: (text: string) => void;
   onMentionInsert: (text: string) => void;
   onEmojiInsert: (text: string) => void;

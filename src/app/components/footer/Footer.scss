@@ -1,4 +1,4 @@
-@import '../../../styles/glassmorphism.scss';
+@use '../../../styles/glassmorphism.scss' as *;
 
 .footer-wrapper {
   margin-top: auto;

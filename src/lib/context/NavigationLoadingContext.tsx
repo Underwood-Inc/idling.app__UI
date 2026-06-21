@@ -41,7 +41,9 @@ export function NavigationLoadingProvider({
     isPending: false
   });
 
-  const navigationTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const navigationTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
   const previousPathnameRef = useRef(pathname);
 
   // Enhanced navigation function with instant feedback

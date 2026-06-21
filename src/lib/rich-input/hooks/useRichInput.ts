@@ -16,7 +16,7 @@ export interface UseRichInputOptions extends RichInputConfig {
 export interface UseRichInputReturn {
   value: string;
   state: RichInputState | null;
-  ref: React.RefObject<RichInputRef>;
+  ref: React.RefObject<RichInputRef | null>;
 
   // Convenience methods
   setValue: (value: string) => void;

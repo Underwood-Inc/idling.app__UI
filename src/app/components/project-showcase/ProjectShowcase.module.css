@@ -1,4 +1,13 @@
 /* Modern Project Showcase */
+.projects__container {
+  width: 100%;
+  margin-top: 13rem;
+  max-height: calc(2.2 * 520px);
+  overflow: hidden auto;
+  padding-right: 0.5rem;
+  scroll-behavior: smooth;
+}
+
 .showcase {
   width: 100%;
   padding: 4rem 0;
@@ -63,7 +72,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
-  margin-top: 3rem;
+  /* margin-top: 3rem; */
   max-height: calc(2.2 * 520px);
   overflow: hidden auto;
   padding-right: 0.5rem;
@@ -318,7 +327,7 @@
     max-height: calc(2.2 * 450px);
     padding-right: 0.25rem;
   }
-  
+
   .projects__grid::-webkit-scrollbar {
     width: 6px;
   }
@@ -369,6 +378,7 @@
 
 /* Performance: Reduce motion */
 @media (prefers-reduced-motion: reduce) {
+
   .project,
   .filter__button,
   .project__link {
@@ -380,4 +390,3 @@
     transform: none;
   }
 }
-

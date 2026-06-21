@@ -187,7 +187,7 @@ const AvatarsBackground: React.FC = () => {
   );
   const [isActive, setIsActive] = useState(true);
 
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const lastUpdateRef = useRef<number>(Date.now());
   const lastSpawnRef = useRef<number>(Date.now());
   const containerRef = useRef<HTMLDivElement>(null);

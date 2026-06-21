@@ -41,20 +41,21 @@ const extractTextFromChildren = (children: React.ReactNode): string => {
   }
 
   if (React.isValidElement(children)) {
+    const elementProps = children.props as { children?: React.ReactNode };
     // If it's a React element, try to extract text from its children
-    if (children.props && children.props.children) {
-      return extractTextFromChildren(children.props.children);
+    if (elementProps.children) {
+      return extractTextFromChildren(elementProps.children);
     }
     // If no children, try to get text content from common props
-    if (typeof children.props?.children === 'string') {
-      return children.props.children;
+    if (typeof elementProps.children === 'string') {
+      return elementProps.children;
     }
     // Fallback for span with text content
     if (
       children.type === 'span' &&
-      typeof children.props?.children === 'string'
+      typeof elementProps.children === 'string'
     ) {
-      return children.props.children;
+      return elementProps.children;
     }
   }
 

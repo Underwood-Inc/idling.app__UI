@@ -49,7 +49,7 @@ describe('Home Page', () => {
     // Check layout and Discord content
     const article = container.querySelector('article');
     const cards = article?.querySelectorAll('.card');
-    expect(cards).toHaveLength(3); // About, Projects, and Activity cards
+    expect(cards).toHaveLength(4); // About, Ecosystem, Projects, and Activity cards
 
     // Discord content is now in the aside, not in the main cards
     expect(

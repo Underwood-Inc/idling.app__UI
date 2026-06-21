@@ -8,7 +8,7 @@ interface TooltipModalProps {
   isFullscreen: boolean;
   showControls: boolean;
   url: string;
-  modalContentRef: RefObject<HTMLDivElement>;
+  modalContentRef: RefObject<HTMLDivElement | null>;
   onModalClose: (e: React.MouseEvent) => void;
   onModalContentClick: (e: React.MouseEvent) => void;
   onFullscreenToggle: (e: React.MouseEvent) => void;

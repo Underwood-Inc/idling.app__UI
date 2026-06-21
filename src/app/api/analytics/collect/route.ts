@@ -86,7 +86,7 @@ const BehaviorEventSchema = z.object({
   behaviorValue: z.number().optional(),
   pageUrl: z.string(),
   elementSelector: z.string().optional(),
-  additionalData: z.record(z.any()).optional()
+  additionalData: z.record(z.string(), z.any()).optional()
 });
 
 const FormInteractionSchema = z.object({
@@ -147,7 +147,7 @@ const SubscriptionEventSchema = z.object({
   funnelPosition: z.number().optional(),
   pageUrl: z.string().optional(),
   referrerUrl: z.string().optional(),
-  additionalData: z.record(z.any()).optional()
+  additionalData: z.record(z.string(), z.any()).optional()
 });
 
 // Schema for single event
@@ -293,7 +293,7 @@ async function getClientIpAddress(request: NextRequest): Promise<string> {
     return realIp;
   }
 
-  return request.ip || '127.0.0.1';
+  return '127.0.0.1';
 }
 
 async function getGeolocationData(ipAddress: string) {

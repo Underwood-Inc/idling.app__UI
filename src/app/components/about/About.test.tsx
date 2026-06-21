@@ -3,8 +3,8 @@ import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.se
 import { render, screen } from '../../../test-utils';
 import { About } from './About';
 
-describe('Page', () => {
-  it('renders the about page', () => {
+describe('About', () => {
+  it('renders the about section with portfolio highlights and mappy links', () => {
     render(<About />);
 
     expect(screen.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK))
@@ -13,11 +13,17 @@ describe('Page', () => {
       .toHaveAttribute('href', NAV_PATHS.ROOT)
       .not.toHaveAttribute('target', '_blank');
 
-    const gitlabLink = screen.getByText(/gitlab/i, { selector: 'a' });
-    expect(gitlabLink)
+    expect(screen.getByText("Hi! I'm Strixun 👋")).toBeInTheDocument();
+    expect(screen.getByText('Mappy — Interactive Maps')).toBeInTheDocument();
+    expect(screen.getByText('41+')).toBeInTheDocument();
+
+    const mappyDownloadLink = screen.getByRole('link', {
+      name: /download \(short\.army\/mappy\)/i,
+    });
+    expect(mappyDownloadLink)
       .toBeVisible()
       .toBeEnabled()
-      .toHaveAttribute('href', 'https://gitlab.com/idling.app')
+      .toHaveAttribute('href', NAV_PATHS.MAPPY)
       .toHaveAttribute('target', '_blank');
   });
 });
