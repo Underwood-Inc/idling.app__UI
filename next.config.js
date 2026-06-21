@@ -164,6 +164,13 @@ const nextConfig = {
       stream: require.resolve('stream-browserify')
     };
 
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp:
+          /^@opentelemetry\/winston-transport$|^@opentelemetry\/shim-opencensus$/
+      })
+    );
+
     return config;
   }
 };

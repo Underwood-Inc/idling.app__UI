@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Admin Subscription Plan Management API
  * Handles updating individual subscription plans
@@ -26,9 +27,10 @@ const updatePlanSchema = z.object({
 
 async function patchHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,7 +48,7 @@ async function patchHandler(
       );
     }
 
-    const planId = parseInt(params.id);
+    const planId = parseInt(id);
     if (isNaN(planId)) {
       return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
     }
@@ -120,9 +122,10 @@ async function patchHandler(
 
 async function deleteHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -140,7 +143,7 @@ async function deleteHandler(
       );
     }
 
-    const planId = parseInt(params.id);
+    const planId = parseInt(id);
     if (isNaN(planId)) {
       return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
     }

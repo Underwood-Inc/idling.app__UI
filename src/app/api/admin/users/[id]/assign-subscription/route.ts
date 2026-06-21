@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Admin User Subscription Management API
  * Handles assigning and managing user subscriptions
@@ -27,16 +28,17 @@ export interface SubscriptionAssignmentRequest {
 // POST /api/admin/users/[id]/assign-subscription - Assign subscription to user
 async function postHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
+    const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
@@ -69,6 +71,7 @@ async function postHandler(
     // Check if subscription system exists
     let planExists = false;
     try {
+    const { id } = await params;
       const plans = await sql<{ id: number; name: string }[]>`
         SELECT id, name FROM subscription_plans WHERE id = ${planId}
       `;
@@ -182,16 +185,17 @@ async function postHandler(
 // PATCH /api/admin/users/[id]/assign-subscription - Update subscription
 async function patchHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
+    const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
@@ -248,16 +252,17 @@ async function patchHandler(
 // DELETE /api/admin/users/[id]/assign-subscription - Cancel subscription
 async function deleteHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
+    const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });

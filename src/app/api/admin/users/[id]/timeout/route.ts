@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Admin User Timeout Management API
  * Handles issuing and managing user timeouts
@@ -24,9 +25,10 @@ export interface TimeoutRequest {
 // POST /api/admin/users/[id]/timeout - Issue timeout to user
 async function postHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,7 +37,7 @@ async function postHandler(
     const adminUserId = parseInt(session.user.id);
 
     // Validate params
-    const paramsResult = UserIdParamsSchema.safeParse(params);
+    const paramsResult = UserIdParamsSchema.safeParse(await params);
     if (!paramsResult.success) {
       return NextResponse.json(
         {
@@ -130,16 +132,17 @@ async function postHandler(
 // DELETE /api/admin/users/[id]/timeout - Remove/cancel timeout
 async function deleteHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
+    const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });

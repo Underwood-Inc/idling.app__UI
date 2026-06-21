@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Admin User Details API
  * Handles detailed user information retrieval for admin management
@@ -58,16 +59,17 @@ export interface UserTimeout {
 // GET /api/admin/users/[id] - Get detailed user information
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
+    const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
@@ -113,6 +115,7 @@ async function getHandler(
     // Get user subscriptions (if subscription system exists)
     let subscriptions: UserSubscription[] = [];
     try {
+    const { id } = await params;
       subscriptions = await sql<UserSubscription[]>`
         SELECT 
           us.id,

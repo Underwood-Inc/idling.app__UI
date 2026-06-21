@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /* eslint-disable no-console */
 import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
@@ -10,10 +11,10 @@ const databaseService = DatabaseService.getInstance();
 
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id || id.trim() === '') {
       return new Response(

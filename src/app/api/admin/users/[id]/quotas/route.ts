@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Individual User Quota Management API
  *
@@ -151,11 +152,12 @@ async function logAdminAction(
  */
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<ApiResponse<{ quotas: UserQuotaData[] }> | ErrorResponse>
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -175,7 +177,7 @@ async function getHandler(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -185,7 +187,7 @@ async function getHandler(
 
     // Get comprehensive quota info using EnhancedQuotaService
     const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(
-      parseInt(params.id)
+      parseInt(id)
     );
 
     // Get additional display information for proper names
@@ -253,11 +255,12 @@ export const GET = withUniversalEnhancements(getHandler);
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -277,7 +280,7 @@ export async function PATCH(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -334,7 +337,7 @@ export async function PATCH(
     // Check if override already exists
     const existingOverride = await sql`
       SELECT id FROM user_quota_overrides
-      WHERE user_id = ${params.id} 
+      WHERE user_id = ${id} 
       AND service_name = ${service_name} 
       AND feature_name = ${feature_name}
     `;
@@ -361,7 +364,7 @@ export async function PATCH(
           user_id, service_name, feature_name, quota_limit, 
           is_unlimited, reset_period, reason, created_by, is_active
         ) VALUES (
-          ${params.id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
+          ${id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
           ${finalIsUnlimited}, ${finalResetPeriod}, ${reason || null}, ${session.user.id}, true
         )
         RETURNING *
@@ -372,7 +375,7 @@ export async function PATCH(
     if (reset_usage) {
       await sql`
         DELETE FROM subscription_usage
-        WHERE user_id = ${params.id}
+        WHERE user_id = ${id}
         AND service_id IN (
           SELECT ss.id FROM subscription_services ss WHERE ss.name = ${service_name}
         )
@@ -389,7 +392,7 @@ export async function PATCH(
       session.user.id,
       'user_quota_override',
       {
-        target_user_id: params.id,
+        target_user_id: id,
         service_name,
         feature_name,
         quota_limit: finalQuotaLimit,

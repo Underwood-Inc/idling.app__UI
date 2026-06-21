@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Individual Global Guest Quota Management API
  *
@@ -118,11 +119,12 @@ async function logAdminAction(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<ApiResponse<{ quota: GlobalGuestQuota }> | ErrorResponse>
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -142,7 +144,7 @@ export async function PUT(
     }
 
     // Validate quota ID
-    const quotaId = parseInt(params.id);
+    const quotaId = parseInt(id);
     if (isNaN(quotaId) || quotaId <= 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid quota ID' },
@@ -293,9 +295,10 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<NextResponse<ApiResponse<{ deleted: boolean }> | ErrorResponse>> {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -315,7 +318,7 @@ export async function DELETE(
     }
 
     // Validate quota ID
-    const quotaId = parseInt(params.id);
+    const quotaId = parseInt(id);
     if (isNaN(quotaId) || quotaId <= 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid quota ID' },

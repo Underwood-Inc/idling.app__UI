@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Admin User Subscription Management API
  * Handles updating individual user subscriptions
@@ -34,9 +35,10 @@ const updateSubscriptionSchema = z.object({
 
 async function patchHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,7 +56,7 @@ async function patchHandler(
       );
     }
 
-    const subscriptionId = params.id;
+    const subscriptionId = id;
     const body = await request.json();
     const updateData = updateSubscriptionSchema.parse(body);
 

@@ -3,6 +3,7 @@ import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { PERMISSIONS } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
+import { IdRouteContext } from '@lib/types/next-route-context';
 
 interface UserSubscription {
   id: string;
@@ -29,16 +30,17 @@ interface UserSubscription {
 // GET /api/admin/users/[id]/subscriptions - Get user subscriptions
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
+    const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
@@ -59,6 +61,7 @@ async function getHandler(
     // Check if subscription system exists and get user subscriptions
     let subscriptions: UserSubscription[] = [];
     try {
+    const { id } = await params;
       subscriptions = await sql<UserSubscription[]>`
         SELECT 
           us.id::text,
