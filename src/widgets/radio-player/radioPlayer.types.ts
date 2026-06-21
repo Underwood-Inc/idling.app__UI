@@ -8,15 +8,43 @@ export type RadioStationGenreId =
   | 'ambient'
   | 'classical'
   | 'community'
+  | 'custom'
   | 'eclectic'
   | 'electronic'
   | 'jazz'
   | 'news'
   | 'public';
 
-export interface RadioStationGenre {
-  id: RadioStationGenreId;
-  label: string;
+/** How the `<audio>` element loads this source. */
+export type CustomAudioSourceKind = 'live-stream' | 'static-media';
+
+export interface CustomAudioSourceRecord {
+  id: string;
+  name: string;
+  url: string;
+  kind: CustomAudioSourceKind;
+  genre: RadioStationGenreId;
+  regionFlag: string;
+  blurb: string;
+  supportsTrackMetadata: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCustomAudioSourceInput {
+  name: string;
+  url: string;
+  kind: CustomAudioSourceKind;
+  genre?: RadioStationGenreId;
+  regionFlag?: string;
+  blurb?: string;
+  supportsTrackMetadata?: boolean;
+}
+
+export interface CustomAudioSourceValidationResult {
+  ok: boolean;
+  normalizedUrl?: string;
+  message?: string;
 }
 
 export interface RadioStationDefinition {
@@ -29,6 +57,13 @@ export interface RadioStationDefinition {
   blurb: string;
   /** When false, skip now-playing polls — stream does not publish ICY track titles. */
   supportsTrackMetadata?: boolean;
+  /** Present when the source was added in this browser (IndexedDB). */
+  customId?: string;
+}
+
+export interface RadioStationGenre {
+  id: RadioStationGenreId;
+  label: string;
 }
 
 export interface RadioStationGenreGroup {
@@ -43,6 +78,8 @@ export interface RadioStationGenreFilter {
 
 export interface RadioPlayerOptions {
   stations?: RadioStationCatalog;
+  /** Merged catalog + custom definitions for ICY metadata policy. */
+  stationDefinitions?: RadioStationDefinition[];
   storageKey?: string;
   autoplay?: boolean;
   nowPlayingEndpoint?: string;

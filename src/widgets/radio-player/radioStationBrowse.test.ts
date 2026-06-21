@@ -39,11 +39,22 @@ describe('radioStationBrowse', () => {
   });
 
   test('lists genre filters for genres that have available stations', () => {
-    const available = ['Jazz24', 'FIP', 'Radio Paradise'];
-    const filters = listRadioStationGenreFilters(RADIO_STATION_DEFINITIONS, available);
+    const available = ['Jazz24', 'FIP', 'Radio Paradise', 'My Jazz Stream'];
+    const definitions = [
+      ...RADIO_STATION_DEFINITIONS,
+      {
+        name: 'My Jazz Stream',
+        url: 'https://example.com/jazz.mp3',
+        genre: 'jazz' as const,
+        regionFlag: '★',
+        blurb: 'Custom live audio stream',
+        customId: 'custom-jazz',
+      },
+    ];
+    const filters = listRadioStationGenreFilters(definitions, available);
 
     expect(filters.map((filter) => filter.genre.id)).toEqual(['eclectic', 'jazz']);
-    expect(filters.find((filter) => filter.genre.id === 'jazz')?.count).toBe(1);
+    expect(filters.find((filter) => filter.genre.id === 'jazz')?.count).toBe(2);
   });
 
   test('filters stations by genre when a genre is selected', () => {

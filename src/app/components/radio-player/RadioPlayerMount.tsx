@@ -4,12 +4,14 @@ import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { mountRadioPlayer } from '@widgets/radio-player/radio-player';
 import {
   logRadioPlayerUnavailable,
-  probeRadioStations,
+  probeBuiltInAndCustomRadioStations,
 } from '@widgets/radio-player/probeRadioStations';
+import { buildCustomAudioSourceCatalog } from '@widgets/radio-player/customAudioSourceBrowse';
 import { RADIO_STATIONS } from '@widgets/radio-player/radioStationCatalog';
 import type {
   RadioPlayerHandle,
   RadioStationCatalog,
+  RadioStationDefinition,
 } from '@widgets/radio-player/radioPlayer.types';
 import { useEffect, useRef, useState } from 'react';
 import { RadioPlayerBar } from './RadioPlayerBar';
@@ -21,18 +23,36 @@ export interface RadioPlayerMountProps {
 
 type RadioPlayerMountState = 'probing' | 'ready' | 'unavailable';
 
+export interface RadioPlayerProbeSnapshot {
+  availableStations: RadioStationCatalog;
+  stationDefinitions: RadioStationDefinition[];
+}
+
 export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<RadioPlayerHandle | null>(null);
-  const { registerPlayer, unregisterPlayer } = useRadioPlayer();
+  const {
+    registerPlayer,
+    unregisterPlayer,
+    customSources,
+    customSourcesLoaded,
+    customSourcesRevision,
+    stationDefinitions,
+  } = useRadioPlayer();
   const [mountState, setMountState] = useState<RadioPlayerMountState>('probing');
-  const [availableStations, setAvailableStations] =
-    useState<RadioStationCatalog | null>(null);
+  const [probeSnapshot, setProbeSnapshot] = useState<RadioPlayerProbeSnapshot | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    if (!customSourcesLoaded) {
+      return undefined;
+    }
 
-    void probeRadioStations(RADIO_STATIONS).then((result) => {
+    let cancelled = false;
+    setMountState('probing');
+
+    const customCatalog = buildCustomAudioSourceCatalog(customSources);
+
+    void probeBuiltInAndCustomRadioStations(RADIO_STATIONS, customCatalog).then((result) => {
       if (cancelled) {
         return;
       }
@@ -40,28 +60,32 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
       const stationCount = Object.keys(result.available).length;
       if (stationCount === 0) {
         logRadioPlayerUnavailable(result.failures);
+        setProbeSnapshot(null);
         setMountState('unavailable');
         return;
       }
 
       if (result.failures.length > 0) {
         console.warn(
-          '[Idling Radio] Some stations are unreachable and were omitted from the player:',
+          '[Idling Radio] Some sources are unreachable and were omitted from the player:',
           result.failures
         );
       }
 
-      setAvailableStations(result.available);
+      setProbeSnapshot({
+        availableStations: result.available,
+        stationDefinitions,
+      });
       setMountState('ready');
     });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [customSources, customSourcesLoaded, customSourcesRevision, stationDefinitions]);
 
   useEffect(() => {
-    if (mountState !== 'ready' || !availableStations) {
+    if (mountState !== 'ready' || !probeSnapshot) {
       return undefined;
     }
 
@@ -73,7 +97,8 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
     document.body.classList.add('has-radio-player');
     playerRef.current = mountRadioPlayer(host, {
       autoplay,
-      stations: availableStations,
+      stations: probeSnapshot.availableStations,
+      stationDefinitions: probeSnapshot.stationDefinitions,
       headless: true,
     });
     registerPlayer(playerRef.current);
@@ -86,7 +111,13 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
       document.documentElement.style.removeProperty('--irp-bar-height');
       document.documentElement.style.removeProperty('--irp-dock-height');
     };
-  }, [autoplay, availableStations, mountState, registerPlayer, unregisterPlayer]);
+  }, [
+    autoplay,
+    mountState,
+    probeSnapshot,
+    registerPlayer,
+    unregisterPlayer,
+  ]);
 
   if (mountState !== 'ready') {
     return null;

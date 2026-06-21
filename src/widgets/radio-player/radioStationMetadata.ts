@@ -1,4 +1,5 @@
 import { RADIO_STATION_DEFINITIONS } from './radioStationCatalog';
+import type { RadioStationDefinition } from './radioPlayer.types';
 
 export const RADIO_NO_TRACK_METADATA_STORAGE_KEY = 'idling-radio-no-track-metadata';
 
@@ -9,7 +10,26 @@ const catalogMetadataSupport = new Map<string, boolean>(
   ])
 );
 
+let runtimeMetadataSupport: Map<string, boolean> | null = null;
+
+export function setRuntimeStationDefinitions(definitions: RadioStationDefinition[]): void {
+  runtimeMetadataSupport = new Map(
+    definitions.map((definition) => [
+      definition.name,
+      definition.supportsTrackMetadata !== false,
+    ])
+  );
+}
+
+export function clearRuntimeStationDefinitions(): void {
+  runtimeMetadataSupport = null;
+}
+
 export function getCatalogTrackMetadataSupport(stationName: string): boolean {
+  if (runtimeMetadataSupport?.has(stationName)) {
+    return runtimeMetadataSupport.get(stationName) ?? false;
+  }
+
   return catalogMetadataSupport.get(stationName) ?? false;
 }
 

@@ -10,6 +10,7 @@ export const RADIO_STATION_GENRES: Record<RadioStationGenreId, RadioStationGenre
   ambient: { id: 'ambient', label: 'Ambient' },
   classical: { id: 'classical', label: 'Classical' },
   community: { id: 'community', label: 'Community' },
+  custom: { id: 'custom', label: 'Custom' },
   eclectic: { id: 'eclectic', label: 'Eclectic' },
   electronic: { id: 'electronic', label: 'Electronic' },
   jazz: { id: 'jazz', label: 'Jazz' },
@@ -18,6 +19,7 @@ export const RADIO_STATION_GENRES: Record<RadioStationGenreId, RadioStationGenre
 };
 
 const GENRE_ORDER: RadioStationGenreId[] = [
+  'custom',
   'eclectic',
   'jazz',
   'classical',
@@ -30,6 +32,10 @@ const GENRE_ORDER: RadioStationGenreId[] = [
 
 export function getRadioStationGenre(genreId: RadioStationGenreId): RadioStationGenre {
   return RADIO_STATION_GENRES[genreId];
+}
+
+export function listRadioStationGenres(): RadioStationGenre[] {
+  return GENRE_ORDER.map((genreId) => getRadioStationGenre(genreId));
 }
 
 export function groupRadioStationsByGenre(

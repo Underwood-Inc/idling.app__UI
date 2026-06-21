@@ -34,6 +34,8 @@ import { getBarVisualizerTheme } from './barVisualizerThemes';
 import {
   rememberTrackMetadataUnsupported,
   stationSupportsTrackMetadata,
+  setRuntimeStationDefinitions,
+  clearRuntimeStationDefinitions,
 } from './radioStationMetadata';
 import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
 import { createSpectrumNormalizer } from './spectrumNormalization';
@@ -175,6 +177,13 @@ export function mountRadioPlayer(mountNode, options = {}) {
   const storageKey = options.storageKey ?? RADIO_PLAYER_STORAGE_KEY;
   const nowPlayingEndpoint = options.nowPlayingEndpoint ?? '/api/radio/now-playing';
   const headless = options.headless === true;
+
+  if (options.stationDefinitions?.length) {
+    setRuntimeStationDefinitions(options.stationDefinitions);
+  } else {
+    clearRuntimeStationDefinitions();
+  }
+
   const stationNames = Object.keys(stations);
   const saved = localStorage.getItem(storageKey);
   let activeName = saved && stations[saved] ? saved : stationNames[0];
@@ -953,6 +962,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
       source?.disconnect();
       analyser?.disconnect();
       void audioCtx?.close();
+      clearRuntimeStationDefinitions();
       root.remove();
     },
     getStation: () => activeName,

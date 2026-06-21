@@ -61,6 +61,10 @@ async function probeRadioStationsInBrowser(
   timeoutMs: number
 ): Promise<RadioStationProbeResult> {
   const entries = Object.entries(catalog);
+  if (entries.length === 0) {
+    return { available: {}, failures: [] };
+  }
+
   const probeResults = await Promise.all(
     entries.map(async ([name, url]) => {
       const result = await probeSingleStation(name, url, timeoutMs);
@@ -81,6 +85,30 @@ async function probeRadioStationsInBrowser(
   });
 
   return { available, failures };
+}
+
+/** Probe a catalog in the browser only (used for user-added custom sources). */
+export async function probeRadioCatalogInBrowser(
+  catalog: RadioStationCatalog,
+  options: ProbeRadioStationsOptions = {}
+): Promise<RadioStationProbeResult> {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
+  return probeRadioStationsInBrowser(catalog, timeoutMs);
+}
+
+/** Probe built-in stations (server route when available) plus custom sources in-browser. */
+export async function probeBuiltInAndCustomRadioStations(
+  builtInCatalog: RadioStationCatalog,
+  customCatalog: RadioStationCatalog,
+  options: ProbeRadioStationsOptions = {}
+): Promise<RadioStationProbeResult> {
+  const builtInResult = await probeRadioStations(builtInCatalog, options);
+  const customResult = await probeRadioCatalogInBrowser(customCatalog, options);
+
+  return {
+    available: { ...builtInResult.available, ...customResult.available },
+    failures: [...builtInResult.failures, ...customResult.failures],
+  };
 }
 
 /**

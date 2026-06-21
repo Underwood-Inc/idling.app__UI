@@ -10,17 +10,19 @@ import type {
   BarVisualizerPreferences,
 } from '@widgets/radio-player/barVisualizer.types';
 import { BAR_VISUALIZER_PRESET_DEFINITIONS } from '@widgets/radio-player/barVisualizerPresets';
-import { RADIO_STATION_DEFINITIONS } from '@widgets/radio-player/radioStationCatalog';
 import type { RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
+import { isCustomAudioSourceDefinition } from '@widgets/radio-player/customAudioSourceBrowse';
 import {
   findRadioStationDefinition,
   filterRadioStationsByGenre,
   getRadioStationGenre,
   listAvailableRadioStations,
   listRadioStationGenreFilters,
+  listRadioStationGenres,
 } from '@widgets/radio-player/radioStationBrowse';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
 import styles from './RadioPlayerBar.module.css';
 
 export interface RadioPlayerBarPlaybackState {
@@ -135,7 +137,12 @@ export function RadioPlayerVolumeStepper({ volume, onChange }: RadioPlayerVolume
 }
 
 export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
-  const { handle: contextHandle } = useRadioPlayer();
+  const {
+    handle: contextHandle,
+    stationDefinitions,
+    removeCustomSource,
+    updateCustomSourceGenre,
+  } = useRadioPlayer();
   const {
     isActive,
     enterVisualizerMode,
@@ -153,6 +160,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const [playback, setPlayback] = useState<RadioPlayerBarPlaybackState | null>(null);
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
   const [stationGenreFilter, setStationGenreFilter] = useState<RadioStationGenreId | null>(null);
+  const [showCustomSourceForm, setShowCustomSourceForm] = useState(false);
 
   useEffect(() => {
     if (!handle) {
@@ -229,28 +237,26 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const stationNames = handle?.getStationNames() ?? [];
 
   const availableStations = useMemo(
-    () => listAvailableRadioStations(RADIO_STATION_DEFINITIONS, stationNames),
-    [stationNames]
+    () => listAvailableRadioStations(stationDefinitions, stationNames),
+    [stationDefinitions, stationNames]
   );
 
   const stationGenreFilters = useMemo(
-    () => listRadioStationGenreFilters(RADIO_STATION_DEFINITIONS, stationNames),
-    [stationNames]
+    () => listRadioStationGenreFilters(stationDefinitions, stationNames),
+    [stationDefinitions, stationNames]
   );
 
   const filteredStations = useMemo(
     () => filterRadioStationsByGenre(availableStations, stationGenreFilter),
     [availableStations, stationGenreFilter]
   );
+  const genreOptions = listRadioStationGenres();
 
   if (!handle || !playback) {
     return null;
   }
 
-  const activeStation = findRadioStationDefinition(
-    RADIO_STATION_DEFINITIONS,
-    playback.stationName
-  );
+  const activeStation = findRadioStationDefinition(stationDefinitions, playback.stationName);
   const activeSpectrumPreset =
     RADIO_VISUALIZER_PRESETS[spectrumPresetIndex] ?? RADIO_VISUALIZER_PRESETS[0];
   const activeBarPreset =
@@ -321,41 +327,111 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             ))}
           </div>
           <div className={styles.stationList} role="group" aria-label="Stations">
-            {filteredStations.map((station) => (
-              <button
-                key={station.name}
-                type="button"
-                className={`${styles.stationRow} no-glass`}
-                aria-pressed={station.name === playback.stationName}
-                onClick={() => {
-                  handle.setStation(station.name);
-                  setActivePanel(null);
-                  setStationGenreFilter(null);
-                  setPlayback((current) =>
-                    current ? { ...current, stationName: station.name } : current
-                  );
+            {filteredStations.map((station) => {
+              const isCustom = isCustomAudioSourceDefinition(station);
+              const isActiveStation = station.name === playback.stationName;
+
+              return (
+                <div
+                  key={station.name}
+                  className={styles.stationRow}
+                  data-active={isActiveStation ? 'true' : 'false'}
+                >
+                  <button
+                    type="button"
+                    className={`${styles.stationRow__select} no-glass`}
+                    aria-pressed={isActiveStation}
+                    onClick={() => {
+                      handle.setStation(station.name);
+                      setActivePanel(null);
+                      setStationGenreFilter(null);
+                      setPlayback((current) =>
+                        current ? { ...current, stationName: station.name } : current
+                      );
+                    }}
+                  >
+                    <span className={styles.stationRow__flag} aria-hidden="true">
+                      {station.regionFlag}
+                    </span>
+                    <span className={styles.stationRow__body}>
+                      <span className={styles.stationRow__name}>{station.name}</span>
+                      <span className={styles.stationRow__blurb}>{station.blurb}</span>
+                    </span>
+                    {isActiveStation ? (
+                      <SiteIcon
+                        id="check"
+                        className={styles.stationRow__check}
+                        sizeRem={0.95}
+                        title=""
+                      />
+                    ) : (
+                      <span className={styles.stationRow__checkSpacer} aria-hidden="true" />
+                    )}
+                  </button>
+                  {isCustom ? (
+                    <select
+                      className={styles.stationRow__genreSelect}
+                      value={station.genre}
+                      aria-label={`Genre for ${station.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                      }}
+                      onChange={(event) => {
+                        void updateCustomSourceGenre(
+                          station.customId,
+                          event.target.value as RadioStationGenreId
+                        );
+                      }}
+                    >
+                      {genreOptions.map((genre) => (
+                        <option key={genre.id} value={genre.id}>
+                          {genre.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className={styles.stationRow__genre}>
+                      {getRadioStationGenre(station.genre).label}
+                    </span>
+                  )}
+                  {isCustom ? (
+                    <button
+                      type="button"
+                      className={`${styles.stationRow__remove} no-glass`}
+                      aria-label={`Remove ${station.name}`}
+                      title={`Remove ${station.name}`}
+                      onClick={() => {
+                        void removeCustomSource(station.customId);
+                      }}
+                    >
+                      <SiteIcon id="trash" sizeRem={0.85} title="" />
+                    </button>
+                  ) : (
+                    <span className={styles.stationRow__removeSpacer} aria-hidden="true" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className={styles.customSourcePanel}>
+            <button
+              type="button"
+              className={`${styles.customSourceToggle} no-glass`}
+              aria-expanded={showCustomSourceForm}
+              onClick={() => {
+                setShowCustomSourceForm((current) => !current);
+              }}
+            >
+              {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
+            </button>
+            {showCustomSourceForm ? (
+              <RadioPlayerCustomSourceForm
+                onAdded={(genre) => {
+                  setShowCustomSourceForm(false);
+                  setStationGenreFilter(genre);
                 }}
-              >
-                <span className={styles.stationRow__flag} aria-hidden="true">
-                  {station.regionFlag}
-                </span>
-                <span className={styles.stationRow__body}>
-                  <span className={styles.stationRow__name}>{station.name}</span>
-                  <span className={styles.stationRow__blurb}>{station.blurb}</span>
-                </span>
-                <span className={styles.stationRow__genre}>
-                  {getRadioStationGenre(station.genre).label}
-                </span>
-                {station.name === playback.stationName ? (
-                  <SiteIcon
-                    id="check"
-                    className={styles.stationRow__check}
-                    sizeRem={0.95}
-                    title=""
-                  />
-                ) : null}
-              </button>
-            ))}
+              />
+            ) : null}
           </div>
         </section>
       ) : null}

@@ -10,10 +10,31 @@ const CATALOG_NO_TRACK_METADATA = new Set([
   'RNZ National',
 ]);
 
+/** @type {Map<string, boolean> | null} */
+let runtimeMetadataSupport = null;
+
 export const RADIO_NO_TRACK_METADATA_STORAGE_KEY = 'idling-radio-no-track-metadata';
+
+/** @param {import('./radioPlayer.types').RadioStationDefinition[]} definitions */
+export function setRuntimeStationDefinitions(definitions) {
+  runtimeMetadataSupport = new Map(
+    definitions.map((definition) => [
+      definition.name,
+      definition.supportsTrackMetadata !== false,
+    ])
+  );
+}
+
+export function clearRuntimeStationDefinitions() {
+  runtimeMetadataSupport = null;
+}
 
 /** @param {string} stationName */
 export function getCatalogTrackMetadataSupport(stationName) {
+  if (runtimeMetadataSupport?.has(stationName)) {
+    return runtimeMetadataSupport.get(stationName) ?? false;
+  }
+
   return !CATALOG_NO_TRACK_METADATA.has(stationName);
 }
 
