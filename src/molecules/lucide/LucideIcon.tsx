@@ -19,13 +19,9 @@ function lucideIconClassName(className?: string): string {
 }
 
 function renderLucideNode(node: LucideIconElementNode, key: string) {
-  const [tag, attrs, children] = node;
+  const [tag, attrs] = node;
 
-  return createElement(
-    tag,
-    { key, ...attrs },
-    children?.map((child, index) => renderLucideNode(child, `${key}-${index}`))
-  );
+  return createElement(tag, { key, ...attrs });
 }
 
 export function LucideIcon({ icon, sizeRem = 1, className, title }: LucideIconProps) {
@@ -43,7 +39,7 @@ export function LucideIcon({ icon, sizeRem = 1, className, title }: LucideIconPr
           ...DEFAULT_SVG_ATTRIBUTES,
           color: 'currentColor',
         },
-        icon.map((node, index) => renderLucideNode(node as LucideIconElementNode, `icon-${index}`))
+        icon.map((node, index) => renderLucideNode(node, `icon-${index}`))
       )}
     </span>
   );

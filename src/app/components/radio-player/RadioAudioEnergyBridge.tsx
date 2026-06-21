@@ -6,8 +6,8 @@ import {
   computeRadioAudioEnergy,
   EMPTY_RADIO_AUDIO_ENERGY,
   smoothRadioAudioEnergy,
-  type RadioAudioEnergy,
 } from '@lib/audio/computeRadioAudioEnergy';
+import type { RadioAudioEnergyBands } from '@lib/audio/radioAudioEnergy.types';
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { useEffect } from 'react';
 
@@ -15,9 +15,9 @@ const ATTACK = 0.28;
 const RELEASE = 0.12;
 const ENERGY_IDLE_THRESHOLD = 0.004;
 
-function hasMeaningfulEnergy(energy: RadioAudioEnergy): boolean {
+function hasMeaningfulEnergy(energy: RadioAudioEnergyBands): boolean {
   return (
-    energy.overall > ENERGY_IDLE_THRESHOLD ||
+    energy.energy > ENERGY_IDLE_THRESHOLD ||
     energy.bass > ENERGY_IDLE_THRESHOLD ||
     energy.mid > ENERGY_IDLE_THRESHOLD ||
     energy.treble > ENERGY_IDLE_THRESHOLD
@@ -35,7 +35,7 @@ export function RadioAudioEnergyBridge() {
 
     let rafId = 0;
     let loopActive = false;
-    let smoothed: RadioAudioEnergy = { ...EMPTY_RADIO_AUDIO_ENERGY };
+    let smoothed: RadioAudioEnergyBands = { ...EMPTY_RADIO_AUDIO_ENERGY };
     let frequencyData = new Uint8Array(0);
 
     const stopLoop = () => {

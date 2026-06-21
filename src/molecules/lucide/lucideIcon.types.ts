@@ -1,14 +1,9 @@
-import type { Undo2 } from 'lucide';
+import type { IconNode } from 'lucide';
 
 /** Lucide icon node array (vanilla `lucide` package export shape). */
-export type LucideIconComponent = typeof Undo2;
+export type LucideIconComponent = IconNode;
 
-export interface LucideIconElementNode {
-  0: string;
-  1: Record<string, string | number | undefined>;
-  2?: LucideIconElementNode[];
-  length: 2 | 3;
-}
+export type LucideIconElementNode = [string, Record<string, string | number | undefined>];
 
 export interface LucideIconProps {
   icon: LucideIconComponent;
