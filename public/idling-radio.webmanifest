@@ -1,5 +1,5 @@
 {
-  "id": "idling-radio",
+  "id": "/idling-radio",
   "name": "Idling Radio",
   "short_name": "Radio",
   "description": "Ambient radio player with dock controls and fullscreen visualizer",
