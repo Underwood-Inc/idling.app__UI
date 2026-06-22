@@ -1,10 +1,16 @@
-import { IDLING_RADIO_PWA_START_PATH } from '@lib/radio-pwa/constants';
+import {
+  IDLING_RADIO_PWA_START_PATH,
+  RADIO_PWA_INSTALLED_STORAGE_KEY,
+  RADIO_PWA_MANIFEST_HREF,
+} from '@lib/radio-pwa/constants';
+import {
+  clearRadioPwaInstallIntent,
+  isRadioPwaInstallIntentActive,
+  setRadioPwaInstallIntent,
+} from '@lib/radio-pwa/intent';
+import { clearRadioPwaInstallPrompt } from '@lib/radio-pwa/installPrompt';
 
 export { IDLING_RADIO_PWA_START_PATH as RADIO_PWA_START_PATH };
-
-export const RADIO_PWA_MANIFEST_HREF = '/idling-radio.webmanifest';
-export const RADIO_PWA_INSTALLED_STORAGE_KEY = 'idling-radio-pwa-installed';
-export const RADIO_PWA_INSTALL_INTENT_STORAGE_KEY = 'idling-radio-pwa-install-intent';
 
 export function isStandalonePwa(): boolean {
   if (typeof window === 'undefined') {
@@ -35,29 +41,31 @@ export function isRadioPwaInstalled(): boolean {
   return localStorage.getItem(RADIO_PWA_INSTALLED_STORAGE_KEY) === '1';
 }
 
-export function isRadioPwaInstallIntentActive(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  return localStorage.getItem(RADIO_PWA_INSTALL_INTENT_STORAGE_KEY) === '1';
-}
+export { isRadioPwaInstallIntentActive };
 
 export function markRadioPwaInstalled(): void {
   localStorage.setItem(RADIO_PWA_INSTALLED_STORAGE_KEY, '1');
-  localStorage.removeItem(RADIO_PWA_INSTALL_INTENT_STORAGE_KEY);
+  clearRadioPwaInstallIntent();
+  clearRadioPwaInstallPrompt();
   restoreMainSiteManifestLink();
 }
 
-export function clearRadioPwaInstallIntent(): void {
-  localStorage.removeItem(RADIO_PWA_INSTALL_INTENT_STORAGE_KEY);
+export function clearRadioPwaInstallIntentState(): void {
+  clearRadioPwaInstallIntent();
+  clearRadioPwaInstallPrompt();
   restoreMainSiteManifestLink();
 }
 
-export function beginRadioPwaInstallFlow(): void {
-  localStorage.setItem(RADIO_PWA_INSTALL_INTENT_STORAGE_KEY, '1');
+/** One reload after intent is set so SSR serves the radio manifest before installability is evaluated. */
+export function beginRadioPwaInstallFlow(): boolean {
+  if (isRadioPwaInstallIntentActive()) {
+    return false;
+  }
+
+  setRadioPwaInstallIntent();
   setRadioPwaManifestLink();
   window.location.reload();
+  return true;
 }
 
 export function setRadioPwaManifestLink(): void {

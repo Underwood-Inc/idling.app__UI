@@ -1242,33 +1242,56 @@
 }
 
 @media (max-width: 860px) {
+  /* Keep useRadioDockInlineVisualizer in sync with this breakpoint. */
   .row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.55rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.55rem;
+    min-height: 3.25rem;
+    padding: 0.5rem 0.65rem;
   }
 
-  .meta {
-    width: auto;
-    max-width: 100%;
+  .lead {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 0.65rem;
+  }
+
+  .metaBlock {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+
+  .metaBlock[data-custom-width='true'] {
+    flex: 1 1 auto;
+    width: auto !important;
+  }
+
+  .metaResizeHandle {
+    display: none;
+  }
+
+  .viz {
+    display: none;
   }
 
   .tools {
+    flex: 1 1 100%;
     flex-wrap: wrap;
     justify-content: flex-end;
+    gap: 0.35rem;
     margin-left: 0;
     width: 100%;
   }
 
-  .viz[data-layout='wide'] {
-    flex: 1 1 100%;
-    width: 100%;
-    max-width: none;
+  .volume {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 10.5rem;
   }
 
-  .volume {
-    flex: 1 1 100%;
-    min-width: 0;
+  .volume__slider {
+    min-width: 3.25rem;
   }
 
   .volume__pct {
@@ -1284,6 +1307,19 @@
 }
 
 @media (max-width: 560px) {
+  .row {
+    gap: 0.4rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .tools {
+    gap: 0.3rem;
+  }
+
+  .volume {
+    max-width: 9rem;
+  }
+
   .textBtn__label {
     display: none;
   }

@@ -2,3 +2,13 @@
 export const IDLING_RADIO_PWA_START_PATH = '/idling-radio';
 
 export const IDLING_RADIO_PWA_SHELL_HEADER = 'x-idling-radio-shell';
+
+export const RADIO_PWA_INSTALL_INTENT_COOKIE = 'idling-radio-pwa-install-intent';
+
+export const RADIO_PWA_MANIFEST_HREF = '/idling-radio.webmanifest';
+
+export const RADIO_PWA_INSTALLED_STORAGE_KEY = 'idling-radio-pwa-installed';
+
+export const RADIO_PWA_INSTALL_INTENT_STORAGE_KEY = 'idling-radio-pwa-install-intent';
+
+export const RADIO_PWA_INSTALL_READY_EVENT = 'idling-radio-install-ready';
