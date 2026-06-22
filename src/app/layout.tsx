@@ -4,12 +4,13 @@ import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
-import { VisualizerModeGate } from './components/visualizer-mode/VisualizerModeGate';
+import { IDLING_RADIO_PWA_SHELL_HEADER } from '@lib/radio-pwa/constants';
 import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import Script from 'next/script';
+import { headers } from 'next/headers';
 import React from 'react';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
@@ -18,6 +19,8 @@ import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
+import { VisualizerModeGate } from './components/visualizer-mode/VisualizerModeGate';
+import { RadioPwaStandaloneGuardScript } from './idling-radio/RadioPwaStandaloneGuardScript';
 import './globals.css';
 import '../css/mappy-cursors/cursors.css';
 
@@ -59,21 +62,22 @@ export const metadata: Metadata = {
   },
   other: {
     'google-adsense-account': 'ca-pub-1546133996920392'
-  }
+  },
+  manifest: '/manifest.json',
+  themeColor: '#ff6b35',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
+
   return (
     <html lang="en">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#ff6b35" />
-      </head>
       <body>
+        {isRadioShell ? <RadioPwaStandaloneGuardScript /> : null}
         <AmbientBackgroundWrapper />
         {/* Google AdSense */}
         <Script
@@ -94,30 +98,38 @@ export default function RootLayout({
                   <UserDataBatchProvider>
                     <RadioPlayerProvider>
                       <VisualizerModeProvider>
-                      <div data-visualizer-layout>
-                        <NavigationLoadingBar />
-                      </div>
-                      <div data-visualizer-layout className="sticky-header-wrapper">
-                        <Header />
-                      </div>
-                      <div data-visualizer-layout>
-                        <MessageTickerWithInterval />
-                      </div>
-                      <main data-visualizer-layout>{children}</main>
-                      <div data-visualizer-layout>
-                        <Footer />
-                      </div>
-                      <div data-visualizer-layout>
-                        <OverlayRendererWrapper />
-                      </div>
-                      <div data-visualizer-layout>
-                        <ServiceWorkerRegistration />
-                      </div>
-                      <div data-visualizer-layout>
-                        <PWAInstallPrompt />
-                      </div>
-                      <RadioPlayerMountWrapper />
-                      <VisualizerModeGate />
+                        {!isRadioShell ? (
+                          <>
+                            <div data-visualizer-layout>
+                              <NavigationLoadingBar />
+                            </div>
+                            <div data-visualizer-layout className="sticky-header-wrapper">
+                              <Header />
+                            </div>
+                            <div data-visualizer-layout>
+                              <MessageTickerWithInterval />
+                            </div>
+                          </>
+                        ) : null}
+                        <main data-visualizer-layout>{children}</main>
+                        {!isRadioShell ? (
+                          <>
+                            <div data-visualizer-layout>
+                              <Footer />
+                            </div>
+                            <div data-visualizer-layout>
+                              <OverlayRendererWrapper />
+                            </div>
+                            <div data-visualizer-layout>
+                              <PWAInstallPrompt />
+                            </div>
+                          </>
+                        ) : null}
+                        <div data-visualizer-layout>
+                          <ServiceWorkerRegistration />
+                        </div>
+                        <RadioPlayerMountWrapper />
+                        <VisualizerModeGate />
                       </VisualizerModeProvider>
                     </RadioPlayerProvider>
                   </UserDataBatchProvider>

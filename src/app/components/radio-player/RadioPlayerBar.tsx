@@ -36,6 +36,7 @@ import {
   saveRadioStationGenreFilter,
 } from '@widgets/radio-player/radioStationGenreFilterPersistence';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
+import { RadioPwaInstallButton } from '../radio-pwa/RadioPwaInstallButton';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styles from './RadioPlayerBar.module.css';
 import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
@@ -903,6 +904,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           />
 
           <span className={styles.divider} aria-hidden="true" />
+
+          <RadioPwaInstallButton />
 
           <button
             type="button"

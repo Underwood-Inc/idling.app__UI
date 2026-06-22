@@ -1,3 +1,4 @@
+import { IDLING_RADIO_PWA_SHELL_HEADER, IDLING_RADIO_PWA_START_PATH } from '@lib/radio-pwa/constants';
 import { NAV_PATHS, PUBLIC_ROUTES } from '@lib/routes';
 import { getSecureCacheBustingHeaders } from '@lib/security/secure-logout';
 import NextAuth from 'next-auth';
@@ -85,6 +86,12 @@ export default auth(async (req: NextRequest & { auth: any }) => {
 
     // Continue to API route for public routes
     return NextResponse.next();
+  }
+
+  if (nextUrl.pathname === IDLING_RADIO_PWA_START_PATH) {
+    const response = NextResponse.next();
+    response.headers.set(IDLING_RADIO_PWA_SHELL_HEADER, '1');
+    return response;
   }
 
   // Handle page route authentication with universal security checking

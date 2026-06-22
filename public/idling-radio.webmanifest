@@ -1,0 +1,35 @@
+{
+  "id": "idling-radio",
+  "name": "Idling Radio",
+  "short_name": "Radio",
+  "description": "Ambient radio player with dock controls and fullscreen visualizer",
+  "start_url": "/idling-radio",
+  "scope": "/idling-radio",
+  "display": "standalone",
+  "background_color": "#0a0a0e",
+  "theme_color": "#e5c185",
+  "orientation": "any",
+  "categories": ["music", "entertainment"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
