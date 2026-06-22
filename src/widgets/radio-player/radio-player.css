@@ -560,6 +560,13 @@
   z-index: -1;
 }
 
+.irp.irp--headless .irp__viz {
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  height: 100%;
+}
+
 body.has-radio-player {
   padding-bottom: calc(var(--irp-bar-height, 5.5rem) + 1.25rem);
 }

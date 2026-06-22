@@ -23,32 +23,62 @@ export const RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE: RadioFullscreenSpectrum
   max: 1.5,
 };
 
+export interface RadioFullscreenVisualHeightRatioRange {
+  min: number;
+  max: number;
+  default: number;
+}
+
+/** Fraction of the fullscreen frame used for visualizer height (dock-style band, not full viewport). */
+export const RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE: RadioFullscreenVisualHeightRatioRange = {
+  min: 0.12,
+  max: 0.55,
+  default: 0.28,
+};
+
 export interface RadioFullscreenBarHeightMultiplierRange {
   min: number;
   max: number;
 }
 
-/** Visual / amplitude multiplier applied from the bar-height slider. */
+/** Amplitude / sensitivity multiplier derived from the height slider. */
 export const RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE: RadioFullscreenBarHeightMultiplierRange = {
   min: 0.45,
   max: 1.15,
 };
 
-export function resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight: number): number {
+export function resolveRadioFullscreenVisualHeightRatio(spectrumBarHeight: number): number {
   const height = clampRadioFullscreenSpectrumBarHeight(spectrumBarHeight);
   const sliderMin = RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.min;
   const sliderMax = RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.max;
+  const ratioMin = RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.min;
+  const ratioDefault = RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.default;
+  const ratioMax = RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.max;
 
   if (height <= 1) {
     const progress = (height - sliderMin) / (1 - sliderMin);
-    return (
-      RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min +
-      progress * (1 - RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min)
-    );
+    return ratioMin + progress * (ratioDefault - ratioMin);
   }
 
   const progress = (height - 1) / (sliderMax - 1);
-  return 1 + progress * (RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.max - 1);
+  return ratioDefault + progress * (ratioMax - ratioDefault);
+}
+
+export function resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight: number): number {
+  const ratio = resolveRadioFullscreenVisualHeightRatio(spectrumBarHeight);
+  const ratioMin = RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.min;
+  const ratioDefault = RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.default;
+  const ratioMax = RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.max;
+  const multiplierMin = RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min;
+  const multiplierMax = RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.max;
+
+  if (ratio <= ratioDefault) {
+    const progress = (ratio - ratioMin) / (ratioDefault - ratioMin);
+    return multiplierMin + progress * (1 - multiplierMin);
+  }
+
+  const progress = (ratio - ratioDefault) / (ratioMax - ratioDefault);
+  return 1 + progress * (multiplierMax - 1);
 }
 
 export const RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY =

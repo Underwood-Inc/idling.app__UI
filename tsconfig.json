@@ -74,7 +74,12 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "vitest.config.ts",
+    "vitest.env.ts",
+    "vitest.setup.ts",
+    "vitest.global-mocks.ts",
+    "vitest.jest-shim.ts"
   ],
   "ts-node": {
     "esm": true,

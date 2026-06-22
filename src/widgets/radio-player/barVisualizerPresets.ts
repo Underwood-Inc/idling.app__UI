@@ -50,8 +50,13 @@ function roundRect(
 }
 
 function paintCanvasBg(drawContext: BarVisualizerDrawContext): void {
-  const { ctx, width, height, theme } = drawContext;
+  const { ctx, width, height, theme, fullscreen } = drawContext;
   ctx.clearRect(0, 0, width, height);
+
+  if (fullscreen) {
+    return;
+  }
+
   ctx.fillStyle = theme.canvasBg;
   roundRect(ctx, 0, 0, width, height, 10);
   ctx.fill();

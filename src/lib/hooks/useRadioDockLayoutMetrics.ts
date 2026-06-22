@@ -39,8 +39,10 @@ export function useRadioDockLayoutMetrics({
     const observer = new ResizeObserver(syncHeight);
     observer.observe(player);
     observer.observe(row);
+    window.addEventListener('resize', syncHeight);
 
     return () => {
+      window.removeEventListener('resize', syncHeight);
       observer.disconnect();
       document.documentElement.style.removeProperty('--irp-bar-height');
       document.documentElement.style.removeProperty('--irp-dock-height');
