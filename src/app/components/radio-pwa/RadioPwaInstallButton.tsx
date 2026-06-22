@@ -1,27 +1,35 @@
 'use client';
 
+import { RADIO_PWA_INSTALL_READY_EVENT } from '@lib/radio-pwa/constants';
+import {
+  ensureRadioPwaInstallPromptListener,
+  getRadioPwaDeferredPrompt,
+  subscribeRadioPwaInstallPrompt,
+} from '@lib/radio-pwa/installPrompt';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import {
   beginRadioPwaInstallFlow,
-  clearRadioPwaInstallIntent,
+  clearRadioPwaInstallIntentState,
   isRadioPwaInstallIntentActive,
   isRadioPwaInstalled,
   isStandalonePwa,
   markRadioPwaInstalled,
   setRadioPwaManifestLink,
 } from './radioPwaAccess';
+import { setRadioPwaInstallIntent } from '@lib/radio-pwa/intent';
 import styles from './RadioPwaInstallButton.module.css';
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
-}
-
 export function RadioPwaInstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [hasPrompt, setHasPrompt] = useState(false);
   const [installIntent, setInstallIntent] = useState(false);
   const [hidden, setHidden] = useState(true);
+  const [awaitingPrompt, setAwaitingPrompt] = useState(false);
+
+  useLayoutEffect(() => {
+    ensureRadioPwaInstallPromptListener();
+    setHasPrompt(getRadioPwaDeferredPrompt() !== null);
+  }, []);
 
   useEffect(() => {
     if (isStandalonePwa() || isRadioPwaInstalled()) {
@@ -34,25 +42,34 @@ export function RadioPwaInstallButton() {
     setHidden(false);
 
     if (intentActive) {
+      setRadioPwaInstallIntent();
       setRadioPwaManifestLink();
+      setAwaitingPrompt(getRadioPwaDeferredPrompt() === null);
     }
 
-    const onBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      setDeferredPrompt(event as BeforeInstallPromptEvent);
+    const unsubscribe = subscribeRadioPwaInstallPrompt((prompt) => {
+      setHasPrompt(prompt !== null);
+      if (prompt) {
+        setAwaitingPrompt(false);
+      }
+    });
+
+    const onInstallReady = () => {
+      setHasPrompt(getRadioPwaDeferredPrompt() !== null);
+      setAwaitingPrompt(false);
     };
 
     const onAppInstalled = () => {
       markRadioPwaInstalled();
-      setDeferredPrompt(null);
       setHidden(true);
     };
 
-    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+    window.addEventListener(RADIO_PWA_INSTALL_READY_EVENT, onInstallReady);
     window.addEventListener('appinstalled', onAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+      unsubscribe();
+      window.removeEventListener(RADIO_PWA_INSTALL_READY_EVENT, onInstallReady);
       window.removeEventListener('appinstalled', onAppInstalled);
     };
   }, []);
@@ -62,6 +79,7 @@ export function RadioPwaInstallButton() {
   }
 
   const handleClick = () => {
+    const deferredPrompt = getRadioPwaDeferredPrompt();
     if (deferredPrompt) {
       void (async () => {
         await deferredPrompt.prompt();
@@ -73,25 +91,35 @@ export function RadioPwaInstallButton() {
         }
 
         if (installIntent) {
-          clearRadioPwaInstallIntent();
+          clearRadioPwaInstallIntentState();
           setInstallIntent(false);
+          setAwaitingPrompt(false);
         }
       })();
       return;
     }
 
-    beginRadioPwaInstallFlow();
+    if (!installIntent) {
+      beginRadioPwaInstallFlow();
+      return;
+    }
+
+    setAwaitingPrompt(true);
   };
+
+  const isWaiting = awaitingPrompt && installIntent && !hasPrompt;
 
   return (
     <button
       type="button"
       className={`${styles.install} no-glass`}
-      aria-label="Install Idling Radio app"
+      aria-label={isWaiting ? 'Preparing Idling Radio install' : 'Install Idling Radio app'}
+      aria-busy={isWaiting}
+      disabled={isWaiting}
       onClick={handleClick}
     >
       <SiteIcon id="download" sizeRem={0.9} title="" />
-      <span className={styles.install__label}>Install</span>
+      <span className={styles.install__label}>{isWaiting ? 'Preparing…' : 'Install'}</span>
     </button>
   );
 }

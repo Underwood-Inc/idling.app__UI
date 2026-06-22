@@ -3,6 +3,7 @@
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
 import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
+import { useRadioDockInlineVisualizer } from '@lib/hooks/useRadioDockInlineVisualizer';
 import { useRadioMetaWidth } from '@lib/hooks/useRadioMetaWidth';
 import { HumanFriendlySearchHighlight } from '@molecules/humanFriendlySearch/HumanFriendlySearchHighlight';
 import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
@@ -223,6 +224,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const visualizerDensity = playback?.visualizerPrefs.density;
   const visualizerEnabled = playback?.visualizerPrefs.enabled ?? true;
   const vizDockLayout = getBarVisualizerDockLayout(visualizerPresetId ?? 'wave');
+  const showDockInlineVisualizer = useRadioDockInlineVisualizer();
   const { metaWidthPx, isResizing: isMetaResizing, beginResize: beginMetaResize, resetWidth: resetMetaWidth } =
     useRadioMetaWidth({
       metaBlockRef,
@@ -231,7 +233,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     });
 
   useLayoutEffect(() => {
-    if (!handle || !playbackReady || isActive || !visualizerEnabled) {
+    if (!handle || !playbackReady || isActive || !visualizerEnabled || !showDockInlineVisualizer) {
       return undefined;
     }
 
@@ -255,10 +257,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       observer.disconnect();
       window.removeEventListener('resize', onResize);
     };
-  }, [handle, isActive, playbackReady, visualizerEnabled]);
+  }, [handle, isActive, playbackReady, showDockInlineVisualizer, visualizerEnabled]);
 
   useLayoutEffect(() => {
-    if (!handle || !playbackReady || isActive || !visualizerEnabled) {
+    if (!handle || !playbackReady || isActive || !visualizerEnabled || !showDockInlineVisualizer) {
       return undefined;
     }
 
@@ -269,7 +271,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [handle, isActive, playbackReady, visualizerPresetId, visualizerDensity, vizDockLayout, visualizerEnabled]);
+  }, [handle, isActive, playbackReady, showDockInlineVisualizer, visualizerPresetId, visualizerDensity, vizDockLayout, visualizerEnabled]);
 
   useEffect(() => {
     if (!activePanel) {
@@ -885,7 +887,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           </div>
         </div>
 
-        {!isActive && playback.visualizerPrefs.enabled ? (
+        {!isActive && playback.visualizerPrefs.enabled && showDockInlineVisualizer ? (
           <div
             ref={canvasHostRef}
             className={styles.viz}

@@ -1,6 +1,7 @@
 'use client';
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { isRadioPwaInstallIntentActive } from '@lib/radio-pwa/intent';
 import React, { useEffect, useState } from 'react';
 import './PWAInstallPrompt.css';
 
@@ -49,6 +50,10 @@ const PWAInstallPrompt: React.FC = () => {
 
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
+      if (isRadioPwaInstallIntentActive()) {
+        return;
+      }
+
       e.preventDefault();
       const beforeInstallPromptEvent = e as BeforeInstallPromptEvent;
       setDeferredPrompt(beforeInstallPromptEvent);
