@@ -1,6 +1,7 @@
 'use client';
 
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
+import { resolveRadioFullscreenVisualHeightRatio } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import { useLayoutEffect, useRef } from 'react';
 import styles from './VisualizerMode.module.css';
 
@@ -8,16 +9,19 @@ export interface RadioBarVisualizerFullscreenProps {
   isActive: boolean;
   enabled: boolean;
   opacity: number;
+  barHeight: number;
 }
 
 export function RadioBarVisualizerFullscreen({
   isActive,
   enabled,
   opacity,
+  barHeight,
 }: RadioBarVisualizerFullscreenProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const { handle, isAvailable } = useRadioPlayer();
+  const visualHeightRatio = resolveRadioFullscreenVisualHeightRatio(barHeight);
 
   useLayoutEffect(() => {
     if (!isActive || !enabled || !isAvailable || !handle) {
@@ -48,13 +52,14 @@ export function RadioBarVisualizerFullscreen({
 
     const observer = new ResizeObserver(syncSize);
     observer.observe(frame);
+    observer.observe(host);
     window.addEventListener('resize', syncSize);
 
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', syncSize);
     };
-  }, [enabled, handle, isActive, isAvailable]);
+  }, [barHeight, enabled, handle, isActive, isAvailable]);
 
   if (!isActive || !enabled) {
     return null;
@@ -72,6 +77,9 @@ export function RadioBarVisualizerFullscreen({
         ref={hostRef}
         className={styles.barFullscreen}
         data-testid="radio-bar-visualizer-fullscreen"
+        style={{
+          ['--irp-fullscreen-viz-height-ratio' as string]: String(visualHeightRatio),
+        }}
       />
     </div>
   );

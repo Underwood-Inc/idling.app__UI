@@ -33,9 +33,9 @@ import {
 } from '@widgets/radio-player/radioStationGenreFilterPersistence';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import {
-  RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE,
   RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
-  resolveRadioFullscreenBarHeightMultiplier,
+  RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE,
+  resolveRadioFullscreenVisualHeightRatio,
 } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
@@ -409,7 +409,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       : activeBarPreset.label;
   const spectrumOpacityPct = Math.round(spectrumOpacity * 100);
   const spectrumBarHeightPct = Math.round(
-    resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight) * 100
+    resolveRadioFullscreenVisualHeightRatio(spectrumBarHeight) * 100
   );
 
   const subtitle = (() => {
@@ -705,7 +705,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               </div>
             </div>
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Bar height</h2>
+              <h2 className={styles.panelSection__title}>Visualizer height</h2>
               <div className={styles.opacityControl}>
                 <input
                   type="range"
@@ -714,10 +714,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   max={RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.max}
                   step={0.05}
                   value={spectrumBarHeight}
-                  disabled={!spectrumEnabled || fullscreenSource !== 'spectrum'}
-                  aria-label="Fullscreen spectrum bar height"
-                  aria-valuemin={Math.round(RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min * 100)}
-                  aria-valuemax={Math.round(RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.max * 100)}
+                  disabled={!spectrumEnabled}
+                  aria-label="Fullscreen visualizer height"
+                  aria-valuemin={Math.round(RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.min * 100)}
+                  aria-valuemax={Math.round(RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.max * 100)}
                   aria-valuenow={spectrumBarHeightPct}
                   aria-valuetext={`${spectrumBarHeightPct} percent`}
                   onChange={(event) => {
@@ -832,9 +832,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           <div
             ref={metaBlockRef}
             className={styles.metaBlock}
-            data-custom-width={metaWidthPx !== null ? 'true' : 'false'}
+            data-custom-width={metaWidthPx !== null && !isActive ? 'true' : 'false'}
             style={
-              metaWidthPx !== null
+              metaWidthPx !== null && !isActive
                 ? {
                     width: `${metaWidthPx}px`,
                     flex: '0 0 auto',
@@ -867,22 +867,24 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 <RadioPlayerOverflowText text={subtitle} className={styles.subtitle} as="p" />
               ) : null}
             </div>
-            <div
-              role="separator"
-              aria-orientation="vertical"
-              aria-label="Drag to widen station and track text. Double-click to reset."
-              aria-valuenow={metaWidthPx ?? undefined}
-              className={styles.metaResizeHandle}
-              data-mappy-cursor="ew-resize"
-              onPointerDown={(event) => {
-                event.preventDefault();
-                event.currentTarget.setPointerCapture(event.pointerId);
-                beginMetaResize(event.clientX);
-              }}
-              onDoubleClick={() => {
-                resetMetaWidth();
-              }}
-            />
+            {!isActive ? (
+              <div
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Drag to widen station and track text. Double-click to reset."
+                aria-valuenow={metaWidthPx ?? undefined}
+                className={styles.metaResizeHandle}
+                data-mappy-cursor="ew-resize"
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                  beginMetaResize(event.clientX);
+                }}
+                onDoubleClick={() => {
+                  resetMetaWidth();
+                }}
+              />
+            ) : null}
           </div>
         </div>
 

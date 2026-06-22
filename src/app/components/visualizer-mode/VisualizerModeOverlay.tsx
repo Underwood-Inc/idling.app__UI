@@ -40,6 +40,7 @@ export function VisualizerModeOverlay() {
         isActive={isActive}
         enabled={showBar}
         opacity={spectrumOpacity}
+        barHeight={spectrumBarHeight}
       />
       {!isAvailable ? (
         <p className={styles.overlay__emptyState} data-testid="visualizer-mode-overlay">

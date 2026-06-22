@@ -9,6 +9,7 @@ import {
   resolveRadioFullscreenLinearBoost,
   resolveRadioFullscreenRadialRadius,
   resolveRadioFullscreenSensitivity,
+  resolveRadioFullscreenVisualHeightRatio,
   saveRadioFullscreenVisualizerDisplay,
 } from './radioFullscreenVisualizerDisplay';
 
@@ -29,7 +30,13 @@ describe('radioFullscreenVisualizerDisplay', () => {
     expect(clampRadioFullscreenSpectrumBarHeight(1.25)).toBe(1.25);
   });
 
-  test('maps slider position to a gentler visual multiplier', () => {
+  test('maps slider position to a dock-style height ratio of the frame', () => {
+    expect(resolveRadioFullscreenVisualHeightRatio(0.35)).toBeCloseTo(0.12, 5);
+    expect(resolveRadioFullscreenVisualHeightRatio(1)).toBeCloseTo(0.28, 5);
+    expect(resolveRadioFullscreenVisualHeightRatio(1.5)).toBeCloseTo(0.55, 5);
+  });
+
+  test('maps slider position to a gentler amplitude multiplier', () => {
     expect(resolveRadioFullscreenBarHeightMultiplier(0.35)).toBeCloseTo(0.45, 5);
     expect(resolveRadioFullscreenBarHeightMultiplier(1)).toBe(1);
     expect(resolveRadioFullscreenBarHeightMultiplier(1.5)).toBeCloseTo(1.15, 5);
