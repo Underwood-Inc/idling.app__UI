@@ -10,6 +10,11 @@ export interface RadioPlayerOverflowTextProps {
   title?: string;
 }
 
+interface RadioPlayerOverflowTextInnerStyle extends CSSProperties {
+  '--overflow-distance'?: string;
+  '--overflow-duration'?: string;
+}
+
 const SCROLL_SPEED_PX_PER_SEC = 28;
 const MIN_SCROLL_DURATION_SEC = 4;
 
@@ -49,7 +54,7 @@ export function RadioPlayerOverflowText({
   }, [text]);
 
   const Tag = as as ElementType;
-  const innerStyle: CSSProperties | undefined = overflowing
+  const innerStyle: RadioPlayerOverflowTextInnerStyle | undefined = overflowing
     ? {
         '--overflow-distance': `${scrollDistance}px`,
         '--overflow-duration': scrollDuration,

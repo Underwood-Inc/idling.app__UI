@@ -1,31 +1,27 @@
 'use client';
 
-import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
-import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
-import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
-import { useRadioMetaWidth } from '@lib/hooks/useRadioMetaWidth';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { HumanFriendlySearchHighlight } from '@molecules/humanFriendlySearch/HumanFriendlySearchHighlight';
 import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
-import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
+import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
+import { useRadioMetaWidth } from '@lib/hooks/useRadioMetaWidth';
+import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
+import type { RadioPlayerHandle } from '@widgets/radio-player/radioPlayer.types';
 import type {
   BarVisualizerDensity,
   BarVisualizerPreferences,
 } from '@widgets/radio-player/barVisualizer.types';
 import { BAR_VISUALIZER_PRESET_DEFINITIONS, getBarVisualizerDockLayout } from '@widgets/radio-player/barVisualizerPresets';
+import type { RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
 import {
   CUSTOM_AUDIO_SOURCES_UI_ENABLED,
   isCustomAudioSourceDefinition,
 } from '@widgets/radio-player/customAudioSourceBrowse';
 import {
-  RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE,
-  RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
-  resolveRadioFullscreenBarHeightMultiplier,
-} from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
-import type { RadioPlayerHandle, RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
-import {
+  findRadioStationDefinition,
   filterRadioStationsByGenre,
   filterRadioStationsBySearch,
-  findRadioStationDefinition,
   getRadioStationGenre,
   isRadioStationInGenreFilter,
   listAvailableRadioStations,
@@ -36,10 +32,15 @@ import {
   saveRadioStationGenreFilter,
 } from '@widgets/radio-player/radioStationGenreFilterPersistence';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
+import {
+  RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE,
+  RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
+  resolveRadioFullscreenBarHeightMultiplier,
+} from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import styles from './RadioPlayerBar.module.css';
 import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
 import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
+import styles from './RadioPlayerBar.module.css';
 
 export interface RadioPlayerBarPlaybackState {
   isPlaying: boolean;
@@ -589,19 +590,22 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             })}
           </div>
           <div ref={customSourcePanelRef} className={styles.customSourcePanel}>
-            {CUSTOM_AUDIO_SOURCES_UI_ENABLED &&
-              <button
-                type="button"
-                className={`${styles.customSourceToggle} no-glass`}
-                aria-expanded={showCustomSourceForm}
-                title='Custom sources are not available yet'
-                onClick={() => {
-                  setShowCustomSourceForm((current) => !current);
-                }}
-              >
-                {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
-              </button>
-            }
+            <button
+              type="button"
+              className={`${styles.customSourceToggle} no-glass`}
+              aria-expanded={showCustomSourceForm}
+              disabled={!CUSTOM_AUDIO_SOURCES_UI_ENABLED}
+              title={
+                CUSTOM_AUDIO_SOURCES_UI_ENABLED
+                  ? undefined
+                  : 'Custom sources are not available yet'
+              }
+              onClick={() => {
+                setShowCustomSourceForm((current) => !current);
+              }}
+            >
+              {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
+            </button>
             {CUSTOM_AUDIO_SOURCES_UI_ENABLED && showCustomSourceForm ? (
               <RadioPlayerCustomSourceForm
                 onAdded={() => {
@@ -618,11 +622,11 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
         isActive ? (
           <section className={styles.panel} aria-label="Fullscreen visualizer style">
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Visualizer style</h2>
-              <div className={styles.optionList} role="group" aria-label="Fullscreen visualizer styles">
+              <div className={styles.optionList} role="listbox" aria-label="Fullscreen visualizer styles">
                 <button
                   type="button"
                   className={`${styles.optionRow} no-glass`}
+                  role="option"
                   aria-pressed={!spectrumEnabled}
                   onClick={() => {
                     setSpectrumEnabled(false);
@@ -635,6 +639,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     key={`bar-${preset.id}`}
                     type="button"
                     className={`${styles.optionRow} no-glass`}
+                    role="option"
                     aria-pressed={
                       spectrumEnabled &&
                       fullscreenSource === 'bar' &&
@@ -654,16 +659,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     {preset.label}
                   </button>
                 ))}
-              </div>
-            </div>
-            <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Spectrum styles</h2>
-              <div className={styles.optionList} role="group" aria-label="Fullscreen spectrum styles">
                 {RADIO_VISUALIZER_PRESETS.map((preset, index) => (
                   <button
                     key={preset.id}
                     type="button"
                     className={`${styles.optionRow} no-glass`}
+                    role="option"
                     aria-pressed={
                       spectrumEnabled &&
                       fullscreenSource === 'spectrum' &&
@@ -835,9 +836,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             style={
               metaWidthPx !== null
                 ? {
-                  width: `${metaWidthPx}px`,
-                  flex: '0 0 auto',
-                }
+                    width: `${metaWidthPx}px`,
+                    flex: '0 0 auto',
+                  }
                 : undefined
             }
           >

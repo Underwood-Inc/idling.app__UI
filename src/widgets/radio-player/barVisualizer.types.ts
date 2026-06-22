@@ -44,6 +44,7 @@ export interface BarVisualizerDrawContext {
   state: BarVisualizerDrawState;
   playing: boolean;
   barGap: number;
+  fullscreen?: boolean;
 }
 
 export type BarVisualizerPresetDrawer = (drawContext: BarVisualizerDrawContext) => void;

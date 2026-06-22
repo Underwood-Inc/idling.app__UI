@@ -15,7 +15,8 @@ export function RadioBarVisualizerFullscreen({
   enabled,
   opacity,
 }: RadioBarVisualizerFullscreenProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
   const { handle, isAvailable } = useRadioPlayer();
 
   useLayoutEffect(() => {
@@ -23,25 +24,35 @@ export function RadioBarVisualizerFullscreen({
       return undefined;
     }
 
-    const host = containerRef.current;
-    if (!host) {
+    const frame = frameRef.current;
+    const host = hostRef.current;
+    if (!frame || !host) {
       return undefined;
     }
 
     handle.mountBarCanvas(host);
 
-    const onResize = () => {
+    const syncSize = () => {
+      if (frame.clientWidth < 48) {
+        return;
+      }
+
       handle.resizeBarCanvas();
     };
 
-    onResize();
-    const observer = new ResizeObserver(onResize);
-    observer.observe(host);
-    window.addEventListener('resize', onResize);
+    syncSize();
+    requestAnimationFrame(() => {
+      syncSize();
+      requestAnimationFrame(syncSize);
+    });
+
+    const observer = new ResizeObserver(syncSize);
+    observer.observe(frame);
+    window.addEventListener('resize', syncSize);
 
     return () => {
       observer.disconnect();
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', syncSize);
     };
   }, [enabled, handle, isActive, isAvailable]);
 
@@ -51,12 +62,17 @@ export function RadioBarVisualizerFullscreen({
 
   return (
     <div
+      ref={frameRef}
       className={styles.barFrame}
       data-irp-bar-fullscreen="true"
       style={{ opacity }}
       aria-hidden="true"
     >
-      <div ref={containerRef} className={styles.barFullscreen} data-testid="radio-bar-visualizer-fullscreen" />
+      <div
+        ref={hostRef}
+        className={styles.barFullscreen}
+        data-testid="radio-bar-visualizer-fullscreen"
+      />
     </div>
   );
 }

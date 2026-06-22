@@ -643,6 +643,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     barGap: resolveBarGapForDensity(visualizerPrefs.density),
     theme: getBarVisualizerTheme(),
     state: visualizerRuntime.getState(),
+    fullscreen: canvas.closest('[data-irp-bar-fullscreen="true"]') !== null,
   });
 
   const fetchNowPlaying = async () => {
@@ -987,6 +988,12 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     resizeCanvas();
     paintIdleVisualizerFrame();
     syncVisualizerLoop();
+
+    requestAnimationFrame(() => {
+      resizeCanvas();
+      paintIdleVisualizerFrame();
+      syncVisualizerLoop();
+    });
   };
 
   const resizeBarCanvas = () => {
