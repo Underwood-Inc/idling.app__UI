@@ -1,5 +1,5 @@
-import type { Mock } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { Mock } from 'vitest';
 import CacheStatus from './CacheStatus';
 
 // Mock MessageChannel for tests
@@ -106,8 +106,8 @@ describe('CacheStatus', () => {
     mockCaches.open.mockResolvedValue(mockCache);
     mockLocation.reload.mockClear();
     // Suppress console warnings in tests
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => { });
+    vi.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
