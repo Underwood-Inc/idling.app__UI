@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  RADIO_PWA_AUTO_PROMPT_SESSION_KEY,
-  RADIO_PWA_INSTALL_PREPARE_TIMEOUT_MS,
-  RADIO_PWA_INSTALL_READY_EVENT,
-} from '@lib/radio-pwa/constants';
+import { RADIO_PWA_INSTALL_OFFER_WAIT_MS, RADIO_PWA_INSTALL_READY_EVENT } from '@lib/radio-pwa/constants';
 import type { PwaBeforeInstallPromptEvent } from '@lib/radio-pwa/installPrompt';
 import {
   ensureRadioPwaInstallPromptListener,
@@ -12,7 +8,7 @@ import {
   subscribeRadioPwaInstallPrompt,
 } from '@lib/radio-pwa/installPrompt';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import {
   beginRadioPwaInstallFlow,
   clearRadioPwaInstallIntentState,
@@ -25,48 +21,32 @@ import {
 import { setRadioPwaInstallIntent } from '@lib/radio-pwa/intent';
 import styles from './RadioPwaInstallButton.module.css';
 
-function shouldAutoPromptAfterReload(): boolean {
-  return sessionStorage.getItem(RADIO_PWA_AUTO_PROMPT_SESSION_KEY) === '1';
-}
-
 export function RadioPwaInstallButton() {
   const [hasPrompt, setHasPrompt] = useState(false);
   const [installIntent, setInstallIntent] = useState(false);
   const [hidden, setHidden] = useState(true);
-  const [awaitingPrompt, setAwaitingPrompt] = useState(false);
-  const autoPromptAttemptedRef = useRef(false);
+  const [offerUnavailable, setOfferUnavailable] = useState(false);
 
   const runInstallPrompt = useCallback(async (deferredPrompt: PwaBeforeInstallPromptEvent) => {
-    sessionStorage.removeItem(RADIO_PWA_AUTO_PROMPT_SESSION_KEY);
-    setAwaitingPrompt(false);
+    setOfferUnavailable(false);
 
-    await deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
+    try {
+      await deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
 
-    if (choice.outcome === 'accepted') {
-      markRadioPwaInstalled();
-      setHidden(true);
-      return;
+      if (choice.outcome === 'accepted') {
+        markRadioPwaInstalled();
+        setHidden(true);
+        return;
+      }
+
+      clearRadioPwaInstallIntentState();
+      setInstallIntent(false);
+      setHasPrompt(false);
+    } catch {
+      setOfferUnavailable(true);
     }
-
-    clearRadioPwaInstallIntentState();
-    setInstallIntent(false);
-    setHasPrompt(false);
   }, []);
-
-  const tryAutoPrompt = useCallback(() => {
-    if (autoPromptAttemptedRef.current || !shouldAutoPromptAfterReload()) {
-      return;
-    }
-
-    const deferredPrompt = getRadioPwaDeferredPrompt();
-    if (!deferredPrompt) {
-      return;
-    }
-
-    autoPromptAttemptedRef.current = true;
-    void runInstallPrompt(deferredPrompt);
-  }, [runInstallPrompt]);
 
   useLayoutEffect(() => {
     ensureRadioPwaInstallPromptListener();
@@ -79,35 +59,26 @@ export function RadioPwaInstallButton() {
       return undefined;
     }
 
-    let intentActive = isRadioPwaInstallIntentActive();
-
-    if (intentActive && !shouldAutoPromptAfterReload()) {
-      clearRadioPwaInstallIntentState();
-      intentActive = false;
-    }
-
+    const intentActive = isRadioPwaInstallIntentActive();
     setInstallIntent(intentActive);
     setHidden(false);
+    setOfferUnavailable(false);
 
     if (intentActive) {
       setRadioPwaInstallIntent();
       setRadioPwaManifestLink();
-      setAwaitingPrompt(getRadioPwaDeferredPrompt() === null);
-      tryAutoPrompt();
     }
 
     const unsubscribe = subscribeRadioPwaInstallPrompt((prompt) => {
       setHasPrompt(prompt !== null);
       if (prompt) {
-        setAwaitingPrompt(false);
-        tryAutoPrompt();
+        setOfferUnavailable(false);
       }
     });
 
     const onInstallReady = () => {
       setHasPrompt(getRadioPwaDeferredPrompt() !== null);
-      setAwaitingPrompt(false);
-      tryAutoPrompt();
+      setOfferUnavailable(false);
     };
 
     const onAppInstalled = () => {
@@ -123,25 +94,21 @@ export function RadioPwaInstallButton() {
       window.removeEventListener(RADIO_PWA_INSTALL_READY_EVENT, onInstallReady);
       window.removeEventListener('appinstalled', onAppInstalled);
     };
-  }, [tryAutoPrompt]);
+  }, []);
 
   useEffect(() => {
-    if (!awaitingPrompt || hasPrompt) {
+    if (!installIntent || hasPrompt) {
       return undefined;
     }
 
     const timer = window.setTimeout(() => {
-      clearRadioPwaInstallIntentState();
-      setInstallIntent(false);
-      setAwaitingPrompt(false);
-      setHasPrompt(false);
-      autoPromptAttemptedRef.current = false;
-    }, RADIO_PWA_INSTALL_PREPARE_TIMEOUT_MS);
+      setOfferUnavailable(true);
+    }, RADIO_PWA_INSTALL_OFFER_WAIT_MS);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [awaitingPrompt, hasPrompt]);
+  }, [hasPrompt, installIntent]);
 
   if (hidden) {
     return null;
@@ -159,22 +126,28 @@ export function RadioPwaInstallButton() {
       return;
     }
 
-    setAwaitingPrompt(true);
+    setOfferUnavailable(true);
   };
 
-  const isWaiting = awaitingPrompt && installIntent && !hasPrompt;
+  const label = hasPrompt ? 'Install' : installIntent && offerUnavailable ? 'Retry install' : 'Install';
+  const title = hasPrompt
+    ? 'Install Idling Radio'
+    : installIntent
+      ? offerUnavailable
+        ? 'Browser did not offer install yet — click to retry, or use the browser menu.'
+        : 'Loading install offer — click again in a moment'
+      : 'Install Idling Radio (prepares the radio app, then click again)';
 
   return (
     <button
       type="button"
       className={`${styles.install} no-glass`}
-      aria-label={isWaiting ? 'Preparing Idling Radio install' : 'Install Idling Radio app'}
-      aria-busy={isWaiting}
-      disabled={isWaiting}
+      aria-label={title}
+      title={title}
       onClick={handleClick}
     >
       <SiteIcon id="download" sizeRem={0.9} title="" />
-      <span className={styles.install__label}>{isWaiting ? 'Preparing…' : 'Install'}</span>
+      <span className={styles.install__label}>{label}</span>
     </button>
   );
 }
