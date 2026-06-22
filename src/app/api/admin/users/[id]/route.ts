@@ -5,8 +5,9 @@ import { IdRouteContext } from '@lib/types/next-route-context';
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface DetailedUser {
@@ -63,12 +64,11 @@ async function getHandler(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_VIEW);
+    if (!access.granted) {
+      return access.response;
     }
 
-    const userId = parseInt(session.user.id);
     const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {

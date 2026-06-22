@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import '@testing-library/jest-dom';
 import {
   act,
@@ -6,10 +7,11 @@ import {
   screen,
   waitFor
 } from '@testing-library/react';
+import { handleTagFilter } from '../../../lib/utils/filter-utils';
 import { FilterLabel } from './FilterLabel';
 
 // Mock the ContentWithPills component
-jest.mock('../ui/ContentWithPills', () => ({
+vi.mock('../ui/ContentWithPills', () => ({
   ContentWithPills: ({
     content,
     onHashtagClick,
@@ -35,39 +37,39 @@ jest.mock('../ui/ContentWithPills', () => ({
 }));
 
 // Mock the filter utilities
-jest.mock('../../../lib/utils/filter-utils', () => ({
-  handleTagFilter: jest.fn()
+vi.mock('../../../lib/utils/filter-utils', () => ({
+  handleTagFilter: vi.fn()
 }));
 
 // Mock the useSimpleUrlFilters hook
-jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
-  useSimpleUrlFilters: jest.fn(() => ({
+vi.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
+  useSimpleUrlFilters: vi.fn(() => ({
     filters: [],
-    addFilter: jest.fn(),
-    removeFilter: jest.fn(),
-    updateUrl: jest.fn(),
+    addFilter: vi.fn(),
+    removeFilter: vi.fn(),
+    updateUrl: vi.fn(),
     tagLogic: 'AND',
-    setTagLogic: jest.fn(),
+    setTagLogic: vi.fn(),
     searchParams: new URLSearchParams()
   }))
 }));
 
 // Mock the search actions
-const mockResolveUserIdToUsername = jest.fn();
-const mockGetUserInfo = jest.fn();
+const mockResolveUserIdToUsername = vi.fn();
+const mockGetUserInfo = vi.fn();
 
-jest.mock('../../../lib/actions/search.actions', () => ({
+vi.mock('../../../lib/actions/search.actions', () => ({
   resolveUserIdToUsername: mockResolveUserIdToUsername,
   getUserInfo: mockGetUserInfo
 }));
 
 describe('FilterLabel Component', () => {
-  let mockOnRemoveTag: jest.Mock;
-  let mockOnRemoveFilter: jest.Mock;
+  let mockOnRemoveTag: Mock;
+  let mockOnRemoveFilter: Mock;
 
   beforeEach(() => {
-    mockOnRemoveTag = jest.fn();
-    mockOnRemoveFilter = jest.fn();
+    mockOnRemoveTag = vi.fn();
+    mockOnRemoveFilter = vi.fn();
     mockResolveUserIdToUsername.mockClear();
     mockGetUserInfo.mockClear();
   });
@@ -76,8 +78,8 @@ describe('FilterLabel Component', () => {
     name: string;
     label: string;
     filterId?: string;
-    onRemoveTag?: jest.Mock;
-    onRemoveFilter?: jest.Mock;
+    onRemoveTag?: Mock;
+    onRemoveFilter?: Mock;
   }) => {
     return render(
       <FilterLabel
@@ -102,8 +104,6 @@ describe('FilterLabel Component', () => {
     });
 
     it('should handle tag removal via hashtag click', () => {
-      const { handleTagFilter } = require('../../../lib/utils/filter-utils');
-
       renderFilterLabel({
         name: 'tags',
         label: '#react'
@@ -112,7 +112,7 @@ describe('FilterLabel Component', () => {
       const hashtagButton = screen.getByTestId('hashtag-click');
       fireEvent.click(hashtagButton);
 
-      expect(handleTagFilter).toHaveBeenCalledWith(
+      expect(vi.mocked(handleTagFilter)).toHaveBeenCalledWith(
         '#react',
         [],
         expect.any(Function),
@@ -168,7 +168,7 @@ describe('FilterLabel Component', () => {
 
     it('should handle author resolution error', async () => {
       mockResolveUserIdToUsername.mockRejectedValue(new Error('Network error'));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
       await act(async () => {
         renderFilterLabel({

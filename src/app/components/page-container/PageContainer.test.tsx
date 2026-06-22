@@ -1,19 +1,20 @@
+import type { MockedFunction } from 'vitest';
 import { render } from '@testing-library/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { NAV_PATHS } from 'src/lib/routes';
 import { PageContainer } from './PageContainer';
 
 // Mock the next/navigation hooks
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(),
-  useSearchParams: jest.fn()
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(),
+  useSearchParams: vi.fn()
 }));
 
 describe('PageContainer', () => {
-  const mockUsePathname = usePathname as jest.MockedFunction<
+  const mockUsePathname = usePathname as MockedFunction<
     typeof usePathname
   >;
-  const mockUseSearchParams = useSearchParams as jest.MockedFunction<
+  const mockUseSearchParams = useSearchParams as MockedFunction<
     typeof useSearchParams
   >;
 
@@ -25,7 +26,7 @@ describe('PageContainer', () => {
   it('renders children correctly', () => {
     mockUsePathname.mockReturnValue('/');
     mockUseSearchParams.mockReturnValue({
-      get: jest.fn().mockReturnValue(null)
+      get: vi.fn().mockReturnValue(null)
     } as any);
 
     const { getByText } = render(
@@ -40,7 +41,7 @@ describe('PageContainer', () => {
   it('sets correct context for posts page', () => {
     mockUsePathname.mockReturnValue(NAV_PATHS.POSTS);
     mockUseSearchParams.mockReturnValue({
-      get: jest.fn().mockReturnValue(null)
+      get: vi.fn().mockReturnValue(null)
     } as any);
 
     const { container } = render(
@@ -55,7 +56,7 @@ describe('PageContainer', () => {
   it('sets correct context for my posts page', () => {
     mockUsePathname.mockReturnValue(NAV_PATHS.MY_POSTS);
     mockUseSearchParams.mockReturnValue({
-      get: jest.fn().mockReturnValue(null)
+      get: vi.fn().mockReturnValue(null)
     } as any);
 
     const { container } = render(

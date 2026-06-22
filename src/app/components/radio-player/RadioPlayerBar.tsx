@@ -1,37 +1,45 @@
 'use client';
 
-import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
-import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
-import type { RadioPlayerHandle } from '@widgets/radio-player/radioPlayer.types';
+import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
+import { useRadioMetaWidth } from '@lib/hooks/useRadioMetaWidth';
+import { HumanFriendlySearchHighlight } from '@molecules/humanFriendlySearch/HumanFriendlySearchHighlight';
+import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
+import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type {
   BarVisualizerDensity,
   BarVisualizerPreferences,
 } from '@widgets/radio-player/barVisualizer.types';
 import { BAR_VISUALIZER_PRESET_DEFINITIONS, getBarVisualizerDockLayout } from '@widgets/radio-player/barVisualizerPresets';
-import type { RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
 import {
   CUSTOM_AUDIO_SOURCES_UI_ENABLED,
   isCustomAudioSourceDefinition,
 } from '@widgets/radio-player/customAudioSourceBrowse';
 import {
-  findRadioStationDefinition,
-  filterRadioStationsByGenre,
-  getRadioStationGenre,
-  listAvailableRadioStations,
-  listRadioStationGenreFilters,
-  listRadioStationGenres,
-} from '@widgets/radio-player/radioStationBrowse';
-import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
-import {
   RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE,
   RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
   resolveRadioFullscreenBarHeightMultiplier,
 } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
+import type { RadioPlayerHandle, RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
+import {
+  filterRadioStationsByGenre,
+  filterRadioStationsBySearch,
+  findRadioStationDefinition,
+  getRadioStationGenre,
+  isRadioStationInGenreFilter,
+  listAvailableRadioStations,
+  listRadioStationGenreFilters,
+} from '@widgets/radio-player/radioStationBrowse';
+import {
+  loadRadioStationGenreFilter,
+  saveRadioStationGenreFilter,
+} from '@widgets/radio-player/radioStationGenreFilterPersistence';
+import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
 import styles from './RadioPlayerBar.module.css';
+import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
+import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
 
 export interface RadioPlayerBarPlaybackState {
   isPlaying: boolean;
@@ -149,7 +157,6 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     handle: contextHandle,
     stationDefinitions,
     removeCustomSource,
-    updateCustomSourceGenre,
   } = useRadioPlayer();
   const {
     isActive,
@@ -163,15 +170,29 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     setSpectrumOpacity,
     spectrumBarHeight,
     setSpectrumBarHeight,
+    fullscreenSource,
+    setFullscreenSource,
   } = useVisualizerMode();
   const handle = handleProp ?? contextHandle;
   const playerRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
   const canvasHostRef = useRef<HTMLDivElement>(null);
+  const metaBlockRef = useRef<HTMLDivElement>(null);
+  const stationListRef = useRef<HTMLDivElement>(null);
+  const prevActivePanelRef = useRef<RadioPlayerPanel>(null);
   const [playback, setPlayback] = useState<RadioPlayerBarPlaybackState | null>(null);
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
-  const [stationGenreFilter, setStationGenreFilter] = useState<RadioStationGenreId | null>(null);
+  const [stationGenreFilter, setStationGenreFilter] = useState<RadioStationGenreId | null>(() =>
+    loadRadioStationGenreFilter()
+  );
+  const [stationSearchQuery, setStationSearchQuery] = useState('');
   const [showCustomSourceForm, setShowCustomSourceForm] = useState(false);
   const customSourcePanelRef = useRef<HTMLDivElement>(null);
+
+  const applyStationGenreFilter = useCallback((genreId: RadioStationGenreId | null) => {
+    setStationGenreFilter(genreId);
+    saveRadioStationGenreFilter(genreId);
+  }, []);
 
   useEffect(() => {
     if (!handle) {
@@ -199,10 +220,17 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const playbackReady = playback !== null;
   const visualizerPresetId = playback?.visualizerPrefs.presetId;
   const visualizerDensity = playback?.visualizerPrefs.density;
+  const visualizerEnabled = playback?.visualizerPrefs.enabled ?? true;
   const vizDockLayout = getBarVisualizerDockLayout(visualizerPresetId ?? 'wave');
+  const { metaWidthPx, isResizing: isMetaResizing, beginResize: beginMetaResize, resetWidth: resetMetaWidth } =
+    useRadioMetaWidth({
+      metaBlockRef,
+      rowRef,
+      isFullscreen: isActive,
+    });
 
   useLayoutEffect(() => {
-    if (!handle || !playbackReady || isActive) {
+    if (!handle || !playbackReady || isActive || !visualizerEnabled) {
       return undefined;
     }
 
@@ -226,10 +254,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       observer.disconnect();
       window.removeEventListener('resize', onResize);
     };
-  }, [handle, isActive, playbackReady]);
+  }, [handle, isActive, playbackReady, visualizerEnabled]);
 
   useLayoutEffect(() => {
-    if (!handle || !playbackReady || isActive) {
+    if (!handle || !playbackReady || isActive || !visualizerEnabled) {
       return undefined;
     }
 
@@ -240,7 +268,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [handle, isActive, playbackReady, visualizerPresetId, visualizerDensity, vizDockLayout]);
+  }, [handle, isActive, playbackReady, visualizerPresetId, visualizerDensity, vizDockLayout, visualizerEnabled]);
 
   useEffect(() => {
     if (!activePanel) {
@@ -259,8 +287,18 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     };
   }, [activePanel]);
 
+  useEffect(() => {
+    if (activePanel === 'stations') {
+      return undefined;
+    }
+
+    setStationSearchQuery('');
+    return undefined;
+  }, [activePanel]);
+
   useRadioDockLayoutMetrics({
     playerRef,
+    rowRef,
     expanded: activePanel !== null,
   });
 
@@ -294,7 +332,59 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     () => filterRadioStationsByGenre(availableStations, stationGenreFilter),
     [availableStations, stationGenreFilter]
   );
-  const genreOptions = listRadioStationGenres();
+
+  const parsedStationSearch = useMemo(
+    () => parseHumanFriendlySearchQuery(stationSearchQuery),
+    [stationSearchQuery]
+  );
+
+  const displayedStations = useMemo(
+    () => filterRadioStationsBySearch(filteredStations, parsedStationSearch),
+    [filteredStations, parsedStationSearch]
+  );
+
+  useEffect(() => {
+    const justOpenedStations =
+      activePanel === 'stations' && prevActivePanelRef.current !== 'stations';
+    prevActivePanelRef.current = activePanel;
+
+    if (!justOpenedStations || !playback) {
+      return undefined;
+    }
+
+    const activeStationDefinition = findRadioStationDefinition(
+      stationDefinitions,
+      playback.stationName
+    );
+
+    if (activeStationDefinition) {
+      setStationGenreFilter((currentFilter) => {
+        if (
+          isRadioStationInGenreFilter(
+            availableStations,
+            playback.stationName,
+            currentFilter
+          )
+        ) {
+          return currentFilter;
+        }
+
+        saveRadioStationGenreFilter(activeStationDefinition.genre);
+        return activeStationDefinition.genre;
+      });
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const activeRow = stationListRef.current?.querySelector<HTMLElement>('[data-active="true"]');
+        activeRow?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [activePanel, availableStations, playback?.stationName, stationDefinitions]);
 
   if (!handle || !playback) {
     return null;
@@ -308,10 +398,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       (preset) => preset.id === playback.visualizerPrefs.presetId
     ) ?? BAR_VISUALIZER_PRESET_DEFINITIONS[0];
   const activeLookLabel = isActive
-    ? spectrumEnabled
-      ? activeSpectrumPreset.label
-      : 'None'
-    : activeBarPreset.label;
+    ? !spectrumEnabled
+      ? 'None'
+      : fullscreenSource === 'bar'
+        ? activeBarPreset.label
+        : activeSpectrumPreset.label
+    : !playback.visualizerPrefs.enabled
+      ? 'None'
+      : activeBarPreset.label;
   const spectrumOpacityPct = Math.round(spectrumOpacity * 100);
   const spectrumBarHeightPct = Math.round(
     resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight) * 100
@@ -353,13 +447,43 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           data-custom-source-form={showCustomSourceForm ? 'true' : 'false'}
           aria-label="Choose a station"
         >
+          <div className={styles.stationSearch}>
+            <SiteIcon
+              id="search"
+              className={styles.stationSearch__icon}
+              sizeRem={0.9}
+              title=""
+            />
+            <input
+              type="search"
+              className={styles.stationSearch__input}
+              value={stationSearchQuery}
+              placeholder='Search stations… ("Radio France" or #jazz)'
+              aria-label="Search stations by name, description, or genre"
+              onChange={(event) => {
+                setStationSearchQuery(event.target.value);
+              }}
+            />
+            {stationSearchQuery ? (
+              <button
+                type="button"
+                className={`${styles.stationSearch__clear} no-glass`}
+                aria-label="Clear station search"
+                onClick={() => {
+                  setStationSearchQuery('');
+                }}
+              >
+                <SiteIcon id="close" sizeRem={0.85} title="" />
+              </button>
+            ) : null}
+          </div>
           <div className={styles.genreFilters} role="toolbar" aria-label="Filter by genre">
             <button
               type="button"
               className={`${styles.genreFilter} no-glass`}
               aria-pressed={stationGenreFilter === null}
               onClick={() => {
-                setStationGenreFilter(null);
+                applyStationGenreFilter(null);
               }}
             >
               All
@@ -371,17 +495,24 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 className={`${styles.genreFilter} no-glass`}
                 aria-pressed={stationGenreFilter === genre.id}
                 onClick={() => {
-                  setStationGenreFilter((current) => (current === genre.id ? null : genre.id));
+                  applyStationGenreFilter(stationGenreFilter === genre.id ? null : genre.id);
                 }}
               >
                 {genre.label}
               </button>
             ))}
           </div>
-          <div className={styles.stationList} role="group" aria-label="Stations">
-            {filteredStations.map((station) => {
+          <div ref={stationListRef} className={styles.stationList} role="group" aria-label="Stations">
+            {displayedStations.length === 0 ? (
+              <p className={styles.stationSearchEmpty}>
+                No stations match{' '}
+                <span className={styles.stationSearchEmpty__query}>{stationSearchQuery.trim()}</span>
+              </p>
+            ) : null}
+            {displayedStations.map((station) => {
               const isCustom = isCustomAudioSourceDefinition(station);
               const isActiveStation = station.name === playback.stationName;
+              const genreLabel = getRadioStationGenre(station.genre).label;
 
               return (
                 <div
@@ -396,7 +527,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     onClick={() => {
                       handle.setStation(station.name);
                       setActivePanel(null);
-                      setStationGenreFilter(null);
+                      applyStationGenreFilter(station.genre);
                       setPlayback((current) =>
                         current ? { ...current, stationName: station.name } : current
                       );
@@ -406,8 +537,19 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       {station.regionFlag}
                     </span>
                     <span className={styles.stationRow__body}>
-                      <span className={styles.stationRow__name}>{station.name}</span>
-                      <span className={styles.stationRow__blurb}>{station.blurb}</span>
+                      <HumanFriendlySearchHighlight
+                        text={station.name}
+                        query={parsedStationSearch}
+                        className={styles.stationRow__name}
+                        highlightClassName={styles.stationSearchHighlight}
+                      />
+                      <span className={styles.stationRow__blurb}>
+                        <HumanFriendlySearchHighlight
+                          text={station.blurb}
+                          query={parsedStationSearch}
+                          highlightClassName={styles.stationSearchHighlight}
+                        />
+                      </span>
                     </span>
                     {isActiveStation ? (
                       <SiteIcon
@@ -420,32 +562,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       <span className={styles.stationRow__checkSpacer} aria-hidden="true" />
                     )}
                   </button>
-                  {isCustom ? (
-                    <select
-                      className={styles.stationRow__genreSelect}
-                      value={station.genre}
-                      aria-label={`Genre for ${station.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                      }}
-                      onChange={(event) => {
-                        void updateCustomSourceGenre(
-                          station.customId,
-                          event.target.value as RadioStationGenreId
-                        );
-                      }}
-                    >
-                      {genreOptions.map((genre) => (
-                        <option key={genre.id} value={genre.id}>
-                          {genre.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span className={styles.stationRow__genre}>
-                      {getRadioStationGenre(station.genre).label}
-                    </span>
-                  )}
+                  <span className={styles.stationRow__genre}>
+                    <HumanFriendlySearchHighlight
+                      text={genreLabel}
+                      query={parsedStationSearch}
+                      highlightClassName={styles.stationSearchHighlight}
+                    />
+                  </span>
                   {isCustom ? (
                     <button
                       type="button"
@@ -466,27 +589,24 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             })}
           </div>
           <div ref={customSourcePanelRef} className={styles.customSourcePanel}>
-            <button
-              type="button"
-              className={`${styles.customSourceToggle} no-glass`}
-              aria-expanded={showCustomSourceForm}
-              disabled={!CUSTOM_AUDIO_SOURCES_UI_ENABLED}
-              title={
-                CUSTOM_AUDIO_SOURCES_UI_ENABLED
-                  ? undefined
-                  : 'Custom sources are not available yet'
-              }
-              onClick={() => {
-                setShowCustomSourceForm((current) => !current);
-              }}
-            >
-              {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
-            </button>
+            {CUSTOM_AUDIO_SOURCES_UI_ENABLED &&
+              <button
+                type="button"
+                className={`${styles.customSourceToggle} no-glass`}
+                aria-expanded={showCustomSourceForm}
+                title='Custom sources are not available yet'
+                onClick={() => {
+                  setShowCustomSourceForm((current) => !current);
+                }}
+              >
+                {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
+              </button>
+            }
             {CUSTOM_AUDIO_SOURCES_UI_ENABLED && showCustomSourceForm ? (
               <RadioPlayerCustomSourceForm
-                onAdded={(genre) => {
+                onAdded={() => {
                   setShowCustomSourceForm(false);
-                  setStationGenreFilter(genre);
+                  applyStationGenreFilter('custom');
                 }}
               />
             ) : null}
@@ -496,10 +616,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
 
       {activePanel === 'look' ? (
         isActive ? (
-          <section className={styles.panel} aria-label="Fullscreen spectrum style">
+          <section className={styles.panel} aria-label="Fullscreen visualizer style">
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Spectrum style</h2>
-              <div className={styles.optionList} role="group" aria-label="Fullscreen spectrum styles">
+              <h2 className={styles.panelSection__title}>Visualizer style</h2>
+              <div className={styles.optionList} role="group" aria-label="Fullscreen visualizer styles">
                 <button
                   type="button"
                   className={`${styles.optionRow} no-glass`}
@@ -510,12 +630,45 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 >
                   None
                 </button>
+                {BAR_VISUALIZER_PRESET_DEFINITIONS.map((preset) => (
+                  <button
+                    key={`bar-${preset.id}`}
+                    type="button"
+                    className={`${styles.optionRow} no-glass`}
+                    aria-pressed={
+                      spectrumEnabled &&
+                      fullscreenSource === 'bar' &&
+                      preset.id === playback.visualizerPrefs.presetId
+                    }
+                    title={preset.description}
+                    onClick={() => {
+                      setFullscreenSource('bar');
+                      handle.setVisualizerPreferences({ presetId: preset.id, enabled: true });
+                      setPlayback((current) =>
+                        current
+                          ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                          : current
+                      );
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className={styles.panelSection}>
+              <h2 className={styles.panelSection__title}>Spectrum styles</h2>
+              <div className={styles.optionList} role="group" aria-label="Fullscreen spectrum styles">
                 {RADIO_VISUALIZER_PRESETS.map((preset, index) => (
                   <button
                     key={preset.id}
                     type="button"
                     className={`${styles.optionRow} no-glass`}
-                    aria-pressed={spectrumEnabled && index === spectrumPresetIndex}
+                    aria-pressed={
+                      spectrumEnabled &&
+                      fullscreenSource === 'spectrum' &&
+                      index === spectrumPresetIndex
+                    }
                     onClick={() => {
                       setSpectrumPresetIndex(index);
                     }}
@@ -560,7 +713,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   max={RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.max}
                   step={0.05}
                   value={spectrumBarHeight}
-                  disabled={!spectrumEnabled}
+                  disabled={!spectrumEnabled || fullscreenSource !== 'spectrum'}
                   aria-label="Fullscreen spectrum bar height"
                   aria-valuemin={Math.round(RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min * 100)}
                   aria-valuemax={Math.round(RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.max * 100)}
@@ -581,15 +734,33 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             <div className={styles.panelSection}>
               <h2 className={styles.panelSection__title}>Bar style</h2>
               <div className={styles.optionList} role="group" aria-label="Bar visualizer styles">
+                <button
+                  type="button"
+                  className={`${styles.optionRow} no-glass`}
+                  aria-pressed={!playback.visualizerPrefs.enabled}
+                  onClick={() => {
+                    handle.setVisualizerPreferences({ enabled: false });
+                    setPlayback((current) =>
+                      current
+                        ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                        : current
+                    );
+                  }}
+                >
+                  None
+                </button>
                 {BAR_VISUALIZER_PRESET_DEFINITIONS.map((preset) => (
                   <button
                     key={preset.id}
                     type="button"
                     className={`${styles.optionRow} no-glass`}
-                    aria-pressed={preset.id === playback.visualizerPrefs.presetId}
+                    aria-pressed={
+                      playback.visualizerPrefs.enabled &&
+                      preset.id === playback.visualizerPrefs.presetId
+                    }
                     title={preset.description}
                     onClick={() => {
-                      handle.setVisualizerPreferences({ presetId: preset.id });
+                      handle.setVisualizerPreferences({ presetId: preset.id, enabled: true });
                       setPlayback((current) =>
                         current
                           ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
@@ -629,7 +800,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
         )
       ) : null}
 
-      <div className={styles.row}>
+      <div ref={rowRef} className={styles.row} data-meta-resizing={isMetaResizing ? 'true' : 'false'}>
         <div className={styles.lead}>
           <button
             type="button"
@@ -657,37 +828,73 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             />
           </button>
 
-          <div className={styles.meta}>
-            <button
-              type="button"
-              className={`${styles.stationPicker} no-glass`}
-              aria-expanded={activePanel === 'stations'}
-              aria-label={`Change station — now on ${playback.stationName}`}
-              title="Change station"
-              onClick={() => {
-                togglePanel('stations');
-              }}
-            >
-              {activeStation ? (
-                <span className={styles.station__flag} aria-hidden="true">
-                  {activeStation.regionFlag}
-                </span>
+          <div
+            ref={metaBlockRef}
+            className={styles.metaBlock}
+            data-custom-width={metaWidthPx !== null ? 'true' : 'false'}
+            style={
+              metaWidthPx !== null
+                ? {
+                  width: `${metaWidthPx}px`,
+                  flex: '0 0 auto',
+                }
+                : undefined
+            }
+          >
+            <div className={styles.meta}>
+              <button
+                type="button"
+                className={`${styles.stationPicker} no-glass`}
+                aria-expanded={activePanel === 'stations'}
+                aria-label={`Change station — now on ${playback.stationName}`}
+                title="Change station"
+                onClick={() => {
+                  togglePanel('stations');
+                }}
+              >
+                {activeStation ? (
+                  <span className={styles.station__flag} aria-hidden="true">
+                    {activeStation.regionFlag}
+                  </span>
+                ) : null}
+                <RadioPlayerOverflowText
+                  text={playback.stationName}
+                  className={styles.station__name}
+                />
+              </button>
+              {subtitle ? (
+                <RadioPlayerOverflowText text={subtitle} className={styles.subtitle} as="p" />
               ) : null}
-              <span className={styles.station__name}>{playback.stationName}</span>
-            </button>
-            {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+            </div>
+            <div
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Drag to widen station and track text. Double-click to reset."
+              aria-valuenow={metaWidthPx ?? undefined}
+              className={styles.metaResizeHandle}
+              data-mappy-cursor="ew-resize"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                beginMetaResize(event.clientX);
+              }}
+              onDoubleClick={() => {
+                resetMetaWidth();
+              }}
+            />
           </div>
         </div>
 
+        {!isActive && playback.visualizerPrefs.enabled ? (
+          <div
+            ref={canvasHostRef}
+            className={styles.viz}
+            data-layout={vizDockLayout}
+            aria-hidden="true"
+          />
+        ) : null}
+
         <div className={styles.tools}>
-          {!isActive ? (
-            <div
-              ref={canvasHostRef}
-              className={styles.viz}
-              data-layout={vizDockLayout}
-              aria-hidden="true"
-            />
-          ) : null}
           <RadioPlayerVolumeStepper
             volume={playback.volume}
             onChange={(level) => {
@@ -704,10 +911,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             aria-pressed={activePanel === 'look'}
             aria-label={
               isActive
-                ? spectrumEnabled
-                  ? `Fullscreen spectrum style: ${activeSpectrumPreset.label}`
-                  : 'Fullscreen spectrum disabled'
-                : 'Bar visualizer look'
+                ? !spectrumEnabled
+                  ? 'Fullscreen visualizer disabled'
+                  : fullscreenSource === 'bar'
+                    ? `Fullscreen bar style: ${activeBarPreset.label}`
+                    : `Fullscreen spectrum style: ${activeSpectrumPreset.label}`
+                : playback.visualizerPrefs.enabled
+                  ? 'Bar visualizer look'
+                  : 'Bar visualizer disabled'
             }
             onClick={() => {
               togglePanel('look');

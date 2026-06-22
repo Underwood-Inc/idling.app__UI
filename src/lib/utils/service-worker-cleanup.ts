@@ -5,6 +5,7 @@
  */
 
 import { createLogger } from '@lib/logging';
+import { deleteNonPreservedIndexedDatabases } from '@widgets/radio-player/radioPlayerPersistence';
 
 // Create logger for service worker cleanup
 const logger = createLogger({
@@ -529,21 +530,8 @@ export async function nuclearServiceWorkerReset(): Promise<void> {
     // Try to clear IndexedDB (some PWAs store SW data here)
     if ('indexedDB' in window) {
       try {
-        // This is a bit aggressive but necessary for stuck SWs
-        logger.info('🗃️ Attempting IndexedDB cleanup...');
-
-        // Get all databases (this is experimental)
-        if ('databases' in indexedDB) {
-          const databases = await (indexedDB as any).databases();
-          for (const db of databases) {
-            try {
-              indexedDB.deleteDatabase(db.name);
-              console.log(`✅ Deleted IndexedDB: ${db.name}`);
-            } catch (error) {
-              console.warn(`⚠️ Failed to delete IndexedDB ${db.name}:`, error);
-            }
-          }
-        }
+        logger.info('🗃️ Attempting IndexedDB cleanup (radio custom sources preserved)...');
+        await deleteNonPreservedIndexedDatabases();
       } catch (error) {
         console.warn('⚠️ IndexedDB cleanup failed:', error);
       }

@@ -4,18 +4,18 @@ import { APP_VERSION_SELECTORS } from 'src/lib/test-selectors/components/app-ver
 import AppVersion from './AppVersion';
 
 // Make sure getConfig is automatically mocked
-jest.mock('next/config');
+vi.mock('next/config');
 
 // Mock fetch
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
   Promise.resolve({
     json: () => Promise.resolve({ version: '1.2.3' })
   })
-) as jest.Mock;
+);
 
 describe('AppVersion component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders without errors', () => {

@@ -1,3 +1,4 @@
+import { createAvatar } from '@dicebear/core';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { useAtom } from 'jotai';
@@ -5,19 +6,19 @@ import { Avatar } from './Avatar';
 
 // Mock the avatar cache atom
 const mockAvatarCache = {};
-const mockSetAvatarCache = jest.fn();
+const mockSetAvatarCache = vi.fn();
 
-jest.mock('jotai', () => ({
-  useAtom: jest.fn(),
-  atom: jest.fn()
+vi.mock('jotai', () => ({
+  useAtom: vi.fn(),
+  atom: vi.fn()
 }));
 
 // @dicebear/core and @dicebear/collection are automatically mocked by Jest from __mocks__/ directory
 
 describe('Avatar', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useAtom as jest.Mock).mockReturnValue([
+    vi.clearAllMocks();
+    vi.mocked(useAtom).mockReturnValue([
       mockAvatarCache,
       mockSetAvatarCache
     ]);
@@ -25,9 +26,8 @@ describe('Avatar', () => {
 
   it('renders loading state when avatar is not ready', () => {
     // Mock createAvatar to return null to simulate loading state
-    const { createAvatar } = require('@dicebear/core');
-    (createAvatar as jest.Mock).mockReturnValueOnce({
-      toDataUri: jest.fn().mockReturnValue(null)
+    vi.mocked(createAvatar).mockReturnValueOnce({
+      toDataUri: vi.fn().mockReturnValue(null)
     });
 
     render(<Avatar />);

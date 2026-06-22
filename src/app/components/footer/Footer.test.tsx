@@ -1,16 +1,16 @@
 import { render } from '@testing-library/react';
 import Footer from './Footer';
 
-jest.mock('../app-version/AppVersion', () => {
+vi.mock('../app-version/AppVersion', () => {
   const MockedAppVersion = () => <div>Mocked AppVersion</div>;
   MockedAppVersion.displayName = 'MockedAppVersion';
-  return MockedAppVersion;
+  return { default: MockedAppVersion };
 });
 
-jest.mock('../footer-nav/FooterNav', () => {
+vi.mock('../footer-nav/FooterNav', () => {
   const MockedFooterNav = () => <div>Mocked FooterNav</div>;
   MockedFooterNav.displayName = 'MockedFooterNav';
-  return MockedFooterNav;
+  return { default: MockedFooterNav };
 });
 
 describe('Footer', () => {

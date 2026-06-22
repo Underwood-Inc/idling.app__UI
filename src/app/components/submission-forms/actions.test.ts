@@ -1,5 +1,15 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { revalidatePath } from 'next/cache';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
 import {
@@ -9,22 +19,21 @@ import {
 } from './actions';
 
 // Mock dependencies
-jest.mock('../../../lib/auth', () => ({
-  auth: jest.fn()
+vi.mock('../../../lib/auth', () => ({
+  auth: vi.fn()
 }));
 
-jest.mock('../../../lib/db', () => ({
+vi.mock('../../../lib/db', () => ({
   __esModule: true,
-  default: jest.fn()
+  default: vi.fn()
 }));
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn()
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn()
 }));
 
-// Add this at the top of the file, after imports
 const originalConsoleError = console.error;
-let consoleErrorSpy: jest.SpyInstance;
+let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
 describe('Submission Form Actions', () => {
   /**
@@ -34,7 +43,7 @@ describe('Submission Form Actions', () => {
    * This helps avoid confusion when running the tests.
    */
   beforeAll(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {
@@ -47,7 +56,7 @@ describe('Submission Form Actions', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('validateCreateSubmissionFormAction', () => {
@@ -64,7 +73,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return a success message for valid input', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { name: 'Test User' } });
+      vi.mocked(auth).mockResolvedValue({ user: { name: 'Test User' } });
 
       const formData = new FormData();
       formData.append('submission_title', 'Valid Title');
@@ -80,7 +89,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error for missing session', async () => {
-      (auth as jest.Mock).mockResolvedValue(null);
+      vi.mocked(auth).mockResolvedValue(null);
 
       const formData = new FormData();
       formData.append('submission_title', 'Valid Title');
@@ -95,7 +104,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('returns an error when session or user name is missing', async () => {
-      (auth as jest.Mock).mockResolvedValue(null);
+      vi.mocked(auth).mockResolvedValue(null);
 
       const formData = new FormData();
       formData.append('submission_title', 'Test Title');
@@ -111,7 +120,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should handle form data with tags', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { name: 'Test User' } });
+      vi.mocked(auth).mockResolvedValue({ user: { name: 'Test User' } });
 
       const formData = new FormData();
       formData.append('submission_title', 'Valid Title');
@@ -130,15 +139,15 @@ describe('Submission Form Actions', () => {
 
   describe('createSubmissionAction', () => {
     it('should create a submission successfully', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
       // Mock the user lookup first, then successful insert
-      const mockSql = jest
+      const mockSql = vi
         .fn()
         .mockResolvedValueOnce([{ id: 123, name: 'Test User' }]) // User lookup
         .mockResolvedValueOnce({ rowCount: 1 }); // Insert submission
-      (sql as unknown as jest.Mock).mockImplementation(mockSql);
+      vi.mocked(sql).mockImplementation(mockSql);
 
       const formData = new FormData();
       formData.append('submission_title', 'New Title');
@@ -163,7 +172,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error for missing session', async () => {
-      (auth as jest.Mock).mockResolvedValue(null);
+      vi.mocked(auth).mockResolvedValue(null);
 
       const formData = new FormData();
       formData.append('submission_title', 'New Title');
@@ -176,10 +185,10 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error when SQL insert fails', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
-      (sql as unknown as jest.Mock).mockRejectedValue(new Error('SQL error'));
+      vi.mocked(sql).mockRejectedValue(new Error('SQL error'));
 
       const formData = new FormData();
       formData.append('submission_title', 'New Title');
@@ -192,15 +201,15 @@ describe('Submission Form Actions', () => {
     });
 
     it('should extract tags from submission title', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
       // Mock the user lookup query first
-      const mockSql = jest
+      const mockSql = vi
         .fn()
         .mockResolvedValueOnce([{ id: 123, name: 'Test User' }]) // User lookup
         .mockResolvedValueOnce({ rowCount: 1 }); // Insert submission
-      (sql as unknown as jest.Mock).mockImplementation(mockSql);
+      vi.mocked(sql).mockImplementation(mockSql);
 
       const formData = new FormData();
       formData.append('submission_title', 'New Title #tag1 #tag2');
@@ -223,15 +232,15 @@ describe('Submission Form Actions', () => {
     });
 
     it('should handle submission without tags', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
       // Mock the user lookup query first, then successful insert
-      const mockSql = jest
+      const mockSql = vi
         .fn()
         .mockResolvedValueOnce([{ id: 123, name: 'Test User' }]) // User lookup
         .mockResolvedValueOnce({ rowCount: 1 }); // Insert submission
-      (sql as unknown as jest.Mock).mockImplementation(mockSql);
+      vi.mocked(sql).mockImplementation(mockSql);
 
       const formData = new FormData();
       formData.append('submission_title', 'New Title without tags');
@@ -257,7 +266,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error when session or user information is incomplete', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User' } // Missing id
       });
 
@@ -272,7 +281,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error when session is present but id is missing', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User' } // Missing id
       });
 
@@ -289,12 +298,12 @@ describe('Submission Form Actions', () => {
 
   describe('deleteSubmissionAction', () => {
     it('should delete a submission successfully', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { id: '123' }
       });
 
       // Mock the SQL calls for delete action
-      (sql as unknown as jest.Mock)
+      vi.mocked(sql)
         .mockResolvedValueOnce([{ reply_count: 0 }]) // Reply check query
         .mockResolvedValueOnce([
           { submission_id: 1, submission_title: 'Test Submission' }
@@ -323,10 +332,10 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error when SQL delete fails', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { id: '123' }
       });
-      (sql as unknown as jest.Mock).mockRejectedValue(new Error('SQL error'));
+      vi.mocked(sql).mockRejectedValue(new Error('SQL error'));
 
       const formData = new FormData();
       formData.append('submission_id', '1');
@@ -339,7 +348,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error for missing session', async () => {
-      (auth as jest.Mock).mockResolvedValue(null);
+      vi.mocked(auth).mockResolvedValue(null);
 
       const formData = new FormData();
       formData.append('submission_id', '1');
@@ -352,7 +361,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error when session is present but id is missing', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { name: 'Test User' } // Missing id
       });
 
@@ -367,7 +376,7 @@ describe('Submission Form Actions', () => {
     });
 
     it('should return an error when parseDeleteSubmission fails', async () => {
-      (auth as jest.Mock).mockResolvedValue({
+      vi.mocked(auth).mockResolvedValue({
         user: { id: '123' }
       });
 

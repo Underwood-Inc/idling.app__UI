@@ -14,6 +14,19 @@ if (process.env.NODE_ENV !== 'production') {
   process.env.POSTGRES_FORCE_NODEJS = 'true';
 }
 
+/**
+ * PostgreSQL TLS note
+ *
+ * `rejectUnauthorized: false` is intentional in production today. Managed Postgres
+ * providers in this deployment (e.g. Docker / internal network / providers with
+ * self-signed or rotating CA chains) do not always present a chain Node trusts
+ * out of the box. Traffic is still encrypted on the wire; only certificate
+ * identity verification is skipped.
+ *
+ * Re-enable verification when the deployment supplies a CA the runtime trusts
+ * (set `POSTGRES_SSL_CA` or mount the provider CA bundle). See
+ * `docs/infrastructure/postgres-tls.md`.
+ */
 const sql = postgres({
   host: process.env.POSTGRES_HOST,
   user: process.env.POSTGRES_USER,

@@ -1,11 +1,12 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PageSize } from 'src/lib/state/atoms';
 import { getSubmissionsAction } from './actions';
 
 // Mock the sql module BEFORE importing anything else
-jest.mock('../../../lib/db', () => ({
+vi.mock('../../../lib/db', () => ({
   __esModule: true,
   default: {
-    unsafe: jest.fn().mockResolvedValue([])
+    unsafe: vi.fn().mockResolvedValue([])
   }
 }));
 
@@ -33,12 +34,12 @@ const createMockDbRow = (overrides: any = {}) => ({
 
 describe('getSubmissionsAction', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockSql.mockReset();
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   it('should return paginated submissions for onlyMine=true', async () => {
@@ -586,7 +587,7 @@ describe('getSubmissionsAction', () => {
   describe('Error Handling', () => {
     beforeEach(() => {
       // Reset mocks before each error test
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should handle database errors gracefully', async () => {

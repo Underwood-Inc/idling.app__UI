@@ -186,10 +186,11 @@
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { createLogger } from '@lib/logging';
+import { PERMISSIONS } from '@lib/permissions/permissions';
 import { AdminUserSearchParamsSchema } from '@lib/schemas/admin-users.schema';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -242,13 +243,12 @@ export interface AdminUser {
 // GET /api/admin/users - Get users for admin management
 async function getHandler(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      logger.error('No session or user ID found');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_VIEW);
+    if (!access.granted) {
+      return access.response;
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = access.userId;
     logger.info('User requesting admin users', { userId });
 
     // Validate query parameters

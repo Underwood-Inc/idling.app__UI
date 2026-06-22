@@ -1,31 +1,38 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Essential DOM Observer API Mocks
- * 
+ *
  * Only the minimal observer APIs that were originally mocked and needed
  */
+import { vi } from 'vitest';
 
 /**
  * Mock observer APIs that are commonly used but not available in jsdom
  */
 export const mockObserverAPIs = (): void => {
-  /**
-   * Mock IntersectionObserver
-   */
-  global.IntersectionObserver = jest.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => ({
-    observe: jest.fn(),
-    disconnect: jest.fn(),
-    unobserve: jest.fn()
-  }));
+  class MockIntersectionObserver implements IntersectionObserver {
+    readonly root: Element | Document | null = null;
+    readonly rootMargin = '';
+    readonly thresholds: readonly number[] = [];
+    observe = vi.fn();
+    disconnect = vi.fn();
+    unobserve = vi.fn();
+    takeRecords = vi.fn().mockReturnValue([]);
+    constructor(_callback: IntersectionObserverCallback) {}
+  }
 
-  /**
-   * Mock ResizeObserver
-   */
-  global.ResizeObserver = jest.fn().mockImplementation((callback: (entries: ResizeObserverEntry[]) => void) => ({
-    observe: jest.fn(),
-    disconnect: jest.fn(),
-    unobserve: jest.fn()
-  }));
+  global.IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver;
+
+  class MockResizeObserver implements ResizeObserver {
+    observe = vi.fn();
+    disconnect = vi.fn();
+    unobserve = vi.fn();
+    constructor(_callback: ResizeObserverCallback) {}
+  }
+
+  global.ResizeObserver =
+    MockResizeObserver as unknown as typeof ResizeObserver;
 };
 
 /**
@@ -33,4 +40,4 @@ export const mockObserverAPIs = (): void => {
  */
 export const mockDOMAPIs = (): void => {
   mockObserverAPIs();
-}; 
+};

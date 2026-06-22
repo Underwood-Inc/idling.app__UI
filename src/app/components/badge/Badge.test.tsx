@@ -59,7 +59,7 @@ describe('BadgeWrapper', () => {
   });
 
   it('applies cursor--pointer class when onClick is provided', () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <BadgeWrapper badgeContent="6" showOnHover={false} onClick={onClick}>
         <div>Child content</div>
@@ -84,7 +84,7 @@ describe('BadgeWrapper', () => {
   });
 
   it('calls onClick when badge content is clicked', () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <BadgeWrapper badgeContent="8" showOnHover={false} onClick={onClick}>
         <div>Child content</div>
@@ -96,7 +96,7 @@ describe('BadgeWrapper', () => {
   });
 
   it('prevents default event when badge content is clicked', () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <BadgeWrapper badgeContent="9" showOnHover={false} onClick={onClick}>
         <div>Child content</div>
@@ -104,7 +104,7 @@ describe('BadgeWrapper', () => {
     );
 
     const badgeElement = screen.getByTestId(BADGE_SELECTORS.CONTENT);
-    const preventDefaultSpy = jest.spyOn(Event.prototype, 'preventDefault');
+    const preventDefaultSpy = vi.spyOn(Event.prototype, 'preventDefault');
 
     fireEvent.click(badgeElement);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
+import { deleteNonPreservedIndexedDatabases } from '@widgets/radio-player/radioPlayerPersistence';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CacheStatus.css';
@@ -317,22 +318,10 @@ const SmartCacheStatus: React.FC = () => {
       localStorage.clear();
       sessionStorage.clear();
 
-      // 2. Clear IndexedDB
+      // 2. Clear IndexedDB (preserves user-added radio streams)
       if ('indexedDB' in window) {
         try {
-          const databases = await indexedDB.databases();
-          await Promise.all(
-            databases.map((db) => {
-              if (db.name) {
-                return new Promise<void>((resolve, reject) => {
-                  const deleteReq = indexedDB.deleteDatabase(db.name!);
-                  deleteReq.onsuccess = () => resolve();
-                  deleteReq.onerror = () => reject(deleteReq.error);
-                });
-              }
-              return Promise.resolve();
-            })
-          );
+          await deleteNonPreservedIndexedDatabases();
         } catch (e) {
           // Silent error handling
         }

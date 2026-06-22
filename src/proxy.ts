@@ -27,7 +27,8 @@ export default auth(async (req: NextRequest & { auth: any }) => {
       '/api/monitoring/',
       '/api/ping',
       '/api/ready',
-      '/api/live'
+      '/api/live',
+      '/api/radio/'
     ];
 
     const isPublicApiRoute = publicApiRoutes.some((route) =>

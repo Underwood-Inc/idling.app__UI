@@ -1,7 +1,10 @@
 import {
+  BAR_GAP_BY_DENSITY,
+  BAR_SLOT_WIDTH_BY_DENSITY,
   DEFAULT_BAR_VISUALIZER_PREFERENCES,
   loadBarVisualizerPreferences,
   resolveBarCountForCanvas,
+  resolveBarGapForDensity,
   saveBarVisualizerPreferences,
 } from './barVisualizerPreferences';
 import { getBarVisualizerDockLayout } from './barVisualizerPresets';
@@ -15,34 +18,43 @@ describe('barVisualizerPreferences', () => {
     expect(loadBarVisualizerPreferences()).toEqual(DEFAULT_BAR_VISUALIZER_PREFERENCES);
   });
 
-  test('persists valid preferences', () => {
+  test('persists valid preferences including enabled flag', () => {
     saveBarVisualizerPreferences({
       presetId: 'wave',
       density: 'wide',
+      enabled: false,
     });
 
     expect(loadBarVisualizerPreferences()).toEqual({
       presetId: 'wave',
       density: 'wide',
+      enabled: false,
     });
   });
 
-  test('scales bar count with canvas width for wide presets', () => {
-    expect(
-      resolveBarCountForCanvas({
-        density: 'normal',
-        canvasWidthPx: 320,
-        presetId: 'peaks',
-      })
-    ).toBe(64);
+  test('when the dock is wide, compact spacing draws more bars than wide spacing', () => {
+    const canvasWidthPx = 280;
 
-    expect(
-      resolveBarCountForCanvas({
-        density: 'normal',
-        canvasWidthPx: 512,
-        presetId: 'peaks',
-      })
-    ).toBe(102);
+    const compactCount = resolveBarCountForCanvas({
+      density: 'compact',
+      canvasWidthPx,
+      presetId: 'peaks',
+    });
+    const normalCount = resolveBarCountForCanvas({
+      density: 'normal',
+      canvasWidthPx,
+      presetId: 'peaks',
+    });
+    const wideCount = resolveBarCountForCanvas({
+      density: 'wide',
+      canvasWidthPx,
+      presetId: 'peaks',
+    });
+
+    expect(compactCount).toBeGreaterThan(normalCount);
+    expect(normalCount).toBeGreaterThan(wideCount);
+    expect(compactCount).toBe(Math.round(canvasWidthPx / BAR_SLOT_WIDTH_BY_DENSITY.compact));
+    expect(wideCount).toBe(Math.round(canvasWidthPx / BAR_SLOT_WIDTH_BY_DENSITY.wide));
   });
 
   test('keeps density-based bar count for compact presets', () => {
@@ -53,6 +65,11 @@ describe('barVisualizerPreferences', () => {
         presetId: 'pulse',
       })
     ).toBe(40);
+  });
+
+  test('maps density to distinct bar gaps', () => {
+    expect(resolveBarGapForDensity('compact')).toBe(BAR_GAP_BY_DENSITY.compact);
+    expect(resolveBarGapForDensity('wide')).toBeGreaterThan(resolveBarGapForDensity('compact'));
   });
 });
 

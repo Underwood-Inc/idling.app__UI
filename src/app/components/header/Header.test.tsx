@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react';
 import Header from './Header';
 
 // Mock the Nav component
-jest.mock('../nav/Nav', () => {
-  return function MockNav() {
+vi.mock('../nav/Nav', () => ({
+  default: function MockNav() {
     return <div data-testid="mock-nav">Mock Nav</div>;
-  };
-});
+  }
+}));
 
 describe('Header', () => {
   it('renders without crashing', async () => {

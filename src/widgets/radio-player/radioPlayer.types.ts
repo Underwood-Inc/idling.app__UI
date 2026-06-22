@@ -41,6 +41,11 @@ export interface CreateCustomAudioSourceInput {
   supportsTrackMetadata?: boolean;
 }
 
+/** URL-only input for the simplified add-custom-source flow. */
+export interface AddCustomAudioSourceUrlInput {
+  url: string;
+}
+
 export interface CustomAudioSourceValidationResult {
   ok: boolean;
   normalizedUrl?: string;

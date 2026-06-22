@@ -10,8 +10,9 @@ import { IdRouteContext } from '@lib/types/next-route-context';
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -91,13 +92,11 @@ async function postHandler(
 > {
   try {
     const { id } = await params;
-    // Validate session
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_MANAGE);
+    if (!access.granted) {
+      return access.response as NextResponse<
+        ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse
+      >;
     }
 
     // Validate user exists
@@ -189,7 +188,7 @@ async function postHandler(
 
     // Log the admin action
     await logAdminAction(
-      session.user.id,
+      String(access.userId),
       'user_quota_reset',
       {
         target_user_id: id,

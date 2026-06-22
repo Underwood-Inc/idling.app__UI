@@ -3,10 +3,10 @@ import { GAME_WRAPPER_SELECTORS } from 'src/lib/test-selectors/components/game-w
 import { GameWrapper } from './GameWrapper';
 
 // Mock the next/script component
-jest.mock('next/script', () => ({
+vi.mock('next/script', () => ({
   __esModule: true,
   // eslint-disable-next-line @next/next/no-sync-scripts
-  default: jest.fn().mockImplementation(({ src }) => <script src={src} />)
+  default: vi.fn().mockImplementation(({ src }) => <script src={src} />)
 }));
 
 describe('GameWrapper', () => {

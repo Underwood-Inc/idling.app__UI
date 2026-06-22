@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/react';
 import { Navbar } from './Navbar';
 
 // Mock the NavbarBrand component
-jest.mock('./NavbarBrand', () => ({
+vi.mock('./NavbarBrand', () => ({
   NavbarBrand: () => <div data-testid="mocked-navbar-brand">Mocked Brand</div>
 }));
 
 // Mock the auth function
-jest.mock('../../../lib/auth', () => ({
-  auth: jest.fn(() => Promise.resolve({ user: { name: 'Test User' } }))
+vi.mock('../../../lib/auth', () => ({
+  auth: vi.fn(() => Promise.resolve({ user: { name: 'Test User' } }))
 }));
 
 describe('Navbar', () => {

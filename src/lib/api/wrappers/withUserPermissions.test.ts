@@ -1,37 +1,34 @@
-/**
- * @jest-environment node
- */
 import { NextRequest, NextResponse } from 'next/server';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { auth } from '@lib/auth';
+import { PermissionsService } from '@lib/permissions/permissions';
 import { withUserPermissions } from './withUserPermissions';
 
-// Mock the auth module using the correct alias
-jest.mock('@lib/auth', () => ({
-  auth: jest.fn()
+vi.mock('@lib/auth', () => ({
+  auth: vi.fn()
 }));
 
-// Mock the permissions module using the correct alias
-jest.mock('@lib/permissions/permissions', () => ({
+vi.mock('@lib/permissions/permissions', () => ({
   PermissionsService: {
-    getUserPermissions: jest.fn()
+    getUserPermissions: vi.fn()
   }
 }));
 
-// Import the mocked modules using the correct aliases
-import { auth } from '@lib/auth';
-import { PermissionsService } from '@lib/permissions/permissions';
-
 describe('withUserPermissions', () => {
-  const mockHandler = jest.fn();
+  const mockHandler = vi.fn();
   const req = {} as NextRequest;
   const ctx = {};
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('adds userPermissions to JSON response for authenticated user with permissions', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
-    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([{ name: 'read' }, { name: 'write' }]);
+  test('when a signed-in user has permissions, the JSON response includes userPermissions', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: '42' } } as Awaited<ReturnType<typeof auth>>);
+    vi.mocked(PermissionsService.getUserPermissions).mockResolvedValue([
+      { name: 'read' },
+      { name: 'write' }
+    ]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -41,9 +38,9 @@ describe('withUserPermissions', () => {
     expect(data.foo).toBe('bar');
   });
 
-  it('adds empty userPermissions if user has no permissions', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
-    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([]);
+  test('when a signed-in user has no permissions, userPermissions is an empty list', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: '42' } } as Awaited<ReturnType<typeof auth>>);
+    vi.mocked(PermissionsService.getUserPermissions).mockResolvedValue([]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -52,8 +49,8 @@ describe('withUserPermissions', () => {
     expect(data.userPermissions).toEqual([]);
   });
 
-  it('does not add userPermissions if unauthenticated', async () => {
-    (auth as jest.Mock).mockResolvedValue(null);
+  test('when the caller is unauthenticated, userPermissions is omitted', async () => {
+    vi.mocked(auth).mockResolvedValue(null);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -62,9 +59,9 @@ describe('withUserPermissions', () => {
     expect(data.userPermissions).toBeUndefined();
   });
 
-  it('returns non-JSON response as is', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
-    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([{ name: 'read' }]);
+  test('when the handler returns a non-JSON response, it is returned unchanged', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: '42' } } as Awaited<ReturnType<typeof auth>>);
+    vi.mocked(PermissionsService.getUserPermissions).mockResolvedValue([{ name: 'read' }]);
     const nonJson = new NextResponse('not json', { status: 200 });
     mockHandler.mockResolvedValue(nonJson);
 
@@ -73,9 +70,9 @@ describe('withUserPermissions', () => {
     expect(res).toBe(nonJson);
   });
 
-  it('does not throw if PermissionsService fails', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
-    (PermissionsService.getUserPermissions as jest.Mock).mockRejectedValue(new Error('fail'));
+  test('when permission lookup fails, the handler still returns without throwing', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: '42' } } as Awaited<ReturnType<typeof auth>>);
+    vi.mocked(PermissionsService.getUserPermissions).mockRejectedValue(new Error('fail'));
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -84,14 +81,13 @@ describe('withUserPermissions', () => {
     expect(data.userPermissions).toEqual(undefined);
   });
 
-  it('is composable with another wrapper', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
-    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([{ name: 'read' }]);
+  test('when composed with another wrapper, both enhancements appear in the response', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: '42' } } as Awaited<ReturnType<typeof auth>>);
+    vi.mocked(PermissionsService.getUserPermissions).mockResolvedValue([{ name: 'read' }]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
-    // Dummy wrapper that adds a property
-    const withExtra = (h: any) => async (req: any, ctx: any) => {
-      const res = await h(req, ctx);
+    const withExtra = (h: typeof mockHandler) => async (request: NextRequest, context: unknown) => {
+      const res = await h(request, context);
       const data = await res.json();
       return NextResponse.json({ ...data, extra: 1 }, { status: res.status });
     };
@@ -102,4 +98,4 @@ describe('withUserPermissions', () => {
     expect(data.userPermissions).toEqual(['read']);
     expect(data.extra).toBe(1);
   });
-}); 
+});

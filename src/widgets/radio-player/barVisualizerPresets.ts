@@ -61,10 +61,10 @@ function forEachBar(
   drawContext: BarVisualizerDrawContext,
   drawBar: (barIndex: number, level: number, x: number, barW: number) => void
 ): void {
-  const { width, height, data } = drawContext;
+  const { width, data, barGap } = drawContext;
   const count = data.length;
-  const gap = count > 32 ? 2 : 3;
-  const barW = (width - gap * (count - 1)) / count;
+  const gap = Math.max(0, barGap);
+  const barW = count > 0 ? (width - gap * (count - 1)) / count : width;
 
   for (let i = 0; i < count; i += 1) {
     const level = data[i] ?? 0;

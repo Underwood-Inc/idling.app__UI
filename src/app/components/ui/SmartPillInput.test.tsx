@@ -4,24 +4,24 @@ import { NavigationLoadingProvider } from '../../../lib/context/NavigationLoadin
 import { SmartPillInput } from './SmartPillInput';
 
 // Mock Next.js navigation
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(() => '/posts'),
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    back: jest.fn()
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/posts'),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn()
   })),
-  useSearchParams: jest.fn(() => new URLSearchParams())
+  useSearchParams: vi.fn(() => new URLSearchParams())
 }));
 
 // Mock the search actions
-jest.mock('../../../lib/actions/search.actions', () => ({
+vi.mock('../../../lib/actions/search.actions', () => ({
   searchHashtags: jest
     .fn()
     .mockResolvedValue([
       { id: '1', value: 'javascript', label: 'javascript', type: 'hashtag' }
     ]),
-  searchUsers: jest.fn().mockResolvedValue([
+  searchUsers: vi.fn().mockResolvedValue([
     {
       id: '1',
       value: 'user123',
@@ -35,7 +35,7 @@ jest.mock('../../../lib/actions/search.actions', () => ({
 describe('SmartPillInput', () => {
   const defaultProps = {
     value: '',
-    onChange: jest.fn(),
+    onChange: vi.fn(),
     contextId: 'test',
     placeholder: 'Type something...'
   };
@@ -50,7 +50,7 @@ describe('SmartPillInput', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders placeholder when empty', () => {
@@ -90,7 +90,7 @@ describe('SmartPillInput', () => {
   });
 
   it('commits changes when commit button is clicked', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     renderWithProviders({
       ...defaultProps,
       onChange,
@@ -113,7 +113,7 @@ describe('SmartPillInput', () => {
   });
 
   it('cancels changes when clicking outside without typing', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     renderWithProviders({
       ...defaultProps,
       onChange,
@@ -135,7 +135,7 @@ describe('SmartPillInput', () => {
   });
 
   it('shows existing pills in edit mode and allows removal', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     renderWithProviders({
       ...defaultProps,
       onChange,
@@ -162,7 +162,7 @@ describe('SmartPillInput', () => {
   });
 
   it('removes pills immediately when clicked in display mode', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     renderWithProviders({
       ...defaultProps,
       onChange,
@@ -178,7 +178,7 @@ describe('SmartPillInput', () => {
   });
 
   it('prevents duplicate hashtags from being added', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     renderWithProviders({
       ...defaultProps,
       onChange,
@@ -201,7 +201,7 @@ describe('SmartPillInput', () => {
   });
 
   it('prevents duplicate mentions from being added', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     renderWithProviders({
       ...defaultProps,
       onChange,

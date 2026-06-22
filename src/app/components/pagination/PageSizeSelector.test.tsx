@@ -4,7 +4,7 @@ import { PAGINATION_SELECTORS } from 'src/lib/test-selectors/components/paginati
 import PageSizeSelector from './PageSizeSelector';
 
 describe('PageSizeSelector', () => {
-  const mockOnPageSizeChange = jest.fn();
+  const mockOnPageSizeChange = vi.fn();
 
   beforeEach(() => {
     mockOnPageSizeChange.mockClear();

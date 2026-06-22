@@ -121,6 +121,10 @@ import {
   validateFileSize,
   validateMimeType
 } from '@lib/config/media-domains';
+import {
+  detectImageBufferType,
+  isBlockedUploadExtension
+} from '@lib/security/detectImageBufferType';
 import { ImageUploadSchema } from '@lib/schemas/upload.schema';
 import crypto from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
@@ -199,15 +203,39 @@ async function postHandler(request: NextRequest) {
       );
     }
 
-    // Generate secure filename
-    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const timestamp = Date.now();
-    const randomBytes = crypto.randomBytes(8).toString('hex');
-    const filename = `${timestamp}-${randomBytes}.${fileExtension}`;
-
-    // Convert file to buffer
+    // Convert file to buffer and verify content matches declared image type
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const detectedType = detectImageBufferType(buffer);
+
+    if (!detectedType) {
+      return NextResponse.json(
+        { error: 'File content is not a supported image format' },
+        { status: 400 }
+      );
+    }
+
+    if (isBlockedUploadExtension(detectedType.extension)) {
+      return NextResponse.json(
+        { error: 'File type is not allowed' },
+        { status: 400 }
+      );
+    }
+
+    const config = getMediaConfig('image');
+    if (!config.allowedMimeTypes.includes(detectedType.mimeType)) {
+      return NextResponse.json(
+        {
+          error: 'Invalid file type',
+          allowedTypes: config.allowedMimeTypes
+        },
+        { status: 400 }
+      );
+    }
+
+    const timestamp = Date.now();
+    const randomBytes = crypto.randomBytes(8).toString('hex');
+    const filename = `${timestamp}-${randomBytes}.${detectedType.extension}`;
 
     // Ensure upload directory exists
     const uploadDir = join(process.cwd(), 'public', 'uploads', 'images');
@@ -225,7 +253,7 @@ async function postHandler(request: NextRequest) {
       url: publicUrl,
       filename,
       size: file.size,
-      type: file.type
+      type: detectedType.mimeType
     });
   } catch (error) {
     console.error('Image upload error:', error);

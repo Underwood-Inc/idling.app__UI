@@ -6,35 +6,38 @@ import { PostFilters } from '../../../lib/types/filters';
 import FilterBar from './FilterBar';
 
 // Mock the atoms module
-jest.mock('../../../lib/state/atoms', () => ({
-  getDisplayFiltersAtom: jest.fn().mockReturnValue({
-    read: jest.fn(),
-    write: jest.fn()
+vi.mock('../../../lib/state/atoms', () => ({
+  getDisplayFiltersAtom: vi.fn().mockReturnValue({
+    read: vi.fn(),
+    write: vi.fn()
   }),
-  getSubmissionsFiltersAtom: jest.fn().mockReturnValue({
-    read: jest.fn(),
-    write: jest.fn()
+  getSubmissionsFiltersAtom: vi.fn().mockReturnValue({
+    read: vi.fn(),
+    write: vi.fn()
   })
 }));
 
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn().mockReturnValue([[], jest.fn()]) // displayFilters is an array
-}));
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
+  return {
+    ...actual,
+    useAtom: vi.fn().mockReturnValue([[], vi.fn()])
+  };
+});
 
 // Mock Next.js navigation
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn()
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn()
   }),
   useSearchParams: () => new URLSearchParams(),
   usePathname: () => '/test'
 }));
 
 // Mock the FilterLabel component
-jest.mock('./FilterLabel', () => {
+vi.mock('./FilterLabel', () => {
   return {
     FilterLabel: ({ name, label, onRemoveFilter, onRemoveTag }: any) => (
       <div data-testid={`filter-label-${name}-${label}`}>
@@ -59,11 +62,11 @@ jest.mock('./FilterLabel', () => {
 });
 
 // Create a mock for onUpdateFilter that can be accessed by TagLogicToggle
-let globalMockOnUpdateFilter: jest.Mock;
+let globalMockOnUpdateFilter: vi.mock;
 let currentTestFilters: Filter<PostFilters>[] = [];
 
 // Mock the TagLogicToggle component
-jest.mock('../shared/TagLogicToggle', () => {
+vi.mock('../shared/TagLogicToggle', () => {
   return {
     TagLogicToggle: ({ disabled, allTitle, anyTitle }: any) => {
       // Get the current logic from the test filters
@@ -107,7 +110,7 @@ jest.mock('../shared/TagLogicToggle', () => {
 });
 
 // Mock the LogicToggle component
-jest.mock('../shared/LogicToggle', () => {
+vi.mock('../shared/LogicToggle', () => {
   return {
     LogicToggle: ({
       currentLogic,
@@ -141,7 +144,7 @@ jest.mock('../shared/LogicToggle', () => {
 });
 
 // Mock the utils
-jest.mock('./utils/get-tags', () => ({
+vi.mock('./utils/get-tags', () => ({
   getTagsFromSearchParams: (value: string) => {
     return value
       .split(',')
@@ -152,17 +155,17 @@ jest.mock('./utils/get-tags', () => ({
 
 describe('FilterBar Component', () => {
   let store: ReturnType<typeof createStore>;
-  let mockOnRemoveFilter: jest.Mock;
-  let mockOnRemoveTag: jest.Mock;
-  let mockOnClearFilters: jest.Mock;
-  let mockOnUpdateFilter: jest.Mock;
+  let mockOnRemoveFilter: vi.mock;
+  let mockOnRemoveTag: vi.mock;
+  let mockOnClearFilters: vi.mock;
+  let mockOnUpdateFilter: vi.mock;
 
   beforeEach(() => {
     store = createStore();
-    mockOnRemoveFilter = jest.fn();
-    mockOnRemoveTag = jest.fn();
-    mockOnClearFilters = jest.fn();
-    mockOnUpdateFilter = jest.fn();
+    mockOnRemoveFilter = vi.fn();
+    mockOnRemoveTag = vi.fn();
+    mockOnClearFilters = vi.fn();
+    mockOnUpdateFilter = vi.fn();
     globalMockOnUpdateFilter = mockOnUpdateFilter;
   });
 

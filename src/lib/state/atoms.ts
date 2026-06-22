@@ -4,6 +4,10 @@ import { atomWithStorage } from 'jotai/utils';
 import { CONTEXT_IDS } from '../context-ids';
 import { createLogger } from '../logging';
 import { PostFilters } from '../types/filters';
+import {
+  formatTagForDisplay,
+  normalizeTagForDatabase
+} from '../utils/string/tag-utils';
 
 // Create logger for atoms state management
 const logger = createLogger({
@@ -497,18 +501,12 @@ export const initializeFiltersFromUrl = (
 
   // Validate and sanitize tags parameter using unified utilities
   const sanitizedTags = tagsParam
-    ? (() => {
-        const {
-          normalizeTagForDatabase,
-          formatTagForDisplay
-        } = require('../utils/string/tag-utils');
-        return tagsParam
-          .split(',')
-          .map((tag) => normalizeTagForDatabase(tag))
-          .filter(Boolean)
-          .map(formatTagForDisplay)
-          .join(',');
-      })()
+    ? tagsParam
+        .split(',')
+        .map((tag) => normalizeTagForDatabase(tag))
+        .filter(Boolean)
+        .map(formatTagForDisplay)
+        .join(',')
     : '';
 
   // Validate and sanitize author parameter
@@ -882,13 +880,7 @@ export const filtersFromUrlAtom = atom((get) => {
     const cleanTags = tagsParam
       .split(',')
       .map((tag) => tag.trim())
-      .map((tag) => {
-        const {
-          formatTagForDisplay,
-          normalizeTagForDatabase
-        } = require('../utils/string/tag-utils');
-        return formatTagForDisplay(normalizeTagForDatabase(tag));
-      })
+      .map((tag) => formatTagForDisplay(normalizeTagForDatabase(tag)))
       .filter(Boolean);
     if (cleanTags.length > 0) {
       // Create separate filter entries for each tag instead of comma-separated value

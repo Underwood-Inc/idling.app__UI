@@ -1,0 +1,41 @@
+---
+description: Unit test quality — use-case descriptions, real fixtures, minimal mocking (Vitest)
+globs: "**/*.test.ts,**/*.test.tsx,**/__tests__/**"
+alwaysApply: false
+---
+
+# Meaningful unit tests
+
+When writing or reviewing **Vitest** unit tests in this repo:
+
+## Test descriptions read like use cases
+
+- Prefer `test('when a guest opens the radio player, station probes stay on the public catalog', ...)`.
+- Name **who**, **what they do**, and **what should happen** — not implementation jargon (`test('validateX returns false', ...)` is too thin).
+- Use `test(...)`, not `it(...)`.
+
+## Real behaviour over theatre
+
+- Exercise **actual** inputs: real magic bytes, RFC private IPs, IANA timezone names, catalog entries, parser output.
+- Do **not** invent placeholder domain objects that skip the code under test.
+- Do **not** mock the module you are testing. Mock only **ports** (auth session, DNS, clock, fetch) when the alternative is flaky network or missing infrastructure.
+
+## Mocking discipline (Vitest)
+
+- Use `vi.mock`, `vi.fn`, `vi.spyOn`, and `vi.mocked()` — not Jest globals.
+- **Allowed:** boundary mocks (`auth()`, `dns.lookup`, `fetch`) with explicit return values tied to the scenario.
+- **Avoid:** mocking internal helpers, stubbing entire call chains, or asserting on mock call order when a public outcome assertion suffices.
+
+## Structure
+
+- One logical behaviour per test; multiple `expect` lines for the same outcome are fine.
+- Put tests beside the module under test (`src/lib/foo/bar.test.ts` next to `bar.ts`).
+- Node-only modules: rely on `environmentMatchGlobs` in `vitest.config.ts` or a file-level `@vitest-environment node` comment.
+
+## Commands
+
+- Run all unit tests: `pnpm test`
+- Watch mode: `pnpm test:watch`
+- Coverage: `pnpm test:coverage`
+
+Invoke skill **`meaningful-unit-tests`** for a deeper checklist when authoring security or API guard tests.

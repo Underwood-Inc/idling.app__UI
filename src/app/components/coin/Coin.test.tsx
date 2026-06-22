@@ -2,7 +2,7 @@ import { cleanup, render } from '@testing-library/react';
 import { COIN_SELECTORS } from '../../../lib/test-selectors/components/coin.selectors';
 import Coin, { CoinPropsSize } from './Coin';
 
-jest.mock('../avatar/Avatar', () => ({
+vi.mock('../avatar/Avatar', () => ({
   Avatar: function MockedAvatar() {
     return <div>Mocked Avatar</div>;
   }

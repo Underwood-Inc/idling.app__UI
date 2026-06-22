@@ -14,12 +14,13 @@ describe('FadeIn Component', () => {
     expect(element).toHaveClass('fade-in');
   });
 
-  it('applies the visible class after mount', () => {
-    jest.useFakeTimers();
+  test('applies the visible class after mount', () => {
+    vi.useFakeTimers();
     render(<FadeIn>Test Content</FadeIn>);
     const element = screen.getByText('Test Content');
-    jest.runAllTimers();
+    vi.runAllTimers();
     expect(element).toHaveClass('visible');
+    vi.useRealTimers();
   });
 
   it('applies additional class names', () => {

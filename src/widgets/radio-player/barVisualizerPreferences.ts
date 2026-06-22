@@ -6,6 +6,7 @@ export const BAR_VISUALIZER_PREFS_STORAGE_KEY = 'idling-radio-player-viz-prefs';
 export const DEFAULT_BAR_VISUALIZER_PREFERENCES: BarVisualizerPreferences = {
   presetId: 'wave',
   density: 'normal',
+  enabled: true,
 };
 
 export const BAR_COUNT_BY_DENSITY: Record<BarVisualizerDensity, number> = {
@@ -14,32 +15,48 @@ export const BAR_COUNT_BY_DENSITY: Record<BarVisualizerDensity, number> = {
   wide: 56,
 };
 
+/** Target pixel width per bar slot — lower = tighter spacing / more bars. */
+export const BAR_SLOT_WIDTH_BY_DENSITY: Record<BarVisualizerDensity, number> = {
+  compact: 3,
+  normal: 5,
+  wide: 8,
+};
+
+/** Gap between bars in the dock canvas (CSS px). */
+export const BAR_GAP_BY_DENSITY: Record<BarVisualizerDensity, number> = {
+  compact: 1,
+  normal: 2,
+  wide: 4,
+};
+
 export interface ResolveBarCountForCanvasInput {
   density: BarVisualizerDensity;
   canvasWidthPx: number;
   presetId: string;
 }
 
-const BAR_SLOT_WIDTH_PX = 5;
 const MAX_BAR_COUNT = 128;
+
+export function resolveBarGapForDensity(density: BarVisualizerDensity): number {
+  return BAR_GAP_BY_DENSITY[density] ?? BAR_GAP_BY_DENSITY.normal;
+}
 
 export function resolveBarCountForCanvas({
   density,
   canvasWidthPx,
   presetId,
 }: ResolveBarCountForCanvasInput): number {
-  const baseCount = BAR_COUNT_BY_DENSITY[density] ?? BAR_COUNT_BY_DENSITY.normal;
-
   if (getBarVisualizerDockLayout(presetId) === 'compact') {
-    return baseCount;
+    return BAR_COUNT_BY_DENSITY[density] ?? BAR_COUNT_BY_DENSITY.normal;
   }
 
   if (canvasWidthPx <= 0) {
-    return baseCount;
+    return BAR_COUNT_BY_DENSITY[density] ?? BAR_COUNT_BY_DENSITY.normal;
   }
 
-  const widthScaledCount = Math.round(canvasWidthPx / BAR_SLOT_WIDTH_PX);
-  return Math.min(MAX_BAR_COUNT, Math.max(baseCount, widthScaledCount));
+  const slotWidth = BAR_SLOT_WIDTH_BY_DENSITY[density] ?? BAR_SLOT_WIDTH_BY_DENSITY.normal;
+  const widthScaledCount = Math.round(canvasWidthPx / slotWidth);
+  return Math.min(MAX_BAR_COUNT, Math.max(8, widthScaledCount));
 }
 
 function isDensity(value: unknown): value is BarVisualizerDensity {
@@ -62,6 +79,10 @@ export function loadBarVisualizerPreferences(): BarVisualizerPreferences {
       density: isDensity(parsed.density)
         ? parsed.density
         : DEFAULT_BAR_VISUALIZER_PREFERENCES.density,
+      enabled:
+        typeof parsed.enabled === 'boolean'
+          ? parsed.enabled
+          : DEFAULT_BAR_VISUALIZER_PREFERENCES.enabled,
     };
   } catch {
     return { ...DEFAULT_BAR_VISUALIZER_PREFERENCES };

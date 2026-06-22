@@ -3,22 +3,22 @@ import { AUTH_BUTTON_SELECTORS } from 'src/lib/test-selectors/components/auth-bu
 import { SignIn, SignInProviders, SignOut } from './AuthButtons';
 import { signInAction, signOutAction } from './actions';
 
-jest.mock('./actions', () => ({
-  signInAction: jest.fn(),
-  signOutAction: jest.fn()
+vi.mock('./actions', () => ({
+  signInAction: vi.fn(),
+  signOutAction: vi.fn()
 }));
 
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    refresh: jest.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn()
   }))
 }));
 
 describe('AuthButtons', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('SignIn component', () => {
@@ -45,7 +45,7 @@ describe('AuthButtons', () => {
         });
 
         expect(signInAction).toHaveBeenCalled();
-        expect((signInAction as jest.Mock).mock.calls[0][0]).toBe(provider);
+        expect(vi.mocked(signInAction).mock.calls[0][0]).toBe(provider);
       }
     );
   });

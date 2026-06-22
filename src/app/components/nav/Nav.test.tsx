@@ -6,11 +6,11 @@ import { NAV_PATHS } from '../../../lib/routes';
 import Nav from './Nav';
 
 // Mock the dependencies
-jest.mock('../../../lib/auth', () => ({
-  auth: jest.fn()
+vi.mock('../../../lib/auth', () => ({
+  auth: vi.fn()
 }));
 
-jest.mock('next/link', () => {
+vi.mock('next/link', () => {
   const MockLink = ({
     children,
     href
@@ -19,14 +19,14 @@ jest.mock('next/link', () => {
     href: string;
   }) => <a href={href}>{children}</a>;
   MockLink.displayName = 'MockLink';
-  return MockLink;
+  return { default: MockLink };
 });
 
-jest.mock('./NavPaths', () => ({
+vi.mock('./NavPaths', () => ({
   NavPaths: () => <div data-testid="nav-paths">NavPaths</div>
 }));
 
-jest.mock('../navbar/Navbar', () => ({
+vi.mock('../navbar/Navbar', () => ({
   Navbar: {
     Body: ({ children }: { children: React.ReactNode }) => (
       <div>{children}</div>
@@ -39,25 +39,25 @@ jest.mock('../navbar/Navbar', () => ({
   }
 }));
 
-jest.mock('../auth-buttons/AuthButtons', () => ({
+vi.mock('../auth-buttons/AuthButtons', () => ({
   SignOut: () => <button>Sign Out</button>
 }));
 
 // Mock the Nav component
-jest.mock('./Nav', () => {
+vi.mock('./Nav', () => {
   return {
     __esModule: true,
-    default: jest.fn()
+    default: vi.fn()
   };
 });
 
 describe('Nav', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders correctly when user is not authenticated', async () => {
-    (auth as jest.Mock).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null);
     const mockNavContent = (
       <div>
         <a href={NAV_PATHS.ROOT} data-testid={NAV_SELECTORS.HOME_LINK}>
@@ -69,7 +69,7 @@ describe('Nav', () => {
         </a>
       </div>
     );
-    jest.mocked(Nav).mockResolvedValue(mockNavContent);
+    vi.mocked(Nav).mockResolvedValue(mockNavContent);
 
     render(await Nav());
 
@@ -82,7 +82,7 @@ describe('Nav', () => {
   });
 
   it('renders correctly when user is authenticated', async () => {
-    (auth as jest.Mock).mockResolvedValue({
+    vi.mocked(auth).mockResolvedValue({
       user: { name: 'Test User' }
     });
     const mockNavContent = (
@@ -95,7 +95,7 @@ describe('Nav', () => {
         <button data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON}>Sign Out</button>
       </div>
     );
-    jest.mocked(Nav).mockResolvedValue(mockNavContent);
+    vi.mocked(Nav).mockResolvedValue(mockNavContent);
 
     render(await Nav());
 
@@ -111,7 +111,7 @@ describe('Nav', () => {
   });
 
   it('renders the correct links', async () => {
-    (auth as jest.Mock).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null);
     const mockNavContent = (
       <div>
         <a href={NAV_PATHS.ROOT} data-testid={NAV_SELECTORS.HOME_LINK}>
@@ -123,7 +123,7 @@ describe('Nav', () => {
         </a>
       </div>
     );
-    jest.mocked(Nav).mockResolvedValue(mockNavContent);
+    vi.mocked(Nav).mockResolvedValue(mockNavContent);
 
     render(await Nav());
 

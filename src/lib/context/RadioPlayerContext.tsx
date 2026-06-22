@@ -1,14 +1,14 @@
 'use client';
 
 import type {
-  CreateCustomAudioSourceInput,
+  AddCustomAudioSourceUrlInput,
   CustomAudioSourceRecord,
   RadioPlayerHandle,
   RadioStationDefinition,
   RadioStationGenreId,
 } from '@widgets/radio-player/radioPlayer.types';
 import {
-  createCustomAudioSourceRecord,
+  createCustomAudioSourceFromUrl,
   listReservedAudioSourceNames,
   mergeCustomAudioSourcesIntoDefinitions,
   normalizeCustomAudioSourceRecord,
@@ -43,7 +43,7 @@ export interface RadioPlayerContextValue {
   customSourcesLoaded: boolean;
   customSourcesRevision: number;
   stationDefinitions: RadioStationDefinition[];
-  addCustomSource: (input: CreateCustomAudioSourceInput) => Promise<AddCustomAudioSourceResult>;
+  addCustomSource: (input: AddCustomAudioSourceUrlInput) => Promise<AddCustomAudioSourceResult>;
   removeCustomSource: (id: string) => Promise<void>;
   updateCustomSourceGenre: (id: string, genre: RadioStationGenreId) => Promise<void>;
 }
@@ -98,9 +98,9 @@ export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
   }, []);
 
   const addCustomSource = useCallback(
-    async (input: CreateCustomAudioSourceInput): Promise<AddCustomAudioSourceResult> => {
+    async (input: AddCustomAudioSourceUrlInput): Promise<AddCustomAudioSourceResult> => {
       const reservedNames = listReservedAudioSourceNames(RADIO_STATION_DEFINITIONS, customSources);
-      const result = createCustomAudioSourceRecord(input, reservedNames);
+      const result = createCustomAudioSourceFromUrl(input.url, reservedNames);
 
       if (!result.ok) {
         return { ok: false, message: result.message };

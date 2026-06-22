@@ -1,4 +1,6 @@
 import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -219,6 +221,11 @@ export async function GET(request: NextRequest) {
 // Optional: Add POST endpoint for admin updates
 export async function POST(request: NextRequest) {
   try {
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.ACCESS);
+    if (!access.granted) {
+      return access.response;
+    }
+
     const body = await request.json();
 
     // Validate request body with zod
@@ -292,6 +299,11 @@ export async function POST(request: NextRequest) {
 // Optional: Add DELETE endpoint for admin management
 export async function DELETE(request: NextRequest) {
   try {
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.ACCESS);
+    if (!access.granted) {
+      return access.response;
+    }
+
     const { searchParams } = new URL(request.url);
 
     // Validate query parameters

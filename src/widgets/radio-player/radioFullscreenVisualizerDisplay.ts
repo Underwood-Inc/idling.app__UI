@@ -8,8 +8,11 @@ export interface RadioFullscreenSpectrumBarHeightRange {
   max: number;
 }
 
+export type RadioFullscreenVisualizerSource = 'spectrum' | 'bar';
+
 export interface RadioFullscreenVisualizerDisplay {
   enabled: boolean;
+  source: RadioFullscreenVisualizerSource;
   opacity: number;
   presetIndex: number;
   spectrumBarHeight: number;
@@ -53,6 +56,7 @@ export const RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY =
 
 export const DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY: RadioFullscreenVisualizerDisplay = {
   enabled: true,
+  source: 'spectrum',
   opacity: 1,
   presetIndex: getRadioVisualizerPresetIndex(RADIO_FULLSCREEN_DEFAULT_PRESET_ID),
   spectrumBarHeight: 1,
@@ -132,6 +136,10 @@ export function normalizeRadioFullscreenVisualizerPresetIndex(value: unknown): n
   return Math.max(0, Math.floor(value));
 }
 
+function isFullscreenVisualizerSource(value: unknown): value is RadioFullscreenVisualizerSource {
+  return value === 'spectrum' || value === 'bar';
+}
+
 export function loadRadioFullscreenVisualizerDisplay(): RadioFullscreenVisualizerDisplay {
   if (typeof window === 'undefined') {
     return { ...DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY };
@@ -149,6 +157,9 @@ export function loadRadioFullscreenVisualizerDisplay(): RadioFullscreenVisualize
         typeof parsed.enabled === 'boolean'
           ? parsed.enabled
           : DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY.enabled,
+      source: isFullscreenVisualizerSource(parsed.source)
+        ? parsed.source
+        : DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY.source,
       opacity:
         typeof parsed.opacity === 'number'
           ? clampRadioFullscreenVisualizerOpacity(parsed.opacity)
@@ -175,6 +186,7 @@ export function saveRadioFullscreenVisualizerDisplay(
     RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY,
     JSON.stringify({
       enabled: display.enabled,
+      source: display.source,
       opacity: clampRadioFullscreenVisualizerOpacity(display.opacity),
       presetIndex: normalizeRadioFullscreenVisualizerPresetIndex(display.presetIndex),
       spectrumBarHeight: clampRadioFullscreenSpectrumBarHeight(display.spectrumBarHeight),

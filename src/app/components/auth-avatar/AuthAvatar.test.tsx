@@ -5,26 +5,26 @@ import { AVATAR_SELECTORS } from '../../../lib/test-selectors/components/avatar.
 import { AuthAvatar } from './AuthAvatar';
 
 // Mock next-auth/react
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn()
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn()
 }));
 
 // Mock jotai
-jest.mock('jotai', () => ({
-  useAtom: jest.fn(),
-  atom: jest.fn()
+vi.mock('jotai', () => ({
+  useAtom: vi.fn(),
+  atom: vi.fn()
 }));
 
 // Mock the atoms module to avoid import issues
-jest.mock('../../../lib/state/atoms', () => ({
+vi.mock('../../../lib/state/atoms', () => ({
   avatarCacheAtom: {}
 }));
 
 // Mock the Avatar component
-jest.mock('../avatar/Avatar', () => {
+vi.mock('../avatar/Avatar', () => {
   return {
     __esModule: true,
-    Avatar: jest.fn(({ seed, size }) => (
+    Avatar: vi.fn(({ seed, size }) => (
       <div data-testid={AVATAR_SELECTORS.CONTAINER}>
         Mock Avatar: {seed}, {size}
       </div>
@@ -32,14 +32,14 @@ jest.mock('../avatar/Avatar', () => {
   };
 });
 
-const mockUseSession = useSession as jest.Mock;
-const mockUseAtom = useAtom as jest.Mock;
+const mockUseSession = vi.mocked(useSession);
+const mockUseAtom = vi.mocked(useAtom);
 
 describe('AuthAvatar', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Mock avatar cache atom
-    mockUseAtom.mockReturnValue([{}, jest.fn()]);
+    mockUseAtom.mockReturnValue([{}, vi.fn()]);
   });
 
   it('renders Avatar with user ID as seed when session exists', () => {

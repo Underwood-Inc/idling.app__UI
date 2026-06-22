@@ -1,26 +1,31 @@
-import { Provider } from 'jotai';
+import { Provider, useAtom } from 'jotai';
+import { useFormState, useFormStatus } from 'react-dom';
 import { fireEvent, render, screen, waitFor } from '../../../../test-utils';
 import { DeleteSubmissionForm } from './DeleteSubmissionForm';
 
 // Mock Jotai atoms instead of old context hooks
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn().mockReturnValue([false, jest.fn()])
-}));
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
+  return {
+    ...actual,
+    useAtom: vi.fn().mockReturnValue([false, vi.fn()])
+  };
+});
 
-// Mock the delete submission action
-jest.mock('../actions', () => ({
-  deleteSubmissionAction: jest.fn().mockResolvedValue({
+vi.mock('react-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-dom')>('react-dom');
+  return {
+    ...actual,
+    useFormState: vi.fn(),
+    useFormStatus: vi.fn(() => ({ pending: false }))
+  };
+});
+
+vi.mock('../actions', () => ({
+  deleteSubmissionAction: vi.fn().mockResolvedValue({
     status: 1,
     message: 'Submission deleted successfully'
   })
-}));
-
-// Mock react-dom hooks
-jest.mock('react-dom', () => ({
-  ...jest.requireActual('react-dom'),
-  useFormState: jest.fn(),
-  useFormStatus: jest.fn(() => ({ pending: false }))
 }));
 
 describe('DeleteSubmissionForm', () => {
@@ -31,11 +36,10 @@ describe('DeleteSubmissionForm', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Setup default form state mock
-    const { useFormState } = require('react-dom');
-    useFormState.mockReturnValue([{ status: 0, message: '' }, jest.fn()]);
+    vi.clearAllMocks();
+    vi.mocked(useAtom).mockReturnValue([false, vi.fn()]);
+    vi.mocked(useFormState).mockReturnValue([{ status: 0, message: '' }, vi.fn()]);
+    vi.mocked(useFormStatus).mockReturnValue({ pending: false });
   });
 
   it('renders delete button when authorized', () => {
@@ -49,15 +53,12 @@ describe('DeleteSubmissionForm', () => {
   });
 
   it('handles form submission correctly', async () => {
-    const mockSetShouldUpdate = jest.fn();
-    const mockFormAction = jest.fn();
+    const mockSetShouldUpdate = vi.fn();
+    const mockFormAction = vi.fn();
 
-    const { useAtom } = require('jotai');
-    const { useFormState } = require('react-dom');
+    vi.mocked(useAtom).mockReturnValue([false, mockSetShouldUpdate]);
 
-    useAtom.mockReturnValue([false, mockSetShouldUpdate]);
-
-    useFormState.mockReturnValue([
+    vi.mocked(useFormState).mockReturnValue([
       { status: 1, message: 'Deleted successfully' },
       mockFormAction
     ]);
@@ -77,8 +78,7 @@ describe('DeleteSubmissionForm', () => {
   });
 
   it('shows loading state during submission', () => {
-    const { useFormStatus } = require('react-dom');
-    useFormStatus.mockReturnValue({ pending: true });
+    vi.mocked(useFormStatus).mockReturnValue({ pending: true });
 
     render(
       <Provider>
@@ -91,10 +91,9 @@ describe('DeleteSubmissionForm', () => {
   });
 
   it('displays success message after deletion', () => {
-    const { useFormState } = require('react-dom');
-    useFormState.mockReturnValue([
+    vi.mocked(useFormState).mockReturnValue([
       { status: 1, message: 'Deleted successfully' },
-      jest.fn()
+      vi.fn()
     ]);
 
     render(
@@ -107,10 +106,9 @@ describe('DeleteSubmissionForm', () => {
   });
 
   it('displays error message on failed deletion', () => {
-    const { useFormState } = require('react-dom');
-    useFormState.mockReturnValue([
+    vi.mocked(useFormState).mockReturnValue([
       { status: -1, error: 'Deletion failed' },
-      jest.fn()
+      vi.fn()
     ]);
 
     render(

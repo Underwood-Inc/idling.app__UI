@@ -3,48 +3,48 @@ import { Provider } from 'jotai';
 import SubmissionsList from './SubmissionsList';
 
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn()
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn()
   }),
   useSearchParams: () => new URLSearchParams(),
   usePathname: () => '/test'
 }));
 
 // Mock next-auth completely
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(() => ({
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn(() => ({
     data: { user: { id: 'test-user' } },
     status: 'authenticated'
   }))
 }));
 
-jest.mock('next-auth', () => ({
-  default: jest.fn(),
-  NextAuth: jest.fn(),
-  getServerSession: jest.fn()
+vi.mock('next-auth', () => ({
+  default: vi.fn(),
+  NextAuth: vi.fn(),
+  getServerSession: vi.fn()
 }));
 
 // Mock the auth module
-jest.mock('../../../lib/auth', () => ({
-  auth: jest.fn().mockResolvedValue({
+vi.mock('../../../lib/auth', () => ({
+  auth: vi.fn().mockResolvedValue({
     user: { id: 'test-user' }
   })
 }));
 
 // Mock jotai useAtom for this component
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn().mockReturnValue([
-    [], // displayFilters
-    jest.fn() // setDisplayFilters
-  ])
-}));
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
+  return {
+    ...actual,
+    useAtom: vi.fn().mockReturnValue([[], vi.fn()])
+  };
+});
 
 // Mock the SubmissionItem component
-jest.mock('./SubmissionItem', () => ({
+vi.mock('./SubmissionItem', () => ({
   SubmissionItem: ({ submission, onTagClick }: any) => (
     <div data-testid="submission-item">
       <h3>{submission.submission_title}</h3>
@@ -61,10 +61,10 @@ jest.mock('./SubmissionItem', () => ({
 }));
 
 describe('SubmissionsList', () => {
-  const mockOnTagClick = jest.fn();
-  const mockOnHashtagClick = jest.fn();
-  const mockOnMentionClick = jest.fn();
-  const mockOnRefresh = jest.fn();
+  const mockOnTagClick = vi.fn();
+  const mockOnHashtagClick = vi.fn();
+  const mockOnMentionClick = vi.fn();
+  const mockOnRefresh = vi.fn();
 
   const defaultProps = {
     posts: [],
@@ -87,7 +87,7 @@ describe('SubmissionsList', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders submissions list correctly', () => {
