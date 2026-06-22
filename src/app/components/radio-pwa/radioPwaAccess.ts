@@ -1,5 +1,6 @@
 import {
   IDLING_RADIO_PWA_START_PATH,
+  RADIO_PWA_AUTO_PROMPT_SESSION_KEY,
   RADIO_PWA_INSTALLED_STORAGE_KEY,
   RADIO_PWA_MANIFEST_HREF,
 } from '@lib/radio-pwa/constants';
@@ -45,12 +46,14 @@ export { isRadioPwaInstallIntentActive };
 
 export function markRadioPwaInstalled(): void {
   localStorage.setItem(RADIO_PWA_INSTALLED_STORAGE_KEY, '1');
+  sessionStorage.removeItem(RADIO_PWA_AUTO_PROMPT_SESSION_KEY);
   clearRadioPwaInstallIntent();
   clearRadioPwaInstallPrompt();
   restoreMainSiteManifestLink();
 }
 
 export function clearRadioPwaInstallIntentState(): void {
+  sessionStorage.removeItem(RADIO_PWA_AUTO_PROMPT_SESSION_KEY);
   clearRadioPwaInstallIntent();
   clearRadioPwaInstallPrompt();
   restoreMainSiteManifestLink();
@@ -64,6 +67,7 @@ export function beginRadioPwaInstallFlow(): boolean {
 
   setRadioPwaInstallIntent();
   setRadioPwaManifestLink();
+  sessionStorage.setItem(RADIO_PWA_AUTO_PROMPT_SESSION_KEY, '1');
   window.location.reload();
   return true;
 }
