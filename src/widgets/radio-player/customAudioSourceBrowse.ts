@@ -14,7 +14,7 @@ export const CUSTOM_AUDIO_SOURCE_URL_HINT =
   'HTTPS stream URL — direct MP3/AAC/Ogg/Icecast mount, HLS (.m3u8), or playlist (.pls / .m3u). Playlist and HLS links are resolved before playback.';
 
 /** Gate the “Add your own source” UI until custom-source flow is ready for production. */
-export const CUSTOM_AUDIO_SOURCES_UI_ENABLED = true;
+export const CUSTOM_AUDIO_SOURCES_UI_ENABLED = false;
 
 const CUSTOM_AUDIO_SOURCE_GENRE_IDS = new Set<RadioStationGenreId>(
   Object.keys(RADIO_STATION_GENRES) as RadioStationGenreId[]
