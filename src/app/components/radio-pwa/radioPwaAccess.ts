@@ -3,11 +3,6 @@ import {
   RADIO_PWA_INSTALLED_STORAGE_KEY,
   RADIO_PWA_MANIFEST_HREF,
 } from '@lib/radio-pwa/constants';
-import {
-  clearRadioPwaInstallIntent,
-  isRadioPwaInstallIntentActive,
-  setRadioPwaInstallIntent,
-} from '@lib/radio-pwa/intent';
 import { clearRadioPwaInstallPrompt } from '@lib/radio-pwa/installPrompt';
 
 export { IDLING_RADIO_PWA_START_PATH as RADIO_PWA_START_PATH };
@@ -41,34 +36,10 @@ export function isRadioPwaInstalled(): boolean {
   return localStorage.getItem(RADIO_PWA_INSTALLED_STORAGE_KEY) === '1';
 }
 
-export { isRadioPwaInstallIntentActive };
-
 export function markRadioPwaInstalled(): void {
   localStorage.setItem(RADIO_PWA_INSTALLED_STORAGE_KEY, '1');
-  clearRadioPwaInstallIntent();
   clearRadioPwaInstallPrompt();
   restoreMainSiteManifestLink();
-}
-
-export function clearRadioPwaInstallIntentState(): void {
-  clearRadioPwaInstallIntent();
-  clearRadioPwaInstallPrompt();
-  restoreMainSiteManifestLink();
-}
-
-/**
- * First click: persist intent + reload so SSR serves the radio manifest.
- * Second click (after reload): must call deferredPrompt.prompt() from the user gesture.
- */
-export function beginRadioPwaInstallFlow(): boolean {
-  if (isRadioPwaInstallIntentActive()) {
-    return false;
-  }
-
-  setRadioPwaInstallIntent();
-  setRadioPwaManifestLink();
-  window.location.reload();
-  return true;
 }
 
 export function setRadioPwaManifestLink(): void {

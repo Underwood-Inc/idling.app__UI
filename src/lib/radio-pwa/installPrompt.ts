@@ -1,5 +1,4 @@
 import { RADIO_PWA_INSTALL_READY_EVENT, RADIO_PWA_MANIFEST_HREF } from './constants';
-import { isRadioPwaInstallIntentActive } from './intent';
 
 export interface PwaBeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -30,10 +29,6 @@ export function isRadioPwaManifestActive(): boolean {
 
   const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')?.href ?? '';
   return href.includes(RADIO_PWA_MANIFEST_HREF) || href.includes('idling-radio.webmanifest');
-}
-
-export function shouldCaptureRadioInstallPrompt(): boolean {
-  return isRadioPwaInstallIntentActive() || isRadioPwaManifestActive();
 }
 
 export function getRadioPwaDeferredPrompt(): PwaBeforeInstallPromptEvent | null {
@@ -92,7 +87,7 @@ export function ensureRadioPwaInstallPromptListener(): void {
   windowWithListener.__idlingRadioInstallListenerRegistered = true;
 
   window.addEventListener('beforeinstallprompt', (event) => {
-    if (!shouldCaptureRadioInstallPrompt()) {
+    if (!isRadioPwaManifestActive()) {
       return;
     }
 
@@ -101,5 +96,8 @@ export function ensureRadioPwaInstallPromptListener(): void {
   });
 }
 
-/** Inline script — registers before React hydrates when the radio manifest is active. */
-export const RADIO_PWA_INSTALL_EARLY_CAPTURE_SCRIPT = `(function(){function c(){return document.cookie.indexOf("idling-radio-pwa-install-intent=1")!==-1}function m(){var l=document.querySelector('link[rel="manifest"]');return l&&l.href.indexOf("idling-radio")!==-1}function ok(){return c()||m()}if(!ok())return;window.addEventListener("beforeinstallprompt",function(e){if(!ok())return;e.preventDefault();window.__idlingRadioDeferredPrompt=e;window.dispatchEvent(new CustomEvent("idling-radio-install-ready"));});})();`;
+/**
+ * Runs before React hydrates on site pages: point manifest at Idling Radio and
+ * capture beforeinstallprompt when the browser offers it.
+ */
+export const RADIO_PWA_BOOTSTRAP_SCRIPT = `(function(){try{if(window.matchMedia("(display-mode: standalone)").matches)return;if(localStorage.getItem("idling-radio-pwa-installed")==="1")return;var l=document.querySelector('link[rel="manifest"]');if(!l){l=document.createElement("link");l.rel="manifest";document.head.appendChild(l);}l.href="/idling-radio.webmanifest";window.addEventListener("beforeinstallprompt",function(e){var m=document.querySelector('link[rel="manifest"]');if(!m||m.href.indexOf("idling-radio")===-1)return;e.preventDefault();window.__idlingRadioDeferredPrompt=e;window.dispatchEvent(new CustomEvent("idling-radio-install-ready"));});}catch(e){}})();`;
