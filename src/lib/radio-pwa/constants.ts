@@ -13,6 +13,5 @@ export const RADIO_PWA_INSTALL_INTENT_STORAGE_KEY = 'idling-radio-pwa-install-in
 
 export const RADIO_PWA_INSTALL_READY_EVENT = 'idling-radio-install-ready';
 
-export const RADIO_PWA_AUTO_PROMPT_SESSION_KEY = 'idling-radio-pwa-auto-prompt';
-
-export const RADIO_PWA_INSTALL_PREPARE_TIMEOUT_MS = 12_000;
+/** How long to wait after reload before treating the browser install offer as unavailable. */
+export const RADIO_PWA_INSTALL_OFFER_WAIT_MS = 8_000;
