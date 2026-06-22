@@ -4,9 +4,9 @@
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import {
   PermissionsService,
+  PERMISSIONS,
   TIMEOUT_TYPES
 } from '@lib/permissions/permissions';
 import {
@@ -14,6 +14,7 @@ import {
   AdminTimeoutRevocationParamsSchema,
   AdminTimeoutStatusParamsSchema
 } from '@lib/schemas/admin-users.schema';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -23,9 +24,9 @@ export const dynamic = 'force-dynamic';
 // POST /api/admin/users/timeout - Issue timeout to user
 async function postHandler(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_TIMEOUT);
+    if (!access.granted) {
+      return access.response;
     }
 
     // Validate request body
@@ -44,7 +45,7 @@ async function postHandler(request: NextRequest) {
 
     const { userId, timeoutType, reason, durationHours } = bodyResult.data;
 
-    const issuedBy = parseInt(session.user.id);
+    const issuedBy = access.userId;
 
     // Issue the timeout
     const success = await PermissionsService.issueTimeout(
@@ -86,9 +87,9 @@ async function postHandler(request: NextRequest) {
 // DELETE /api/admin/users/timeout - Revoke timeout
 async function deleteHandler(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_TIMEOUT);
+    if (!access.granted) {
+      return access.response;
     }
 
     // Validate query parameters
@@ -111,7 +112,7 @@ async function deleteHandler(request: NextRequest) {
     const { id: timeoutId, reason = 'Revoked by administrator' } =
       paramsResult.data;
 
-    const revokedBy = parseInt(session.user.id);
+    const revokedBy = access.userId;
 
     // Revoke the timeout
     const success = await PermissionsService.revokeTimeout(
@@ -151,6 +152,11 @@ async function deleteHandler(request: NextRequest) {
 // GET /api/admin/users/timeout - Get user timeout status
 async function getHandler(request: NextRequest) {
   try {
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_TIMEOUT);
+    if (!access.granted) {
+      return access.response;
+    }
+
     // Validate query parameters
     const { searchParams } = new URL(request.url);
     const paramsResult = AdminTimeoutStatusParamsSchema.safeParse({

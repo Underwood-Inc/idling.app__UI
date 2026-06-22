@@ -1,24 +1,28 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'jotai';
+import { Provider, useAtom } from 'jotai';
+import { useFormState, useFormStatus } from 'react-dom';
 import { AddSubmissionForm } from './AddSubmissionForm';
 
 // Mock Jotai atoms instead of old context hooks
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn().mockReturnValue([false, jest.fn()])
-}));
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
+  return {
+    ...actual,
+    useAtom: vi.fn().mockReturnValue([false, vi.fn()])
+  };
+});
 
 // Mock the add submission action
-jest.mock('../actions', () => ({
-  addSubmissionAction: jest.fn().mockResolvedValue({
+vi.mock('../actions', () => ({
+  addSubmissionAction: vi.fn().mockResolvedValue({
     status: 1,
     message: 'Submission added successfully'
   }),
-  createSubmissionAction: jest.fn().mockResolvedValue({
+  createSubmissionAction: vi.fn().mockResolvedValue({
     status: 1,
     message: 'Submission added successfully'
   }),
-  validateCreateSubmissionFormAction: jest.fn().mockResolvedValue({
+  validateCreateSubmissionFormAction: vi.fn().mockResolvedValue({
     status: 0,
     message: '',
     error: ''
@@ -26,22 +30,25 @@ jest.mock('../actions', () => ({
 }));
 
 // Mock react-dom hooks
-jest.mock('react-dom', () => ({
-  ...jest.requireActual('react-dom'),
-  useFormState: jest.fn(),
-  useFormStatus: jest.fn(() => ({ pending: false }))
-}));
+vi.mock('react-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-dom')>('react-dom');
+  return {
+    ...actual,
+    useFormState: vi.fn(),
+    useFormStatus: vi.fn(() => ({ pending: false }))
+  };
+});
 
 // Mock next-auth
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(() => ({
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn(() => ({
     data: { user: { id: 'test-user' } },
     status: 'authenticated'
   }))
 }));
 
 // Mock SmartInput component
-jest.mock('../../ui/SmartInput', () => ({
+vi.mock('../../ui/SmartInput', () => ({
   SmartInput: ({
     value,
     onChange,
@@ -70,11 +77,10 @@ describe('AddSubmissionForm', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Setup default form state mock
-    const { useFormState } = require('react-dom');
-    useFormState.mockReturnValue([{ status: 0, message: '' }, jest.fn()]);
+    vi.clearAllMocks();
+    vi.mocked(useAtom).mockReturnValue([false, vi.fn()]);
+    vi.mocked(useFormState).mockReturnValue([{ status: 0, message: '' }, vi.fn()]);
+    vi.mocked(useFormStatus).mockReturnValue({ pending: false });
   });
 
   it('renders form correctly', () => {
@@ -95,15 +101,12 @@ describe('AddSubmissionForm', () => {
   });
 
   it('handles form submission correctly', async () => {
-    const mockSetShouldUpdate = jest.fn();
-    const mockFormAction = jest.fn();
+    const mockSetShouldUpdate = vi.fn();
+    const mockFormAction = vi.fn();
 
-    const { useAtom } = require('jotai');
-    const { useFormState } = require('react-dom');
+    vi.mocked(useAtom).mockReturnValue([false, mockSetShouldUpdate]);
 
-    useAtom.mockReturnValue([false, mockSetShouldUpdate]);
-
-    useFormState.mockReturnValue([
+    vi.mocked(useFormState).mockReturnValue([
       { status: 1, message: 'Success' },
       mockFormAction
     ]);
@@ -130,8 +133,7 @@ describe('AddSubmissionForm', () => {
   });
 
   it('shows loading state during submission', () => {
-    const { useFormStatus } = require('react-dom');
-    useFormStatus.mockReturnValue({ pending: true });
+    vi.mocked(useFormStatus).mockReturnValue({ pending: true });
 
     render(
       <Provider>
@@ -144,10 +146,9 @@ describe('AddSubmissionForm', () => {
   });
 
   it('displays error message on failed submission', () => {
-    const { useFormState } = require('react-dom');
-    useFormState.mockReturnValue([
+    vi.mocked(useFormState).mockReturnValue([
       { status: -1, message: 'Submission failed' },
-      jest.fn()
+      vi.fn()
     ]);
 
     render(
@@ -160,10 +161,9 @@ describe('AddSubmissionForm', () => {
   });
 
   it('resets form after successful submission', async () => {
-    const { useFormState } = require('react-dom');
-    useFormState.mockReturnValue([
+    vi.mocked(useFormState).mockReturnValue([
       { status: 1, message: 'Success' },
-      jest.fn()
+      vi.fn()
     ]);
 
     render(

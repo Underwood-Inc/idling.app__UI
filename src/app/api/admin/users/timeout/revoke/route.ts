@@ -4,8 +4,9 @@
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface RevokeTimeoutRequest {
@@ -21,12 +22,12 @@ export interface RevokeTimeoutResponse {
 // POST /api/admin/users/timeout/revoke - Revoke a user timeout
 async function postHandler(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_TIMEOUT);
+    if (!access.granted) {
+      return access.response;
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = access.userId;
 
     const {
       timeoutId,

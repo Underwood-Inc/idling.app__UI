@@ -7,32 +7,27 @@ const mockNow = 1700000000000; // 2023-11-14T12:13:20.000Z
 const originalDateNow = Date.now;
 
 // Mock fetch
-const mockFetch = jest.fn();
+const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-// Mock window.matchMedia for mobile detection
-const mockMatchMedia = jest.fn();
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: mockMatchMedia
-});
+// Mock window.matchMedia for mobile detection — use global mock from vitest.setup; override per test in beforeEach.
 
 describe('LinkTooltip', () => {
   beforeEach(() => {
     // Mock Date.now() before each test
-    Date.now = jest.fn(() => mockNow);
+    Date.now = vi.fn(() => mockNow);
     // Reset fetch mock
     mockFetch.mockReset();
     // Reset matchMedia mock to return desktop by default
-    mockMatchMedia.mockImplementation((query) => ({
-      matches: false, // Default to desktop
+    vi.mocked(window.matchMedia).mockImplementation((query) => ({
+      matches: false,
       media: query,
       onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn()
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn()
     }));
   });
 
@@ -66,15 +61,15 @@ describe('LinkTooltip', () => {
 
   it('shows tooltip on click on mobile', async () => {
     // Mock mobile device
-    mockMatchMedia.mockImplementation((query) => ({
+    vi.mocked(window.matchMedia).mockImplementation((query) => ({
       matches: query === '(hover: none) and (pointer: coarse)',
       media: query,
       onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn()
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn()
     }));
 
     mockFetch.mockResolvedValueOnce({
@@ -107,7 +102,7 @@ describe('LinkTooltip', () => {
 
   it('opens link in new tab on regular click on desktop', () => {
     const originalOpen = window.open;
-    window.open = jest.fn();
+    window.open = vi.fn();
 
     render(<LinkTooltip url="https://example.com">Example Link</LinkTooltip>);
 
@@ -124,19 +119,19 @@ describe('LinkTooltip', () => {
 
   it('prevents default link behavior on mobile', () => {
     // Mock mobile device
-    mockMatchMedia.mockImplementation((query) => ({
+    vi.mocked(window.matchMedia).mockImplementation((query) => ({
       matches: query === '(hover: none) and (pointer: coarse)',
       media: query,
       onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn()
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn()
     }));
 
     const originalOpen = window.open;
-    window.open = jest.fn();
+    window.open = vi.fn();
 
     render(<LinkTooltip url="https://example.com">Example Link</LinkTooltip>);
 
@@ -152,7 +147,7 @@ describe('LinkTooltip', () => {
 describe('formatLastUpdated', () => {
   beforeEach(() => {
     // Mock Date.now() before each test
-    Date.now = jest.fn(() => mockNow);
+    Date.now = vi.fn(() => mockNow);
   });
 
   afterEach(() => {

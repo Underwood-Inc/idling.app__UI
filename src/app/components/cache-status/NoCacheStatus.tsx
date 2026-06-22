@@ -1,6 +1,7 @@
 'use client';
 
 /* eslint-disable no-console */
+import { deleteNonPreservedIndexedDatabases } from '@widgets/radio-player/radioPlayerPersistence';
 import { signOut } from 'next-auth/react';
 import React, { useState } from 'react';
 import './CacheStatus.css';
@@ -109,25 +110,11 @@ const NoCacheStatus: React.FC = () => {
         console.log('✅ All cookies cleared');
       }
 
-      // Step 8: Clear IndexedDB completely
+      // Step 8: Clear IndexedDB (preserves user-added radio streams)
       if ('indexedDB' in window) {
         try {
-          const databases = await indexedDB.databases();
-          await Promise.all(
-            databases.map((db) => {
-              if (db.name) {
-                return new Promise((resolve, reject) => {
-                  const deleteReq = indexedDB.deleteDatabase(db.name!);
-                  deleteReq.onsuccess = () => {
-                    console.log(`✅ IndexedDB ${db.name} cleared`);
-                    resolve(undefined);
-                  };
-                  deleteReq.onerror = () => reject(deleteReq.error);
-                });
-              }
-              return Promise.resolve();
-            })
-          );
+          await deleteNonPreservedIndexedDatabases();
+          console.log('✅ IndexedDB cleared (radio custom sources preserved)');
         } catch (e) {
           console.log(
             'ℹ️ IndexedDB clearing not supported or no databases found'

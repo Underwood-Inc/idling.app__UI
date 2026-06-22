@@ -3,12 +3,8 @@ import { PageSize } from '../../../lib/state/atoms';
 import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
 import Pagination from './Pagination';
 
-// Mock the PageSizeSelector component to avoid import issues
-jest.mock('./PageSizeSelector', () => {
-  const {
-    PAGINATION_SELECTORS
-  } = require('../../../lib/test-selectors/components/pagination.selectors');
-  return function MockPageSizeSelector({
+vi.mock('./PageSizeSelector', () => ({
+  default: function MockPageSizeSelector({
     pageSize,
     onPageSizeChange
   }: {
@@ -27,14 +23,14 @@ jest.mock('./PageSizeSelector', () => {
         <option value={100}>100</option>
       </select>
     );
-  };
-});
+  }
+}));
 
 const testDataId = 'default';
 
 describe('Pagination', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders correctly with initial state', () => {
@@ -62,7 +58,7 @@ describe('Pagination', () => {
   });
 
   it('handles previous button click', () => {
-    const mockOnPageChange = jest.fn();
+    const mockOnPageChange = vi.fn();
     render(
       <Pagination
         id={testDataId}
@@ -80,7 +76,7 @@ describe('Pagination', () => {
   });
 
   it('handles next button click', () => {
-    const mockOnPageChange = jest.fn();
+    const mockOnPageChange = vi.fn();
     render(
       <Pagination
         id={testDataId}
@@ -97,7 +93,7 @@ describe('Pagination', () => {
   });
 
   it('handles page selection', () => {
-    const mockOnPageChange = jest.fn();
+    const mockOnPageChange = vi.fn();
     render(
       <Pagination
         id={testDataId}
@@ -114,7 +110,7 @@ describe('Pagination', () => {
   });
 
   it('handles page size selection', () => {
-    const mockOnPageSizeChange = jest.fn();
+    const mockOnPageSizeChange = vi.fn();
     render(
       <Pagination
         id={testDataId}

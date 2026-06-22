@@ -1,10 +1,13 @@
 import { RADIO_STATION_DEFINITIONS } from './radioStationCatalog';
 import {
   filterRadioStationsByGenre,
+  filterRadioStationsBySearch,
   groupRadioStationsByGenre,
+  isRadioStationInGenreFilter,
   listAvailableRadioStations,
   listRadioStationGenreFilters,
 } from './radioStationBrowse';
+import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
 
 describe('radioStationBrowse', () => {
   test('groups available stations by genre in catalog order', () => {
@@ -64,5 +67,25 @@ describe('radioStationBrowse', () => {
 
     expect(jazzOnly.map((station) => station.name)).toEqual(['Jazz24']);
     expect(filterRadioStationsByGenre(stations, null)).toEqual(stations);
+  });
+
+  test('when the current station is hidden by a genre filter, the helper reports it as not visible', () => {
+    const available = ['Jazz24', 'FIP', 'Radio Paradise'];
+    const stations = listAvailableRadioStations(RADIO_STATION_DEFINITIONS, available);
+
+    expect(isRadioStationInGenreFilter(stations, 'FIP', 'jazz')).toBe(false);
+    expect(isRadioStationInGenreFilter(stations, 'FIP', 'eclectic')).toBe(true);
+    expect(isRadioStationInGenreFilter(stations, 'FIP', null)).toBe(true);
+  });
+
+  test('when a listener searches with a hashtag and words, stations match name blurb or genre', () => {
+    const available = ['Jazz24', 'FIP Groove', 'Radio Paradise'];
+    const stations = listAvailableRadioStations(RADIO_STATION_DEFINITIONS, available);
+    const query = parseHumanFriendlySearchQuery('#electronic groove');
+
+    const matches = filterRadioStationsBySearch(stations, query).map((station) => station.name);
+
+    expect(matches).toContain('FIP Groove');
+    expect(matches).not.toContain('Jazz24');
   });
 });

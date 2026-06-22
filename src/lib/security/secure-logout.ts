@@ -8,6 +8,8 @@
  * SECURITY CRITICAL: This utility prevents cache-based permission leakage
  */
 
+import { deleteNonPreservedIndexedDatabases } from '@widgets/radio-player/radioPlayerPersistence';
+
 // Simple console logger for client-side operations
 const logger = {
   info: (...args: any[]) => console.info('[SecureLogout]', ...args),
@@ -294,41 +296,9 @@ async function clearSecureIndexedDB(): Promise<boolean> {
   }
 
   try {
-    // Modern browsers support indexedDB.databases()
-    if ('databases' in indexedDB) {
-      const databases = await (indexedDB as any).databases();
-
-      if (databases.length > 0) {
-        logger.info('Clearing IndexedDB databases', {
-          databases: databases.map((db: any) => db.name)
-        });
-      }
-
-      await Promise.all(
-        databases.map((db: any) => {
-          if (db.name) {
-            return new Promise<void>((resolve, reject) => {
-              const deleteReq = indexedDB.deleteDatabase(db.name);
-              deleteReq.onsuccess = () => {
-                logger.debug('IndexedDB deleted', { database: db.name });
-                resolve();
-              };
-              deleteReq.onerror = () => reject(deleteReq.error);
-              deleteReq.onblocked = () => {
-                logger.warn('IndexedDB deletion blocked', {
-                  database: db.name
-                });
-                resolve(); // Don't fail the entire process
-              };
-            });
-          }
-          return Promise.resolve();
-        })
-      );
-    }
-
-    logger.info('IndexedDB cleared');
-    return true;
+    const cleared = await deleteNonPreservedIndexedDatabases();
+    logger.info('IndexedDB cleared (radio custom sources preserved)');
+    return cleared;
   } catch (error) {
     logger.warn('Failed to clear IndexedDB:', error as Error);
     return false;

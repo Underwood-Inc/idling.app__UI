@@ -1,7 +1,8 @@
 import {
   buildCustomAudioSourceCatalog,
+  createCustomAudioSourceFromUrl,
   createCustomAudioSourceRecord,
-  listCustomAudioSourceGenreOptions,
+  deriveCustomAudioSourceName,
   mergeCustomAudioSourcesIntoDefinitions,
   normalizeCustomAudioSourceRecord,
   updateCustomAudioSourceGenre,
@@ -33,10 +34,14 @@ describe('customAudioSourceBrowse', () => {
     expect(result.normalizedUrl).toBe('https://radio.example.com/live.mp3');
   });
 
-  test('rejects playlist and HLS URLs', () => {
-    expect(validateCustomAudioSourceUrl('https://radio.example.com/live.m3u8').ok).toBe(false);
-    expect(validateCustomAudioSourceUrl('https://radio.example.com/list.pls').ok).toBe(false);
-    expect(validateCustomAudioSourceUrl('https://radio.example.com/feed.m3u').ok).toBe(false);
+  test('accepts HLS and playlist URLs', () => {
+    expect(validateCustomAudioSourceUrl('https://radio.example.com/live.m3u8').ok).toBe(true);
+    expect(validateCustomAudioSourceUrl('https://radio.example.com/list.pls').ok).toBe(true);
+    expect(validateCustomAudioSourceUrl('https://radio.example.com/feed.m3u').ok).toBe(true);
+  });
+
+  test('rejects unsupported XSPF playlists', () => {
+    expect(validateCustomAudioSourceUrl('https://radio.example.com/feed.xspf').ok).toBe(false);
   });
 
   test('rejects duplicate names against the built-in catalog', () => {
@@ -68,7 +73,28 @@ describe('customAudioSourceBrowse', () => {
     });
   });
 
-  test('creates a persisted custom source record with defaults', () => {
+  test('creates a custom source from a URL with derived defaults', () => {
+    const reserved: string[] = [];
+    const result = createCustomAudioSourceFromUrl('https://night.example.net/live.mp3', reserved);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.record.name).toBe('night.example.net');
+      expect(result.record.kind).toBe('live-stream');
+      expect(result.record.genre).toBe('custom');
+      expect(result.record.supportsTrackMetadata).toBe(true);
+    }
+  });
+
+  test('derives unique names when hostname collides with catalog entries', () => {
+    const reserved = RADIO_STATION_DEFINITIONS.map((definition) => definition.name);
+    const name = deriveCustomAudioSourceName('https://stream.wqxr.org/wqxr', reserved);
+
+    expect(name.startsWith('stream.wqxr.org')).toBe(true);
+    expect(name).not.toBe('WQXR Classical');
+  });
+
+  test('creates a persisted custom source record with explicit fields', () => {
     const reserved = RADIO_STATION_DEFINITIONS.map((definition) => definition.name);
     const result = createCustomAudioSourceRecord(
       {
@@ -87,23 +113,7 @@ describe('customAudioSourceBrowse', () => {
     }
   });
 
-  test('lists every catalog genre for custom source entry', () => {
-    const genres = listCustomAudioSourceGenreOptions();
-
-    expect(genres.map((genre) => genre.id)).toEqual([
-      'custom',
-      'eclectic',
-      'jazz',
-      'classical',
-      'electronic',
-      'ambient',
-      'public',
-      'news',
-      'community',
-    ]);
-  });
-
-  test('stores the selected genre on custom sources', () => {
+  test('stores the selected genre when explicitly provided', () => {
     const reserved = RADIO_STATION_DEFINITIONS.map((definition) => definition.name);
     const result = createCustomAudioSourceRecord(
       {

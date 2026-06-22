@@ -638,9 +638,9 @@ jobs:
         env:
           NODE_ENV: production
 
-  jest-tests:
+  vitest-tests:
     timeout-minutes: 15
-    name: Jest Tests
+    name: Vitest Tests
     needs: setup
     runs-on: ubuntu-latest
     environment: actions
@@ -683,18 +683,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Run unit tests with sharding
-      - name: Run Jest tests (Shard ${{ matrix.shard }}/3)
+      - name: Run Vitest tests (Shard ${{ matrix.shard }}/3)
         run: |
-          echo "::group::Running Jest Tests (Shard ${{ matrix.shard }}/3)"
-          FORCE_COLOR=1 pnpm test:coverage --ci --colors --json --shard=${{ matrix.shard }}/3 --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results-${{ matrix.shard }}.json"
+          echo "::group::Running Vitest Tests (Shard ${{ matrix.shard }}/3)"
+          FORCE_COLOR=1 pnpm test:coverage -- --shard=${{ matrix.shard }}/3 --reporter=json --outputFile="$GITHUB_WORKSPACE/vitest-results-${{ matrix.shard }}.json"
           echo "::endgroup::"
 
-      # Upload coverage reports for each shard
-      - name: Upload Jest coverage
+      - name: Upload Vitest coverage
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: jest-coverage-${{ matrix.shard }}
+          name: vitest-coverage-${{ matrix.shard }}
           path: coverage/
           retention-days: 30
 
@@ -702,7 +701,7 @@ jobs:
   sonar:
     timeout-minutes: 15
     name: SonarCloud Analysis
-    needs: [playwright-tests, jest-tests, documentation-coverage]
+    needs: [playwright-tests, vitest-tests, documentation-coverage]
     if: ${{ !cancelled() }} # Run even if some tests fail
     runs-on: ubuntu-latest
     environment: actions
@@ -712,11 +711,11 @@ jobs:
           fetch-depth: 0
 
       # Download Jest coverage artifacts
-      - name: Download Jest coverage artifacts
+      - name: Download Vitest coverage artifacts
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          pattern: jest-coverage-*
+          pattern: vitest-coverage-*
           merge-multiple: true
 
       # Download documentation coverage artifacts
@@ -906,25 +905,25 @@ jobs:
               console.log('❌ Some Playwright tests failed (non-blocking)');
             }
 
-  jest-status:
-    name: Jest Status
-    needs: jest-tests
+  vitest-status:
+    name: Vitest Status
+    needs: vitest-tests
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Report Jest Status
+      - name: Report Vitest Status
         uses: actions/github-script@v7
         with:
           script: |
-            const jobs = ${{ toJson(needs.jest-tests.result) }};
+            const jobs = ${{ toJson(needs.vitest-tests.result) }};
             const success = jobs === 'success';
 
-            console.log(`Jest tests result: ${jobs}`);
+            console.log(`Vitest tests result: ${jobs}`);
 
             if (success) {
-              console.log('✅ All Jest tests passed');
+              console.log('✅ All Vitest tests passed');
             } else {
-              console.log('❌ Jest tests failed');
+              console.log('❌ Vitest tests failed');
               process.exit(1);
             }
 
@@ -952,7 +951,7 @@ jobs:
   # Final status job
   tests-complete:
     name: Quality Assurance Complete
-    needs: [jest-status, playwright-status, documentation-status, sonar]
+    needs: [vitest-status, playwright-status, documentation-status, sonar]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -960,12 +959,12 @@ jobs:
         run: |
           echo "🧪 Quality Assurance Complete"
           echo "============================"
-          echo "Jest: ${{ needs.jest-status.result }}"
+          echo "Vitest: ${{ needs.vitest-status.result }}"
           echo "Playwright: ${{ needs.playwright-status.result }}"
           echo "Documentation: ${{ needs.documentation-status.result }}"
           echo "SonarCloud: ${{ needs.sonar.result }}"
 
-          if [[ "${{ needs.jest-status.result }}" == "success" ]]; then
+          if [[ "${{ needs.vitest-status.result }}" == "success" ]]; then
             echo "✅ All required tests passed"
             if [[ "${{ needs.documentation-status.result }}" == "success" ]]; then
               echo "✅ Documentation coverage analysis completed"

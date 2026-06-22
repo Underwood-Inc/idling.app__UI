@@ -1,38 +1,37 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'jotai';
+import { Provider, useAtom } from 'jotai';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EMPTY_SELECTORS } from 'src/lib/test-selectors/components/empty.selectors';
 import { auth } from '../../../lib/auth';
+import { useSimpleUrlFilters } from '../../../lib/state/submissions/useSimpleUrlFilters';
+import { handleTagFilter } from '../../../lib/utils/filter-utils';
 import { getRecentTags } from './actions';
 import { RecentTags } from './RecentTags';
 import { RecentTagsClient } from './RecentTagsClient';
 
 // Mock the modules
-jest.mock('../../../lib/auth', () => ({
-  auth: jest.fn()
+vi.mock('../../../lib/auth', () => ({
+  auth: vi.fn()
 }));
 
-jest.mock('./actions', () => ({
-  getRecentTags: jest.fn()
+vi.mock('./actions', () => ({
+  getRecentTags: vi.fn()
 }));
 
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-  useSearchParams: jest.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(),
+  useSearchParams: vi.fn()
 }));
 
 // Mock the TagLink component (it has hooks that are not needed to be accurate for this test suite)
-jest.mock('../tag-link/TagLink', () => ({
+vi.mock('../tag-link/TagLink', () => ({
   TagLink: ({ value }: { value: string }) => <span>#{value}</span>
 }));
 
 // Mock the TagLogicToggle component
-jest.mock('../shared/TagLogicToggle', () => ({
+vi.mock('../shared/TagLogicToggle', () => ({
   TagLogicToggle: () => {
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    const mockFilters = useSimpleUrlFilters();
+    const mockFilters = vi.mocked(useSimpleUrlFilters)();
 
     const currentTagLogic =
       mockFilters.filters.find((f: any) => f.name === 'tagLogic')?.value ||
@@ -79,56 +78,59 @@ jest.mock('../shared/TagLogicToggle', () => ({
 }));
 
 // Mock the filter utilities
-jest.mock('../../../lib/utils/filter-utils', () => ({
-  handleTagFilter: jest.fn(),
-  isTagActive: jest.fn((tag, filters) => {
+vi.mock('../../../lib/utils/filter-utils', () => ({
+  handleTagFilter: vi.fn(),
+  isTagActive: vi.fn((tag, filters) => {
     // Mock implementation: return true if tag is in filters
     return filters.some((f: any) => f.name === 'tags' && f.value === tag);
   })
 }));
 
 // Mock the useSimpleUrlFilters hook
-jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
-  useSimpleUrlFilters: jest.fn(() => ({
+vi.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
+  useSimpleUrlFilters: vi.fn(() => ({
     filters: [],
-    addFilter: jest.fn(),
-    removeFilter: jest.fn(),
-    updateUrl: jest.fn(),
+    addFilter: vi.fn(),
+    removeFilter: vi.fn(),
+    updateUrl: vi.fn(),
     tagLogic: 'AND',
-    setTagLogic: jest.fn(),
+    setTagLogic: vi.fn(),
     searchParams: new URLSearchParams()
   }))
 }));
 
 // Mock the atoms module with a proper atom factory
-jest.mock('../../../lib/state/atoms', () => {
+vi.mock('../../../lib/state/atoms', () => {
   const mockAtom = {
-    read: jest.fn(),
-    write: jest.fn()
+    read: vi.fn(),
+    write: vi.fn()
   };
   return {
-    getSubmissionsFiltersAtom: jest.fn().mockReturnValue(mockAtom),
-    getSubmissionsStateAtom: jest.fn().mockReturnValue(mockAtom)
+    getSubmissionsFiltersAtom: vi.fn().mockReturnValue(mockAtom),
+    getSubmissionsStateAtom: vi.fn().mockReturnValue(mockAtom)
   };
 });
 
 // Mock Jotai with proper initial state structure
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn()
-}));
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
+  return {
+    ...actual,
+    useAtom: vi.fn()
+  };
+});
 
 describe('RecentTags', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('calls getRecentTags with correct parameters when authenticated but onlyMine=false', async () => {
     // Mock the auth and getRecentTags functions
-    (auth as jest.Mock).mockResolvedValue({
+    vi.mocked(auth).mockResolvedValue({
       user: { id: '123' }
     });
-    (getRecentTags as jest.Mock).mockResolvedValue({
+    vi.mocked(getRecentTags).mockResolvedValue({
       tags: ['tag1', 'tag2', 'tag3'],
       error: '',
       message: ''
@@ -142,10 +144,10 @@ describe('RecentTags', () => {
   });
 
   it('calls getRecentTags with correct parameters for onlyMine', async () => {
-    (auth as jest.Mock).mockResolvedValue({
+    vi.mocked(auth).mockResolvedValue({
       user: { id: '123' }
     });
-    (getRecentTags as jest.Mock).mockResolvedValue({
+    vi.mocked(getRecentTags).mockResolvedValue({
       tags: ['userTag1', 'userTag2'],
       error: '',
       message: ''
@@ -163,8 +165,8 @@ describe('RecentTags', () => {
   });
 
   it('handles unauthenticated user', async () => {
-    (auth as jest.Mock).mockResolvedValue(null);
-    (getRecentTags as jest.Mock).mockResolvedValue({
+    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(getRecentTags).mockResolvedValue({
       tags: ['publicTag1'],
       error: '',
       message: ''
@@ -179,9 +181,9 @@ describe('RecentTags', () => {
 });
 
 describe('RecentTagsClient', () => {
-  const mockPush = jest.fn();
+  const mockPush = vi.fn();
   const mockSearchParams = new URLSearchParams();
-  const mockSetFiltersState = jest.fn();
+  const mockSetFiltersState = vi.fn();
 
   const mockSession = {
     user: {
@@ -208,22 +210,21 @@ describe('RecentTagsClient', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue({
+    vi.clearAllMocks();
+    vi.mocked(useRouter).mockReturnValue({
       push: mockPush
     });
-    (useSearchParams as jest.Mock).mockReturnValue(mockSearchParams);
+    vi.mocked(useSearchParams).mockReturnValue(mockSearchParams);
 
     // Mock getRecentTags to resolve immediately
-    (getRecentTags as jest.Mock).mockResolvedValue({
+    vi.mocked(getRecentTags).mockResolvedValue({
       tags: ['javascript', 'react', 'typescript'],
       error: '',
       message: ''
     });
 
     // Mock useAtom to return the proper state structure
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
+    vi.mocked(useAtom).mockReturnValue([
       mockFiltersState,
       mockSetFiltersState
     ]);
@@ -255,8 +256,7 @@ describe('RecentTagsClient', () => {
       ...mockFiltersState,
       filters: [{ name: 'tags', value: 'javascript' }]
     };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
+    vi.mocked(useAtom).mockReturnValue([
       singleTagFiltersState,
       mockSetFiltersState
     ]);
@@ -289,27 +289,23 @@ describe('RecentTagsClient', () => {
         { name: 'tags', value: '#react' }
       ]
     };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
+    vi.mocked(useAtom).mockReturnValue([
       multiTagFiltersState,
       mockSetFiltersState
     ]);
 
     // Also mock useSimpleUrlFilters with multiple tags
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: 'javascript' },
         { name: 'tags', value: 'react' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
-      updateFilter: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
+      updateFilter: vi.fn(),
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -333,7 +329,7 @@ describe('RecentTagsClient', () => {
 
   it('handles tag selection correctly', async () => {
     // Get the mocked functions
-    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+    vi.mocked(handleTagFilter)
 
     render(
       <Provider>
@@ -360,19 +356,16 @@ describe('RecentTagsClient', () => {
 
   it('handles multiple tag selection correctly', async () => {
     // Get the mocked functions
-    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+    vi.mocked(handleTagFilter)
 
     // Mock useSimpleUrlFilters to return existing tags
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [{ name: 'tags', value: 'javascript' }],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
       tagLogic: 'AND',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -401,22 +394,19 @@ describe('RecentTagsClient', () => {
 
   it('handles AND/OR logic toggle correctly', async () => {
     // Mock useSimpleUrlFilters to return multiple tags with OR logic
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    const mockUpdateFilter = jest.fn();
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    const mockUpdateFilter = vi.fn();
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'OR' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
       updateFilter: mockUpdateFilter,
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -447,21 +437,18 @@ describe('RecentTagsClient', () => {
 
   it('displays the correct active tags when multiple tags are selected', async () => {
     // Mock useSimpleUrlFilters to return multiple tags with AND logic
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'AND' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
-      updateFilter: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
+      updateFilter: vi.fn(),
       tagLogic: 'AND',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -485,21 +472,18 @@ describe('RecentTagsClient', () => {
 
   it('shows correct logic toggle state for OR logic', async () => {
     // Mock useSimpleUrlFilters to return multiple tags with OR logic
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'OR' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
-      updateFilter: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
+      updateFilter: vi.fn(),
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -523,22 +507,19 @@ describe('RecentTagsClient', () => {
 
   it('handles tag removal correctly', async () => {
     // Get the mocked functions
-    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+    vi.mocked(handleTagFilter)
 
     // Mock useSimpleUrlFilters to return multiple existing tags
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -567,19 +548,16 @@ describe('RecentTagsClient', () => {
 
   it('clears all filters when removing last tag', async () => {
     // Get the mocked functions
-    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+    vi.mocked(handleTagFilter)
 
     // Mock useSimpleUrlFilters to return single tag
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [{ name: 'tags', value: 'javascript' }],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams()
     });
 
@@ -613,7 +591,7 @@ describe('RecentTagsClient', () => {
     };
 
     // Mock getRecentTags to return empty tags
-    (getRecentTags as jest.Mock).mockResolvedValue({
+    vi.mocked(getRecentTags).mockResolvedValue({
       tags: [],
       error: '',
       message: ''
@@ -649,8 +627,7 @@ describe('RecentTagsClient', () => {
         { name: 'tags', value: '#react' }
       ]
     };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
+    vi.mocked(useAtom).mockReturnValue([
       selectedTagsFiltersState,
       mockSetFiltersState
     ]);

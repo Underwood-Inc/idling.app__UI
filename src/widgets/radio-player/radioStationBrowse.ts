@@ -1,3 +1,5 @@
+import type { HumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/humanFriendlySearch.types';
+import { matchesHumanFriendlySearch } from '@molecules/humanFriendlySearch/matchHumanFriendlySearch';
 import type {
   RadioStationDefinition,
   RadioStationGenre,
@@ -118,4 +120,57 @@ export function findRadioStationDefinition(
   stationName: string
 ): RadioStationDefinition | undefined {
   return definitions.find((definition) => definition.name === stationName);
+}
+
+export function isRadioStationInGenreFilter(
+  stations: RadioStationDefinition[],
+  stationName: string,
+  genreId: RadioStationGenreId | null
+): boolean {
+  return filterRadioStationsByGenre(stations, genreId).some(
+    (station) => station.name === stationName
+  );
+}
+
+export function buildRadioStationSearchHaystack(station: RadioStationDefinition): string {
+  const genre = getRadioStationGenre(station.genre);
+  return [station.name, station.blurb, genre.label, genre.id, station.regionFlag]
+    .join(' ')
+    .toLowerCase();
+}
+
+export function matchesRadioStationSearch(
+  station: RadioStationDefinition,
+  query: HumanFriendlySearchQuery
+): boolean {
+  if (!query.terms.length) {
+    return true;
+  }
+
+  const haystack = buildRadioStationSearchHaystack(station);
+  return query.terms.some((term) => {
+    if (term.kind === 'hashtag') {
+      return (
+        station.genre === term.value ||
+        getRadioStationGenre(station.genre).label.toLowerCase().includes(term.value) ||
+        haystack.includes(term.value)
+      );
+    }
+
+    return matchesHumanFriendlySearch(haystack, {
+      raw: query.raw,
+      terms: [term],
+    });
+  });
+}
+
+export function filterRadioStationsBySearch(
+  stations: RadioStationDefinition[],
+  query: HumanFriendlySearchQuery
+): RadioStationDefinition[] {
+  if (!query.terms.length) {
+    return stations;
+  }
+
+  return stations.filter((station) => matchesRadioStationSearch(station, query));
 }

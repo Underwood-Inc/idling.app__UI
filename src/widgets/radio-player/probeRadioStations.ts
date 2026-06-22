@@ -7,6 +7,7 @@ import type {
   RadioStationProbeFailure,
   RadioStationProbeResult,
 } from './radioPlayer.types';
+import { probeRadioStreamInBrowser, probeRadioStreamUrl } from './radioStreamProbe';
 
 export { LOCAL_DEV_RADIO_STATIONS };
 
@@ -17,43 +18,13 @@ export interface ProbeRadioStationsOptions {
 
 const DEFAULT_PROBE_TIMEOUT_MS = 8000;
 
-function probeSingleStation(
+async function probeSingleStation(
   name: string,
   url: string,
   timeoutMs: number
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
-  return new Promise((resolve) => {
-    const audio = new Audio();
-    let settled = false;
-
-    const finish = (result: { ok: true } | { ok: false; reason: string }) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      clearTimeout(timer);
-      audio.removeEventListener('canplay', onCanPlay);
-      audio.removeEventListener('error', onError);
-      audio.src = '';
-      audio.load();
-      resolve(result);
-    };
-
-    const timer = window.setTimeout(
-      () => finish({ ok: false, reason: 'Timed out waiting for stream' }),
-      timeoutMs
-    );
-
-    const onCanPlay = () => finish({ ok: true });
-    const onError = () => finish({ ok: false, reason: 'Stream failed to load' });
-
-    audio.addEventListener('canplay', onCanPlay);
-    audio.addEventListener('error', onError);
-    audio.preload = 'auto';
-    audio.crossOrigin = 'anonymous';
-    audio.src = url;
-    audio.load();
-  });
+  const result = await probeRadioStreamInBrowser(url, { timeoutMs });
+  return result.ok ? { ok: true } : { ok: false, reason: result.reason ?? 'Stream failed to load' };
 }
 
 async function probeRadioStationsInBrowser(
@@ -155,3 +126,5 @@ export function logRadioPlayerUnavailable(failures: RadioStationProbeFailure[]):
     failures
   );
 }
+
+export { probeRadioStreamUrl };

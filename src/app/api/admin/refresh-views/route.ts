@@ -1,4 +1,6 @@
 import { materializedViewRefresher } from '@lib/cron/refresh-materialized-views';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { serverLogger } from '@lib/utils/server-logger';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -10,9 +12,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const status = materializedViewRefresher.getStatus();
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.ACCESS);
+    if (!access.granted) {
+      return access.response;
+    }
 
-    // Status request logged silently
+    const status = materializedViewRefresher.getStatus();
 
     return NextResponse.json({
       success: true,
@@ -37,12 +42,14 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.ACCESS);
+    if (!access.granted) {
+      return access.response;
+    }
+
     const body = await request.json().catch(() => ({}));
     const { jobId } = body;
 
-    // Manual refresh triggered silently
-
-    // Force refresh (specific job or all jobs)
     await materializedViewRefresher.forceRefresh(jobId);
 
     const status = materializedViewRefresher.getStatus();

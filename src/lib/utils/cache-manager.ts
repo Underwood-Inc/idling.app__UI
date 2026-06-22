@@ -6,6 +6,7 @@
  */
 
 import { createLogger } from '@lib/logging';
+import { deleteNonPreservedIndexedDatabases } from '@widgets/radio-player/radioPlayerPersistence';
 
 // Create logger for cache management
 const logger = createLogger({
@@ -248,22 +249,10 @@ export async function clearAllBrowserStorage(): Promise<void> {
     logger.warn('Failed to clear sessionStorage', { error });
   }
 
-  // Clear IndexedDB
+  // Clear IndexedDB (preserves user-added radio streams in idling-radio-player)
   if ('indexedDB' in window) {
     try {
-      const databases = await indexedDB.databases();
-      await Promise.all(
-        databases.map((db) => {
-          if (db.name) {
-            return new Promise<void>((resolve, reject) => {
-              const deleteReq = indexedDB.deleteDatabase(db.name!);
-              deleteReq.onsuccess = () => resolve();
-              deleteReq.onerror = () => reject(deleteReq.error);
-            });
-          }
-          return Promise.resolve();
-        })
-      );
+      await deleteNonPreservedIndexedDatabases();
     } catch (error) {
       logger.warn('Failed to clear IndexedDB', { error });
     }

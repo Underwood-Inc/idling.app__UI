@@ -1,4 +1,5 @@
-import { auth } from '@lib/auth';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -18,16 +19,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.ACCESS);
+    if (!access.granted) {
+      return access.response;
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = access.userId;
     const body = await request.json();
     const { testType = 'normal', targetUserId } = body;
 

@@ -3,8 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from '../../../test-utils';
 import { CustomFilterInput } from './CustomFilterInput';
 
 // Mock the search actions with better structure
-jest.mock('../../../lib/actions/search.actions', () => ({
-  searchHashtags: jest.fn().mockImplementation(() =>
+vi.mock('../../../lib/actions/search.actions', () => ({
+  searchHashtags: vi.fn().mockImplementation(() =>
     Promise.resolve({
       items: [
         { id: '1', value: 'javascript', label: 'javascript', type: 'hashtag' }
@@ -13,7 +13,7 @@ jest.mock('../../../lib/actions/search.actions', () => ({
       total: 1
     })
   ),
-  searchUsers: jest.fn().mockImplementation(() =>
+  searchUsers: vi.fn().mockImplementation(() =>
     Promise.resolve({
       items: [
         {
@@ -31,18 +31,18 @@ jest.mock('../../../lib/actions/search.actions', () => ({
 }));
 
 // Mock Next.js navigation
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(() => '/posts'),
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    back: jest.fn()
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/posts'),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn()
   })),
-  useSearchParams: jest.fn(() => new URLSearchParams())
+  useSearchParams: vi.fn(() => new URLSearchParams())
 }));
 
 describe('CustomFilterInput', () => {
-  const mockOnAddFilter = jest.fn();
+  const mockOnAddFilter = vi.fn();
 
   const defaultProps = {
     contextId: 'test-context',
@@ -50,7 +50,7 @@ describe('CustomFilterInput', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // Helper function to get the input element

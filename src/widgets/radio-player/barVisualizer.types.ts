@@ -16,6 +16,7 @@ export interface BarVisualizerTheme {
 export interface BarVisualizerPreferences {
   presetId: string;
   density: BarVisualizerDensity;
+  enabled: boolean;
 }
 
 export type BarVisualizerDensity = 'compact' | 'normal' | 'wide';
@@ -42,6 +43,7 @@ export interface BarVisualizerDrawContext {
   theme: BarVisualizerTheme;
   state: BarVisualizerDrawState;
   playing: boolean;
+  barGap: number;
 }
 
 export type BarVisualizerPresetDrawer = (drawContext: BarVisualizerDrawContext) => void;

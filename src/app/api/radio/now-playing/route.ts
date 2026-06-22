@@ -1,6 +1,7 @@
 import { fetchStreamNowPlaying } from '@lib/radio/fetchStreamNowPlaying';
 import { buildRadioNowPlaying } from '@lib/radio/parseIcyStreamTitle';
 import type { RadioNowPlaying } from '@lib/radio/radioNowPlaying.types';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import {
   buildRadioStationProbeCatalog,
   RADIO_STATIONS,
@@ -15,7 +16,7 @@ function resolveStationStreamUrl(station: string, hostname: string): string | nu
   return catalog[station] ?? null;
 }
 
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   const station = request.nextUrl.searchParams.get('station')?.trim();
 
   if (!station) {
@@ -46,3 +47,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+export const GET = withRateLimit(getHandler);

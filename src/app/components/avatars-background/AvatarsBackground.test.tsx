@@ -1,8 +1,9 @@
+import type { MockInstance } from 'vitest';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 
 // Mock the makeid function BEFORE importing the component
-jest.mock('../../../lib/utils/string/make-id', () => ({
-  makeid: jest.fn()
+vi.mock('../../../lib/utils/string/make-id', () => ({
+  makeid: vi.fn()
 }));
 
 // @dicebear/core is automatically mocked by Jest from __mocks__/@dicebear/core.ts
@@ -23,7 +24,7 @@ Object.defineProperty(window, 'innerHeight', {
 let frameCallbacks: Array<(time: number) => void> = [];
 let frameId = 0;
 
-const mockRequestAnimationFrame = jest.fn(
+const mockRequestAnimationFrame = vi.fn(
   (callback: (time: number) => void) => {
     frameId++;
     frameCallbacks.push(callback);
@@ -31,7 +32,7 @@ const mockRequestAnimationFrame = jest.fn(
   }
 );
 
-const mockCancelAnimationFrame = jest.fn((id: number) => {
+const mockCancelAnimationFrame = vi.fn((id: number) => {
   // Find and remove the callback with the matching ID
   const index = frameCallbacks.findIndex((_, i) => i + 1 === id);
   if (index !== -1) {
@@ -63,8 +64,8 @@ global.cancelAnimationFrame = mockCancelAnimationFrame;
 
 // Mock Date.now to return predictable values
 let mockTime = 1000000;
-const mockDateNow = jest.fn(() => mockTime);
-const mockPerformanceNow = jest.fn(() => mockTime);
+const mockDateNow = vi.fn(() => mockTime);
+const mockPerformanceNow = vi.fn(() => mockTime);
 
 // Apply mocks to global objects
 global.Date.now = mockDateNow;
@@ -84,8 +85,8 @@ import { makeid } from '../../../lib/utils/string/make-id';
 import AvatarsBackground from './AvatarsBackground';
 
 describe('AvatarsBackground', () => {
-  let mockRequestAnimationFrame: jest.SpyInstance;
-  let mockCancelAnimationFrame: jest.SpyInstance;
+  let mockRequestAnimationFrame: MockInstance;
+  let mockCancelAnimationFrame: MockInstance;
 
   beforeEach(() => {
     // Reset time (mock functions already return mockTime)
@@ -93,7 +94,7 @@ describe('AvatarsBackground', () => {
 
     // Setup makeid to return predictable values
     let callCount = 0;
-    (makeid as jest.Mock).mockImplementation((length: number) => {
+    vi.mocked(makeid).mockImplementation((length: number) => {
       callCount++;
       if (length === 6) {
         return `id-${callCount}`;
@@ -106,11 +107,11 @@ describe('AvatarsBackground', () => {
     // Reset frame callbacks and mocks
     frameCallbacks = [];
     frameId = 0;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Assign global mocks to local variables for testing
-    mockRequestAnimationFrame = global.requestAnimationFrame as jest.Mock;
-    mockCancelAnimationFrame = global.cancelAnimationFrame as jest.Mock;
+    mockRequestAnimationFrame = vi.mocked(global.requestAnimationFrame);
+    mockCancelAnimationFrame = vi.mocked(global.cancelAnimationFrame);
 
     // Mock window dimensions
     Object.defineProperty(window, 'innerWidth', {

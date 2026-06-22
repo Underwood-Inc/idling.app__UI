@@ -6,6 +6,7 @@ import {
   requestDocumentFullscreen,
 } from '@lib/fullscreen/documentFullscreen';
 import { usePersistedRadioFullscreenDisplay } from '@lib/hooks/usePersistedRadioFullscreenDisplay';
+import type { RadioFullscreenVisualizerSource } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import {
   createContext,
   ReactNode,
@@ -21,6 +22,8 @@ export interface VisualizerModeContextValue {
   isFullscreen: boolean;
   spectrumPresetIndex: number;
   setSpectrumPresetIndex: (index: number) => void;
+  fullscreenSource: RadioFullscreenVisualizerSource;
+  setFullscreenSource: (source: RadioFullscreenVisualizerSource) => void;
   spectrumEnabled: boolean;
   setSpectrumEnabled: (enabled: boolean) => void;
   spectrumOpacity: number;
@@ -46,6 +49,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
     setSpectrumEnabled,
     setSpectrumOpacity,
     setSpectrumPresetIndex,
+    setFullscreenSource,
     setSpectrumBarHeight,
   } = usePersistedRadioFullscreenDisplay();
 
@@ -106,6 +110,8 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       isFullscreen,
       spectrumPresetIndex: display.presetIndex,
       setSpectrumPresetIndex,
+      fullscreenSource: display.source,
+      setFullscreenSource,
       spectrumEnabled: display.enabled,
       setSpectrumEnabled,
       spectrumOpacity: display.opacity,
@@ -120,6 +126,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       display.enabled,
       display.opacity,
       display.presetIndex,
+      display.source,
       display.spectrumBarHeight,
       enterVisualizerMode,
       exitFullscreen,
@@ -129,6 +136,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       setSpectrumEnabled,
       setSpectrumOpacity,
       setSpectrumPresetIndex,
+      setFullscreenSource,
       setSpectrumBarHeight,
     ]
   );

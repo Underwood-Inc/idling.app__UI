@@ -116,6 +116,37 @@
     cursor: var(--mappy-cursor-text) !important;
   }
 
+  /* Typography inside links/buttons must inherit pointer, not text-select cursor */
+  html :is(
+    a[href],
+    button,
+    summary,
+    [role='button'],
+    [role='link'],
+    [role='menuitem'],
+    label[for],
+    .instant-link
+  ) :is(
+    p,
+    li,
+    blockquote,
+    pre,
+    figcaption,
+    dd,
+    dt,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    td,
+    th,
+    code
+  ) {
+    cursor: inherit !important;
+  }
+
   html :is([data-mappy-cursor='vertical-text']) {
     cursor: var(--mappy-cursor-vertical-text);
   }
@@ -124,7 +155,7 @@
     .rich-help:not(.rich-help--badge),
     .rich-help--badge,
     [data-tip-heading],
-    [title],
+    [title]:not([data-mappy-cursor]),
     .mappy-help-underline,
     [data-mappy-cursor='help']
   ) {

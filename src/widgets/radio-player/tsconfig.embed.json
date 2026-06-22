@@ -21,6 +21,13 @@
     "barVisualizerPresets.ts",
     "spectrumNormalization.ts",
     "radioStationMetadata.ts",
-    "radioStationCatalog.ts"
+    "radioStationCatalog.ts",
+    "radioStreamFormat.types.ts",
+    "radioStreamFormatCatalog.ts",
+    "parseRadioPlaylist.ts",
+    "resolveRadioStreamUrl.ts",
+    "radioStreamProbe.types.ts",
+    "radioStreamProbe.ts",
+    "radioHlsPlayback.ts"
   ]
 }

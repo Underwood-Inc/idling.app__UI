@@ -1,7 +1,8 @@
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
 import { AdminUserSimpleSearchParamsSchema } from '@lib/schemas/admin-users.schema';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -30,15 +31,9 @@ export interface UserSearchResponse {
  */
 async function getHandler(request: NextRequest) {
   try {
-    // Authentication check
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = parseInt(session.user.id);
-    if (isNaN(userId)) {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_VIEW);
+    if (!access.granted) {
+      return access.response;
     }
 
     // Validate search parameters

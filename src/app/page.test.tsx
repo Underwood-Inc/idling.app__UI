@@ -4,20 +4,20 @@ import { render, screen } from '../test-utils';
 import Page from './page';
 
 // Keep original simple mocks
-jest.mock('./components/page-container/PageContainer', () => ({
+vi.mock('./components/page-container/PageContainer', () => ({
   PageContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-page-container">{children}</div>
   )
 }));
 
-jest.mock('./components/page-header/PageHeader', () => ({
+vi.mock('./components/page-header/PageHeader', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-page-header">{children}</div>
   )
 }));
 
-jest.mock('./components/page-content/PageContent', () => ({
+vi.mock('./components/page-content/PageContent', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-page-content">{children}</div>
@@ -25,13 +25,13 @@ jest.mock('./components/page-content/PageContent', () => ({
 }));
 
 // Mock RecentActivityFeed to prevent next-auth import issues
-jest.mock('./components/recent-activity-feed', () => ({
+vi.mock('./components/recent-activity-feed', () => ({
   RecentActivityFeed: () => (
     <div data-testid="mock-recent-activity-feed">Recent Activity Feed</div>
   )
 }));
 
-jest.mock('./components/stats-dashboard/StatsDashboard', () => ({
+vi.mock('./components/stats-dashboard/StatsDashboard', () => ({
   StatsDashboard: () => (
     <div data-testid="mock-stats-dashboard">Stats Dashboard</div>
   )
@@ -39,7 +39,7 @@ jest.mock('./components/stats-dashboard/StatsDashboard', () => ({
 
 describe('Home Page', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the page with correct structure and content', async () => {

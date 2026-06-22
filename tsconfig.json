@@ -19,7 +19,7 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "types": [
-      "jest",
+      "vitest/globals",
       "@testing-library/jest-dom",
       "node"
     ],

@@ -191,6 +191,7 @@ import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { PERMISSIONS } from '@lib/permissions/permissions';
+import { isValidIanaTimezone } from '@lib/security/isValidIanaTimezone';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -219,7 +220,13 @@ const DashboardQuerySchema = z.object({
     .enum(['hour', 'day', 'week', 'month'])
     .optional()
     .default('day'),
-  timezone: z.string().optional().default('UTC')
+  timezone: z
+    .string()
+    .optional()
+    .default('UTC')
+    .refine((value) => value === 'UTC' || isValidIanaTimezone(value), {
+      message: 'Invalid IANA timezone'
+    })
 });
 
 export interface AnalyticsDashboardResponse {

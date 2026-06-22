@@ -11,10 +11,10 @@ import type {
 import { listRadioStationGenres, RADIO_STATION_GENRES } from './radioStationBrowse';
 
 export const CUSTOM_AUDIO_SOURCE_URL_HINT =
-  'HTTPS direct audio URL — MP3/AAC/Ogg Icecast or Shoutcast mount, or a static .mp3/.ogg file. HLS (.m3u8) and playlist files (.pls, .m3u) are not supported.';
+  'HTTPS stream URL — direct MP3/AAC/Ogg/Icecast mount, HLS (.m3u8), or playlist (.pls / .m3u). Playlist and HLS links are resolved before playback.';
 
 /** Gate the “Add your own source” UI until custom-source flow is ready for production. */
-export const CUSTOM_AUDIO_SOURCES_UI_ENABLED = false;
+export const CUSTOM_AUDIO_SOURCES_UI_ENABLED = true;
 
 const CUSTOM_AUDIO_SOURCE_GENRE_IDS = new Set<RadioStationGenreId>(
   Object.keys(RADIO_STATION_GENRES) as RadioStationGenreId[]
@@ -49,10 +49,31 @@ export function normalizeCustomAudioSourceRecord(
   };
 }
 
-const UNSUPPORTED_URL_PATTERN = /\.(m3u8|pls|xspf|m3u)(\?|$)/i;
 
-const DIRECT_AUDIO_EXTENSION_PATTERN =
-  /\.(mp3|aac|ogg|opus|wav|flac|caf|m4a|mp4a)(\?|$)/i;
+export function isSupportedRadioStreamUrl(rawUrl: string): boolean {
+  const trimmed = normalizeCustomAudioSourceUrl(rawUrl);
+  if (!trimmed) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return false;
+    }
+
+    if (
+      parsed.protocol === 'http:' &&
+      !['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname)
+    ) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function normalizeCustomAudioSourceUrl(rawUrl: string): string {
   return rawUrl.trim();
@@ -84,10 +105,10 @@ export function validateCustomAudioSourceUrl(rawUrl: string): CustomAudioSourceV
   }
 
   const pathname = `${parsed.pathname}${parsed.search}`.toLowerCase();
-  if (UNSUPPORTED_URL_PATTERN.test(pathname)) {
+  if (pathname.includes('.xspf')) {
     return {
       ok: false,
-      message: 'Playlist and HLS links are not supported. Paste a direct MP3/AAC/Ogg stream URL.',
+      message: 'XSPF playlists are not supported. Paste a direct stream, HLS, PLS, or M3U URL.',
     };
   }
 
@@ -170,6 +191,51 @@ export function listReservedAudioSourceNames(
     .map((source) => source.name);
 
   return [...catalogDefinitions.map((definition) => definition.name), ...customNames];
+}
+
+export function deriveCustomAudioSourceName(url: string, reservedNames: string[]): string {
+  const trimmed = normalizeCustomAudioSourceUrl(url);
+  let hostname = 'Custom stream';
+
+  try {
+    hostname = new URL(trimmed).hostname.replace(/^www\./, '');
+  } catch {
+    // Fall back to generic label when URL parsing fails (validation catches invalid URLs later).
+  }
+
+  const normalizedReserved = new Set(reservedNames.map((name) => name.toLowerCase()));
+  let candidate = hostname;
+  let index = 2;
+
+  while (normalizedReserved.has(candidate.toLowerCase())) {
+    candidate = `${hostname} ${index}`;
+    index += 1;
+  }
+
+  return candidate;
+}
+
+export function createCustomAudioSourceFromUrl(
+  url: string,
+  reservedNames: string[]
+): { ok: true; record: CustomAudioSourceRecord } | { ok: false; message: string } {
+  const urlResult = validateCustomAudioSourceUrl(url);
+  if (!urlResult.ok || !urlResult.normalizedUrl) {
+    return { ok: false, message: urlResult.message ?? 'Invalid URL.' };
+  }
+
+  const derivedName = deriveCustomAudioSourceName(urlResult.normalizedUrl, reservedNames);
+
+  return createCustomAudioSourceRecord(
+    {
+      name: derivedName,
+      url: urlResult.normalizedUrl,
+      kind: 'live-stream',
+      genre: defaultCustomSourceGenreId(),
+      supportsTrackMetadata: true,
+    },
+    reservedNames
+  );
 }
 
 export function createCustomAudioSourceRecord(

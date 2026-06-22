@@ -1,25 +1,25 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Provider } from 'jotai';
+import { Provider, useAtom } from 'jotai';
 import { NavigationLoadingProvider } from '../../../lib/context/NavigationLoadingContext';
 import { ContentWithPills } from './ContentWithPills';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn()
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn()
   }))
 });
 
 // Mock the Jotai useAtom hook with proper return values
-const mockSetFiltersState = jest.fn();
+const mockSetFiltersState = vi.fn();
 const mockFiltersState = {
   filters: [],
   page: 1,
@@ -27,48 +27,48 @@ const mockFiltersState = {
   initialized: true
 };
 
-jest.mock('jotai', () => {
-  const actual = jest.requireActual('jotai');
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
   return {
     ...actual,
-    useAtom: jest.fn(() => [mockFiltersState, mockSetFiltersState]),
+    useAtom: vi.fn(() => [mockFiltersState, mockSetFiltersState]),
     Provider: actual.Provider
   };
 });
 
 // Mock the atoms module
-jest.mock('../../../lib/state/atoms', () => ({
-  getSubmissionsFiltersAtom: jest.fn(() => ({})),
-  shouldUpdateAtom: jest.fn(() => ({}))
+vi.mock('../../../lib/state/atoms', () => ({
+  getSubmissionsFiltersAtom: vi.fn(() => ({})),
+  shouldUpdateAtom: vi.fn(() => ({}))
 }));
 
 // Mock Next.js navigation
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(() => '/posts'),
-  useSearchParams: jest.fn(() => new URLSearchParams()),
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-    refresh: jest.fn(),
-    prefetch: jest.fn()
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/posts'),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn()
   }))
 }));
 
 // Mock Next.js Link component
-jest.mock('next/link', () => {
+vi.mock('next/link', () => {
   const MockedLink = ({ children, href, onClick, className, title }: any) => (
     <a href={href} onClick={onClick} className={className} title={title}>
       {children}
     </a>
   );
   MockedLink.displayName = 'Link';
-  return MockedLink;
+  return { default: MockedLink };
 });
 
 // Mock tooltip component
-jest.mock('../tooltip/LinkTooltip', () => ({
+vi.mock('../tooltip/LinkTooltip', () => ({
   MentionTooltip: ({ children }: any) => <div>{children}</div>
 }));
 
@@ -83,7 +83,12 @@ const renderWithProviders = (children: React.ReactNode) => {
 
 describe('ContentWithPills', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    mockFiltersState.filters = [];
+    vi.mocked(useAtom).mockImplementation(() => [
+      mockFiltersState,
+      mockSetFiltersState
+    ]);
   });
 
   describe('Basic hashtag detection', () => {
@@ -339,7 +344,7 @@ describe('ContentWithPills', () => {
 
   describe('Click functionality', () => {
     it('should call onHashtagClick when hashtag is clicked', () => {
-      const mockOnHashtagClick = jest.fn();
+      const mockOnHashtagClick = vi.fn();
 
       renderWithProviders(
         <ContentWithPills
@@ -356,7 +361,7 @@ describe('ContentWithPills', () => {
     });
 
     it('should call onMentionClick when mention is clicked', () => {
-      const mockOnMentionClick = jest.fn();
+      const mockOnMentionClick = vi.fn();
 
       renderWithProviders(
         <ContentWithPills
@@ -385,7 +390,7 @@ describe('ContentWithPills', () => {
     });
 
     it('should prioritize custom callbacks over global filter state', () => {
-      const mockOnHashtagClick = jest.fn();
+      const mockOnHashtagClick = vi.fn();
 
       renderWithProviders(
         <ContentWithPills
@@ -404,7 +409,7 @@ describe('ContentWithPills', () => {
 
   describe('Accessibility', () => {
     it('should have proper link attributes', () => {
-      const mockOnHashtagClick = jest.fn();
+      const mockOnHashtagClick = vi.fn();
 
       renderWithProviders(
         <ContentWithPills
@@ -472,8 +477,8 @@ describe('ContentWithPills', () => {
 
   describe('Real-world examples', () => {
     it('should handle complex post content', () => {
-      const mockOnHashtagClick = jest.fn();
-      const mockOnMentionClick = jest.fn();
+      const mockOnHashtagClick = vi.fn();
+      const mockOnMentionClick = vi.fn();
 
       renderWithProviders(
         <ContentWithPills

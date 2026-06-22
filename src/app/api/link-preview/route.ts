@@ -1,4 +1,7 @@
+import { resolveSafeExternalUrl } from '@lib/security/safeExternalUrl';
 import { NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
 
 /**
  * Convert relative URLs to absolute URLs
@@ -7,7 +10,7 @@ function resolveUrl(url: string, baseUrl: string): string {
   try {
     return new URL(url, baseUrl).toString();
   } catch {
-    return url; // Return original if URL construction fails
+    return url;
   }
 }
 
@@ -15,7 +18,6 @@ function resolveUrl(url: string, baseUrl: string): string {
  * Extract image URL with multiple fallback options
  */
 function extractImageUrl(html: string, baseUrl: string): string {
-  // Try multiple meta tag patterns in order of preference
   const imagePatterns = [
     /<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/i,
     /<meta[^>]*property="og:image:url"[^>]*content="([^"]*)"[^>]*>/i,
@@ -29,7 +31,6 @@ function extractImageUrl(html: string, baseUrl: string): string {
     const match = html.match(pattern);
     if (match && match[1]) {
       const imageUrl = match[1].trim();
-      // Convert relative URLs to absolute
       return imageUrl.startsWith('http') ? imageUrl : resolveUrl(imageUrl, baseUrl);
     }
   }
@@ -45,32 +46,30 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
 
+  const appOrigin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const resolved = await resolveSafeExternalUrl(url, appOrigin);
+
+  if (!resolved.ok) {
+    return NextResponse.json({ error: resolved.reason }, { status: 400 });
+  }
+
   try {
-    let targetUrl: string;
-    let baseUrl: string;
-
-    // Handle internal links
-    if (url.startsWith('/')) {
-      baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-      targetUrl = resolveUrl(url, baseUrl);
-    } else {
-      targetUrl = url;
-      baseUrl = new URL(url).origin;
-    }
-
-    const response = await fetch(targetUrl, {
+    const response = await fetch(resolved.targetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; IdlingApp-LinkPreview/1.0)',
       },
+      redirect: 'follow',
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      return NextResponse.json(
+        { error: 'Failed to fetch link preview' },
+        { status: 502 }
+      );
     }
 
     const html = await response.text();
 
-    // Extract metadata using enhanced patterns
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     const descriptionPatterns = [
       /<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i,
@@ -90,7 +89,7 @@ export async function GET(request: Request) {
     const metadata = {
       title: titleMatch ? titleMatch[1].trim() : '',
       description,
-      image: extractImageUrl(html, baseUrl),
+      image: extractImageUrl(html, resolved.baseUrl),
       url: url
     };
 
@@ -98,10 +97,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error fetching link preview:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to fetch link preview',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to fetch link preview' },
       { status: 500 }
     );
   }

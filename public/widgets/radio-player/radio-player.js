@@ -12,11 +12,13 @@
  *     mountRadioPlayer(document.getElementById('my-radio'));
  *   </script>
  */
-import { BAR_COUNT_BY_DENSITY, DEFAULT_BAR_VISUALIZER_PREFERENCES, loadBarVisualizerPreferences, resolveBarCountForCanvas, saveBarVisualizerPreferences, } from './barVisualizerPreferences';
+import { BAR_COUNT_BY_DENSITY, DEFAULT_BAR_VISUALIZER_PREFERENCES, loadBarVisualizerPreferences, resolveBarCountForCanvas, resolveBarGapForDensity, saveBarVisualizerPreferences, } from './barVisualizerPreferences';
 import { BAR_VISUALIZER_PRESET_DEFINITIONS, createBarVisualizerRuntime, getBarVisualizerPresetDefinition, } from './barVisualizerPresets';
 import { getBarVisualizerTheme } from './barVisualizerThemes';
 import { clearRuntimeStationDefinitions, rememberTrackMetadataUnsupported, setRuntimeStationDefinitions, stationSupportsTrackMetadata, } from './radioStationMetadata';
 import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
+import { attachRadioHlsPlayback } from './radioHlsPlayback';
+import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import { createSpectrumNormalizer } from './spectrumNormalization';
 export const RADIO_STATIONS = CATALOG_STATIONS;
 export const RADIO_PLAYER_STORAGE_KEY = 'idling-radio-player-station';
@@ -275,6 +277,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
         display: null,
     };
     let nowPlayingPollTimer = 0;
+    let streamPlaybackHandle = null;
     const prefersReducedMotion = typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const syncStationName = () => {
@@ -515,9 +518,15 @@ export function mountRadioPlayer(mountNode, options = {}) {
         visualizerPrefs = {
             presetId: nextPrefs.presetId ?? visualizerPrefs.presetId,
             density: nextPrefs.density ?? visualizerPrefs.density,
+            enabled: nextPrefs.enabled ?? visualizerPrefs.enabled,
         };
         rebuildVisualizer();
     };
+    const getBarDrawContextBase = () => ({
+        barGap: resolveBarGapForDensity(visualizerPrefs.density),
+        theme: getBarVisualizerTheme(),
+        state: visualizerRuntime.getState(),
+    });
     const fetchNowPlaying = async () => {
         if (!playing || !stationSupportsTrackMetadata(activeName)) {
             return;
@@ -619,14 +628,18 @@ export function mountRadioPlayer(mountNode, options = {}) {
             }
         }
     };
-    const isVisualizerModeActive = () => document.documentElement.classList.contains('visualizer-mode');
-    const shouldAnimateBarVisualizer = () => playing &&
+    const shouldAnimateBarVisualizer = () => visualizerPrefs.enabled &&
+        playing &&
         !prefersReducedMotion &&
         document.visibilityState === 'visible' &&
-        !isVisualizerModeActive();
+        canvas.isConnected;
     const paintIdleVisualizerFrame = () => {
         const w = canvas.clientWidth;
         const h = canvas.clientHeight;
+        if (!visualizerPrefs.enabled) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+        }
         spectrumNormalizer.reset();
         visualizerRuntime.reset();
         visualizerRuntime.draw({
@@ -634,8 +647,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
             width: w,
             height: h,
             data: new Float32Array(barCount),
-            theme: getBarVisualizerTheme(),
-            state: visualizerRuntime.getState(),
+            ...getBarDrawContextBase(),
             playing: false,
         });
     };
@@ -661,8 +673,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
                 width: w,
                 height: h,
                 data: normalized,
-                theme: getBarVisualizerTheme(),
-                state: visualizerRuntime.getState(),
+                ...getBarDrawContextBase(),
                 playing: true,
             });
         }
@@ -734,25 +745,50 @@ export function mountRadioPlayer(mountNode, options = {}) {
             needsTap = true;
         }
     };
+    const teardownStreamPlayback = () => {
+        streamPlaybackHandle?.destroy();
+        streamPlaybackHandle = null;
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+    };
+    const bindResolvedStream = async (sourceUrl) => {
+        const resolved = await resolveRadioStreamUrl({ url: sourceUrl });
+        if (resolved.playbackKind === 'hls') {
+            streamPlaybackHandle = await attachRadioHlsPlayback(audio, resolved.sourceUrl);
+            return;
+        }
+        audio.src = resolved.sourceUrl;
+        audio.load();
+    };
     const loadStation = (name, shouldResume) => {
         activeName = name;
         localStorage.setItem(storageKey, name);
-        audio.src = stations[name];
-        audio.load();
+        teardownStreamPlayback();
         spectrumNormalizer.reset();
         visualizerRuntime.reset();
         resetNowPlaying();
         stopNowPlayingPoll();
-        if (!shouldResume || needsTap) {
+        void (async () => {
+            try {
+                await bindResolvedStream(stations[name]);
+            }
+            catch (error) {
+                console.warn('[Idling Radio] Failed to load station stream.', error);
+                syncStationName();
+                return;
+            }
             syncStationName();
-            return;
-        }
-        const resume = () => {
-            audio.removeEventListener('canplay', resume);
-            void play();
-        };
-        audio.addEventListener('canplay', resume);
-        void play();
+            if (!shouldResume || needsTap) {
+                return;
+            }
+            const resume = () => {
+                audio.removeEventListener('canplay', resume);
+                void play();
+            };
+            audio.addEventListener('canplay', resume);
+            await play();
+        })();
     };
     const pause = () => {
         audio.pause();
@@ -802,7 +838,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
             window.removeEventListener('resize', resizeCanvas);
             stopNowPlayingPoll();
             pause();
-            audio.src = '';
+            teardownStreamPlayback();
             source?.disconnect();
             analyser?.disconnect();
             void audioCtx?.close();

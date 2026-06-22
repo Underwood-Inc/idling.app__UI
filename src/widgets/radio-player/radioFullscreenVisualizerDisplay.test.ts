@@ -50,9 +50,10 @@ describe('radioFullscreenVisualizerDisplay', () => {
     );
   });
 
-  test('persists enabled, opacity, preset index, and bar height preferences', () => {
+  test('persists enabled, source, opacity, preset index, and bar height preferences', () => {
     saveRadioFullscreenVisualizerDisplay({
       enabled: false,
+      source: 'bar',
       opacity: 0.4,
       presetIndex: 2,
       spectrumBarHeight: 1.25,
@@ -60,12 +61,14 @@ describe('radioFullscreenVisualizerDisplay', () => {
 
     expect(JSON.parse(localStorage.getItem(RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY) ?? '')).toEqual({
       enabled: false,
+      source: 'bar',
       opacity: 0.4,
       presetIndex: 2,
       spectrumBarHeight: 1.25,
     });
     expect(loadRadioFullscreenVisualizerDisplay()).toEqual({
       enabled: false,
+      source: 'bar',
       opacity: 0.4,
       presetIndex: 2,
       spectrumBarHeight: 1.25,

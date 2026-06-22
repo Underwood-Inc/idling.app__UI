@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import CacheStatus from './CacheStatus';
 
@@ -5,23 +6,23 @@ import CacheStatus from './CacheStatus';
 (global as any).MessageChannel = class MockMessageChannel {
   port1 = {
     onmessage: null as ((event: MessageEvent) => void) | null,
-    postMessage: jest.fn()
+    postMessage: vi.fn()
   };
   port2 = {
     onmessage: null as ((event: MessageEvent) => void) | null,
-    postMessage: jest.fn()
+    postMessage: vi.fn()
   };
 };
 
 // Mock the caches API
 const mockCache = {
-  match: jest.fn(),
-  put: jest.fn(),
-  delete: jest.fn()
+  match: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn()
 };
 
 const mockCaches = {
-  open: jest.fn().mockResolvedValue(mockCache)
+  open: vi.fn().mockResolvedValue(mockCache)
 };
 
 Object.defineProperty(global, 'caches', {
@@ -32,7 +33,7 @@ Object.defineProperty(global, 'caches', {
 // Mock navigator.serviceWorker
 const mockServiceWorker = {
   controller: {
-    postMessage: jest.fn()
+    postMessage: vi.fn()
   }
 };
 
@@ -42,18 +43,18 @@ Object.defineProperty(navigator, 'serviceWorker', {
 });
 
 interface MockLocation extends Partial<Location> {
-  reload: jest.Mock;
-  assign: jest.Mock;
-  replace: jest.Mock;
+  reload: Mock;
+  assign: Mock;
+  replace: Mock;
 }
 
 // Mock location reads used by CacheStatus (jsdom location is non-configurable)
 const mockLocation: MockLocation = {
   pathname: '/',
   href: 'https://example.com/',
-  reload: jest.fn(),
-  assign: jest.fn(),
-  replace: jest.fn(),
+  reload: vi.fn(),
+  assign: vi.fn(),
+  replace: vi.fn(),
   ancestorOrigins: {} as DOMStringList,
   hash: '',
   host: 'example.com',
@@ -100,15 +101,17 @@ describe('CacheStatus', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockCache.match.mockReset();
+    mockCaches.open.mockReset();
+    mockCaches.open.mockResolvedValue(mockCache);
     mockLocation.reload.mockClear();
     // Suppress console warnings in tests
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should display "Live" when content is not cached', async () => {
@@ -126,7 +129,7 @@ describe('CacheStatus', () => {
   it('should display cache age when content is cached', async () => {
     const mockResponse = {
       headers: {
-        get: jest.fn().mockImplementation((header) => {
+        get: vi.fn().mockImplementation((header) => {
           if (header === 'Cache-Timestamp') {
             return (Date.now() - 60000).toString(); // 1 minute ago
           }
@@ -154,7 +157,7 @@ describe('CacheStatus', () => {
   it('should show refresh button when content is cached', async () => {
     const mockResponse = {
       headers: {
-        get: jest.fn().mockReturnValue(Date.now().toString())
+        get: vi.fn().mockReturnValue(Date.now().toString())
       }
     };
 
@@ -174,7 +177,7 @@ describe('CacheStatus', () => {
   it('should handle refresh button click', async () => {
     const mockResponse = {
       headers: {
-        get: jest.fn().mockReturnValue(Date.now().toString())
+        get: vi.fn().mockReturnValue(Date.now().toString())
       }
     };
 
@@ -205,7 +208,7 @@ describe('CacheStatus', () => {
     const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour ago
     const mockResponse = {
       headers: {
-        get: jest.fn().mockImplementation((header) => {
+        get: vi.fn().mockImplementation((header) => {
           if (header === 'Cache-Timestamp') {
             return oneHourAgo.toString();
           }
@@ -233,7 +236,7 @@ describe('CacheStatus', () => {
 
     // Mock the metadata cache to return null (no metadata)
     const mockMetadataCache = {
-      match: jest.fn().mockResolvedValue(null)
+      match: vi.fn().mockResolvedValue(null)
     };
 
     mockCaches.open.mockImplementation((cacheName) => {

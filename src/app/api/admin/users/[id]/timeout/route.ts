@@ -5,8 +5,9 @@ import { IdRouteContext } from '@lib/types/next-route-context';
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { requireAdminApiAccess } from '@lib/security/requireAdminApiAccess';
 import {
   AdminUserTimeoutCancelParamsSchema,
   AdminUserTimeoutRequestSchema,
@@ -29,12 +30,12 @@ async function postHandler(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_TIMEOUT);
+    if (!access.granted) {
+      return access.response;
     }
 
-    const adminUserId = parseInt(session.user.id);
+    const adminUserId = access.userId;
 
     // Validate params
     const paramsResult = UserIdParamsSchema.safeParse(await params);
@@ -136,12 +137,12 @@ async function deleteHandler(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_TIMEOUT);
+    if (!access.granted) {
+      return access.response;
     }
 
-    const adminUserId = parseInt(session.user.id);
+    const adminUserId = access.userId;
     const targetUserId = parseInt(id);
 
     if (isNaN(targetUserId)) {

@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react';
 import FooterNav from './FooterNav';
 
 // Mock the components
-jest.mock('../docs-link/DocsLink', () => ({
+vi.mock('../docs-link/DocsLink', () => ({
   DocsLink: () => <div data-testid="mock-docs-link">Docs Link</div>
 }));
 
-jest.mock('../discord-link/DiscordLink', () => ({
+vi.mock('../discord-link/DiscordLink', () => ({
   DiscordLink: () => <div data-testid="mock-discord-link">Discord Link</div>
 }));
 

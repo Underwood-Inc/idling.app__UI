@@ -1,52 +1,56 @@
 import { Provider } from 'jotai';
 import { fireEvent, render, screen } from '../../../test-utils';
+import { useSimpleUrlFilters } from '../../../lib/state/submissions/useSimpleUrlFilters';
 import { TagLink } from './TagLink';
 
 // Mock Next.js navigation
-const mockPush = jest.fn();
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn();
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
-    replace: jest.fn(),
-    prefetch: jest.fn()
+    replace: vi.fn(),
+    prefetch: vi.fn()
   }),
-  useSearchParams: jest.fn(() => new URLSearchParams()),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
   usePathname: () => '/test'
 }));
 
 // Mock the useSimpleUrlFilters hook
-jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
-  useSimpleUrlFilters: jest.fn(() => ({
+vi.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
+  useSimpleUrlFilters: vi.fn(() => ({
     filters: [],
-    addFilter: jest.fn(),
-    removeFilter: jest.fn(),
-    updateUrl: jest.fn(),
+    addFilter: vi.fn(),
+    removeFilter: vi.fn(),
+    updateUrl: vi.fn(),
     tagLogic: 'AND',
-    setTagLogic: jest.fn(),
+    setTagLogic: vi.fn(),
     searchParams: new URLSearchParams()
   }))
 }));
 
 // Mock the filter utilities
-jest.mock('../../../lib/utils/filter-utils', () => ({
-  handleTagFilter: jest.fn(),
-  isTagActive: jest.fn((tag, filters) => {
+vi.mock('../../../lib/utils/filter-utils', () => ({
+  handleTagFilter: vi.fn(),
+  isTagActive: vi.fn((tag, filters) => {
     return filters.some((f: any) => f.name === 'tags' && f.value === tag);
   })
 }));
 
 // Mock Jotai hooks and atoms
-const mockSetFiltersState = jest.fn();
+const mockSetFiltersState = vi.fn();
 const mockFiltersState = { filters: [], page: 1, pageSize: 10 };
 
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn(() => [mockFiltersState, mockSetFiltersState]),
-  Provider: jest.requireActual('jotai').Provider
-}));
+vi.mock('jotai', async () => {
+  const actual = await vi.importActual<typeof import('jotai')>('jotai');
+  return {
+    ...actual,
+    useAtom: vi.fn(() => [mockFiltersState, mockSetFiltersState]),
+    Provider: actual.Provider
+  };
+});
 
-jest.mock('../../../lib/state/atoms', () => ({
-  getSubmissionsFiltersAtom: jest.fn(() => ({}))
+vi.mock('../../../lib/state/atoms', () => ({
+  getSubmissionsFiltersAtom: vi.fn(() => ({}))
 }));
 
 describe('TagLink', () => {
@@ -56,7 +60,7 @@ describe('TagLink', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders tag link correctly', () => {
@@ -84,19 +88,16 @@ describe('TagLink', () => {
 
   it('shows active state when tag is selected', () => {
     // Mock useSimpleUrlFilters to return filters that include our test tag
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: 'test-tag' },
         { name: 'tags', value: 'other-tag' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams('tags=test-tag,other-tag')
     });
 
@@ -112,20 +113,17 @@ describe('TagLink', () => {
 
   it('handles multiple tags correctly', () => {
     // Mock useSimpleUrlFilters to return multiple tags including our test tag
-    const {
-      useSimpleUrlFilters
-    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
-    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+    vi.mocked(useSimpleUrlFilters).mockReturnValue({
       filters: [
         { name: 'tags', value: 'tag1' },
         { name: 'tags', value: 'tag2' },
         { name: 'tags', value: 'test-tag' }
       ],
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      updateUrl: jest.fn(),
+      addFilter: vi.fn(),
+      removeFilter: vi.fn(),
+      updateUrl: vi.fn(),
       tagLogic: 'OR',
-      setTagLogic: jest.fn(),
+      setTagLogic: vi.fn(),
       searchParams: new URLSearchParams('tags=tag1,tag2,test-tag')
     });
 
@@ -155,7 +153,7 @@ describe('TagLink', () => {
   });
 
   it('handles onTagClick callback correctly', () => {
-    const mockOnTagClick = jest.fn();
+    const mockOnTagClick = vi.fn();
 
     render(
       <Provider>

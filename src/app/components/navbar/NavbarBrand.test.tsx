@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { NavbarBrand } from './NavbarBrand';
 
 // Mock the AuthAvatar component
-jest.mock('../auth-avatar', () => ({
-  AuthAvatar: jest.fn(({ size }) => (
+vi.mock('../auth-avatar', () => ({
+  AuthAvatar: vi.fn(({ size }) => (
     <div data-testid="auth-avatar">Mock AuthAvatar: {size}</div>
   ))
 }));

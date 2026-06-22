@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { formatTagsForUrl } from '../../utils/string/tag-utils';
 import { urlParamsAtom } from '../atoms';
 
 export interface Filter {
@@ -190,10 +191,6 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
       Object.entries(filterGroups).forEach(([name, values]) => {
         if (values.length > 0) {
           if (name === 'tags') {
-            // Use tag formatting utility for consistency
-            const {
-              formatTagsForUrl
-            } = require('../../utils/string/tag-utils');
             const allTags = values.flatMap((value) =>
               value.split(',').map((tag) => tag.trim())
             );

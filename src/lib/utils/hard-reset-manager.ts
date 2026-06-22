@@ -7,6 +7,11 @@
  */
 
 import { createLogger } from '../logging';
+import {
+  deleteNonPreservedIndexedDatabases,
+  restorePreservedRadioLocalStorage,
+  snapshotPreservedRadioLocalStorage,
+} from '@widgets/radio-player/radioPlayerPersistence';
 
 // Create logger for hard reset management
 const logger = createLogger({
@@ -177,6 +182,8 @@ async function clearAllCookies(): Promise<number> {
  */
 async function clearLocalStorage(): Promise<boolean> {
   try {
+    const preservedRadio = snapshotPreservedRadioLocalStorage();
+
     // Store reset metadata before clearing
     const resetVersion = localStorage.getItem(
       RESET_STORAGE_KEYS.LAST_RESET_VERSION
@@ -202,6 +209,8 @@ async function clearLocalStorage(): Promise<boolean> {
       localStorage.setItem(RESET_STORAGE_KEYS.RESET_COUNT, resetCount);
     if (firstVisit)
       localStorage.setItem(RESET_STORAGE_KEYS.FIRST_VISIT, firstVisit);
+
+    restorePreservedRadioLocalStorage(preservedRadio);
 
     return true;
   } catch (error) {
@@ -232,26 +241,7 @@ async function clearIndexedDB(): Promise<boolean> {
   }
 
   try {
-    const databases = await indexedDB.databases();
-
-    await Promise.all(
-      databases.map((db) => {
-        if (db.name) {
-          return new Promise<void>((resolve, reject) => {
-            const deleteReq = indexedDB.deleteDatabase(db.name!);
-            deleteReq.onsuccess = () => resolve();
-            deleteReq.onerror = () => reject(deleteReq.error);
-            deleteReq.onblocked = () => {
-              logger.warn(`IndexedDB deletion blocked for: ${db.name}`);
-              resolve(); // Don't fail the entire process
-            };
-          });
-        }
-        return Promise.resolve();
-      })
-    );
-
-    return true;
+    return await deleteNonPreservedIndexedDatabases();
   } catch (error) {
     logger.warn('Failed to clear IndexedDB:', { error });
     return false;
