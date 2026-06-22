@@ -44,11 +44,11 @@ export default defineConfig({
       ['src/lib/api/**', 'node'],
       ['src/app/components/**/actions.test.ts', 'node'],
       ['src/app/components/submissions-list/actions.test.ts', 'node']
-    ]
-  },
-  server: {
-    deps: {
-      inline: ['next-auth', '@auth/core']
+    ],
+    server: {
+      deps: {
+        inline: ['next-auth', '@auth/core']
+      }
     }
   }
 });
