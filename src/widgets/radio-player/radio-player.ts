@@ -28,23 +28,23 @@ import {
   getBarVisualizerPresetDefinition,
 } from './barVisualizerPresets';
 import { getBarVisualizerTheme } from './barVisualizerThemes';
-import type { IrpDropdownConfig, IrpDropdownHandle, RadioNowPlayingApiResponse, WindowWithWebkitAudioContext } from './radioPlayerEngine.types';
+import { attachRadioHlsPlayback } from './radioHlsPlayback';
 import type {
   RadioNowPlayingInfo,
   RadioPlayerHandle,
   RadioPlayerOptions,
   RadioStationCatalog,
 } from './radioPlayer.types';
+import type { IrpDropdownConfig, IrpDropdownHandle, RadioNowPlayingApiResponse, WindowWithWebkitAudioContext } from './radioPlayerEngine.types';
+import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
 import {
   clearRuntimeStationDefinitions,
   rememberTrackMetadataUnsupported,
   setRuntimeStationDefinitions,
   stationSupportsTrackMetadata,
 } from './radioStationMetadata';
-import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
-import { attachRadioHlsPlayback } from './radioHlsPlayback';
-import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import type { RadioHlsPlaybackHandle } from './radioStreamProbe.types';
+import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import { createSpectrumNormalizer } from './spectrumNormalization';
 
 export const RADIO_STATIONS: RadioStationCatalog = CATALOG_STATIONS;
@@ -409,7 +409,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
 
   let dropdowns: IrpDropdownHandle[] = [];
   let syncVisualizerControlsUi: (() => void) | null = null;
-  let uiCleanup: () => void = () => {};
+  let uiCleanup: () => void = () => { };
 
   if (!headless && shell && stationAnchor && stationPanel && stationTrigger && lookAnchor && lookPanel && lookTrigger && styleList && stationList) {
     stationNames.forEach((name) => {

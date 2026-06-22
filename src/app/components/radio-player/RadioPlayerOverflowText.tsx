@@ -56,9 +56,9 @@ export function RadioPlayerOverflowText({
   const Tag = as as ElementType;
   const innerStyle: RadioPlayerOverflowTextInnerStyle | undefined = overflowing
     ? {
-        '--overflow-distance': `${scrollDistance}px`,
-        '--overflow-duration': scrollDuration,
-      }
+      '--overflow-distance': `${scrollDistance}px`,
+      '--overflow-duration': scrollDuration,
+    }
     : undefined;
 
   return (
