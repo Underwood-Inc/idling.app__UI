@@ -5,6 +5,7 @@ import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
 import { IDLING_RADIO_PWA_SHELL_HEADER, RADIO_PWA_MANIFEST_HREF } from '@lib/radio-pwa/constants';
+import { RADIO_PWA_STANDALONE_DETECTION_SCRIPT } from '@lib/radio-pwa/standaloneDetectionScript';
 import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { Metadata, Viewport } from 'next';
@@ -16,6 +17,7 @@ import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
+import { RadioPwaStandaloneRedirect } from './components/radio-pwa/RadioPwaStandaloneRedirect';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
@@ -111,8 +113,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <head />
+      <head>
+        <link rel="manifest" href={RADIO_PWA_MANIFEST_HREF} />
+        <script dangerouslySetInnerHTML={{ __html: RADIO_PWA_STANDALONE_DETECTION_SCRIPT }} />
+      </head>
       <body>
+        <RadioPwaStandaloneRedirect />
         <AmbientBackgroundWrapper />
         {/* Google AdSense */}
         <Script
@@ -134,7 +140,7 @@ export default async function RootLayout({
                     <RadioPlayerProvider>
                       <VisualizerModeProvider>
                         {!isRadioShell ? (
-                          <>
+                          <div data-site-chrome>
                             <div data-visualizer-layout>
                               <NavigationLoadingBar />
                             </div>
@@ -144,11 +150,11 @@ export default async function RootLayout({
                             <div data-visualizer-layout>
                               <MessageTickerWithInterval />
                             </div>
-                          </>
+                          </div>
                         ) : null}
                         <main data-visualizer-layout>{children}</main>
                         {!isRadioShell ? (
-                          <>
+                          <div data-site-chrome>
                             <div data-visualizer-layout>
                               <Footer />
                             </div>
@@ -158,7 +164,7 @@ export default async function RootLayout({
                             <div data-visualizer-layout>
                               <PWAInstallPrompt />
                             </div>
-                          </>
+                          </div>
                         ) : null}
                         <div data-visualizer-layout>
                           <ServiceWorkerRegistration />

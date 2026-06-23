@@ -81,7 +81,7 @@ export default auth(async (req: NextRequest & { auth: any }) => {
     return NextResponse.next();
   }
 
-  if (nextUrl.pathname === IDLING_RADIO_PWA_START_PATH) {
+  if (nextUrl.pathname === IDLING_RADIO_PWA_START_PATH || nextUrl.pathname.startsWith(`${IDLING_RADIO_PWA_START_PATH}/`)) {
     const response = NextResponse.next();
     response.headers.set(IDLING_RADIO_PWA_SHELL_HEADER, '1');
     return response;
