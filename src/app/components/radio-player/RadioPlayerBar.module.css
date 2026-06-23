@@ -222,6 +222,24 @@
   background: rgb(255 255 255 / 8%);
 }
 
+.genreFilterUnreachable[aria-pressed='true'] {
+  color: #f0a878;
+  background: rgb(240 168 120 / 12%);
+}
+
+.stationRow[data-unreachable='true'] {
+  opacity: 0.72;
+}
+
+.stationRow[data-unreachable='true'] .stationRow__blurb {
+  color: #c9a07a;
+  font-style: italic;
+}
+
+.stationRow__select:disabled {
+  cursor: not-allowed;
+}
+
 .stationList {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

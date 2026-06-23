@@ -7,41 +7,89 @@ import type {
   RadioStationProbeFailure,
   RadioStationProbeResult,
 } from './radioPlayer.types';
+import {
+  delay,
+  isProbeTimeoutReason,
+  mapWithConcurrency,
+  RADIO_PROBE_CONCURRENCY,
+  RADIO_PROBE_MAX_RETRIES,
+  RADIO_PROBE_RETRY_DELAY_MS,
+} from './probeConcurrency';
 import { probeRadioStreamInBrowser, probeRadioStreamUrl } from './radioStreamProbe';
+import type { ProbeRadioStreamOptions, ProbeRadioStreamResult } from './radioStreamProbe.types';
 
 export { LOCAL_DEV_RADIO_STATIONS };
 
 export interface ProbeRadioStationsOptions {
   timeoutMs?: number;
   includeLocalDevFallbacks?: boolean;
+  concurrency?: number;
+  maxRetries?: number;
 }
 
 const DEFAULT_PROBE_TIMEOUT_MS = 8000;
 
-async function probeSingleStation(
-  name: string,
+type ProbeStreamFn = (
   url: string,
-  timeoutMs: number
-): Promise<{ ok: true } | { ok: false; reason: string }> {
-  const result = await probeRadioStreamInBrowser(url, { timeoutMs });
-  return result.ok ? { ok: true } : { ok: false, reason: result.reason ?? 'Stream failed to load' };
+  options?: ProbeRadioStreamOptions
+) => Promise<ProbeRadioStreamResult>;
+
+export interface ProbeRadioStationCatalogOptions {
+  timeoutMs?: number;
+  concurrency?: number;
+  maxRetries?: number;
+  probeStream: ProbeStreamFn;
 }
 
-async function probeRadioStationsInBrowser(
+async function probeSingleStationWithRetry(
+  url: string,
+  timeoutMs: number,
+  maxRetries: number,
+  probeStream: ProbeStreamFn
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  let lastReason = 'Stream failed to load';
+
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    const result = await probeStream(url, { timeoutMs });
+
+    if (result.ok) {
+      return { ok: true };
+    }
+
+    lastReason = result.reason ?? 'Stream failed to load';
+
+    if (!isProbeTimeoutReason(lastReason) || attempt === maxRetries) {
+      return { ok: false, reason: lastReason };
+    }
+
+    await delay(RADIO_PROBE_RETRY_DELAY_MS);
+  }
+
+  return { ok: false, reason: lastReason };
+}
+
+export async function probeRadioStationCatalog(
   catalog: RadioStationCatalog,
-  timeoutMs: number
+  options: ProbeRadioStationCatalogOptions
 ): Promise<RadioStationProbeResult> {
   const entries = Object.entries(catalog);
   if (entries.length === 0) {
     return { available: {}, failures: [] };
   }
 
-  const probeResults = await Promise.all(
-    entries.map(async ([name, url]) => {
-      const result = await probeSingleStation(name, url, timeoutMs);
-      return { name, url, result };
-    })
-  );
+  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
+  const concurrency = options.concurrency ?? RADIO_PROBE_CONCURRENCY;
+  const maxRetries = options.maxRetries ?? RADIO_PROBE_MAX_RETRIES;
+
+  const probeResults = await mapWithConcurrency(entries, concurrency, async ([name, url]) => {
+    const result = await probeSingleStationWithRetry(
+      url,
+      timeoutMs,
+      maxRetries,
+      options.probeStream
+    );
+    return { name, url, result };
+  });
 
   const available: RadioStationCatalog = {};
   const failures: RadioStationProbeFailure[] = [];
@@ -58,13 +106,24 @@ async function probeRadioStationsInBrowser(
   return { available, failures };
 }
 
+async function probeRadioStationsInBrowser(
+  catalog: RadioStationCatalog,
+  options: ProbeRadioStationsOptions = {}
+): Promise<RadioStationProbeResult> {
+  return probeRadioStationCatalog(catalog, {
+    timeoutMs: options.timeoutMs,
+    concurrency: options.concurrency,
+    maxRetries: options.maxRetries,
+    probeStream: probeRadioStreamInBrowser,
+  });
+}
+
 /** Probe a catalog in the browser only (used for user-added custom sources). */
 export async function probeRadioCatalogInBrowser(
   catalog: RadioStationCatalog,
   options: ProbeRadioStationsOptions = {}
 ): Promise<RadioStationProbeResult> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
-  return probeRadioStationsInBrowser(catalog, timeoutMs);
+  return probeRadioStationsInBrowser(catalog, options);
 }
 
 /** Probe built-in stations (server route when available) plus custom sources in-browser. */
@@ -112,7 +171,7 @@ export async function probeRadioStations(
     // Fall back to in-browser probing below.
   }
 
-  return probeRadioStationsInBrowser(stationsToProbe, timeoutMs);
+  return probeRadioStationsInBrowser(stationsToProbe, { ...options, timeoutMs });
 }
 
 export function logRadioPlayerUnavailable(failures: RadioStationProbeFailure[]): void {

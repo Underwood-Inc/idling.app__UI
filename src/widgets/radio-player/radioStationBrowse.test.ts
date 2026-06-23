@@ -6,6 +6,7 @@ import {
   isRadioStationInGenreFilter,
   listAvailableRadioStations,
   listRadioStationGenreFilters,
+  listUnreachableRadioStations,
 } from './radioStationBrowse';
 import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
 
@@ -87,5 +88,19 @@ describe('radioStationBrowse', () => {
 
     expect(matches).toContain('FIP Groove');
     expect(matches).not.toContain('Jazz24');
+  });
+
+  test('when initial probes fail, unreachable stations can still be listed for review', () => {
+    const failures = [
+      {
+        name: 'Jazz24',
+        url: 'https://example.com/jazz.mp3',
+        reason: 'Timed out waiting for stream',
+      },
+    ];
+
+    const unreachable = listUnreachableRadioStations(RADIO_STATION_DEFINITIONS, failures);
+
+    expect(unreachable.map((station) => station.name)).toEqual(['Jazz24']);
   });
 });

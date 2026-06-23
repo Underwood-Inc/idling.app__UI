@@ -67,6 +67,26 @@
   letter-spacing: 0.5px;
 }
 
+.metrics__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  background: var(--ambient-surface-bg-elevated);
+  border: 1px solid var(--ambient-surface-border);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.metrics__noteIcon {
+  flex-shrink: 0;
+  margin-top: 0.15em;
+  color: var(--brand-primary);
+}
+
 /* Loading skeleton */
 .skeleton {
   background: linear-gradient(

@@ -38,6 +38,7 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
     customSourcesLoaded,
     customSourcesRevision,
     stationDefinitions,
+    setStationProbeFailures,
   } = useRadioPlayer();
   const [mountState, setMountState] = useState<RadioPlayerMountState>('probing');
   const [probeSnapshot, setProbeSnapshot] = useState<RadioPlayerProbeSnapshot | null>(null);
@@ -49,6 +50,7 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
 
     let cancelled = false;
     setMountState('probing');
+    setStationProbeFailures([]);
 
     const customCatalog = buildCustomAudioSourceCatalog(customSources);
 
@@ -56,6 +58,8 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
       if (cancelled) {
         return;
       }
+
+      setStationProbeFailures(result.failures);
 
       const stationCount = Object.keys(result.available).length;
       if (stationCount === 0) {
@@ -82,7 +86,7 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
     return () => {
       cancelled = true;
     };
-  }, [customSources, customSourcesLoaded, customSourcesRevision, stationDefinitions]);
+  }, [customSources, customSourcesLoaded, customSourcesRevision, setStationProbeFailures, stationDefinitions]);
 
   useEffect(() => {
     if (mountState !== 'ready' || !probeSnapshot) {

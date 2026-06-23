@@ -6,6 +6,7 @@ import type {
   RadioPlayerHandle,
   RadioStationDefinition,
   RadioStationGenreId,
+  RadioStationProbeFailure,
 } from '@widgets/radio-player/radioPlayer.types';
 import {
   createCustomAudioSourceFromUrl,
@@ -43,6 +44,8 @@ export interface RadioPlayerContextValue {
   customSourcesLoaded: boolean;
   customSourcesRevision: number;
   stationDefinitions: RadioStationDefinition[];
+  stationProbeFailures: RadioStationProbeFailure[];
+  setStationProbeFailures: (failures: RadioStationProbeFailure[]) => void;
   addCustomSource: (input: AddCustomAudioSourceUrlInput) => Promise<AddCustomAudioSourceResult>;
   removeCustomSource: (id: string) => Promise<void>;
   updateCustomSourceGenre: (id: string, genre: RadioStationGenreId) => Promise<void>;
@@ -59,6 +62,7 @@ export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
   const [customSources, setCustomSources] = useState<CustomAudioSourceRecord[]>([]);
   const [customSourcesLoaded, setCustomSourcesLoaded] = useState(false);
   const [customSourcesRevision, setCustomSourcesRevision] = useState(0);
+  const [stationProbeFailures, setStationProbeFailures] = useState<RadioStationProbeFailure[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -168,6 +172,8 @@ export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
       customSourcesLoaded,
       customSourcesRevision,
       stationDefinitions,
+      stationProbeFailures,
+      setStationProbeFailures,
       addCustomSource,
       removeCustomSource,
       updateCustomSourceGenre,
@@ -180,6 +186,7 @@ export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
       customSourcesLoaded,
       customSourcesRevision,
       stationDefinitions,
+      stationProbeFailures,
       addCustomSource,
       removeCustomSource,
       updateCustomSourceGenre,

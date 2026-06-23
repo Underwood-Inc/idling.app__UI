@@ -6,6 +6,7 @@ import type {
   RadioStationGenreFilter,
   RadioStationGenreGroup,
   RadioStationGenreId,
+  RadioStationProbeFailure,
 } from './radioPlayer.types';
 
 export const RADIO_STATION_GENRES: Record<RadioStationGenreId, RadioStationGenre> = {
@@ -80,6 +81,23 @@ export function listAvailableRadioStations(
 
   return definitions
     .filter((definition) => available.has(definition.name))
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function buildRadioStationProbeFailureMap(
+  failures: RadioStationProbeFailure[]
+): Map<string, RadioStationProbeFailure> {
+  return new Map(failures.map((failure) => [failure.name, failure]));
+}
+
+export function listUnreachableRadioStations(
+  definitions: RadioStationDefinition[],
+  failures: RadioStationProbeFailure[]
+): RadioStationDefinition[] {
+  const unreachableNames = new Set(failures.map((failure) => failure.name));
+
+  return definitions
+    .filter((definition) => unreachableNames.has(definition.name))
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
