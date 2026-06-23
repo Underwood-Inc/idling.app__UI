@@ -95,9 +95,3 @@ export function ensureRadioPwaInstallPromptListener(): void {
     captureRadioPwaInstallPrompt(event as PwaBeforeInstallPromptEvent);
   });
 }
-
-/**
- * Runs before React hydrates on site pages: point manifest at Idling Radio and
- * capture beforeinstallprompt when the browser offers it.
- */
-export const RADIO_PWA_BOOTSTRAP_SCRIPT = `(function(){try{if(window.matchMedia("(display-mode: standalone)").matches)return;if(localStorage.getItem("idling-radio-pwa-installed")==="1")return;var l=document.querySelector('link[rel="manifest"]');if(!l){l=document.createElement("link");l.rel="manifest";document.head.appendChild(l);}l.href="/idling-radio.webmanifest";window.addEventListener("beforeinstallprompt",function(e){var m=document.querySelector('link[rel="manifest"]');if(!m||m.href.indexOf("idling-radio")===-1)return;e.preventDefault();window.__idlingRadioDeferredPrompt=e;window.dispatchEvent(new CustomEvent("idling-radio-install-ready"));});}catch(e){}})();`;

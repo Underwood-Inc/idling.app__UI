@@ -1,42 +1,33 @@
 'use client';
 
 import { RADIO_PWA_INSTALL_READY_EVENT } from '@lib/radio-pwa/constants';
-import type { PwaBeforeInstallPromptEvent } from '@lib/radio-pwa/installPrompt';
+import {
+  getRadioPwaInstallCapability,
+  installRadioPwa,
+  IOS_ADD_TO_HOME_SCREEN_HINT,
+  shouldOfferRadioPwaInstallUi,
+} from '@lib/radio-pwa/installRadioPwa';
 import {
   ensureRadioPwaInstallPromptListener,
   getRadioPwaDeferredPrompt,
   subscribeRadioPwaInstallPrompt,
 } from '@lib/radio-pwa/installPrompt';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   isRadioPwaInstalled,
   isStandalonePwa,
   markRadioPwaInstalled,
-  setRadioPwaManifestLink,
 } from './radioPwaAccess';
 import styles from './RadioPwaInstallButton.module.css';
 
 export function RadioPwaInstallButton() {
-  const [hasPrompt, setHasPrompt] = useState(false);
+  const [canOfferInstall, setCanOfferInstall] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const runInstallPrompt = useCallback(async (deferredPrompt: PwaBeforeInstallPromptEvent) => {
-    await deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-
-    if (choice.outcome === 'accepted') {
-      markRadioPwaInstalled();
-    }
-  }, []);
-
-  useLayoutEffect(() => {
-    if (isStandalonePwa() || isRadioPwaInstalled()) {
-      return;
-    }
-
-    setRadioPwaManifestLink();
-    ensureRadioPwaInstallPromptListener();
-    setHasPrompt(getRadioPwaDeferredPrompt() !== null);
+  const refreshCapability = useCallback(() => {
+    setCanOfferInstall(shouldOfferRadioPwaInstallUi());
   }, []);
 
   useEffect(() => {
@@ -44,20 +35,21 @@ export function RadioPwaInstallButton() {
       return undefined;
     }
 
-    setRadioPwaManifestLink();
     ensureRadioPwaInstallPromptListener();
+    refreshCapability();
 
-    const unsubscribe = subscribeRadioPwaInstallPrompt((prompt) => {
-      setHasPrompt(prompt !== null);
+    const unsubscribe = subscribeRadioPwaInstallPrompt(() => {
+      refreshCapability();
     });
 
     const onInstallReady = () => {
-      setHasPrompt(getRadioPwaDeferredPrompt() !== null);
+      refreshCapability();
     };
 
     const onAppInstalled = () => {
       markRadioPwaInstalled();
-      setHasPrompt(false);
+      setCanOfferInstall(false);
+      setStatusMessage(null);
     };
 
     window.addEventListener(RADIO_PWA_INSTALL_READY_EVENT, onInstallReady);
@@ -68,30 +60,68 @@ export function RadioPwaInstallButton() {
       window.removeEventListener(RADIO_PWA_INSTALL_READY_EVENT, onInstallReady);
       window.removeEventListener('appinstalled', onAppInstalled);
     };
-  }, []);
+  }, [refreshCapability]);
 
-  if (isStandalonePwa() || isRadioPwaInstalled() || !hasPrompt) {
+  if (isStandalonePwa() || isRadioPwaInstalled() || !canOfferInstall) {
     return null;
   }
 
-  const handleClick = () => {
-    const deferredPrompt = getRadioPwaDeferredPrompt();
-    if (!deferredPrompt) {
+  const handleClick = async () => {
+    if (isInstalling) {
       return;
     }
 
-    void runInstallPrompt(deferredPrompt);
+    setStatusMessage(null);
+    setIsInstalling(true);
+
+    try {
+      const result = await installRadioPwa();
+
+      if (result.ok) {
+        markRadioPwaInstalled();
+        return;
+      }
+
+      if (result.manualHint === 'ios-add-to-home-screen') {
+        setStatusMessage(IOS_ADD_TO_HOME_SCREEN_HINT);
+        return;
+      }
+
+      if (result.reason === 'dismissed') {
+        return;
+      }
+
+      if (getRadioPwaDeferredPrompt() === null && !getRadioPwaInstallCapability().canOfferInstall) {
+        setStatusMessage(
+          'Radio install needs Chrome or Edge with the Web Install API enabled for idling.app.'
+        );
+      }
+    } finally {
+      setIsInstalling(false);
+      refreshCapability();
+    }
   };
 
   return (
-    <button
-      type="button"
-      className={`${styles.install} no-glass`}
-      aria-label="Install Idling Radio app"
-      onClick={handleClick}
-    >
-      <SiteIcon id="download" sizeRem={0.9} title="" />
-      <span className={styles.install__label}>Install</span>
-    </button>
+    <span className={styles.installWrap}>
+      <button
+        type="button"
+        className={`${styles.install} no-glass`}
+        aria-label="Install Idling Radio app"
+        aria-busy={isInstalling}
+        disabled={isInstalling}
+        onClick={() => {
+          void handleClick();
+        }}
+      >
+        <SiteIcon id="download" sizeRem={0.9} title="" />
+        <span className={styles.install__label}>{isInstalling ? 'Installing…' : 'Install'}</span>
+      </button>
+      {statusMessage ? (
+        <span className={styles.install__hint} role="status">
+          {statusMessage}
+        </span>
+      ) : null}
+    </span>
   );
 }

@@ -1,3 +1,11 @@
+.installWrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  max-width: min(16rem, 42vw);
+}
+
 .install {
   display: inline-flex;
   align-items: center;
@@ -26,4 +34,10 @@
 
 .install__label {
   white-space: nowrap;
+}
+
+.install__hint {
+  font-size: 11px;
+  line-height: 1.3;
+  color: rgb(229 193 133 / 85%);
 }

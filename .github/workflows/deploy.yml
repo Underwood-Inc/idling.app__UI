@@ -14,11 +14,12 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           CI: true
+          NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN: ${{ secrets.NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASS }}
-          envs: CI
+          envs: CI,NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN
           script: |
             #!/usr/bin/env bash
             set -euo pipefail
@@ -52,6 +53,7 @@ jobs:
 
             # Required for non-TTY installs (pnpm modules dir purge prompt)
             export CI=true
+            export NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN="${NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN:-}"
 
             pnpm install --frozen-lockfile
             pnpm build

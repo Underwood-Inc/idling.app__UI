@@ -1,11 +1,7 @@
-import {
-  IDLING_RADIO_PWA_START_PATH,
-  RADIO_PWA_INSTALLED_STORAGE_KEY,
-  RADIO_PWA_MANIFEST_HREF,
-} from '@lib/radio-pwa/constants';
+import { RADIO_PWA_INSTALLED_STORAGE_KEY } from '@lib/radio-pwa/constants';
 import { clearRadioPwaInstallPrompt } from '@lib/radio-pwa/installPrompt';
 
-export { IDLING_RADIO_PWA_START_PATH as RADIO_PWA_START_PATH };
+export { IDLING_RADIO_PWA_START_PATH as RADIO_PWA_START_PATH } from '@lib/radio-pwa/constants';
 
 export function isStandalonePwa(): boolean {
   if (typeof window === 'undefined') {
@@ -39,31 +35,4 @@ export function isRadioPwaInstalled(): boolean {
 export function markRadioPwaInstalled(): void {
   localStorage.setItem(RADIO_PWA_INSTALLED_STORAGE_KEY, '1');
   clearRadioPwaInstallPrompt();
-  restoreMainSiteManifestLink();
-}
-
-export function setRadioPwaManifestLink(): void {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  let link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
-  if (!link) {
-    link = document.createElement('link');
-    link.rel = 'manifest';
-    document.head.appendChild(link);
-  }
-
-  link.href = RADIO_PWA_MANIFEST_HREF;
-}
-
-export function restoreMainSiteManifestLink(): void {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
-  if (link) {
-    link.href = '/manifest.json';
-  }
 }
