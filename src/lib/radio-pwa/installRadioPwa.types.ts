@@ -15,6 +15,7 @@ export interface RadioPwaInstallSuccess {
 export interface RadioPwaInstallFailure {
   ok: false;
   reason: RadioPwaInstallFailureReason;
+  message?: string;
   manualHint?: 'ios-add-to-home-screen';
 }
 

@@ -2,9 +2,9 @@
 
 import { RADIO_PWA_INSTALL_READY_EVENT } from '@lib/radio-pwa/constants';
 import {
-  getRadioPwaInstallCapability,
   installRadioPwa,
   IOS_ADD_TO_HOME_SCREEN_HINT,
+  isWebInstallApiAvailable,
   shouldOfferRadioPwaInstallUi,
 } from '@lib/radio-pwa/installRadioPwa';
 import {
@@ -91,9 +91,19 @@ export function RadioPwaInstallButton() {
         return;
       }
 
-      if (getRadioPwaDeferredPrompt() === null && !getRadioPwaInstallCapability().canOfferInstall) {
+      if (result.message) {
+        setStatusMessage(result.message);
+        return;
+      }
+
+      if (result.reason === 'manifest-error') {
+        setStatusMessage('Install failed: the radio manifest could not be loaded.');
+        return;
+      }
+
+      if (!isWebInstallApiAvailable()) {
         setStatusMessage(
-          'Radio install needs Chrome or Edge with the Web Install API enabled for idling.app.'
+          'Install requires Chrome or Edge 143+ with the Web Install API enabled for idling.app.'
         );
       }
     } finally {

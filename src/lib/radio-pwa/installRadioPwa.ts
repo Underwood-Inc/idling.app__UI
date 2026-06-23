@@ -77,16 +77,21 @@ async function installViaWebInstallApi(): Promise<RadioPwaInstallResult> {
     return { ok: true, method: 'web-install-api' };
   } catch (error) {
     const name = error instanceof Error ? error.name : '';
+    const message = error instanceof Error ? error.message : String(error);
 
     if (name === 'AbortError') {
-      return { ok: false, reason: 'dismissed' };
+      return { ok: false, reason: 'dismissed', message };
     }
 
     if (name === 'DataError') {
-      return { ok: false, reason: 'manifest-error' };
+      return {
+        ok: false,
+        reason: 'manifest-error',
+        message: message || 'The radio manifest could not be parsed.',
+      };
     }
 
-    return { ok: false, reason: 'unsupported' };
+    return { ok: false, reason: 'unsupported', message };
   }
 }
 

@@ -48,6 +48,48 @@ const nextConfig = {
   // Smart cache headers with versioning
   async headers() {
     return [
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600'
+          },
+          ...globalSecurityHeaders
+        ]
+      },
+      {
+        source: '/idling-radio.webmanifest',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600'
+          },
+          ...globalSecurityHeaders
+        ]
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate'
+          },
+          ...globalSecurityHeaders
+        ]
+      },
       // Uploaded images — never sniff MIME; treat as attachment-like static assets
       {
         source: '/uploads/images/:path*',

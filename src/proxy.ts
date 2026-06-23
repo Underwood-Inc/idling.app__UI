@@ -1,4 +1,4 @@
-import { IDLING_RADIO_PWA_SHELL_HEADER, IDLING_RADIO_PWA_START_PATH } from '@lib/radio-pwa/constants';
+import { IDLING_RADIO_PWA_SHELL_HEADER, IDLING_RADIO_PWA_START_PATH, isPwaPublicAssetPath } from '@lib/radio-pwa/constants';
 import { NAV_PATHS, PUBLIC_ROUTES } from '@lib/routes';
 import { getSecureCacheBustingHeaders } from '@lib/security/secure-logout';
 import NextAuth from 'next-auth';
@@ -9,6 +9,10 @@ const { auth } = NextAuth(authConfig);
 
 export default auth(async (req: NextRequest & { auth: any }) => {
   const { nextUrl, auth: session } = req;
+
+  if (isPwaPublicAssetPath(nextUrl.pathname)) {
+    return NextResponse.next();
+  }
 
   // Handle API route authentication
   if (nextUrl.pathname.startsWith('/api/')) {
@@ -183,7 +187,7 @@ export const config = {
      */
     {
       source:
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|txt|xml|ico|woff|woff2|ttf|otf|eot)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|sw\\.js|manifest\\.json|idling-radio\\.webmanifest|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|txt|xml|ico|woff|woff2|ttf|otf|eot)$).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' }
