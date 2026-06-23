@@ -1,0 +1,49 @@
+/* Installed Idling Radio PWA — no page scroll, visualizer fills the viewport above the dock */
+html[data-radio-pwa='standalone'] {
+  overflow: hidden;
+  height: 100%;
+}
+
+html[data-radio-pwa='standalone'] body {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+html[data-radio-pwa='standalone'] body.has-radio-player {
+  padding-bottom: 0;
+}
+
+html[data-radio-pwa='standalone'] main[data-visualizer-layout] {
+  display: none;
+}
+
+html[data-radio-pwa='standalone'].visualizer-mode {
+  --irp-fullscreen-viz-height-ratio: 1;
+}
+
+html[data-radio-pwa='standalone'].visualizer-mode [data-irp-fullscreen-viz-frame='true'],
+html[data-radio-pwa='standalone'].visualizer-mode [data-irp-bar-fullscreen='true'] {
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100dvh - var(--irp-dock-height, 5.5rem) - (2 * var(--irp-dock-bottom-gap, 0.75rem)));
+  max-height: calc(100dvh - var(--irp-dock-height, 5.5rem) - (2 * var(--irp-dock-bottom-gap, 0.75rem)));
+}
+
+html[data-radio-pwa='standalone'].visualizer-mode [data-irp-fullscreen-viz-frame='true'] [data-testid='radio-visualizer-fullscreen'],
+html[data-radio-pwa='standalone'].visualizer-mode [data-irp-bar-fullscreen='true'] [data-testid='radio-bar-visualizer-fullscreen'] {
+  height: 100%;
+  --irp-fullscreen-viz-height-ratio: 1;
+}
+
+html[data-radio-pwa='standalone'].visualizer-mode [data-irp-fullscreen-viz-frame='true'][data-radial='true'] [data-testid='radio-visualizer-fullscreen'] {
+  width: min(100%, 100%);
+  max-width: 100%;
+  max-height: 100%;
+}
+
+html[data-radio-pwa='standalone'].visualizer-mode [data-testid='ambient-background'] {
+  display: none;
+}

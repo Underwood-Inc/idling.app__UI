@@ -1,12 +1,3 @@
 .shell {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 1rem 1rem calc(var(--irp-dock-height, 4rem) + 1.25rem);
-}
-
-.ad {
-  width: min(100%, 728px);
+  display: none;
 }

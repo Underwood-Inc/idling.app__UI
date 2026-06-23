@@ -218,6 +218,7 @@ export function RadioVisualizerFullscreen({
   return (
     <div
       className={styles.spectrumFrame}
+      data-irp-fullscreen-viz-frame="true"
       data-radial={isRadial ? 'true' : 'false'}
       style={{ opacity }}
     >

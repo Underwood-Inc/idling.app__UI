@@ -1,4 +1,3 @@
-import { AdUnit } from '../components/ad-unit';
 import { RadioPwaLaunchGuard } from '../components/radio-pwa/RadioPwaLaunchGuard';
 import styles from './idling-radio.module.css';
 
@@ -6,9 +5,7 @@ import styles from './idling-radio.module.css';
 export default function IdlingRadioPage() {
   return (
     <RadioPwaLaunchGuard>
-      <div className={styles.shell}>
-        <AdUnit className={`ad-unit--footer ${styles.ad}`} testId="radio-pwa-ad" />
-      </div>
+      <div className={styles.shell} aria-hidden="true" />
     </RadioPwaLaunchGuard>
   );
 }

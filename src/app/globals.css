@@ -3,6 +3,7 @@
 @import url('./styles/glass-effects.css');
 @import url('./styles/scroll-restore-animation.css');
 @import url('./styles/visualizer-mode.css');
+@import url('./styles/radio-pwa-standalone.css');
 @import url('../widgets/radio-player/radio-player.css');
 @import url('../styles/global-selects.css');
 @import url('../styles/contrast-safe.css');
