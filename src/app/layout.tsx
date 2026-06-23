@@ -7,7 +7,7 @@ import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
 import { IDLING_RADIO_PWA_SHELL_HEADER, RADIO_PWA_MANIFEST_HREF } from '@lib/radio-pwa/constants';
 import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import Script from 'next/script';
 import { headers } from 'next/headers';
@@ -63,8 +63,23 @@ const baseMetadata: Metadata = {
     'google-adsense-account': 'ca-pub-1546133996920392'
   },
   manifest: '/manifest.json',
+};
+
+const baseViewport: Viewport = {
   themeColor: '#ff6b35',
 };
+
+export async function generateViewport(): Promise<Viewport> {
+  const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
+
+  if (!isRadioShell) {
+    return baseViewport;
+  }
+
+  return {
+    themeColor: '#e5c185',
+  };
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
@@ -76,7 +91,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     ...baseMetadata,
     manifest: RADIO_PWA_MANIFEST_HREF,
-    themeColor: '#e5c185',
     robots: {
       index: false,
       follow: false,
