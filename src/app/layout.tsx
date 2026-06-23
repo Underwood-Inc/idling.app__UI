@@ -19,7 +19,6 @@ import MessageTickerWithInterval from './components/message-ticker/MessageTicker
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { RadioPwaStandaloneRedirect } from './components/radio-pwa/RadioPwaStandaloneRedirect';
 import { RadioPwaStandaloneVisualizerBootstrap } from './components/radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
-import { RadioPwaWindowControlsOverlay } from './components/radio-pwa/RadioPwaWindowControlsOverlay';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
@@ -130,7 +129,6 @@ export default async function RootLayout({
       </head>
       <body>
         <RadioPwaStandaloneRedirect />
-        <RadioPwaWindowControlsOverlay />
         <AmbientBackgroundWrapper />
         {/* Google AdSense */}
         <Script
@@ -153,31 +151,35 @@ export default async function RootLayout({
                       <VisualizerModeProvider>
                         <RadioPwaStandaloneVisualizerBootstrap />
                         {!isRadioShell ? (
-                          <div data-site-chrome>
-                            <div data-visualizer-layout>
+                          <>
+                            <div data-visualizer-layout data-site-chrome>
                               <NavigationLoadingBar />
                             </div>
-                            <div data-visualizer-layout className="sticky-header-wrapper">
+                            <div
+                              data-visualizer-layout
+                              className="sticky-header-wrapper"
+                              data-site-chrome
+                            >
                               <Header />
                             </div>
-                            <div data-visualizer-layout>
+                            <div data-visualizer-layout data-site-chrome>
                               <MessageTickerWithInterval />
                             </div>
-                          </div>
+                          </>
                         ) : null}
                         <main data-visualizer-layout>{children}</main>
                         {!isRadioShell ? (
-                          <div data-site-chrome>
-                            <div data-visualizer-layout>
+                          <>
+                            <div data-visualizer-layout data-site-chrome>
                               <Footer />
                             </div>
-                            <div data-visualizer-layout>
+                            <div data-visualizer-layout data-site-chrome>
                               <OverlayRendererWrapper />
                             </div>
-                            <div data-visualizer-layout>
+                            <div data-visualizer-layout data-site-chrome>
                               <PWAInstallPrompt />
                             </div>
-                          </div>
+                          </>
                         ) : null}
                         <div data-visualizer-layout>
                           <ServiceWorkerRegistration />
