@@ -1,6 +1,3 @@
-import { RADIO_PWA_INSTALLED_STORAGE_KEY } from '@lib/radio-pwa/constants';
-import { clearRadioPwaInstallPrompt } from '@lib/radio-pwa/installPrompt';
-
 export { IDLING_RADIO_PWA_START_PATH as RADIO_PWA_START_PATH } from '@lib/radio-pwa/constants';
 
 export function isStandalonePwa(): boolean {
@@ -22,17 +19,4 @@ export function isStandalonePwa(): boolean {
   }
 
   return false;
-}
-
-export function isRadioPwaInstalled(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  return localStorage.getItem(RADIO_PWA_INSTALLED_STORAGE_KEY) === '1';
-}
-
-export function markRadioPwaInstalled(): void {
-  localStorage.setItem(RADIO_PWA_INSTALLED_STORAGE_KEY, '1');
-  clearRadioPwaInstallPrompt();
 }

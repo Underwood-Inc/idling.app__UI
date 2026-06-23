@@ -62,11 +62,11 @@ const baseMetadata: Metadata = {
   other: {
     'google-adsense-account': 'ca-pub-1546133996920392'
   },
-  manifest: '/manifest.json',
+  manifest: RADIO_PWA_MANIFEST_HREF,
 };
 
 const baseViewport: Viewport = {
-  themeColor: '#ff6b35',
+  themeColor: '#e5c185',
 };
 
 export async function generateViewport(): Promise<Viewport> {
@@ -108,15 +108,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
-  const webInstallOriginTrial = process.env.NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN;
 
   return (
     <html lang="en">
-      <head>
-        {webInstallOriginTrial ? (
-          <meta httpEquiv="origin-trial" content={webInstallOriginTrial} />
-        ) : null}
-      </head>
+      <head />
       <body>
         <AmbientBackgroundWrapper />
         {/* Google AdSense */}

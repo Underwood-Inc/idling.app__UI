@@ -20,25 +20,18 @@ const PWAInstallPrompt: React.FC = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
 
-  // Note: Removed route-specific positioning logic as PWA prompt now uses
-  // consistent top: 2rem; right: 2rem positioning regardless of route
-
   useEffect(() => {
-    // Check if PWA is already installed
     const checkIfInstalled = () => {
-      // Check for standalone mode (PWA is installed)
       if (window.matchMedia('(display-mode: standalone)').matches) {
         setIsInstalled(true);
         return;
       }
 
-      // Check for iOS Safari PWA
-      if ((window.navigator as any).standalone === true) {
+      if ((window.navigator as Navigator & { standalone?: boolean }).standalone === true) {
         setIsInstalled(true);
         return;
       }
 
-      // Check if running in TWA (Trusted Web Activity)
       if (document.referrer.includes('android-app://')) {
         setIsInstalled(true);
         return;
@@ -47,14 +40,12 @@ const PWAInstallPrompt: React.FC = () => {
 
     checkIfInstalled();
 
-    // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       const beforeInstallPromptEvent = e as BeforeInstallPromptEvent;
       setDeferredPrompt(beforeInstallPromptEvent);
       setIsSupported(true);
 
-      // Show prompt after a short delay to avoid being too aggressive
       setTimeout(() => {
         if (!isInstalled) {
           setShowPrompt(true);
@@ -62,7 +53,6 @@ const PWAInstallPrompt: React.FC = () => {
       }, 3000);
     };
 
-    // Listen for app installed event
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowPrompt(false);
@@ -85,21 +75,11 @@ const PWAInstallPrompt: React.FC = () => {
     if (!deferredPrompt) return;
 
     try {
-      // Show the install prompt
       await deferredPrompt.prompt();
-
-      // Wait for the user's response
-      const choiceResult = await deferredPrompt.userChoice;
-
-      if (choiceResult.outcome === 'accepted') {
-        // User accepted the install prompt
-      } else {
-        // User dismissed the install prompt
-      }
-    } catch (error) {
-      // Error showing install prompt - fail silently
+      await deferredPrompt.userChoice;
+    } catch {
+      // Fail silently
     } finally {
-      // Clear the deferredPrompt
       setDeferredPrompt(null);
       setShowPrompt(false);
     }
@@ -107,11 +87,9 @@ const PWAInstallPrompt: React.FC = () => {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Hide for this session
     sessionStorage.setItem('pwa-prompt-dismissed', 'true');
   };
 
-  // Don't show if already installed, not supported, or dismissed this session
   if (
     isInstalled ||
     !isSupported ||
@@ -126,16 +104,16 @@ const PWAInstallPrompt: React.FC = () => {
       <div className="pwa-install-prompt__content">
         <SiteIcon id="smartphone" className="pwa-install-prompt__icon" sizeRem={1.5} />
         <div className="pwa-install-prompt__text">
-          <span className="pwa-install-prompt__title">Install App</span>
+          <span className="pwa-install-prompt__title">Install Idling Radio</span>
           <span className="pwa-install-prompt__subtitle">
-            Get the full experience
+            Ambient radio on your home screen
           </span>
         </div>
         <div className="pwa-install-prompt__actions">
           <button
             onClick={handleInstallClick}
             className="pwa-install-prompt__install-btn"
-            aria-label="Install Idling App"
+            aria-label="Install Idling Radio"
           >
             Install
           </button>
