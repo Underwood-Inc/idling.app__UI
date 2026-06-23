@@ -80,6 +80,7 @@
     cursor: var(--mappy-cursor-context-menu);
   }
 
+  /* Form fields — keep separate from typography so :is() does not inflate heading specificity. */
   html :is(
     input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
     textarea,
@@ -90,6 +91,12 @@
     .rich-input-content,
     [data-mappy-selectable-text],
     .mappy-selectable-text,
+    [data-mappy-cursor='text']
+  ) {
+    cursor: var(--mappy-cursor-text) !important;
+  }
+
+  html :is(
     p,
     li,
     blockquote,
@@ -110,13 +117,15 @@
     .wiki-article__hook,
     .wiki-article__footer,
     .tooltip__body,
-    .tooltip__lead,
-    [data-mappy-cursor='text']
+    .tooltip__lead
   ) {
     cursor: var(--mappy-cursor-text) !important;
   }
 
-  /* Typography inside links/buttons must inherit pointer, not text-select cursor */
+  /*
+   * Interactive descendants must inherit pointer (etc.), not the global text-select
+   * cursor. Typography uses its own :is() block so this rule outranks h1–h6/p inside links.
+   */
   html :is(
     a[href],
     button,
@@ -125,25 +134,12 @@
     [role='link'],
     [role='menuitem'],
     label[for],
-    .instant-link
-  ) :is(
-    p,
-    li,
-    blockquote,
-    pre,
-    figcaption,
-    dd,
-    dt,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    td,
-    th,
-    code
-  ) {
+    .instant-link,
+    .nav__group-trigger,
+    .nav__group-item,
+    .mobile-nav-drawer__item,
+    .mobile-nav-drawer__brand-link
+  ) :is(*:not(input):not(textarea):not(select):not([contenteditable='true'])) {
     cursor: inherit !important;
   }
 

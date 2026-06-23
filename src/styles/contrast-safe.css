@@ -19,8 +19,9 @@
   --contrast-safe-bg-current: var(--contrast-safe-bg-hover, var(--contrast-safe-bg, #252525));
 }
 
-.contrast-safe-surface:visited {
-  color: inherit;
+/* Block browser default :visited purple — match :link contrast-safe foreground */
+.contrast-safe-surface:is(:link, :visited) {
+  -webkit-text-fill-color: currentColor;
 }
 
 .contrast-safe-surface--cta-primary {
@@ -109,7 +110,7 @@
 }
 
 @supports (color: color-contrast(#000000 vs #ffffff, #000000)) {
-  .contrast-safe-surface {
+  .contrast-safe-surface:is(:link, :visited) {
     color: color-contrast(var(--contrast-safe-bg-current) vs #ffffff, #f9f9f9, #1a1a1a, #000000);
   }
 
@@ -120,7 +121,7 @@
 }
 
 @supports not (color: color-contrast(#000000 vs #ffffff, #000000)) {
-  .contrast-safe-surface {
+  .contrast-safe-surface:is(:link, :visited) {
     color: var(--contrast-safe-fg, var(--text-primary, #e0e0e0));
   }
 
