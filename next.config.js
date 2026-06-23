@@ -50,9 +50,14 @@ const nextConfig = {
     return [
       {
         source: '/idling-radio',
-        destination: '/idling-radio/',
-        permanent: true
-      }
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/idling-radio/:path*',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
   async headers() {

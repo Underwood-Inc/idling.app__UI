@@ -173,10 +173,12 @@ export const NAV_PATH_LABELS: Record<ROUTE_KEYS, string> = {
 
 export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
 
-/** PWA manifest start_url only — never linked from site navigation. */
+/** PWA manifest start_url and shell routing. */
 export {
   IDLING_RADIO_PWA_SHELL_HEADER,
   IDLING_RADIO_PWA_START_PATH,
+  RADIO_PWA_CONTEXT_COOKIE_NAME,
+  RADIO_PWA_CONTEXT_COOKIE_VALUE,
   RADIO_PWA_MANIFEST_HREF,
 } from './radio-pwa/constants';
 
@@ -193,7 +195,6 @@ export const PUBLIC_ROUTES = [
   NAV_PATHS.URL_SHORTENER_DETAIL,
   NAV_PATHS.ACCESS_HUB_DETAIL,
   '/auth/unlink-account',
-  '/idling-radio'
 ];
 
 export const PRIVATE_ROUTES = [NAV_PATHS.ADMIN, NAV_PATHS.MY_POSTS];

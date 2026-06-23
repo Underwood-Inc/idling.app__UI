@@ -14,10 +14,6 @@ html[data-radio-pwa='standalone'] body.has-radio-player {
   padding-bottom: 0;
 }
 
-html[data-radio-pwa='standalone'] main[data-visualizer-layout] {
-  display: none;
-}
-
 html[data-radio-pwa='standalone'].visualizer-mode {
   --irp-fullscreen-viz-height-ratio: 1;
 }

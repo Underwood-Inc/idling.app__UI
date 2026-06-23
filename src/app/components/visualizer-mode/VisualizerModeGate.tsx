@@ -1,9 +1,14 @@
 'use client';
 
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
-import { VisualizerModeOverlay } from './VisualizerModeOverlay';
+import dynamic from 'next/dynamic';
 
-/** View gate — renders fullscreen spectrum overlay when mode is active. */
+const VisualizerModeOverlay = dynamic(
+  () => import('./VisualizerModeOverlay').then((module) => module.VisualizerModeOverlay),
+  { ssr: false }
+);
+
+/** View gate — lazy-loads fullscreen visualizer bundles only when mode is active. */
 export function VisualizerModeGate() {
   const { isActive } = useVisualizerMode();
 
