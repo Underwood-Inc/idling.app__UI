@@ -192,8 +192,11 @@
 /* Specific hover style for the main header link - only change underline color */
 a .nav__header:hover,
 a:hover .nav__header {
-  color: inherit; /* Keep the original text color */
-  text-decoration-color: var(--brand-primary); /* Only change underline color */
+  /* Keep the original text color */
+  color: inherit;
+  /* Only change underline color */
+  text-decoration-color: var(--brand-primary);
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 /* Profile navigation styles */
@@ -323,7 +326,7 @@ a:hover .nav__header {
     min-height: 4rem;
     max-height: 4rem;
   }
-  
+
   /* Smaller avatar on mobile */
   .nav__brand .avatar,
   .nav__brand .navbar-brand__avatar,
@@ -436,7 +439,7 @@ a:hover .nav__header {
   right: 0;
   bottom: 0;
   background-color: transparent;
-  
+
   z-index: 10000;
   animation: fade-in 0.3s ease;
 }
@@ -445,6 +448,7 @@ a:hover .nav__header {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -458,7 +462,7 @@ a:hover .nav__header {
   max-width: 85vw;
   height: 100vh;
   background: var(--dark-background--primary);
-  
+
   border-right: 1px solid var(--glass-border-medium);
   box-shadow: 4px 0 24px transparent;
   transform: translateX(-100%);
@@ -472,6 +476,7 @@ a:hover .nav__header {
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -491,7 +496,7 @@ a:hover .nav__header {
   padding: 1rem;
   border-bottom: 1px solid var(--glass-border-light);
   background: var(--glass-bg-light);
-  
+
 }
 
 .mobile-nav-drawer__brand-link {
@@ -612,7 +617,7 @@ a:hover .nav__header {
   padding: 1rem;
   border-top: 1px solid var(--glass-border-light);
   background: var(--glass-bg-light);
-  
+
 }
 
 .mobile-nav-drawer__auth .nav__auth {
