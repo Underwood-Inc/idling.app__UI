@@ -10,23 +10,23 @@ import type { ReactNode } from 'react';
 export function SiteChromeShell({ children }: { children: ReactNode }) {
   return (
     <>
-      <div data-visualizer-layout>
+      <div data-visualizer-layout data-site-chrome>
         <NavigationLoadingBar />
       </div>
-      <div data-visualizer-layout className="sticky-header-wrapper">
+      <div data-visualizer-layout className="sticky-header-wrapper" data-site-chrome>
         <Header />
       </div>
-      <div data-visualizer-layout>
+      <div data-visualizer-layout data-site-chrome>
         <MessageTickerWithInterval />
       </div>
       <main data-visualizer-layout>{children}</main>
-      <div data-visualizer-layout>
+      <div data-visualizer-layout data-site-chrome>
         <Footer />
       </div>
-      <div data-visualizer-layout>
+      <div data-visualizer-layout data-site-chrome>
         <OverlayRendererWrapper />
       </div>
-      <div data-visualizer-layout>
+      <div data-visualizer-layout data-site-chrome>
         <PWAInstallPrompt />
       </div>
     </>
