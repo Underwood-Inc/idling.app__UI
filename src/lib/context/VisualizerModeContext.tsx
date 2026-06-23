@@ -5,6 +5,7 @@ import {
   isDocumentFullscreen,
   requestDocumentFullscreen,
 } from '@lib/fullscreen/documentFullscreen';
+import { isStandalonePwa } from '@lib/radio-pwa/isStandalonePwa';
 import { usePersistedRadioFullscreenDisplay } from '@lib/hooks/usePersistedRadioFullscreenDisplay';
 import type { RadioFullscreenVisualizerSource } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import {
@@ -77,6 +78,10 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
 
   const enterVisualizerMode = useCallback(async () => {
     setIsActive(true);
+
+    if (isStandalonePwa()) {
+      return;
+    }
 
     try {
       await requestDocumentFullscreen();

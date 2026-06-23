@@ -18,6 +18,7 @@ import Header from './components/header/Header';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { RadioPwaStandaloneRedirect } from './components/radio-pwa/RadioPwaStandaloneRedirect';
+import { RadioPwaStandaloneVisualizerBootstrap } from './components/radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
@@ -139,6 +140,7 @@ export default async function RootLayout({
                   <UserDataBatchProvider>
                     <RadioPlayerProvider>
                       <VisualizerModeProvider>
+                        <RadioPwaStandaloneVisualizerBootstrap />
                         {!isRadioShell ? (
                           <div data-site-chrome>
                             <div data-visualizer-layout>
