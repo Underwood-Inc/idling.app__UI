@@ -3,45 +3,207 @@ import {
   LOCAL_DEV_RADIO_STATIONS,
 } from './radioStationCatalog';
 import type {
+  RadioStationAvailabilityState,
   RadioStationCatalog,
   RadioStationProbeFailure,
   RadioStationProbeResult,
 } from './radioPlayer.types';
+import {
+  delay,
+  mapWithConcurrency,
+  RADIO_PROBE_CONCURRENCY,
+  RADIO_PROBE_MAX_RETRIES,
+  RADIO_PROBE_RETRY_DELAY_MS,
+} from './probeConcurrency';
 import { probeRadioStreamInBrowser, probeRadioStreamUrl } from './radioStreamProbe';
+import type { ProbeRadioStreamOptions, ProbeRadioStreamResult } from './radioStreamProbe.types';
 
 export { LOCAL_DEV_RADIO_STATIONS };
 
 export interface ProbeRadioStationsOptions {
   timeoutMs?: number;
   includeLocalDevFallbacks?: boolean;
+  concurrency?: number;
+  maxRetries?: number;
 }
 
 const DEFAULT_PROBE_TIMEOUT_MS = 8000;
 
-async function probeSingleStation(
-  name: string,
+type ProbeStreamFn = (
   url: string,
-  timeoutMs: number
-): Promise<{ ok: true } | { ok: false; reason: string }> {
-  const result = await probeRadioStreamInBrowser(url, { timeoutMs });
-  return result.ok ? { ok: true } : { ok: false, reason: result.reason ?? 'Stream failed to load' };
+  options?: ProbeRadioStreamOptions
+) => Promise<ProbeRadioStreamResult>;
+
+export interface ProbeRadioStationCatalogOptions {
+  timeoutMs?: number;
+  concurrency?: number;
+  maxRetries?: number;
+  probeStream: ProbeStreamFn;
 }
 
-async function probeRadioStationsInBrowser(
+export interface RunStationAvailabilityChecksOptions {
+  timeoutMs?: number;
+  concurrency?: number;
+  maxRetries?: number;
+  probeStream?: ProbeStreamFn;
+  onUpdate: (update: RadioStationAvailabilityState) => void;
+}
+
+export function createInitialStationAvailabilityMap(
+  catalog: RadioStationCatalog
+): Record<string, RadioStationAvailabilityState> {
+  const availability: Record<string, RadioStationAvailabilityState> = {};
+
+  Object.entries(catalog).forEach(([name, url]) => {
+    availability[name] = { name, url, status: 'pending' };
+  });
+
+  return availability;
+}
+
+export interface SyncStationAvailabilityWithCatalogResult {
+  nextMap: Record<string, RadioStationAvailabilityState>;
+  catalogToProbe: RadioStationCatalog;
+}
+
+/** Keep availability in sync with the station catalog; only new or URL-changed rows need probing. */
+export function syncStationAvailabilityWithCatalog(
+  current: Record<string, RadioStationAvailabilityState>,
+  mergedCatalog: RadioStationCatalog
+): SyncStationAvailabilityWithCatalogResult {
+  const nextMap: Record<string, RadioStationAvailabilityState> = { ...current };
+  const catalogToProbe: RadioStationCatalog = {};
+
+  Object.entries(mergedCatalog).forEach(([name, url]) => {
+    const existing = nextMap[name];
+    if (!existing || existing.url !== url) {
+      nextMap[name] = { name, url, status: 'pending' };
+      catalogToProbe[name] = url;
+      return;
+    }
+
+    if (existing.status === 'pending') {
+      catalogToProbe[name] = url;
+    }
+  });
+
+  Object.keys(nextMap).forEach((name) => {
+    if (!mergedCatalog[name]) {
+      delete nextMap[name];
+    }
+  });
+
+  return { nextMap, catalogToProbe };
+}
+
+async function probeSingleStationWithRetry(
+  url: string,
+  timeoutMs: number,
+  maxRetries: number,
+  probeStream: ProbeStreamFn
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  let lastReason = 'Stream failed to load';
+
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    const result = await probeStream(url, { timeoutMs });
+
+    if (result.ok) {
+      return { ok: true };
+    }
+
+    lastReason = result.reason ?? 'Stream failed to load';
+
+    if (attempt === maxRetries) {
+      return { ok: false, reason: lastReason };
+    }
+
+    await delay(RADIO_PROBE_RETRY_DELAY_MS * (attempt + 1));
+  }
+
+  return { ok: false, reason: lastReason };
+}
+
+async function probeStationCatalogEntries(
+  entries: [string, string][],
+  options: {
+    timeoutMs: number;
+    concurrency: number;
+    maxRetries: number;
+    probeStream: ProbeStreamFn;
+    cancelled: () => boolean;
+    onUpdate: (update: RadioStationAvailabilityState) => void;
+    markPending?: boolean;
+  }
+): Promise<Map<string, string>> {
+  const failures = new Map<string, string>();
+
+  if (options.markPending) {
+    entries.forEach(([name, url]) => {
+      if (!options.cancelled()) {
+        options.onUpdate({ name, url, status: 'pending' });
+      }
+    });
+  }
+
+  await mapWithConcurrency(entries, options.concurrency, async ([name, url]) => {
+    if (options.cancelled()) {
+      return;
+    }
+
+    const result = await probeSingleStationWithRetry(
+      url,
+      options.timeoutMs,
+      options.maxRetries,
+      options.probeStream
+    );
+
+    if (options.cancelled()) {
+      return;
+    }
+
+    if (result.ok) {
+      options.onUpdate({
+        name,
+        url,
+        status: 'available',
+      });
+      return;
+    }
+
+    failures.set(name, url);
+    options.onUpdate({
+      name,
+      url,
+      status: 'unreachable',
+      reason: result.reason,
+    });
+  });
+
+  return failures;
+}
+
+export async function probeRadioStationCatalog(
   catalog: RadioStationCatalog,
-  timeoutMs: number
+  options: ProbeRadioStationCatalogOptions
 ): Promise<RadioStationProbeResult> {
   const entries = Object.entries(catalog);
   if (entries.length === 0) {
     return { available: {}, failures: [] };
   }
 
-  const probeResults = await Promise.all(
-    entries.map(async ([name, url]) => {
-      const result = await probeSingleStation(name, url, timeoutMs);
-      return { name, url, result };
-    })
-  );
+  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
+  const concurrency = options.concurrency ?? RADIO_PROBE_CONCURRENCY;
+  const maxRetries = options.maxRetries ?? RADIO_PROBE_MAX_RETRIES;
+
+  const probeResults = await mapWithConcurrency(entries, concurrency, async ([name, url]) => {
+    const result = await probeSingleStationWithRetry(
+      url,
+      timeoutMs,
+      maxRetries,
+      options.probeStream
+    );
+    return { name, url, result };
+  });
 
   const available: RadioStationCatalog = {};
   const failures: RadioStationProbeFailure[] = [];
@@ -58,27 +220,84 @@ async function probeRadioStationsInBrowser(
   return { available, failures };
 }
 
+async function probeRadioStationsInBrowser(
+  catalog: RadioStationCatalog,
+  options: ProbeRadioStationsOptions = {}
+): Promise<RadioStationProbeResult> {
+  return probeRadioStationCatalog(catalog, {
+    timeoutMs: options.timeoutMs,
+    concurrency: options.concurrency,
+    maxRetries: options.maxRetries,
+    probeStream: probeRadioStreamInBrowser,
+  });
+}
+
 /** Probe a catalog in the browser only (used for user-added custom sources). */
 export async function probeRadioCatalogInBrowser(
   catalog: RadioStationCatalog,
   options: ProbeRadioStationsOptions = {}
 ): Promise<RadioStationProbeResult> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
-  return probeRadioStationsInBrowser(catalog, timeoutMs);
+  return probeRadioStationsInBrowser(catalog, options);
 }
 
-/** Probe built-in stations (server route when available) plus custom sources in-browser. */
-export async function probeBuiltInAndCustomRadioStations(
-  builtInCatalog: RadioStationCatalog,
-  customCatalog: RadioStationCatalog,
-  options: ProbeRadioStationsOptions = {}
-): Promise<RadioStationProbeResult> {
-  const builtInResult = await probeRadioStations(builtInCatalog, options);
-  const customResult = await probeRadioCatalogInBrowser(customCatalog, options);
+/**
+ * Probe stations in the background with a concurrency cap.
+ * Publishes `pending` immediately, then per-station `available` / `unreachable` updates.
+ */
+export function runStationAvailabilityChecks(
+  catalog: RadioStationCatalog,
+  options: RunStationAvailabilityChecksOptions
+): () => void {
+  let cancelled = false;
+  const entries = Object.entries(catalog);
+  const isCancelled = () => cancelled;
 
-  return {
-    available: { ...builtInResult.available, ...customResult.available },
-    failures: [...builtInResult.failures, ...customResult.failures],
+  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
+  const concurrency = options.concurrency ?? RADIO_PROBE_CONCURRENCY;
+  const maxRetries = options.maxRetries ?? RADIO_PROBE_MAX_RETRIES;
+  const probeStream = options.probeStream ?? probeRadioStreamInBrowser;
+
+  void probeStationCatalogEntries(entries, {
+    timeoutMs,
+    concurrency,
+    maxRetries,
+    probeStream,
+    cancelled: isCancelled,
+    onUpdate: options.onUpdate,
+    markPending: true,
+  });
+
+  return () => {
+    cancelled = true;
+  };
+}
+
+/** Re-probe a subset of stations (e.g. unreachable rows from the picker). */
+export function rerunStationAvailabilityChecks(
+  catalog: RadioStationCatalog,
+  options: RunStationAvailabilityChecksOptions
+): () => void {
+  let cancelled = false;
+  const entries = Object.entries(catalog);
+  const isCancelled = () => cancelled;
+
+  const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
+  const concurrency = options.concurrency ?? RADIO_PROBE_CONCURRENCY;
+  const maxRetries = options.maxRetries ?? RADIO_PROBE_MAX_RETRIES;
+  const probeStream = options.probeStream ?? probeRadioStreamInBrowser;
+
+  void probeStationCatalogEntries(entries, {
+    timeoutMs,
+    concurrency,
+    maxRetries,
+    probeStream,
+    cancelled: isCancelled,
+    onUpdate: options.onUpdate,
+    markPending: true,
+  });
+
+  return () => {
+    cancelled = true;
   };
 }
 
@@ -112,7 +331,7 @@ export async function probeRadioStations(
     // Fall back to in-browser probing below.
   }
 
-  return probeRadioStationsInBrowser(stationsToProbe, timeoutMs);
+  return probeRadioStationsInBrowser(stationsToProbe, { ...options, timeoutMs });
 }
 
 export function logRadioPlayerUnavailable(failures: RadioStationProbeFailure[]): void {
@@ -121,8 +340,8 @@ export function logRadioPlayerUnavailable(failures: RadioStationProbeFailure[]):
     'background:#8b0000;color:#fff;font-size:14px;font-weight:700;padding:6px 10px;border-radius:4px;'
   );
   console.error(
-    '[Idling Radio] No stations responded during the pre-mount check. ' +
-      'The bottom player was not mounted so it does not cover the footer.',
+    '[Idling Radio] No stations responded during the availability check. ' +
+      'Use the Unreachable filter in the station list to review failed sources.',
     failures
   );
 }

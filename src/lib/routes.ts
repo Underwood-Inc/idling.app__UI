@@ -1,4 +1,6 @@
 // Route enum for type safety
+import { RADIO_PWA_MANIFEST_HREF } from './radio-pwa/constants';
+
 export enum ROUTE_KEYS {
   ROOT = 'ROOT',
   CARD_GENERATOR = 'CARD_GENERATOR',
@@ -172,7 +174,11 @@ export const NAV_PATH_LABELS: Record<ROUTE_KEYS, string> = {
 export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
 
 /** PWA manifest start_url only — never linked from site navigation. */
-export { IDLING_RADIO_PWA_START_PATH } from './radio-pwa/constants';
+export {
+  IDLING_RADIO_PWA_SHELL_HEADER,
+  IDLING_RADIO_PWA_START_PATH,
+  RADIO_PWA_MANIFEST_HREF,
+} from './radio-pwa/constants';
 
 export const PUBLIC_ROUTES = [
   NAV_PATHS.ROOT,
@@ -189,5 +195,48 @@ export const PUBLIC_ROUTES = [
   '/auth/unlink-account',
   '/idling-radio'
 ];
+
 export const PRIVATE_ROUTES = [NAV_PATHS.ADMIN, NAV_PATHS.MY_POSTS];
+
+/** Static infra (PWA, ads.txt) — auth applies to web pages only, not these paths. */
+export const PUBLIC_INFRA_PATHS = [
+  '/manifest.json',
+  RADIO_PWA_MANIFEST_HREF,
+  '/sw.js',
+  '/offline.html',
+  '/ads.txt'
+] as const;
+
+/** API prefixes reachable without a session (health, OG, radio stations, etc.). */
+export const PUBLIC_API_ROUTES = [
+  '/api/health',
+  '/api/status',
+  '/api/version',
+  '/api/og-image',
+  '/api/user-subscriptions',
+  '/api/test/',
+  '/api/monitoring/',
+  '/api/ping',
+  '/api/ready',
+  '/api/live',
+  '/api/radio/'
+] as const;
+
+export function isPublicInfraPath(pathname: string): boolean {
+  return (PUBLIC_INFRA_PATHS as readonly string[]).includes(pathname);
+}
+
+export function isPublicApiPath(pathname: string): boolean {
+  return PUBLIC_API_ROUTES.some((route) => pathname.startsWith(route));
+}
+
+export function isPublicPagePath(pathname: string): boolean {
+  return (
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname.startsWith('/t/') ||
+    pathname.startsWith('/profile/') ||
+    pathname.startsWith('/auth/')
+  );
+}
+
 export const DEFAULT_REDIRECT = '/';

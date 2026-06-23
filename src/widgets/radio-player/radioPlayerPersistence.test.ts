@@ -1,9 +1,4 @@
 import {
-  createCustomAudioSourceFromUrl,
-  deriveCustomAudioSourceName,
-} from './customAudioSourceBrowse';
-import {
-  CUSTOM_AUDIO_SOURCE_DB_NAME,
   deleteNonPreservedIndexedDatabases,
   isPreservedRadioIndexedDb,
   PRESERVED_RADIO_LOCAL_STORAGE_KEYS,
@@ -13,8 +8,8 @@ import {
 import { RADIO_PLAYER_STORAGE_KEY } from './radio-player';
 
 describe('radioPlayerPersistence', () => {
-  test('marks the custom audio source database as preserved', () => {
-    expect(isPreservedRadioIndexedDb(CUSTOM_AUDIO_SOURCE_DB_NAME)).toBe(true);
+  test('does not preserve any IndexedDB databases', () => {
+    expect(isPreservedRadioIndexedDb('idling-radio-player')).toBe(false);
     expect(isPreservedRadioIndexedDb('some-other-db')).toBe(false);
   });
 
@@ -35,12 +30,12 @@ describe('radioPlayerPersistence', () => {
     expect(PRESERVED_RADIO_LOCAL_STORAGE_KEYS).toContain(RADIO_PLAYER_STORAGE_KEY);
   });
 
-  test('deleteNonPreservedIndexedDatabases skips preserved radio database', async () => {
+  test('deleteNonPreservedIndexedDatabases deletes every listed database', async () => {
     const deleted: string[] = [];
 
     const mockIndexedDB = {
       databases: async () => [
-        { name: CUSTOM_AUDIO_SOURCE_DB_NAME },
+        { name: 'idling-radio-player' },
         { name: 'app-cache-db' },
       ],
       deleteDatabase: (name: string) => {
@@ -64,29 +59,6 @@ describe('radioPlayerPersistence', () => {
 
     await deleteNonPreservedIndexedDatabases();
 
-    expect(deleted).toEqual(['app-cache-db']);
-    expect(deleted).not.toContain(CUSTOM_AUDIO_SOURCE_DB_NAME);
-  });
-});
-
-describe('createCustomAudioSourceFromUrl', () => {
-  test('derives a hostname-based name and defaults to live-stream custom genre', () => {
-    const reserved = ['example.com'];
-    const name = deriveCustomAudioSourceName('https://example.com/live.mp3', reserved);
-
-    expect(name).toBe('example.com 2');
-  });
-
-  test('creates a record from a URL without manual metadata', () => {
-    const reserved: string[] = [];
-    const result = createCustomAudioSourceFromUrl('https://radio.example.org/stream.m3u8', reserved);
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.record.name).toBe('radio.example.org');
-      expect(result.record.kind).toBe('live-stream');
-      expect(result.record.genre).toBe('custom');
-      expect(result.record.url).toBe('https://radio.example.org/stream.m3u8');
-    }
+    expect(deleted).toEqual(['idling-radio-player', 'app-cache-db']);
   });
 });

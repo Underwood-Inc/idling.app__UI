@@ -5,7 +5,10 @@ import {
   groupRadioStationsByGenre,
   isRadioStationInGenreFilter,
   listAvailableRadioStations,
+  listBrowsableRadioStations,
   listRadioStationGenreFilters,
+  listUnreachableRadioStations,
+  listUnreachableRadioStationsFromAvailability,
 } from './radioStationBrowse';
 import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
 
@@ -50,8 +53,7 @@ describe('radioStationBrowse', () => {
         url: 'https://example.com/jazz.mp3',
         genre: 'jazz' as const,
         regionFlag: '★',
-        blurb: 'Custom live audio stream',
-        customId: 'custom-jazz',
+        blurb: 'User-added jazz stream',
       },
     ];
     const filters = listRadioStationGenreFilters(definitions, available);
@@ -87,5 +89,43 @@ describe('radioStationBrowse', () => {
 
     expect(matches).toContain('FIP Groove');
     expect(matches).not.toContain('Jazz24');
+  });
+
+  test('when initial probes fail, unreachable stations can still be listed for review', () => {
+    const availability: Record<string, { name: string; url: string; status: 'unreachable' }> = {
+      Jazz24: {
+        name: 'Jazz24',
+        url: 'https://example.com/jazz.mp3',
+        status: 'unreachable',
+      },
+    };
+
+    const unreachable = listUnreachableRadioStationsFromAvailability(
+      RADIO_STATION_DEFINITIONS,
+      availability
+    );
+
+    expect(unreachable.map((station) => station.name)).toEqual(['Jazz24']);
+  });
+
+  test('when probes are still running, browsable stations include pending entries', () => {
+    const availability = {
+      Jazz24: {
+        name: 'Jazz24',
+        url: 'https://example.com/jazz.mp3',
+        status: 'pending' as const,
+      },
+      FIP: {
+        name: 'FIP',
+        url: 'https://example.com/fip.mp3',
+        status: 'available' as const,
+      },
+    };
+
+    const stations = listBrowsableRadioStations(RADIO_STATION_DEFINITIONS, availability).map(
+      (station) => station.name
+    );
+
+    expect(stations).toEqual(expect.arrayContaining(['Jazz24', 'FIP']));
   });
 });

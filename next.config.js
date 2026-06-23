@@ -22,12 +22,13 @@ const globalSecurityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://cdn.jsdelivr.net",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://cdn.jsdelivr.net https://pagead2.googlesyndication.com https://www.googletagservices.com https://www.google.com https://www.gstatic.com https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "connect-src 'self' https: wss:",
       "media-src 'self' https: blob:",
+      "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"
@@ -48,6 +49,48 @@ const nextConfig = {
   // Smart cache headers with versioning
   async headers() {
     return [
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600'
+          },
+          ...globalSecurityHeaders
+        ]
+      },
+      {
+        source: '/idling-radio.webmanifest',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600'
+          },
+          ...globalSecurityHeaders
+        ]
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate'
+          },
+          ...globalSecurityHeaders
+        ]
+      },
       // Uploaded images — never sniff MIME; treat as attachment-like static assets
       {
         source: '/uploads/images/:path*',

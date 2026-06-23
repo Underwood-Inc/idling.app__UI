@@ -1,11 +1,14 @@
 import type { HumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/humanFriendlySearch.types';
 import { matchesHumanFriendlySearch } from '@molecules/humanFriendlySearch/matchHumanFriendlySearch';
 import type {
+  RadioStationAvailabilityMap,
+  RadioStationAvailabilityStatus,
   RadioStationDefinition,
   RadioStationGenre,
   RadioStationGenreFilter,
   RadioStationGenreGroup,
   RadioStationGenreId,
+  RadioStationProbeFailure,
 } from './radioPlayer.types';
 
 export const RADIO_STATION_GENRES: Record<RadioStationGenreId, RadioStationGenre> = {
@@ -81,6 +84,89 @@ export function listAvailableRadioStations(
   return definitions
     .filter((definition) => available.has(definition.name))
     .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function getRadioStationAvailabilityStatus(
+  availabilityByName: RadioStationAvailabilityMap,
+  stationName: string
+): RadioStationAvailabilityStatus {
+  return availabilityByName[stationName]?.status ?? 'pending';
+}
+
+export function buildRadioStationProbeFailureMap(
+  failures: RadioStationProbeFailure[]
+): Map<string, RadioStationProbeFailure> {
+  return new Map(failures.map((failure) => [failure.name, failure]));
+}
+
+export function listBrowsableRadioStations(
+  definitions: RadioStationDefinition[],
+  availabilityByName: RadioStationAvailabilityMap
+): RadioStationDefinition[] {
+  return definitions
+    .filter((definition) => {
+      const status = getRadioStationAvailabilityStatus(availabilityByName, definition.name);
+      return status === 'available' || status === 'pending';
+    })
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function listUnreachableRadioStations(
+  definitions: RadioStationDefinition[],
+  failures: RadioStationProbeFailure[]
+): RadioStationDefinition[] {
+  const unreachableNames = new Set(failures.map((failure) => failure.name));
+
+  return definitions
+    .filter((definition) => unreachableNames.has(definition.name))
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function listUnreachableRadioStationsFromAvailability(
+  definitions: RadioStationDefinition[],
+  availabilityByName: RadioStationAvailabilityMap
+): RadioStationDefinition[] {
+  return definitions
+    .filter(
+      (definition) =>
+        getRadioStationAvailabilityStatus(availabilityByName, definition.name) === 'unreachable'
+    )
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function countStationsByAvailabilityStatus(
+  availabilityByName: RadioStationAvailabilityMap,
+  status: RadioStationAvailabilityStatus
+): number {
+  return Object.values(availabilityByName).filter((entry) => entry.status === status).length;
+}
+
+export function listRadioStationGenreFiltersForStations(
+  stations: RadioStationDefinition[]
+): RadioStationGenreFilter[] {
+  const counts = new Map<RadioStationGenreId, number>();
+
+  stations.forEach((station) => {
+    counts.set(station.genre, (counts.get(station.genre) ?? 0) + 1);
+  });
+
+  return GENRE_ORDER.flatMap((genreId) => {
+    const count = counts.get(genreId);
+    if (!count) {
+      return [];
+    }
+
+    return [{ genre: getRadioStationGenre(genreId), count }];
+  });
+}
+
+export function listRadioStationGenreFiltersFromAvailability(
+  definitions: RadioStationDefinition[],
+  availabilityByName: RadioStationAvailabilityMap
+): RadioStationGenreFilter[] {
+  return listRadioStationGenreFiltersForStations(
+    listBrowsableRadioStations(definitions, availabilityByName)
+  );
 }
 
 export function listRadioStationGenreFilters(

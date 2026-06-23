@@ -32,20 +32,8 @@ export function isWebInstallApiAvailable(): boolean {
   return typeof (navigator as NavigatorWithInstall).install === 'function';
 }
 
-export function isChromiumBrowser(): boolean {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  return /Chrome|Chromium|Edg/i.test(navigator.userAgent);
-}
-
 export function shouldOfferRadioPwaInstallUi(): boolean {
-  if (getRadioPwaInstallCapability().canOfferInstall) {
-    return true;
-  }
-
-  return isChromiumBrowser();
+  return getRadioPwaInstallCapability().canOfferInstall;
 }
 
 export function getRadioPwaInstallCapability(): RadioPwaInstallCapability {
@@ -77,16 +65,21 @@ async function installViaWebInstallApi(): Promise<RadioPwaInstallResult> {
     return { ok: true, method: 'web-install-api' };
   } catch (error) {
     const name = error instanceof Error ? error.name : '';
+    const message = error instanceof Error ? error.message : String(error);
 
     if (name === 'AbortError') {
-      return { ok: false, reason: 'dismissed' };
+      return { ok: false, reason: 'dismissed', message };
     }
 
     if (name === 'DataError') {
-      return { ok: false, reason: 'manifest-error' };
+      return {
+        ok: false,
+        reason: 'manifest-error',
+        message: message || 'The radio manifest could not be parsed.',
+      };
     }
 
-    return { ok: false, reason: 'unsupported' };
+    return { ok: false, reason: 'unsupported', message };
   }
 }
 

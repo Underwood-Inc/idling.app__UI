@@ -45,8 +45,8 @@ describe('installRadioPwa', () => {
     expect(install).toHaveBeenCalledWith('/idling-radio', '/idling-radio');
   });
 
-  test('when navigator.install is missing on Chromium, the install UI can still be offered', () => {
-    expect(shouldOfferRadioPwaInstallUi()).toBe(true);
+  test('when navigator.install is missing on Chromium, the install UI is not offered', () => {
+    expect(shouldOfferRadioPwaInstallUi()).toBe(false);
     expect(getRadioPwaInstallCapability()).toEqual({
       canOfferInstall: false,
       preferredMethod: null,

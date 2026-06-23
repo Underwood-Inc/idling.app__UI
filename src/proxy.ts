@@ -1,5 +1,11 @@
-import { IDLING_RADIO_PWA_SHELL_HEADER, IDLING_RADIO_PWA_START_PATH } from '@lib/radio-pwa/constants';
-import { NAV_PATHS, PUBLIC_ROUTES } from '@lib/routes';
+import {
+  IDLING_RADIO_PWA_SHELL_HEADER,
+  IDLING_RADIO_PWA_START_PATH,
+  isPublicApiPath,
+  isPublicInfraPath,
+  isPublicPagePath,
+  NAV_PATHS,
+} from '@lib/routes';
 import { getSecureCacheBustingHeaders } from '@lib/security/secure-logout';
 import NextAuth from 'next-auth';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -10,6 +16,10 @@ const { auth } = NextAuth(authConfig);
 export default auth(async (req: NextRequest & { auth: any }) => {
   const { nextUrl, auth: session } = req;
 
+  if (isPublicInfraPath(nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   // Handle API route authentication
   if (nextUrl.pathname.startsWith('/api/')) {
     // Skip auth routes (they handle their own auth)
@@ -17,24 +27,7 @@ export default auth(async (req: NextRequest & { auth: any }) => {
       return NextResponse.next();
     }
 
-    // Public API routes that don't require authentication
-    const publicApiRoutes = [
-      '/api/health',
-      '/api/status',
-      '/api/version', // Public app version info
-      '/api/og-image',
-      '/api/user-subscriptions', // Public profile data for guest users
-      '/api/test/', // Test and health check endpoints
-      '/api/monitoring/',
-      '/api/ping',
-      '/api/ready',
-      '/api/live',
-      '/api/radio/'
-    ];
-
-    const isPublicApiRoute = publicApiRoutes.some((route) =>
-      nextUrl.pathname.startsWith(route)
-    );
+    const isPublicApiRoute = isPublicApiPath(nextUrl.pathname);
 
     // Debug logging for route classification
     if (process.env.NODE_ENV === 'development') {
@@ -95,14 +88,7 @@ export default auth(async (req: NextRequest & { auth: any }) => {
   }
 
   // Handle page route authentication with universal security checking
-  const isPublicRoute =
-    PUBLIC_ROUTES.includes(nextUrl.pathname) ||
-    nextUrl.pathname.startsWith('/t/') ||
-    nextUrl.pathname.startsWith('/profile/') ||
-    nextUrl.pathname.startsWith('/auth/');
-
-  // Allow public routes without security checking
-  if (isPublicRoute) {
+  if (isPublicPagePath(nextUrl.pathname)) {
     return NextResponse.next();
   }
 
@@ -183,7 +169,7 @@ export const config = {
      */
     {
       source:
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|txt|xml|ico|woff|woff2|ttf|otf|eot)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|sw\\.js|manifest\\.json|idling-radio\\.webmanifest|offline\\.html|ads\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|txt|xml|ico|woff|woff2|ttf|otf|eot)$).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' }
