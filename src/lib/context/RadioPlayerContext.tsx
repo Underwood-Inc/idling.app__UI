@@ -1,25 +1,22 @@
 'use client';
 
 import type {
-  AddCustomAudioSourceUrlInput,
-  CustomAudioSourceRecord,
   RadioPlayerHandle,
+  RadioStationAvailabilityMap,
+  RadioStationAvailabilityState,
+  RadioStationCatalog,
   RadioStationDefinition,
-  RadioStationGenreId,
 } from '@widgets/radio-player/radioPlayer.types';
 import {
-  createCustomAudioSourceFromUrl,
-  listReservedAudioSourceNames,
-  mergeCustomAudioSourcesIntoDefinitions,
-  normalizeCustomAudioSourceRecord,
-  updateCustomAudioSourceGenre,
-} from '@widgets/radio-player/customAudioSourceBrowse';
+  buildRadioStationProbeCatalog,
+  RADIO_STATION_DEFINITIONS,
+  RADIO_STATIONS,
+} from '@widgets/radio-player/radioStationCatalog';
 import {
-  deleteCustomAudioSource,
-  listCustomAudioSources,
-  putCustomAudioSource,
-} from '@widgets/radio-player/customAudioSourceStore';
-import { RADIO_STATION_DEFINITIONS } from '@widgets/radio-player/radioStationCatalog';
+  rerunStationAvailabilityChecks,
+  runStationAvailabilityChecks,
+  syncStationAvailabilityWithCatalog,
+} from '@widgets/radio-player/probeRadioStations';
 import {
   createContext,
   ReactNode,
@@ -27,25 +24,19 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
-
-export type AddCustomAudioSourceResult =
-  | { ok: true }
-  | { ok: false; message: string };
 
 export interface RadioPlayerContextValue {
   handle: RadioPlayerHandle | null;
   isAvailable: boolean;
   registerPlayer: (player: RadioPlayerHandle) => void;
   unregisterPlayer: () => void;
-  customSources: CustomAudioSourceRecord[];
-  customSourcesLoaded: boolean;
-  customSourcesRevision: number;
   stationDefinitions: RadioStationDefinition[];
-  addCustomSource: (input: AddCustomAudioSourceUrlInput) => Promise<AddCustomAudioSourceResult>;
-  removeCustomSource: (id: string) => Promise<void>;
-  updateCustomSourceGenre: (id: string, genre: RadioStationGenreId) => Promise<void>;
+  stationAvailabilityByName: RadioStationAvailabilityMap;
+  retryStationAvailability: (stationNames: string[]) => void;
+  retryUnreachableStations: () => void;
 }
 
 const RadioPlayerContext = createContext<RadioPlayerContextValue | null>(null);
@@ -54,40 +45,99 @@ export interface RadioPlayerProviderProps {
   children: ReactNode;
 }
 
+function buildProbeCatalog(): RadioStationCatalog {
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+
+  return buildRadioStationProbeCatalog(RADIO_STATIONS, hostname, true);
+}
+
+function buildUnreachableRetryCatalog(
+  availabilityByName: RadioStationAvailabilityMap
+): RadioStationCatalog {
+  const catalog: RadioStationCatalog = {};
+
+  Object.values(availabilityByName).forEach((entry) => {
+    if (entry.status === 'unreachable') {
+      catalog[entry.name] = entry.url;
+    }
+  });
+
+  return catalog;
+}
+
 export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
   const [handle, setHandle] = useState<RadioPlayerHandle | null>(null);
-  const [customSources, setCustomSources] = useState<CustomAudioSourceRecord[]>([]);
-  const [customSourcesLoaded, setCustomSourcesLoaded] = useState(false);
-  const [customSourcesRevision, setCustomSourcesRevision] = useState(0);
+  const [stationAvailabilityByName, setStationAvailabilityByName] =
+    useState<RadioStationAvailabilityMap>({});
+  const availabilityByNameRef = useRef(stationAvailabilityByName);
 
-  useEffect(() => {
-    let cancelled = false;
+  availabilityByNameRef.current = stationAvailabilityByName;
 
-    void listCustomAudioSources()
-      .then((records) => {
-        if (cancelled) {
-          return;
-        }
-
-        setCustomSources(records.map(normalizeCustomAudioSourceRecord));
-        setCustomSourcesLoaded(true);
-      })
-      .catch((error) => {
-        console.warn('[Idling Radio] Failed to load custom audio sources from IndexedDB.', error);
-        if (!cancelled) {
-          setCustomSourcesLoaded(true);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+  const applyStationAvailabilityUpdate = useCallback((update: RadioStationAvailabilityState) => {
+    setStationAvailabilityByName((current) => ({
+      ...current,
+      [update.name]: update,
+    }));
   }, []);
 
-  const stationDefinitions = useMemo(
-    () => mergeCustomAudioSourcesIntoDefinitions(RADIO_STATION_DEFINITIONS, customSources),
-    [customSources]
-  );
+  useEffect(() => {
+    const mergedCatalog = buildProbeCatalog();
+    const { nextMap, catalogToProbe } = syncStationAvailabilityWithCatalog(
+      availabilityByNameRef.current,
+      mergedCatalog
+    );
+
+    const mapChanged =
+      Object.keys(catalogToProbe).length > 0 ||
+      Object.keys(nextMap).length !== Object.keys(availabilityByNameRef.current).length;
+
+    if (mapChanged) {
+      setStationAvailabilityByName(nextMap);
+    }
+
+    if (Object.keys(catalogToProbe).length === 0) {
+      return undefined;
+    }
+
+    const stopProbe = runStationAvailabilityChecks(catalogToProbe, {
+      onUpdate: applyStationAvailabilityUpdate,
+    });
+
+    return () => {
+      stopProbe();
+    };
+  }, [applyStationAvailabilityUpdate]);
+
+  const retryStationAvailability = useCallback((stationNames: string[]) => {
+    const catalog: RadioStationCatalog = {};
+
+    stationNames.forEach((stationName) => {
+      const entry = availabilityByNameRef.current[stationName];
+      if (entry?.status === 'unreachable') {
+        catalog[stationName] = entry.url;
+      }
+    });
+
+    if (Object.keys(catalog).length === 0) {
+      return;
+    }
+
+    rerunStationAvailabilityChecks(catalog, {
+      onUpdate: applyStationAvailabilityUpdate,
+    });
+  }, [applyStationAvailabilityUpdate]);
+
+  const retryUnreachableStations = useCallback(() => {
+    const catalog = buildUnreachableRetryCatalog(availabilityByNameRef.current);
+
+    if (Object.keys(catalog).length === 0) {
+      return;
+    }
+
+    rerunStationAvailabilityChecks(catalog, {
+      onUpdate: applyStationAvailabilityUpdate,
+    });
+  }, [applyStationAvailabilityUpdate]);
 
   const registerPlayer = useCallback((player: RadioPlayerHandle) => {
     setHandle(player);
@@ -97,92 +147,24 @@ export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
     setHandle(null);
   }, []);
 
-  const addCustomSource = useCallback(
-    async (input: AddCustomAudioSourceUrlInput): Promise<AddCustomAudioSourceResult> => {
-      const reservedNames = listReservedAudioSourceNames(RADIO_STATION_DEFINITIONS, customSources);
-      const result = createCustomAudioSourceFromUrl(input.url, reservedNames);
-
-      if (!result.ok) {
-        return { ok: false, message: result.message };
-      }
-
-      try {
-        await putCustomAudioSource(result.record);
-        setCustomSources((current) =>
-          [...current, result.record].sort((left, right) => left.name.localeCompare(right.name))
-        );
-        setCustomSourcesRevision((revision) => revision + 1);
-        return { ok: true };
-      } catch (error) {
-        console.warn('[Idling Radio] Failed to save custom audio source.', error);
-        return { ok: false, message: 'Could not save this source in this browser.' };
-      }
-    },
-    [customSources]
-  );
-
-  const removeCustomSource = useCallback(async (id: string) => {
-    try {
-      await deleteCustomAudioSource(id);
-      setCustomSources((current) => current.filter((source) => source.id !== id));
-      setCustomSourcesRevision((revision) => revision + 1);
-    } catch (error) {
-      console.warn('[Idling Radio] Failed to delete custom audio source.', error);
-    }
-  }, []);
-
-  const updateCustomSourceGenre = useCallback(
-    async (id: string, genre: RadioStationGenreId) => {
-      const existing = customSources.find((source) => source.id === id);
-      if (!existing) {
-        return;
-      }
-
-      const result = updateCustomAudioSourceGenre(existing, genre);
-      if (!result.ok) {
-        return;
-      }
-
-      try {
-        await putCustomAudioSource(result.record);
-        setCustomSources((current) =>
-          current
-            .map((source) => (source.id === id ? result.record : source))
-            .sort((left, right) => left.name.localeCompare(right.name))
-        );
-        setCustomSourcesRevision((revision) => revision + 1);
-      } catch (error) {
-        console.warn('[Idling Radio] Failed to update custom audio source genre.', error);
-      }
-    },
-    [customSources]
-  );
-
   const value = useMemo<RadioPlayerContextValue>(
     () => ({
       handle,
       isAvailable: handle !== null,
       registerPlayer,
       unregisterPlayer,
-      customSources,
-      customSourcesLoaded,
-      customSourcesRevision,
-      stationDefinitions,
-      addCustomSource,
-      removeCustomSource,
-      updateCustomSourceGenre,
+      stationDefinitions: RADIO_STATION_DEFINITIONS,
+      stationAvailabilityByName,
+      retryStationAvailability,
+      retryUnreachableStations,
     }),
     [
       handle,
       registerPlayer,
       unregisterPlayer,
-      customSources,
-      customSourcesLoaded,
-      customSourcesRevision,
-      stationDefinitions,
-      addCustomSource,
-      removeCustomSource,
-      updateCustomSourceGenre,
+      stationAvailabilityByName,
+      retryStationAvailability,
+      retryUnreachableStations,
     ]
   );
 

@@ -23,8 +23,11 @@ interface MetricDefinition {
 
 const LOADING_METRICS: MetricDefinition[] = [
   { iconId: 'package', label: 'Modrinth Projects' },
-  { iconId: 'download', label: 'Total Downloads' },
+  { iconId: 'download', label: 'Mod Downloads' },
 ];
+
+const METRICS_PRIVACY_NOTE =
+  'Figures are from Modrinth and cover Minecraft mods only. We do not track downloads, activity, or users on our other applications — by design, for privacy — so there are no public metrics for those projects.';
 
 function formatDownloads(num: number): string {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -79,7 +82,7 @@ export function StatsDashboard() {
   return (
     <div className={styles.dashboard}>
       <Card width="full" className={styles.card}>
-        <h3 className={styles.card__title}>Portfolio Metrics</h3>
+        <h3 className={styles.card__title}>Modrinth Metrics</h3>
         <div className={styles.metrics}>
           {isLoading ? (
             LOADING_METRICS.map((metric) => (
@@ -107,7 +110,7 @@ export function StatsDashboard() {
                   <MetricIcon iconId="download" />
                   <div className={styles.metric__content}>
                     <span className={styles.metric__value}>{stats.totalDownloads}</span>
-                    <span className={styles.metric__label}>Total Downloads</span>
+                    <span className={styles.metric__label}>Mod Downloads</span>
                   </div>
                 </div>
               )}
@@ -123,6 +126,10 @@ export function StatsDashboard() {
             </>
           )}
         </div>
+        <p className={styles.metrics__note}>
+          <SiteIcon id="shield" className={styles.metrics__noteIcon} sizeRem={0.875} aria-hidden />
+          <span>{METRICS_PRIVACY_NOTE}</span>
+        </p>
       </Card>
 
       <Card width="full" className={styles.card}>

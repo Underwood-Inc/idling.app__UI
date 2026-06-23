@@ -1,7 +1,3 @@
-import {
-  CUSTOM_AUDIO_SOURCE_DB_NAME,
-  CUSTOM_AUDIO_SOURCE_STORE_NAME,
-} from './customAudioSourceStore';
 import { RADIO_PLAYER_STORAGE_KEY } from './radio-player';
 import { RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY } from './radioFullscreenVisualizerDisplay';
 import { BAR_VISUALIZER_PREFS_STORAGE_KEY } from './barVisualizerPreferences';
@@ -12,12 +8,7 @@ export interface RadioPlayerPersistenceSnapshot {
   localStorage: Record<string, string>;
 }
 
-/** IndexedDB databases that must survive deploy cache resets and hard resets. */
-export const PRESERVED_RADIO_INDEXED_DB_NAMES: ReadonlySet<string> = new Set([
-  CUSTOM_AUDIO_SOURCE_DB_NAME,
-]);
-
-/** localStorage keys for radio player preferences and custom station selection. */
+/** localStorage keys for radio player preferences and station selection. */
 export const PRESERVED_RADIO_LOCAL_STORAGE_KEYS: readonly string[] = [
   RADIO_PLAYER_STORAGE_KEY,
   RADIO_STATION_GENRE_FILTER_STORAGE_KEY,
@@ -26,8 +17,8 @@ export const PRESERVED_RADIO_LOCAL_STORAGE_KEYS: readonly string[] = [
   RADIO_NO_TRACK_METADATA_STORAGE_KEY,
 ];
 
-export function isPreservedRadioIndexedDb(dbName: string): boolean {
-  return PRESERVED_RADIO_INDEXED_DB_NAMES.has(dbName);
+export function isPreservedRadioIndexedDb(_dbName: string): boolean {
+  return false;
 }
 
 export function snapshotPreservedRadioLocalStorage(): Record<string, string> {
@@ -93,5 +84,3 @@ export async function deleteNonPreservedIndexedDatabases(): Promise<boolean> {
     return false;
   }
 }
-
-export { CUSTOM_AUDIO_SOURCE_DB_NAME, CUSTOM_AUDIO_SOURCE_STORE_NAME };

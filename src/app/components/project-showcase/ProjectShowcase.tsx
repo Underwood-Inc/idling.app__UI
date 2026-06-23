@@ -3,13 +3,13 @@
 import { LucideIcon } from '@molecules/lucide/LucideIcon';
 import { BookOpen, Download, ExternalLink, FolderGit2, Gamepad2, Package } from 'lucide';
 import { useEffect, useRef, useState } from 'react';
+import styles from './ProjectShowcase.module.css';
 import {
   PROJECT_SHOWCASE_CATEGORY_OPTIONS,
   PROJECT_SHOWCASE_TOTAL_COUNT,
   type ProjectShowcaseCategoryId,
 } from './projectShowcaseCatalog';
 import { PROJECT_SHOWCASE_PROJECTS } from './projectShowcaseProjects';
-import styles from './ProjectShowcase.module.css';
 
 const CONTRAST_SAFE_SURFACE_CLASS = 'contrast-safe-surface';
 
@@ -152,8 +152,8 @@ export function ProjectShowcase() {
                       <span className={styles.project__type}>{project.type}</span>
                       {downloads ? (
                         <span className={styles.project__stat}>
-                          <LucideIcon icon={Download} sizeRem={0.875} />
-                          <span className={styles.project__statValue}>{downloads}</span>
+                          <LucideIcon icon={Download} sizeRem={0.85} />&nbsp;
+                          <span className={styles.project__statValue}>{downloads}</span>&nbsp;
                           <span className={styles.project__statLabel}>downloads</span>
                         </span>
                       ) : null}
