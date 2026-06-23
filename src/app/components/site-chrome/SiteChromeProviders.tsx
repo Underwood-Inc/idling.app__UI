@@ -12,6 +12,7 @@ import { SessionProvider } from 'next-auth/react';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { RadioPlayerMountWrapper } from '../radio-player/RadioPlayerMountWrapper';
+import { RadioPwaStandaloneVisualizerBootstrap } from '../radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
 import { ServiceWorkerRegistration } from '../service-worker/ServiceWorkerRegistration';
 import { AmbientBackgroundWrapper } from '../ui/ClientWrappers';
 import { VisualizerModeGate } from '../visualizer-mode/VisualizerModeGate';
@@ -40,6 +41,7 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
                 <UserDataBatchProvider>
                   <RadioPlayerProvider>
                     <VisualizerModeProvider>
+                      <RadioPwaStandaloneVisualizerBootstrap />
                       {children}
                       <div data-visualizer-layout>
                         <ServiceWorkerRegistration />

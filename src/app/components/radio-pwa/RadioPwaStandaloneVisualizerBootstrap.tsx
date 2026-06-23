@@ -1,14 +1,14 @@
 'use client';
 
-import { isStandalonePwa } from '@lib/radio-pwa/isStandalonePwa';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
-import { useEffect } from 'react';
+import { isStandalonePwa } from '@lib/radio-pwa/isStandalonePwa';
+import { useLayoutEffect } from 'react';
 
-/** Installed radio PWA always opens in fullscreen visualizer mode (no browser fullscreen). */
+/** Installed PWA: always open in visualizer mode; F11 stays on the dock Fullscreen button. */
 export function RadioPwaStandaloneVisualizerBootstrap() {
   const { isActive, spectrumEnabled, setSpectrumEnabled, enterVisualizerMode } = useVisualizerMode();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isStandalonePwa()) {
       return;
     }
