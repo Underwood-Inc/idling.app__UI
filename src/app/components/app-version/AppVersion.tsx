@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { APP_VERSION_SELECTORS } from 'src/lib/test-selectors/components/app-version.selectors';
-import { LinkTooltip } from '../tooltip/LinkTooltip';
 
 export default function AppVersion({
-  className,
-  isInsideParagraph = false
-}: Readonly<{ className?: string; isInsideParagraph?: boolean }>) {
+  className
+}: Readonly<{ className?: string }>) {
   const [version, setVersion] = useState<string>('0.0.0');
   const [mounted, setMounted] = useState(false);
 
@@ -31,18 +29,13 @@ export default function AppVersion({
   }
 
   return (
-    <LinkTooltip
-      url="https://github.com/Underwood-Inc/idling.app__UI"
-      isInsideParagraph={isInsideParagraph}
+    <a
+      data-testid={APP_VERSION_SELECTORS.ANCHOR}
+      href="https://github.com/Underwood-Inc/idling.app__UI"
+      target="_blank"
       className={className}
     >
-      <a
-        data-testid={APP_VERSION_SELECTORS.ANCHOR}
-        href="https://github.com/Underwood-Inc/idling.app__UI"
-        target="_blank"
-      >
-        v{version}
-      </a>
-    </LinkTooltip>
+      v{version}
+    </a>
   );
 }
