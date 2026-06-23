@@ -15,9 +15,9 @@
 import { BAR_COUNT_BY_DENSITY, DEFAULT_BAR_VISUALIZER_PREFERENCES, loadBarVisualizerPreferences, resolveBarCountForCanvas, resolveBarGapForDensity, saveBarVisualizerPreferences, } from './barVisualizerPreferences';
 import { BAR_VISUALIZER_PRESET_DEFINITIONS, createBarVisualizerRuntime, getBarVisualizerPresetDefinition, } from './barVisualizerPresets';
 import { getBarVisualizerTheme } from './barVisualizerThemes';
-import { clearRuntimeStationDefinitions, rememberTrackMetadataUnsupported, setRuntimeStationDefinitions, stationSupportsTrackMetadata, } from './radioStationMetadata';
-import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
 import { attachRadioHlsPlayback } from './radioHlsPlayback';
+import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
+import { clearRuntimeStationDefinitions, rememberTrackMetadataUnsupported, setRuntimeStationDefinitions, stationSupportsTrackMetadata, } from './radioStationMetadata';
 import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import { createSpectrumNormalizer } from './spectrumNormalization';
 export const RADIO_STATIONS = CATALOG_STATIONS;
@@ -298,7 +298,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
         if (headless || !track) {
             return;
         }
-        const text = nowPlaying.display;
+        const text = nowPlaying.display && stationSupportsTrackMetadata(activeName) ? nowPlaying.display : null;
         if (text) {
             track.textContent = text;
             track.removeAttribute('data-empty');
@@ -313,7 +313,9 @@ export function mountRadioPlayer(mountNode, options = {}) {
         if (headless || !label) {
             return;
         }
-        const trackPart = nowPlaying.display ? ` · ${nowPlaying.display}` : '';
+        const trackPart = nowPlaying.display && stationSupportsTrackMetadata(activeName)
+            ? ` · ${nowPlaying.display}`
+            : '';
         label.textContent = playing ? `Now playing · ${activeName}${trackPart}` : activeName;
     };
     const syncNowPlayingUi = () => {
@@ -526,6 +528,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
         barGap: resolveBarGapForDensity(visualizerPrefs.density),
         theme: getBarVisualizerTheme(),
         state: visualizerRuntime.getState(),
+        fullscreen: canvas.closest('[data-irp-bar-fullscreen="true"]') !== null,
     });
     const fetchNowPlaying = async () => {
         if (!playing || !stationSupportsTrackMetadata(activeName)) {
@@ -542,13 +545,13 @@ export function mountRadioPlayer(mountNode, options = {}) {
                 return;
             }
             const data = (await response.json());
-            if (data.station !== stationAtFetch || !playing) {
+            if (activeName !== stationAtFetch || data.station !== stationAtFetch || !playing) {
                 return;
             }
             if (data.supportsTrackMetadata === false) {
                 rememberTrackMetadataUnsupported(stationAtFetch);
                 stopNowPlayingPoll();
-                syncNowPlayingUi();
+                resetNowPlaying();
                 return;
             }
             nowPlaying = {
@@ -819,6 +822,11 @@ export function mountRadioPlayer(mountNode, options = {}) {
         resizeCanvas();
         paintIdleVisualizerFrame();
         syncVisualizerLoop();
+        requestAnimationFrame(() => {
+            resizeCanvas();
+            paintIdleVisualizerFrame();
+            syncVisualizerLoop();
+        });
     };
     const resizeBarCanvas = () => {
         resizeCanvas();

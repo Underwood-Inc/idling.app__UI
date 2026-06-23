@@ -37,6 +37,7 @@ import {
   loadRadioStationGenreFilter,
   saveRadioStationGenreFilter,
 } from '@widgets/radio-player/radioStationGenreFilterPersistence';
+import { stationSupportsTrackMetadata } from '@widgets/radio-player/radioStationMetadata';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styles from './RadioPlayerBar.module.css';
@@ -187,6 +188,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const stationPanelRef = useRef<HTMLElement>(null);
   const stationSearchInputRef = useRef<HTMLInputElement>(null);
   const prevActivePanelRef = useRef<RadioPlayerPanel>(null);
+  const lastSyncedStationRef = useRef<string | null>(null);
   const [playback, setPlayback] = useState<RadioPlayerBarPlaybackState | null>(null);
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
   const [stationGenreFilter, setStationGenreFilter] = useState<RadioStationGenreId | null>(() =>
@@ -207,10 +209,20 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     }
 
     const sync = () => {
+      const stationName = handle.getStation();
+      const stationJustChanged =
+        lastSyncedStationRef.current !== null && lastSyncedStationRef.current !== stationName;
+      lastSyncedStationRef.current = stationName;
+
+      const supportsTrackMetadata = stationSupportsTrackMetadata(stationName);
+      const rawTrackDisplay = handle.getNowPlaying().display;
+      const trackDisplay =
+        supportsTrackMetadata && !stationJustChanged ? rawTrackDisplay : null;
+
       setPlayback({
         isPlaying: handle.isPlaying(),
-        stationName: handle.getStation(),
-        trackDisplay: handle.getNowPlaying().display,
+        stationName,
+        trackDisplay,
         volume: handle.getVolume(),
         visualizerPrefs: handle.getVisualizerPreferences(),
       });
@@ -460,7 +472,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       return 'Press play to start';
     }
 
-    if (isUsableTrackDisplay(playback.trackDisplay)) {
+    if (
+      stationSupportsTrackMetadata(playback.stationName) &&
+      isUsableTrackDisplay(playback.trackDisplay)
+    ) {
       return playback.trackDisplay;
     }
 
