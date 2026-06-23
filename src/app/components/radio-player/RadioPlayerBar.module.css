@@ -84,6 +84,14 @@
   max-height: min(82vh, 52rem);
 }
 
+@media (max-height: 30rem) and (orientation: landscape) {
+  .panelStations {
+    height: min(52vh, 28rem);
+    min-height: 11rem;
+    max-height: min(68vh, 34rem);
+  }
+}
+
 .stationPanelResizeHandle {
   position: relative;
   flex-shrink: 0;
