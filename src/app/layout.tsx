@@ -4,7 +4,7 @@ import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
-import { IDLING_RADIO_PWA_SHELL_HEADER, RADIO_PWA_MANIFEST_HREF } from '@lib/radio-pwa/constants';
+import { IDLING_RADIO_PWA_SHELL_HEADER, RADIO_PWA_MANIFEST_HREF, RADIO_PWA_THEME_COLOR } from '@lib/radio-pwa/constants';
 import { RADIO_PWA_STANDALONE_DETECTION_SCRIPT } from '@lib/radio-pwa/standaloneDetectionScript';
 import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
@@ -19,6 +19,7 @@ import MessageTickerWithInterval from './components/message-ticker/MessageTicker
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { RadioPwaStandaloneRedirect } from './components/radio-pwa/RadioPwaStandaloneRedirect';
 import { RadioPwaStandaloneVisualizerBootstrap } from './components/radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
+import { RadioPwaWindowControlsOverlay } from './components/radio-pwa/RadioPwaWindowControlsOverlay';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
@@ -69,7 +70,7 @@ const baseMetadata: Metadata = {
 };
 
 const baseViewport: Viewport = {
-  themeColor: '#e5c185',
+  themeColor: RADIO_PWA_THEME_COLOR,
 };
 
 export async function generateViewport(): Promise<Viewport> {
@@ -80,7 +81,7 @@ export async function generateViewport(): Promise<Viewport> {
   }
 
   return {
-    themeColor: '#e5c185',
+    themeColor: RADIO_PWA_THEME_COLOR,
   };
 }
 
@@ -93,6 +94,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     ...baseMetadata,
+    title: {
+      absolute: 'Idling Radio',
+    },
     manifest: RADIO_PWA_MANIFEST_HREF,
     robots: {
       index: false,
@@ -116,10 +120,17 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href={RADIO_PWA_MANIFEST_HREF} />
+        <meta name="application-name" content="Idling Radio" />
+        <meta name="apple-mobile-web-app-title" content="Idling Radio" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content={RADIO_PWA_THEME_COLOR} />
         <script dangerouslySetInnerHTML={{ __html: RADIO_PWA_STANDALONE_DETECTION_SCRIPT }} />
       </head>
       <body>
         <RadioPwaStandaloneRedirect />
+        <RadioPwaWindowControlsOverlay />
         <AmbientBackgroundWrapper />
         {/* Google AdSense */}
         <Script

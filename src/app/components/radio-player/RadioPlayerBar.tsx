@@ -163,8 +163,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   } = useRadioPlayer();
   const {
     isActive,
+    isFullscreen,
     enterVisualizerMode,
     exitVisualizerMode,
+    toggleDocumentFullscreen,
     setSpectrumPresetIndex,
     spectrumPresetIndex,
     spectrumEnabled,
@@ -1044,7 +1046,21 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             <span className={styles.textBtn__label}>Look</span>
             <span className={styles.textBtn__value}>{activeLookLabel}</span>
           </button>
-          {!isStandalonePwa() ? (
+          {isStandalonePwa() ? (
+            <button
+              type="button"
+              className={`${styles.textBtn} ${isFullscreen ? styles.textBtnExit : ''} no-glass`}
+              aria-pressed={isFullscreen}
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              data-testid="radio-pwa-document-fullscreen-trigger"
+              onClick={() => {
+                void toggleDocumentFullscreen();
+              }}
+            >
+              <SiteIcon id={isFullscreen ? 'close' : 'maximize'} sizeRem={0.9} title="" />
+              <span className={styles.textBtn__label}>{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
+            </button>
+          ) : (
             <button
               type="button"
               className={`${styles.textBtn} ${isActive ? styles.textBtnExit : ''} no-glass`}
@@ -1065,7 +1081,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               <SiteIcon id={isActive ? 'close' : 'maximize'} sizeRem={0.9} title="" />
               <span className={styles.textBtn__label}>{isActive ? 'Exit' : 'Fullscreen'}</span>
             </button>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
