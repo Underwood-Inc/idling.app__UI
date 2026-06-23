@@ -15,7 +15,7 @@ export function RadioPwaStandaloneRedirect() {
       return;
     }
 
-    if (!pathname.startsWith(IDLING_RADIO_PWA_START_PATH)) {
+    if (!pathname.startsWith(`${IDLING_RADIO_PWA_START_PATH}/`)) {
       router.replace(`${IDLING_RADIO_PWA_START_PATH}/`);
     }
   }, [pathname, router]);

@@ -46,6 +46,15 @@ const nextConfig = {
     }
   },
   // Smart cache headers with versioning
+  async redirects() {
+    return [
+      {
+        source: '/idling-radio',
+        destination: '/idling-radio/',
+        permanent: true
+      }
+    ];
+  },
   async headers() {
     return [
       {
