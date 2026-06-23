@@ -4,8 +4,7 @@ import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
-import { IDLING_RADIO_PWA_SHELL_HEADER } from '@lib/radio-pwa/constants';
-import { RADIO_PWA_BOOTSTRAP_SCRIPT } from '@lib/radio-pwa/installPrompt';
+import { IDLING_RADIO_PWA_SHELL_HEADER, RADIO_PWA_MANIFEST_HREF } from '@lib/radio-pwa/constants';
 import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { Metadata } from 'next';
@@ -21,11 +20,10 @@ import { ServiceWorkerRegistration } from './components/service-worker/ServiceWo
 import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import { VisualizerModeGate } from './components/visualizer-mode/VisualizerModeGate';
-import { RadioPwaStandaloneGuardScript } from './idling-radio/RadioPwaStandaloneGuardScript';
 import './globals.css';
 import '../css/mappy-cursors/cursors.css';
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: {
     default: 'Idling.app',
     template: '%s | Idling.app'
@@ -68,24 +66,44 @@ export const metadata: Metadata = {
   themeColor: '#ff6b35',
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
+
+  if (!isRadioShell) {
+    return baseMetadata;
+  }
+
+  return {
+    ...baseMetadata,
+    manifest: RADIO_PWA_MANIFEST_HREF,
+    themeColor: '#e5c185',
+    robots: {
+      index: false,
+      follow: false,
+      googleBot: {
+        index: false,
+        follow: false,
+      },
+    },
+  };
+}
+
 export default async function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
   const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
+  const webInstallOriginTrial = process.env.NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN;
 
   return (
     <html lang="en">
-      <body>
-        {!isRadioShell ? (
-          <Script
-            id="idling-radio-pwa-bootstrap"
-            strategy="beforeInteractive"
-            dangerouslySetInnerHTML={{ __html: RADIO_PWA_BOOTSTRAP_SCRIPT }}
-          />
+      <head>
+        {webInstallOriginTrial ? (
+          <meta httpEquiv="origin-trial" content={webInstallOriginTrial} />
         ) : null}
-        {isRadioShell ? <RadioPwaStandaloneGuardScript /> : null}
+      </head>
+      <body>
         <AmbientBackgroundWrapper />
         {/* Google AdSense */}
         <Script
