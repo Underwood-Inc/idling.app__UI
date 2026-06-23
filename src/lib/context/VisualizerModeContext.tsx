@@ -33,6 +33,7 @@ export interface VisualizerModeContextValue {
   setSpectrumBarHeight: (barHeight: number) => void;
   enterVisualizerMode: () => Promise<void>;
   exitFullscreen: () => Promise<void>;
+  toggleDocumentFullscreen: () => Promise<void>;
   exitVisualizerMode: () => Promise<void>;
 }
 
@@ -98,6 +99,19 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
     }
   }, []);
 
+  const toggleDocumentFullscreen = useCallback(async () => {
+    if (isDocumentFullscreen()) {
+      await exitFullscreen();
+      return;
+    }
+
+    try {
+      await requestDocumentFullscreen();
+    } catch {
+      // Fullscreen may be blocked by the browser or OS.
+    }
+  }, [exitFullscreen]);
+
   const exitVisualizerMode = useCallback(async () => {
     try {
       await exitDocumentFullscreen();
@@ -125,6 +139,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       setSpectrumBarHeight,
       enterVisualizerMode,
       exitFullscreen,
+      toggleDocumentFullscreen,
       exitVisualizerMode,
     }),
     [
@@ -135,6 +150,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       display.spectrumBarHeight,
       enterVisualizerMode,
       exitFullscreen,
+      toggleDocumentFullscreen,
       exitVisualizerMode,
       isActive,
       isFullscreen,
