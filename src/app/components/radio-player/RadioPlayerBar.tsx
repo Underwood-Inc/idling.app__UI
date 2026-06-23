@@ -1,6 +1,7 @@
 'use client';
 
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
+import { isStandalonePwa } from '@lib/radio-pwa/isStandalonePwa';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
 import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
 import { useRadioDockInlineVisualizer } from '@lib/hooks/useRadioDockInlineVisualizer';
@@ -1043,26 +1044,28 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             <span className={styles.textBtn__label}>Look</span>
             <span className={styles.textBtn__value}>{activeLookLabel}</span>
           </button>
-          <button
-            type="button"
-            className={`${styles.textBtn} ${isActive ? styles.textBtnExit : ''} no-glass`}
-            aria-pressed={isActive}
-            aria-label={
-              isActive ? 'Exit fullscreen visualizer' : 'Open fullscreen visualizer'
-            }
-            data-testid="visualizer-mode-trigger"
-            onClick={() => {
-              if (isActive) {
-                setActivePanel(null);
-                void exitVisualizerMode();
-                return;
+          {!isStandalonePwa() ? (
+            <button
+              type="button"
+              className={`${styles.textBtn} ${isActive ? styles.textBtnExit : ''} no-glass`}
+              aria-pressed={isActive}
+              aria-label={
+                isActive ? 'Exit fullscreen visualizer' : 'Open fullscreen visualizer'
               }
-              void enterVisualizerMode();
-            }}
-          >
-            <SiteIcon id={isActive ? 'close' : 'maximize'} sizeRem={0.9} title="" />
-            <span className={styles.textBtn__label}>{isActive ? 'Exit' : 'Fullscreen'}</span>
-          </button>
+              data-testid="visualizer-mode-trigger"
+              onClick={() => {
+                if (isActive) {
+                  setActivePanel(null);
+                  void exitVisualizerMode();
+                  return;
+                }
+                void enterVisualizerMode();
+              }}
+            >
+              <SiteIcon id={isActive ? 'close' : 'maximize'} sizeRem={0.9} title="" />
+              <span className={styles.textBtn__label}>{isActive ? 'Exit' : 'Fullscreen'}</span>
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
