@@ -1,35 +1,16 @@
-import { GlobalLoadingProvider } from '@lib/context/GlobalLoadingContext';
-import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
-import { OverlayProvider } from '@lib/context/OverlayContext';
-import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
-import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
-import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
-import { IDLING_RADIO_PWA_SHELL_HEADER, RADIO_PWA_MANIFEST_HREF, RADIO_PWA_THEME_COLOR } from '@lib/radio-pwa/constants';
-import { RADIO_PWA_STANDALONE_DETECTION_SCRIPT } from '@lib/radio-pwa/standaloneDetectionScript';
-import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
-import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
+import { RADIO_PWA_MANIFEST_HREF, RADIO_PWA_THEME_COLOR } from '@lib/radio-pwa/constants';
+import { RadioPwaContextBootstrap } from './components/radio-pwa/RadioPwaContextBootstrap';
+import { SiteChromeProviders } from './components/site-chrome/SiteChromeProviders';
+import { SiteChromeShell } from './components/site-chrome/SiteChromeShell';
 import { Metadata, Viewport } from 'next';
-import { SessionProvider } from 'next-auth/react';
-import Script from 'next/script';
-import { headers } from 'next/headers';
 import React from 'react';
-import Footer from './components/footer/Footer';
-import Header from './components/header/Header';
-import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
-import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
-import { RadioPwaStandaloneRedirect } from './components/radio-pwa/RadioPwaStandaloneRedirect';
-import { RadioPwaStandaloneVisualizerBootstrap } from './components/radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
-import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
-import { OverlayRendererWrapper, AmbientBackgroundWrapper, RadioPlayerMountWrapper } from './components/ui/ClientWrappers';
-import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
-import { VisualizerModeGate } from './components/visualizer-mode/VisualizerModeGate';
 import './globals.css';
 import '../css/mappy-cursors/cursors.css';
 
-const baseMetadata: Metadata = {
+export const metadata: Metadata = {
   title: {
     default: 'Idling.app',
-    template: '%s | Idling.app'
+    template: '%s | Idling.app',
   },
   description: 'Your digital playground for creativity and expression',
   keywords: ['creativity', 'expression', 'digital', 'playground'],
@@ -43,13 +24,13 @@ const baseMetadata: Metadata = {
     url: 'https://idling.app',
     title: 'Idling.app',
     description: 'Your digital playground for creativity and expression',
-    siteName: 'Idling.app'
+    siteName: 'Idling.app',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Idling.app',
     description: 'Your digital playground for creativity and expression',
-    creator: '@idlingapp'
+    creator: '@idlingapp',
   },
   robots: {
     index: true,
@@ -59,62 +40,24 @@ const baseMetadata: Metadata = {
       follow: true,
       'max-video-preview': -1,
       'max-image-preview': 'large',
-      'max-snippet': -1
-    }
+      'max-snippet': -1,
+    },
   },
   other: {
-    'google-adsense-account': 'ca-pub-1546133996920392'
+    'google-adsense-account': 'ca-pub-1546133996920392',
   },
   manifest: RADIO_PWA_MANIFEST_HREF,
 };
 
-const baseViewport: Viewport = {
+export const viewport: Viewport = {
   themeColor: RADIO_PWA_THEME_COLOR,
 };
 
-export async function generateViewport(): Promise<Viewport> {
-  const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
-
-  if (!isRadioShell) {
-    return baseViewport;
-  }
-
-  return {
-    themeColor: RADIO_PWA_THEME_COLOR,
-  };
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
-
-  if (!isRadioShell) {
-    return baseMetadata;
-  }
-
-  return {
-    ...baseMetadata,
-    title: {
-      absolute: 'Idling Radio',
-    },
-    manifest: RADIO_PWA_MANIFEST_HREF,
-    robots: {
-      index: false,
-      follow: false,
-      googleBot: {
-        index: false,
-        follow: false,
-      },
-    },
-  };
-}
-
-export default async function RootLayout({
-  children
+export default function RootLayout({
+  children,
 }: {
   children: React.ReactNode;
 }) {
-  const isRadioShell = (await headers()).get(IDLING_RADIO_PWA_SHELL_HEADER) === '1';
-
   return (
     <html lang="en">
       <head>
@@ -125,76 +68,12 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content={RADIO_PWA_THEME_COLOR} />
-        <script dangerouslySetInnerHTML={{ __html: RADIO_PWA_STANDALONE_DETECTION_SCRIPT }} />
       </head>
       <body>
-        <RadioPwaStandaloneRedirect />
-        <AmbientBackgroundWrapper />
-        {/* Google AdSense */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1546133996920392"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-        {/* Observability: Microsoft Clarity - Heatmaps & Session Recordings */}
-        <MicrosoftClarity />
-        <SessionProvider>
-          {/* Observability: Identify logged-in users in Microsoft Clarity */}
-          <ClarityUserIdentifier />
-          <UserPreferencesProvider>
-            <OverlayProvider>
-              <NavigationLoadingProvider>
-                <GlobalLoadingProvider>
-                  <UserDataBatchProvider>
-                    <RadioPlayerProvider>
-                      <VisualizerModeProvider>
-                        <RadioPwaStandaloneVisualizerBootstrap />
-                        {!isRadioShell ? (
-                          <>
-                            <div data-visualizer-layout data-site-chrome>
-                              <NavigationLoadingBar />
-                            </div>
-                            <div
-                              data-visualizer-layout
-                              className="sticky-header-wrapper"
-                              data-site-chrome
-                            >
-                              <Header />
-                            </div>
-                            <div data-visualizer-layout data-site-chrome>
-                              <MessageTickerWithInterval />
-                            </div>
-                          </>
-                        ) : null}
-                        <main data-visualizer-layout>{children}</main>
-                        {!isRadioShell ? (
-                          <>
-                            <div data-visualizer-layout data-site-chrome>
-                              <Footer />
-                            </div>
-                            <div data-visualizer-layout data-site-chrome>
-                              <OverlayRendererWrapper />
-                            </div>
-                            <div data-visualizer-layout data-site-chrome>
-                              <PWAInstallPrompt />
-                            </div>
-                          </>
-                        ) : null}
-                        <div data-visualizer-layout>
-                          <ServiceWorkerRegistration />
-                        </div>
-                        <RadioPlayerMountWrapper />
-                        <VisualizerModeGate />
-                      </VisualizerModeProvider>
-                    </RadioPlayerProvider>
-                  </UserDataBatchProvider>
-                </GlobalLoadingProvider>
-              </NavigationLoadingProvider>
-            </OverlayProvider>
-          </UserPreferencesProvider>
-        </SessionProvider>
-        <div id="overlay-portal"></div>
+        <RadioPwaContextBootstrap />
+        <SiteChromeProviders>
+          <SiteChromeShell>{children}</SiteChromeShell>
+        </SiteChromeProviders>
       </body>
     </html>
   );

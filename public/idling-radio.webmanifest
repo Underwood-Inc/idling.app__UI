@@ -3,13 +3,16 @@
   "name": "Idling Radio",
   "short_name": "Radio",
   "description": "Ambient radio player with dock controls and fullscreen visualizer",
-  "start_url": "/idling-radio/",
-  "scope": "/idling-radio/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0e",
   "theme_color": "#0a0a0e",
   "orientation": "any",
-  "categories": ["music", "entertainment"],
+  "categories": [
+    "music",
+    "entertainment"
+  ],
   "lang": "en",
   "dir": "ltr",
   "icons": [

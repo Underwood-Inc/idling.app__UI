@@ -1,6 +1,4 @@
 import {
-  IDLING_RADIO_PWA_SHELL_HEADER,
-  IDLING_RADIO_PWA_START_PATH,
   isPublicApiPath,
   isPublicInfraPath,
   isPublicPagePath,
@@ -79,12 +77,6 @@ export default auth(async (req: NextRequest & { auth: any }) => {
 
     // Continue to API route for public routes
     return NextResponse.next();
-  }
-
-  if (nextUrl.pathname === IDLING_RADIO_PWA_START_PATH || nextUrl.pathname.startsWith(`${IDLING_RADIO_PWA_START_PATH}/`)) {
-    const response = NextResponse.next();
-    response.headers.set(IDLING_RADIO_PWA_SHELL_HEADER, '1');
-    return response;
   }
 
   // Handle page route authentication with universal security checking

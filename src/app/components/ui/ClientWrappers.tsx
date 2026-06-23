@@ -1,8 +1,6 @@
 'use client';
 
 import { AmbientBackground } from '../ambient-background/AmbientBackground';
-import { RadioAudioEnergyBridge } from '../radio-player/RadioAudioEnergyBridge';
-import { RadioPlayerMount } from '../radio-player/RadioPlayerMount';
 import { OverlayRenderer } from './OverlayRenderer';
 
 /**
@@ -14,13 +12,4 @@ export function AmbientBackgroundWrapper() {
 
 export function OverlayRendererWrapper() {
   return <OverlayRenderer />;
-}
-
-export function RadioPlayerMountWrapper() {
-  return (
-    <>
-      <RadioPlayerMount autoplay={false} />
-      <RadioAudioEnergyBridge />
-    </>
-  );
 }

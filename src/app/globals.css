@@ -169,16 +169,26 @@
     'Noto Color Emoji', 'Segoe UI Symbol', monospace;
 
   /* Font size variables - metric scale with 10px base (1rem = 10px) */
-  --font-size-xs: 1.2rem; /* 12px */
-  --font-size-sm: 1.4rem; /* 14px */
-  --font-size-base: 1.6rem; /* 16px - standard readable */
-  --font-size-md: 1.8rem; /* 18px */
-  --font-size-lg: 2rem; /* 20px */
-  --font-size-xl: 2.4rem; /* 24px */
-  --font-size-2xl: 2.8rem; /* 28px */
-  --font-size-3xl: 3.2rem; /* 32px */
-  --font-size-4xl: 3.6rem; /* 36px */
-  --font-size-5xl: 4.8rem; /* 48px */
+  --font-size-xs: 1.2rem;
+  /* 12px */
+  --font-size-sm: 1.4rem;
+  /* 14px */
+  --font-size-base: 1.6rem;
+  /* 16px - standard readable */
+  --font-size-md: 1.8rem;
+  /* 18px */
+  --font-size-lg: 2rem;
+  /* 20px */
+  --font-size-xl: 2.4rem;
+  /* 24px */
+  --font-size-2xl: 2.8rem;
+  /* 28px */
+  --font-size-3xl: 3.2rem;
+  /* 32px */
+  --font-size-4xl: 3.6rem;
+  /* 36px */
+  --font-size-5xl: 4.8rem;
+  /* 48px */
 
   --font-color--primary: var(--black-bean);
   --font-color--secondary: var(--brand-tertiary);
@@ -225,6 +235,7 @@
     transform: translateY(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -388,9 +399,7 @@ caption {
   font-size: var(--font-size-base);
 }
 
-input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='color']):not(
-    [type='file']
-  ) {
+input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']) {
   background-color: var(--dark-background--secondary);
   color: var(--fg-on-dark);
   border: 1px solid var(--dark-border--primary);
@@ -450,14 +459,12 @@ code {
   text-decoration: underline;
 }
 
-:where(
-  a:not(.contrast-safe-surface) h1,
+:where(a:not(.contrast-safe-surface) h1,
   a:not(.contrast-safe-surface) h2,
   a:not(.contrast-safe-surface) h3,
   a:not(.contrast-safe-surface) h4,
   a:not(.contrast-safe-surface) h5,
-  a:not(.contrast-safe-surface) h6
-) {
+  a:not(.contrast-safe-surface) h6) {
   text-decoration: none;
   color: inherit;
 }
@@ -709,7 +716,7 @@ section:not(:last-of-type) {
 
 /* 4k Displays — cap main content width only; do not restyle every nested section */
 @media (min-width: 2160px) {
-  main > .page-content__section {
+  main>.page-content__section {
     max-width: 2460px;
   }
 }
@@ -728,6 +735,7 @@ section:not(:last-of-type) {
 }
 
 @media (max-width: 1024px) {
+
   /* tablet, landscape iPad, lo-res laptops ands desktops */
   aside {
     display: none !important;
@@ -735,6 +743,7 @@ section:not(:last-of-type) {
 }
 
 @media (min-width: 1025px) {
+
   /* big landscape tablets, laptops, and desktops */
   aside {
     display: block;
@@ -752,12 +761,10 @@ section:not(:last-of-type) {
 }
 
 ::-webkit-scrollbar-track {
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    #e5e5e5 50%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      transparent 0%,
+      #e5e5e5 50%,
+      transparent 100%);
 
   border-radius: 6px;
   border: 1px solid #e5e5e5;
@@ -765,12 +772,10 @@ section:not(:last-of-type) {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    135deg,
-    rgba(237, 174, 73, 0.6) 0%,
-    rgba(249, 223, 116, 0.5) 50%,
-    rgba(237, 174, 73, 0.6) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(237, 174, 73, 0.6) 0%,
+      rgba(249, 223, 116, 0.5) 50%,
+      rgba(237, 174, 73, 0.6) 100%);
 
   border-radius: 6px;
   border: 1px solid #e5e5e5;
@@ -781,12 +786,10 @@ section:not(:last-of-type) {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(237, 174, 73, 0.8) 0%,
-    rgba(249, 223, 116, 0.7) 50%,
-    rgba(237, 174, 73, 0.8) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(237, 174, 73, 0.8) 0%,
+      rgba(249, 223, 116, 0.7) 50%,
+      rgba(237, 174, 73, 0.8) 100%);
   box-shadow:
     0 4px 12px transparent,
     inset 0 1px 0 #e5e5e5;
@@ -794,12 +797,10 @@ section:not(:last-of-type) {
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(
-    135deg,
-    rgba(237, 174, 73, 0.9) 0%,
-    rgba(249, 223, 116, 0.8) 50%,
-    rgba(237, 174, 73, 0.9) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(237, 174, 73, 0.9) 0%,
+      rgba(249, 223, 116, 0.8) 50%,
+      rgba(237, 174, 73, 0.9) 100%);
   transform: scale(0.98);
 }
 
@@ -819,12 +820,10 @@ section:not(:last-of-type) {
 .dark-scrollbar::-webkit-scrollbar-track,
 .card::-webkit-scrollbar-track,
 [class*='modal']::-webkit-scrollbar-track {
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    #e5e5e5 50%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      transparent 0%,
+      #e5e5e5 50%,
+      transparent 100%);
   border: 1px solid #e5e5e5;
 }
 
@@ -840,11 +839,9 @@ section:not(:last-of-type) {
 
 .thin-scrollbar::-webkit-scrollbar-thumb {
   border-radius: 4px;
-  background: linear-gradient(
-    135deg,
-    rgba(237, 174, 73, 0.5) 0%,
-    rgba(249, 223, 116, 0.4) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(237, 174, 73, 0.5) 0%,
+      rgba(249, 223, 116, 0.4) 100%);
 }
 
 /* Invisible scrollbars for special cases */
@@ -892,12 +889,10 @@ button:not(.no-glass):not(.contrast-safe-surface)::before {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #e5e5e5,
-    transparent
-  ) !important;
+  background: linear-gradient(90deg,
+      transparent,
+      #e5e5e5,
+      transparent) !important;
   transition: left 0.6s ease;
   pointer-events: none;
 }
@@ -918,5 +913,9 @@ button:disabled {
 
 /* Installed Idling Radio PWA — no site header, footer, or full-app install prompt */
 html[data-radio-pwa='standalone'] [data-site-chrome] {
+  display: none;
+}
+
+html[data-radio-pwa='standalone'] [data-home-page] {
   display: none;
 }

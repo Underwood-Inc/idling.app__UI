@@ -8,12 +8,12 @@ import PageContent from './components/page-content/PageContent';
 import { ProjectShowcase } from './components/project-showcase/ProjectShowcase';
 import { RecentActivityFeed } from './components/recent-activity-feed';
 import { StatsDashboard } from './components/stats-dashboard/StatsDashboard';
-import './globals.css';
 import styles from './page.module.css';
 
 export default async function Home() {
   return (
     <>
+      <div data-home-page>
       <PageContainer>
         <div className={styles.home__layout}>
           <PageContent>
@@ -55,6 +55,7 @@ export default async function Home() {
           </PageAside>
         </div>
       </PageContainer>
+      </div>
     </>
   );
 }
