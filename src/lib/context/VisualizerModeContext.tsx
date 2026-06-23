@@ -113,6 +113,10 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
   }, [exitFullscreen]);
 
   const exitVisualizerMode = useCallback(async () => {
+    if (isStandalonePwa()) {
+      return;
+    }
+
     try {
       await exitDocumentFullscreen();
     } catch {

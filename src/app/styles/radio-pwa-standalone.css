@@ -40,10 +40,6 @@ html[data-radio-pwa='standalone'].visualizer-mode [data-irp-fullscreen-viz-frame
   max-height: 100%;
 }
 
-html[data-radio-pwa='standalone'].visualizer-mode [data-testid='ambient-background'] {
-  display: none;
-}
-
 /* Document fullscreen (F11-style) — visualizer uses the full display surface */
 html[data-radio-pwa='standalone']:fullscreen.visualizer-mode [data-irp-fullscreen-viz-frame='true'],
 html[data-radio-pwa='standalone']:fullscreen.visualizer-mode [data-irp-bar-fullscreen='true'] {
