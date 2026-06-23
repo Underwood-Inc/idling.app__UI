@@ -1,7 +1,6 @@
 import { RADIO_PWA_MANIFEST_HREF } from '@lib/radio-pwa/constants';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { RadioPwaLaunchGuard } from '../components/radio-pwa/RadioPwaLaunchGuard';
 
 export const metadata: Metadata = {
   title: 'Idling Radio',
@@ -22,10 +21,5 @@ export const viewport: Viewport = {
 };
 
 export default function IdlingRadioLayout({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <RadioPwaLaunchGuard />
-      {children}
-    </>
-  );
+  return children;
 }

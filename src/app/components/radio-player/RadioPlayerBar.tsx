@@ -37,7 +37,6 @@ import {
   saveRadioStationGenreFilter,
 } from '@widgets/radio-player/radioStationGenreFilterPersistence';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
-import { RadioPwaInstallButton } from '../radio-pwa/RadioPwaInstallButton';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styles from './RadioPlayerBar.module.css';
 import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
@@ -183,6 +182,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const metaBlockRef = useRef<HTMLDivElement>(null);
   const stationListRef = useRef<HTMLDivElement>(null);
   const stationPanelRef = useRef<HTMLElement>(null);
+  const stationSearchInputRef = useRef<HTMLInputElement>(null);
   const prevActivePanelRef = useRef<RadioPlayerPanel>(null);
   const [playback, setPlayback] = useState<RadioPlayerBarPlaybackState | null>(null);
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
@@ -299,6 +299,20 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     setStationSearchQuery('');
     setShowUnreachableOnly(false);
     return undefined;
+  }, [activePanel]);
+
+  useEffect(() => {
+    if (activePanel !== 'stations') {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      stationSearchInputRef.current?.focus({ preventScroll: true });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
   }, [activePanel]);
 
   useRadioDockLayoutMetrics({
@@ -507,6 +521,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 title=""
               />
               <input
+                ref={stationSearchInputRef}
                 type="search"
                 className={styles.stationSearch__input}
                 value={stationSearchQuery}
@@ -1004,8 +1019,6 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           />
 
           <span className={styles.divider} aria-hidden="true" />
-
-          <RadioPwaInstallButton />
 
           <button
             type="button"
