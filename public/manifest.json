@@ -1,15 +1,15 @@
 {
-  "id": "idling-app",
-  "name": "Idling App",
-  "short_name": "Idling",
-  "description": "A community platform for sharing and discovering idle games",
-  "start_url": "/",
+  "id": "/idling-radio",
+  "name": "Idling Radio",
+  "short_name": "Radio",
+  "description": "Ambient radio player with dock controls and fullscreen visualizer",
+  "start_url": "/idling-radio/",
+  "scope": "/idling-radio/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#ff6b35",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "categories": ["games", "social", "entertainment"],
+  "background_color": "#0a0a0e",
+  "theme_color": "#e5c185",
+  "orientation": "any",
+  "categories": ["music", "entertainment"],
   "lang": "en",
   "dir": "ltr",
   "icons": [
@@ -30,46 +30,6 @@
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Latest Posts",
-      "short_name": "Posts",
-      "description": "View the latest community posts",
-      "url": "/posts",
-      "icons": [
-        {
-          "src": "/favicon-32x32.png",
-          "sizes": "32x32",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Play Game",
-      "short_name": "Game",
-      "description": "Play the idle game",
-      "url": "/game",
-      "icons": [
-        {
-          "src": "/favicon-32x32.png",
-          "sizes": "32x32",
-          "type": "image/png"
-        }
-      ]
     }
   ]
 }
