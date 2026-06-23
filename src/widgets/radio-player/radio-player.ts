@@ -368,7 +368,8 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     if (headless || !track) {
       return;
     }
-    const text = nowPlaying.display;
+    const text =
+      nowPlaying.display && stationSupportsTrackMetadata(activeName) ? nowPlaying.display : null;
     if (text) {
       track.textContent = text;
       track.removeAttribute('data-empty');
@@ -385,7 +386,10 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     if (headless || !label) {
       return;
     }
-    const trackPart = nowPlaying.display ? ` · ${nowPlaying.display}` : '';
+    const trackPart =
+      nowPlaying.display && stationSupportsTrackMetadata(activeName)
+        ? ` · ${nowPlaying.display}`
+        : '';
     label.textContent = playing ? `Now playing · ${activeName}${trackPart}` : activeName;
   };
 
@@ -667,14 +671,14 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       }
 
       const data = (await response.json()) as RadioNowPlayingApiResponse;
-      if (data.station !== stationAtFetch || !playing) {
+      if (activeName !== stationAtFetch || data.station !== stationAtFetch || !playing) {
         return;
       }
 
       if (data.supportsTrackMetadata === false) {
         rememberTrackMetadataUnsupported(stationAtFetch);
         stopNowPlayingPoll();
-        syncNowPlayingUi();
+        resetNowPlaying();
         return;
       }
 
