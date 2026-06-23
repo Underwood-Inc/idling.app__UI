@@ -59,6 +59,30 @@ export function RadioBarVisualizerFullscreen({
       observer.disconnect();
       window.removeEventListener('resize', syncSize);
     };
+  }, [enabled, handle, isActive, isAvailable]);
+
+  useLayoutEffect(() => {
+    if (!isActive || !enabled || !isAvailable || !handle) {
+      return undefined;
+    }
+
+    const frame = frameRef.current;
+    if (!frame) {
+      return undefined;
+    }
+
+    const syncSize = () => {
+      if (frame.clientWidth < 48) {
+        return;
+      }
+
+      handle.resizeBarCanvas();
+    };
+
+    syncSize();
+    requestAnimationFrame(syncSize);
+
+    return undefined;
   }, [barHeight, enabled, handle, isActive, isAvailable]);
 
   if (!isActive || !enabled) {
