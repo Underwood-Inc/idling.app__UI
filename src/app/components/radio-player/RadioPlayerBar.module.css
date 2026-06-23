@@ -594,7 +594,7 @@
   cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
-.panelSection + .panelSection {
+.panelSection+.panelSection {
   margin-top: 0.25rem;
 }
 
@@ -769,6 +769,7 @@
 
 .row {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
   align-self: stretch;
@@ -897,10 +898,10 @@
 }
 
 .viz[data-layout='wide'] {
-  flex: 1 1 0;
+  flex: 1 1 auto;
   width: auto;
-  min-width: 14rem;
-  max-width: none;
+  min-width: 6.5rem;
+  max-width: min(12rem, 26vw);
 }
 
 .viz :global(canvas) {
@@ -1006,6 +1007,7 @@
 }
 
 @keyframes radioPlayerOverflowScroll {
+
   0%,
   12% {
     transform: translateX(0);
@@ -1027,7 +1029,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.45rem;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   min-width: 0;
   margin-left: auto;
 }
@@ -1241,11 +1243,128 @@
   pointer-events: none;
 }
 
-@media (max-width: 860px) {
-  /* Keep useRadioDockInlineVisualizer in sync with this breakpoint. */
+@media (max-width: 1100px) {
   .row {
     flex-wrap: wrap;
     align-items: center;
+    gap: 0.45rem 0.6rem;
+  }
+
+  .lead {
+    flex: 1 1 10rem;
+    min-width: 0;
+  }
+
+  .metaBlock {
+    max-width: none;
+  }
+
+  .viz {
+    flex: 1 1 100%;
+    order: 2;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 2.35rem;
+    min-height: 2.35rem;
+  }
+
+  .viz[data-layout='wide'] {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .viz[data-layout='compact'] {
+    flex: 0 0 auto;
+    order: 1;
+    width: clamp(4.5rem, 18vw, 7rem);
+    min-width: 4.5rem;
+    max-width: 7rem;
+    height: 2.25rem;
+    min-height: 2.25rem;
+  }
+
+  .tools {
+    flex: 1 1 100%;
+    order: 3;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .volume {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 11rem;
+  }
+}
+
+@container radio-player (max-width: 68.75rem) {
+  .row {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.6rem;
+  }
+
+  .lead {
+    flex: 1 1 10rem;
+    min-width: 0;
+  }
+
+  .metaBlock {
+    max-width: none;
+  }
+
+  .viz {
+    flex: 1 1 100%;
+    order: 2;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 2.35rem;
+    min-height: 2.35rem;
+  }
+
+  .viz[data-layout='wide'] {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .viz[data-layout='compact'] {
+    flex: 0 0 auto;
+    order: 1;
+    width: clamp(4.5rem, 18cqw, 7rem);
+    min-width: 4.5rem;
+    max-width: 7rem;
+    height: 2.25rem;
+    min-height: 2.25rem;
+  }
+
+  .tools {
+    flex: 1 1 100%;
+    order: 3;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .volume {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 11rem;
+  }
+}
+
+@media (max-width: 860px) {
+
+  /* Keep useRadioDockInlineVisualizer in sync with this breakpoint. */
+  .row {
     gap: 0.45rem 0.55rem;
     min-height: 3.25rem;
     padding: 0.5rem 0.65rem;
@@ -1253,13 +1372,11 @@
 
   .lead {
     flex: 1 1 auto;
-    min-width: 0;
     gap: 0.65rem;
   }
 
   .metaBlock {
     flex: 1 1 auto;
-    max-width: none;
   }
 
   .metaBlock[data-custom-width='true'] {
@@ -1276,17 +1393,52 @@
   }
 
   .tools {
-    flex: 1 1 100%;
-    flex-wrap: wrap;
-    justify-content: flex-end;
     gap: 0.35rem;
-    margin-left: 0;
-    width: 100%;
   }
 
   .volume {
+    max-width: 10.5rem;
+  }
+
+  .volume__slider {
+    min-width: 3.25rem;
+  }
+
+  .volume__pct {
+    display: none;
+  }
+}
+
+@container radio-player (max-width: 53.75rem) {
+  .row {
+    gap: 0.45rem 0.55rem;
+    min-height: 3.25rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .lead {
     flex: 1 1 auto;
-    min-width: 0;
+    gap: 0.65rem;
+  }
+
+  .metaBlock {
+    flex: 1 1 auto;
+  }
+
+  .metaBlock[data-custom-width='true'] {
+    flex: 1 1 auto;
+    width: auto !important;
+  }
+
+  .metaResizeHandle {
+    display: none;
+  }
+
+  .viz {
+    display: none;
+  }
+
+  .volume {
     max-width: 10.5rem;
   }
 
@@ -1306,20 +1458,7 @@
   }
 }
 
-@media (max-width: 560px) {
-  .row {
-    gap: 0.4rem;
-    padding: 0.45rem 0.55rem;
-  }
-
-  .tools {
-    gap: 0.3rem;
-  }
-
-  .volume {
-    max-width: 9rem;
-  }
-
+@media (max-width: 720px) {
   .textBtn__label {
     display: none;
   }
@@ -1336,5 +1475,63 @@
 
   .textBtnSpectrum {
     padding-inline: 0.45rem;
+  }
+
+  .divider {
+    display: none;
+  }
+}
+
+@container radio-player (max-width: 45rem) {
+  .textBtn__label {
+    display: none;
+  }
+
+  .textBtnSpectrum .textBtn__label {
+    display: inline;
+    font-size: 11px;
+  }
+
+  .textBtn {
+    min-width: 2rem;
+    padding-inline: 0.45rem;
+  }
+
+  .textBtnSpectrum {
+    padding-inline: 0.45rem;
+  }
+
+  .divider {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .row {
+    gap: 0.4rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .tools {
+    gap: 0.3rem;
+  }
+
+  .volume {
+    max-width: 9rem;
+  }
+}
+
+@container radio-player (max-width: 35rem) {
+  .row {
+    gap: 0.4rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .tools {
+    gap: 0.3rem;
+  }
+
+  .volume {
+    max-width: 9rem;
   }
 }
