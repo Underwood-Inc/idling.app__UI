@@ -1,6 +1,7 @@
 export const RADIO_PROBE_CONCURRENCY = 12;
-export const RADIO_PROBE_MAX_RETRIES = 1;
+export const RADIO_PROBE_MAX_RETRIES = 2;
 export const RADIO_PROBE_RETRY_DELAY_MS = 400;
+export const RADIO_PROBE_FAILED_STATION_RETRY_DELAY_MS = 1500;
 
 export function isProbeTimeoutReason(reason: string): boolean {
   return reason.startsWith('Timed out waiting');

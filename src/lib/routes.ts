@@ -174,7 +174,11 @@ export const NAV_PATH_LABELS: Record<ROUTE_KEYS, string> = {
 export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
 
 /** PWA manifest start_url only — never linked from site navigation. */
-export { IDLING_RADIO_PWA_START_PATH, RADIO_PWA_MANIFEST_HREF } from './radio-pwa/constants';
+export {
+  IDLING_RADIO_PWA_SHELL_HEADER,
+  IDLING_RADIO_PWA_START_PATH,
+  RADIO_PWA_MANIFEST_HREF,
+} from './radio-pwa/constants';
 
 export const PUBLIC_ROUTES = [
   NAV_PATHS.ROOT,

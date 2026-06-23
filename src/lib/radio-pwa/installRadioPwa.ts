@@ -32,20 +32,8 @@ export function isWebInstallApiAvailable(): boolean {
   return typeof (navigator as NavigatorWithInstall).install === 'function';
 }
 
-export function isChromiumBrowser(): boolean {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  return /Chrome|Chromium|Edg/i.test(navigator.userAgent);
-}
-
 export function shouldOfferRadioPwaInstallUi(): boolean {
-  if (getRadioPwaInstallCapability().canOfferInstall) {
-    return true;
-  }
-
-  return isChromiumBrowser();
+  return getRadioPwaInstallCapability().canOfferInstall;
 }
 
 export function getRadioPwaInstallCapability(): RadioPwaInstallCapability {

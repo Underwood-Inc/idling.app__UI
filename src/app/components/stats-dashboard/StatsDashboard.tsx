@@ -126,7 +126,7 @@ export function StatsDashboard() {
             </>
           )}
         </div>
-        <p className={`${styles.metrics__note} icon-inline`}>
+        <p className={styles.metrics__note}>
           <SiteIcon id="shield" className={styles.metrics__noteIcon} sizeRem={0.875} aria-hidden />
           <span>{METRICS_PRIVACY_NOTE}</span>
         </p>

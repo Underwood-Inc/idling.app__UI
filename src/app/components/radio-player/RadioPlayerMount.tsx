@@ -2,18 +2,10 @@
 
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { mountRadioPlayer } from '@widgets/radio-player/radio-player';
-import {
-  logRadioPlayerUnavailable,
-  probeBuiltInAndCustomRadioStations,
-} from '@widgets/radio-player/probeRadioStations';
-import { buildCustomAudioSourceCatalog } from '@widgets/radio-player/customAudioSourceBrowse';
-import { RADIO_STATIONS } from '@widgets/radio-player/radioStationCatalog';
-import type {
-  RadioPlayerHandle,
-  RadioStationCatalog,
-  RadioStationDefinition,
-} from '@widgets/radio-player/radioPlayer.types';
-import { useEffect, useRef, useState } from 'react';
+import { logRadioPlayerUnavailable } from '@widgets/radio-player/probeRadioStations';
+import { buildRadioStationCatalog } from '@widgets/radio-player/radioStationCatalog';
+import { countStationsByAvailabilityStatus } from '@widgets/radio-player/radioStationBrowse';
+import { useEffect, useRef } from 'react';
 import { RadioPlayerBar } from './RadioPlayerBar';
 import styles from './RadioPlayerBar.module.css';
 
@@ -21,88 +13,52 @@ export interface RadioPlayerMountProps {
   autoplay?: boolean;
 }
 
-type RadioPlayerMountState = 'probing' | 'ready' | 'unavailable';
-
-export interface RadioPlayerProbeSnapshot {
-  availableStations: RadioStationCatalog;
-  stationDefinitions: RadioStationDefinition[];
-}
-
 export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<RadioPlayerHandle | null>(null);
+  const playerRef = useRef<ReturnType<typeof mountRadioPlayer> | null>(null);
   const {
     registerPlayer,
     unregisterPlayer,
-    customSources,
-    customSourcesLoaded,
-    customSourcesRevision,
     stationDefinitions,
-    setStationProbeFailures,
+    stationAvailabilityByName,
   } = useRadioPlayer();
-  const [mountState, setMountState] = useState<RadioPlayerMountState>('probing');
-  const [probeSnapshot, setProbeSnapshot] = useState<RadioPlayerProbeSnapshot | null>(null);
 
   useEffect(() => {
-    if (!customSourcesLoaded) {
-      return undefined;
+    const availabilityEntries = Object.values(stationAvailabilityByName);
+    if (availabilityEntries.length === 0) {
+      return;
     }
 
-    let cancelled = false;
-    setMountState('probing');
-    setStationProbeFailures([]);
+    const pendingCount = countStationsByAvailabilityStatus(stationAvailabilityByName, 'pending');
+    if (pendingCount > 0) {
+      return;
+    }
 
-    const customCatalog = buildCustomAudioSourceCatalog(customSources);
-
-    void probeBuiltInAndCustomRadioStations(RADIO_STATIONS, customCatalog).then((result) => {
-      if (cancelled) {
-        return;
-      }
-
-      setStationProbeFailures(result.failures);
-
-      const stationCount = Object.keys(result.available).length;
-      if (stationCount === 0) {
-        logRadioPlayerUnavailable(result.failures);
-        setProbeSnapshot(null);
-        setMountState('unavailable');
-        return;
-      }
-
-      if (result.failures.length > 0) {
-        console.warn(
-          '[Idling Radio] Some sources are unreachable and were omitted from the player:',
-          result.failures
-        );
-      }
-
-      setProbeSnapshot({
-        availableStations: result.available,
-        stationDefinitions,
-      });
-      setMountState('ready');
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [customSources, customSourcesLoaded, customSourcesRevision, setStationProbeFailures, stationDefinitions]);
+    const availableCount = countStationsByAvailabilityStatus(stationAvailabilityByName, 'available');
+    if (availableCount === 0) {
+      const failures = availabilityEntries
+        .filter((entry) => entry.status === 'unreachable')
+        .map((entry) => ({
+          name: entry.name,
+          url: entry.url,
+          reason: entry.reason ?? 'Stream failed to load',
+        }));
+      logRadioPlayerUnavailable(failures);
+    }
+  }, [stationAvailabilityByName]);
 
   useEffect(() => {
-    if (mountState !== 'ready' || !probeSnapshot) {
-      return undefined;
-    }
-
     const host = hostRef.current;
     if (!host) {
       return undefined;
     }
 
     document.body.classList.add('has-radio-player');
+    const stations = buildRadioStationCatalog(stationDefinitions);
     playerRef.current = mountRadioPlayer(host, {
       autoplay,
-      stations: probeSnapshot.availableStations,
-      stationDefinitions: probeSnapshot.stationDefinitions,
+      stations,
+      stationDefinitions,
       headless: true,
     });
     registerPlayer(playerRef.current);
@@ -115,17 +71,7 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
       document.documentElement.style.removeProperty('--irp-bar-height');
       document.documentElement.style.removeProperty('--irp-dock-height');
     };
-  }, [
-    autoplay,
-    mountState,
-    probeSnapshot,
-    registerPlayer,
-    unregisterPlayer,
-  ]);
-
-  if (mountState !== 'ready') {
-    return null;
-  }
+  }, [autoplay, registerPlayer, stationDefinitions, unregisterPlayer]);
 
   return (
     <>

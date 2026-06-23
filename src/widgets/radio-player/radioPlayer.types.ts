@@ -15,43 +15,6 @@ export type RadioStationGenreId =
   | 'news'
   | 'public';
 
-/** How the `<audio>` element loads this source. */
-export type CustomAudioSourceKind = 'live-stream' | 'static-media';
-
-export interface CustomAudioSourceRecord {
-  id: string;
-  name: string;
-  url: string;
-  kind: CustomAudioSourceKind;
-  genre: RadioStationGenreId;
-  regionFlag: string;
-  blurb: string;
-  supportsTrackMetadata: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateCustomAudioSourceInput {
-  name: string;
-  url: string;
-  kind: CustomAudioSourceKind;
-  genre?: RadioStationGenreId;
-  regionFlag?: string;
-  blurb?: string;
-  supportsTrackMetadata?: boolean;
-}
-
-/** URL-only input for the simplified add-custom-source flow. */
-export interface AddCustomAudioSourceUrlInput {
-  url: string;
-}
-
-export interface CustomAudioSourceValidationResult {
-  ok: boolean;
-  normalizedUrl?: string;
-  message?: string;
-}
-
 export interface RadioStationDefinition {
   name: string;
   url: string;
@@ -62,8 +25,6 @@ export interface RadioStationDefinition {
   blurb: string;
   /** When false, skip now-playing polls — stream does not publish ICY track titles. */
   supportsTrackMetadata?: boolean;
-  /** Present when the source was added in this browser (IndexedDB). */
-  customId?: string;
 }
 
 export interface RadioStationGenre {
@@ -83,7 +44,7 @@ export interface RadioStationGenreFilter {
 
 export interface RadioPlayerOptions {
   stations?: RadioStationCatalog;
-  /** Merged catalog + custom definitions for ICY metadata policy. */
+  /** Station definitions for ICY metadata policy. */
   stationDefinitions?: RadioStationDefinition[];
   storageKey?: string;
   autoplay?: boolean;
@@ -121,6 +82,17 @@ export interface RadioPlayerHandle {
   mountBarCanvas: (container: HTMLElement) => void;
   resizeBarCanvas: () => void;
 }
+
+export type RadioStationAvailabilityStatus = 'pending' | 'available' | 'unreachable';
+
+export interface RadioStationAvailabilityState {
+  name: string;
+  url: string;
+  status: RadioStationAvailabilityStatus;
+  reason?: string;
+}
+
+export type RadioStationAvailabilityMap = Record<string, RadioStationAvailabilityState>;
 
 export interface RadioStationProbeFailure {
   name: string;

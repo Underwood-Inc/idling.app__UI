@@ -4,6 +4,7 @@ import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
 import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
 import { useRadioDockInlineVisualizer } from '@lib/hooks/useRadioDockInlineVisualizer';
+import { useRadioStationPanelHeight } from '@lib/hooks/useRadioStationPanelHeight';
 import { useRadioMetaWidth } from '@lib/hooks/useRadioMetaWidth';
 import { HumanFriendlySearchHighlight } from '@molecules/humanFriendlySearch/HumanFriendlySearchHighlight';
 import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
@@ -14,25 +15,22 @@ import type {
 } from '@widgets/radio-player/barVisualizer.types';
 import { BAR_VISUALIZER_PRESET_DEFINITIONS, getBarVisualizerDockLayout } from '@widgets/radio-player/barVisualizerPresets';
 import {
-  CUSTOM_AUDIO_SOURCES_UI_ENABLED,
-  isCustomAudioSourceDefinition,
-} from '@widgets/radio-player/customAudioSourceBrowse';
-import {
   RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
   RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE,
   resolveRadioFullscreenVisualHeightRatio,
 } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import type { RadioPlayerHandle, RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
 import {
-  buildRadioStationProbeFailureMap,
+  countStationsByAvailabilityStatus,
   filterRadioStationsByGenre,
   filterRadioStationsBySearch,
   findRadioStationDefinition,
+  getRadioStationAvailabilityStatus,
   getRadioStationGenre,
   isRadioStationInGenreFilter,
-  listAvailableRadioStations,
-  listRadioStationGenreFilters,
-  listUnreachableRadioStations,
+  listBrowsableRadioStations,
+  listRadioStationGenreFiltersForStations,
+  listUnreachableRadioStationsFromAvailability,
 } from '@widgets/radio-player/radioStationBrowse';
 import {
   loadRadioStationGenreFilter,
@@ -42,7 +40,6 @@ import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerP
 import { RadioPwaInstallButton } from '../radio-pwa/RadioPwaInstallButton';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styles from './RadioPlayerBar.module.css';
-import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
 import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
 
 export interface RadioPlayerBarPlaybackState {
@@ -160,8 +157,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const {
     handle: contextHandle,
     stationDefinitions,
-    stationProbeFailures,
-    removeCustomSource,
+    stationAvailabilityByName,
+    retryStationAvailability,
+    retryUnreachableStations,
   } = useRadioPlayer();
   const {
     isActive,
@@ -184,6 +182,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const canvasHostRef = useRef<HTMLDivElement>(null);
   const metaBlockRef = useRef<HTMLDivElement>(null);
   const stationListRef = useRef<HTMLDivElement>(null);
+  const stationPanelRef = useRef<HTMLElement>(null);
   const prevActivePanelRef = useRef<RadioPlayerPanel>(null);
   const [playback, setPlayback] = useState<RadioPlayerBarPlaybackState | null>(null);
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
@@ -192,8 +191,6 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   );
   const [stationSearchQuery, setStationSearchQuery] = useState('');
   const [showUnreachableOnly, setShowUnreachableOnly] = useState(false);
-  const [showCustomSourceForm, setShowCustomSourceForm] = useState(false);
-  const customSourcePanelRef = useRef<HTMLDivElement>(null);
 
   const applyStationGenreFilter = useCallback((genreId: RadioStationGenreId | null) => {
     setStationGenreFilter(genreId);
@@ -310,48 +307,47 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     expanded: activePanel !== null,
   });
 
+  const {
+    panelHeightPx,
+    isResizing: isStationPanelResizing,
+    beginResize: beginStationPanelResize,
+    resetHeight: resetStationPanelHeight,
+  } = useRadioStationPanelHeight({
+    panelRef: stationPanelRef,
+    enabled: activePanel === 'stations',
+  });
+
+  const pendingStationCount = useMemo(
+    () => countStationsByAvailabilityStatus(stationAvailabilityByName, 'pending'),
+    [stationAvailabilityByName]
+  );
+  const unreachableStationCount = useMemo(
+    () => countStationsByAvailabilityStatus(stationAvailabilityByName, 'unreachable'),
+    [stationAvailabilityByName]
+  );
+
   useEffect(() => {
-    if (!showCustomSourceForm) {
-      return undefined;
+    if (showUnreachableOnly && unreachableStationCount === 0) {
+      setShowUnreachableOnly(false);
     }
+  }, [showUnreachableOnly, unreachableStationCount]);
 
-    const frame = window.requestAnimationFrame(() => {
-      customSourcePanelRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-    };
-  }, [showCustomSourceForm]);
-
-  const stationNames = handle?.getStationNames() ?? [];
-
-  const probeFailureByName = useMemo(
-    () => buildRadioStationProbeFailureMap(stationProbeFailures),
-    [stationProbeFailures]
+  const stationsInPickerMode = useMemo(
+    () =>
+      showUnreachableOnly
+        ? listUnreachableRadioStationsFromAvailability(stationDefinitions, stationAvailabilityByName)
+        : listBrowsableRadioStations(stationDefinitions, stationAvailabilityByName),
+    [showUnreachableOnly, stationDefinitions, stationAvailabilityByName]
   );
 
   const browseStations = useMemo(
-    () =>
-      showUnreachableOnly
-        ? listUnreachableRadioStations(stationDefinitions, stationProbeFailures)
-        : listAvailableRadioStations(stationDefinitions, stationNames),
-    [
-      showUnreachableOnly,
-      stationDefinitions,
-      stationProbeFailures,
-      stationNames,
-    ]
+    () => filterRadioStationsByGenre(stationsInPickerMode, stationGenreFilter),
+    [stationsInPickerMode, stationGenreFilter]
   );
 
   const stationGenreFilters = useMemo(
-    () => listRadioStationGenreFilters(stationDefinitions, stationNames),
-    [stationDefinitions, stationNames]
-  );
-
-  const filteredStations = useMemo(
-    () => filterRadioStationsByGenre(browseStations, stationGenreFilter),
-    [browseStations, stationGenreFilter]
+    () => listRadioStationGenreFiltersForStations(stationsInPickerMode),
+    [stationsInPickerMode]
   );
 
   const parsedStationSearch = useMemo(
@@ -360,8 +356,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   );
 
   const displayedStations = useMemo(
-    () => filterRadioStationsBySearch(filteredStations, parsedStationSearch),
-    [filteredStations, parsedStationSearch]
+    () => filterRadioStationsBySearch(browseStations, parsedStationSearch),
+    [browseStations, parsedStationSearch]
   );
 
   useEffect(() => {
@@ -380,10 +376,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
 
     if (activeStationDefinition) {
       setStationGenreFilter((currentFilter) => {
-        const availableStations = listAvailableRadioStations(stationDefinitions, stationNames);
+        const visibleStations = listBrowsableRadioStations(
+          stationDefinitions,
+          stationAvailabilityByName
+        );
         if (
           isRadioStationInGenreFilter(
-            availableStations,
+            visibleStations,
             playback.stationName,
             currentFilter
           )
@@ -406,7 +405,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [activePanel, playback?.stationName, showUnreachableOnly, stationDefinitions, stationNames]);
+  }, [
+    activePanel,
+    playback?.stationName,
+    showUnreachableOnly,
+    stationAvailabilityByName,
+    stationDefinitions,
+  ]);
 
   if (!handle || !playback) {
     return null;
@@ -462,81 +467,127 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       role="region"
       aria-label="Radio player"
       data-testid="radio-player-bar"
+      data-station-panel-resizing={isStationPanelResizing ? 'true' : 'false'}
     >
       {activePanel === 'stations' ? (
         <section
+          ref={stationPanelRef}
           className={`${styles.panel} ${styles.panelStations}`}
-          data-custom-source-form={showCustomSourceForm ? 'true' : 'false'}
+          style={
+            panelHeightPx !== null
+              ? {
+                  height: `${panelHeightPx}px`,
+                }
+              : undefined
+          }
           aria-label="Choose a station"
         >
-          <div className={styles.stationSearch}>
-            <SiteIcon
-              id="search"
-              className={styles.stationSearch__icon}
-              sizeRem={0.9}
-              title=""
-            />
-            <input
-              type="search"
-              className={styles.stationSearch__input}
-              value={stationSearchQuery}
-              placeholder='Search stations… ("Radio France" or #jazz)'
-              aria-label="Search stations by name, description, or genre"
-              onChange={(event) => {
-                setStationSearchQuery(event.target.value);
-              }}
-            />
-            {stationSearchQuery ? (
-              <button
-                type="button"
-                className={`${styles.stationSearch__clear} no-glass`}
-                aria-label="Clear station search"
-                onClick={() => {
-                  setStationSearchQuery('');
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="Drag to resize station list. Double-click to reset height."
+            aria-valuenow={panelHeightPx ?? undefined}
+            className={styles.stationPanelResizeHandle}
+            data-mappy-cursor="ns-resize"
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              beginStationPanelResize(event.clientY);
+            }}
+            onDoubleClick={() => {
+              resetStationPanelHeight();
+            }}
+          />
+          <div className={styles.stationPickerHeader}>
+            <div className={styles.stationSearch}>
+              <SiteIcon
+                id="search"
+                className={styles.stationSearch__icon}
+                sizeRem={0.9}
+                title=""
+              />
+              <input
+                type="search"
+                className={styles.stationSearch__input}
+                value={stationSearchQuery}
+                placeholder='Search stations… ("Radio France" or #jazz)'
+                aria-label="Search stations by name, description, or genre"
+                onChange={(event) => {
+                  setStationSearchQuery(event.target.value);
                 }}
-              >
-                <SiteIcon id="close" sizeRem={0.85} title="" />
-              </button>
+              />
+              {stationSearchQuery ? (
+                <button
+                  type="button"
+                  className={`${styles.stationSearch__clear} no-glass`}
+                  aria-label="Clear station search"
+                  onClick={() => {
+                    setStationSearchQuery('');
+                  }}
+                >
+                  <SiteIcon id="close" sizeRem={0.85} title="" />
+                </button>
+              ) : null}
+            </div>
+            {pendingStationCount > 0 ? (
+              <p className={styles.stationProbeStatus} role="status" aria-live="polite">
+                Checking {pendingStationCount} station{pendingStationCount === 1 ? '' : 's'}…
+              </p>
             ) : null}
-          </div>
-          <div className={styles.genreFilters} role="toolbar" aria-label="Filter by genre">
-            <button
-              type="button"
-              className={`${styles.genreFilter} no-glass`}
-              aria-pressed={stationGenreFilter === null}
-              onClick={() => {
-                applyStationGenreFilter(null);
-              }}
-            >
-              All
-            </button>
-            {stationGenreFilters.map(({ genre }) => (
+            <div className={styles.genreFilters} role="toolbar" aria-label="Filter by genre">
               <button
-                key={genre.id}
                 type="button"
                 className={`${styles.genreFilter} no-glass`}
-                aria-pressed={stationGenreFilter === genre.id}
+                aria-pressed={stationGenreFilter === null}
                 onClick={() => {
-                  applyStationGenreFilter(stationGenreFilter === genre.id ? null : genre.id);
+                  applyStationGenreFilter(null);
                 }}
               >
-                {genre.label}
+                <span className={styles.genreFilter__label}>All</span>
+                <span className={styles.genreFilter__badge}>{stationsInPickerMode.length}</span>
               </button>
-            ))}
-            {stationProbeFailures.length > 0 ? (
-              <button
-                type="button"
-                className={`${styles.genreFilter} ${styles.genreFilterUnreachable} no-glass`}
-                aria-pressed={showUnreachableOnly}
-                onClick={() => {
-                  setShowUnreachableOnly((current) => !current);
-                }}
-              >
-                Unreachable ({stationProbeFailures.length})
-              </button>
-            ) : null}
+              {stationGenreFilters.map(({ genre, count }) => (
+                <button
+                  key={genre.id}
+                  type="button"
+                  className={`${styles.genreFilter} no-glass`}
+                  aria-pressed={stationGenreFilter === genre.id}
+                  onClick={() => {
+                    applyStationGenreFilter(stationGenreFilter === genre.id ? null : genre.id);
+                  }}
+                >
+                  <span className={styles.genreFilter__label}>{genre.label}</span>
+                  <span className={styles.genreFilter__badge}>{count}</span>
+                </button>
+              ))}
+              {unreachableStationCount > 0 ? (
+                <button
+                  type="button"
+                  className={`${styles.genreFilter} ${styles.genreFilterUnreachable} no-glass`}
+                  aria-pressed={showUnreachableOnly}
+                  onClick={() => {
+                    setShowUnreachableOnly((current) => !current);
+                  }}
+                >
+                  <span className={styles.genreFilter__label}>Unreachable</span>
+                  <span className={styles.genreFilter__badge}>{unreachableStationCount}</span>
+                </button>
+              ) : null}
+              {showUnreachableOnly && unreachableStationCount > 0 ? (
+                <button
+                  type="button"
+                  className={`${styles.genreFilter} ${styles.genreFilterRetryAll} no-glass`}
+                  onClick={() => {
+                    retryUnreachableStations();
+                  }}
+                >
+                  <span className={styles.genreFilter__label}>Re-check all</span>
+                </button>
+              ) : null}
+            </div>
           </div>
-          <div ref={stationListRef} className={styles.stationList} role="group" aria-label="Stations">
+          <div ref={stationListRef} className={styles.stationListScroll}>
+            <div className={styles.stationList} role="group" aria-label="Stations">
             {displayedStations.length === 0 ? (
               <p className={styles.stationSearchEmpty}>
                 {showUnreachableOnly
@@ -552,11 +603,15 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               </p>
             ) : null}
             {displayedStations.map((station) => {
-              const isCustom = isCustomAudioSourceDefinition(station);
               const isActiveStation = station.name === playback.stationName;
               const genreLabel = getRadioStationGenre(station.genre).label;
-              const probeFailure = probeFailureByName.get(station.name);
-              const isUnreachable = Boolean(probeFailure);
+              const availability = stationAvailabilityByName[station.name];
+              const probeStatus = getRadioStationAvailabilityStatus(
+                stationAvailabilityByName,
+                station.name
+              );
+              const isUnreachable = probeStatus === 'unreachable';
+              const isChecking = probeStatus === 'pending';
 
               return (
                 <div
@@ -564,13 +619,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   className={styles.stationRow}
                   data-active={isActiveStation ? 'true' : 'false'}
                   data-unreachable={isUnreachable ? 'true' : 'false'}
+                  data-probe-status={probeStatus}
                 >
                   <button
                     type="button"
                     className={`${styles.stationRow__select} no-glass`}
                     aria-pressed={isActiveStation}
                     disabled={isUnreachable}
-                    title={probeFailure?.reason}
+                    title={availability?.reason}
                     onClick={() => {
                       if (isUnreachable) {
                         return;
@@ -588,15 +644,27 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       {station.regionFlag}
                     </span>
                     <span className={styles.stationRow__body}>
-                      <HumanFriendlySearchHighlight
-                        text={station.name}
-                        query={parsedStationSearch}
-                        className={styles.stationRow__name}
-                        highlightClassName={styles.stationSearchHighlight}
-                      />
+                      <span className={styles.stationRow__nameRow}>
+                        <HumanFriendlySearchHighlight
+                          text={station.name}
+                          query={parsedStationSearch}
+                          className={styles.stationRow__name}
+                          highlightClassName={styles.stationSearchHighlight}
+                        />
+                        {isChecking ? (
+                          <SiteIcon
+                            id="loader"
+                            className={styles.stationRow__checkingIcon}
+                            sizeRem={0.85}
+                            title="Checking stream"
+                          />
+                        ) : null}
+                      </span>
                       <span className={styles.stationRow__blurb}>
-                        {isUnreachable && probeFailure ? (
-                          probeFailure.reason
+                        {isUnreachable && availability?.reason ? (
+                          availability.reason
+                        ) : isChecking ? (
+                          'Checking stream availability…'
                         ) : (
                           <HumanFriendlySearchHighlight
                             text={station.blurb}
@@ -624,17 +692,17 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       highlightClassName={styles.stationSearchHighlight}
                     />
                   </span>
-                  {isCustom ? (
+                  {isUnreachable ? (
                     <button
                       type="button"
-                      className={`${styles.stationRow__remove} no-glass`}
-                      aria-label={`Remove ${station.name}`}
-                      title={`Remove ${station.name}`}
+                      className={`${styles.stationRow__retry} no-glass`}
+                      aria-label={`Re-check ${station.name}`}
+                      title={`Re-check ${station.name}`}
                       onClick={() => {
-                        void removeCustomSource(station.customId);
+                        retryStationAvailability([station.name]);
                       }}
                     >
-                      <SiteIcon id="trash" sizeRem={0.85} title="" />
+                      <SiteIcon id="refresh" sizeRem={0.85} title="" />
                     </button>
                   ) : (
                     <span className={styles.stationRow__removeSpacer} aria-hidden="true" />
@@ -642,29 +710,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 </div>
               );
             })}
-          </div>
-          <div ref={customSourcePanelRef} className={styles.customSourcePanel}>
-            {CUSTOM_AUDIO_SOURCES_UI_ENABLED &&
-              <button
-                type="button"
-                className={`${styles.customSourceToggle} no-glass`}
-                aria-expanded={showCustomSourceForm}
-                title='Custom sources are not available yet'
-                onClick={() => {
-                  setShowCustomSourceForm((current) => !current);
-                }}
-              >
-                {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
-              </button>
-            }
-            {CUSTOM_AUDIO_SOURCES_UI_ENABLED && showCustomSourceForm ? (
-              <RadioPlayerCustomSourceForm
-                onAdded={() => {
-                  setShowCustomSourceForm(false);
-                  applyStationGenreFilter('custom');
-                }}
-              />
-            ) : null}
+            </div>
           </div>
         </section>
       ) : null}

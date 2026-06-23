@@ -288,7 +288,6 @@
 }
 
 .project__title {
-  font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
   color: var(--dark-bg__text-color--primary);
@@ -334,21 +333,25 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.25rem 0.75rem;
+  padding: 0.3125rem 0.75rem;
   border-radius: 999rem;
   background: rgb(255 255 255 / 4%);
   border: 1px solid rgb(255 255 255 / 8%);
-  font-size: 0.875rem;
+  font-size: var(--showcase-text-base);
+  font-weight: 500;
+  line-height: 1.25;
   color: var(--dark-bg__text-color--secondary);
 }
 
 .project__statValue {
+  font-size: inherit;
   color: var(--brand-primary);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .project__statLabel {
+  font-size: inherit;
   color: var(--dark-bg__text-color--secondary);
 }
 
