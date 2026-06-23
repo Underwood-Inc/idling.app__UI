@@ -196,7 +196,6 @@ a:hover .nav__header {
   color: inherit;
   /* Only change underline color */
   text-decoration-color: var(--brand-primary);
-  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 /* Profile navigation styles */
