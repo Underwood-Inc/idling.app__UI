@@ -11,10 +11,27 @@ import { HumanFriendlySearchHighlight } from '@molecules/humanFriendlySearch/Hum
 import { parseHumanFriendlySearchQuery } from '@molecules/humanFriendlySearch/parseHumanFriendlySearchQuery';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type {
+  BarVisualizerBarFill,
+  BarVisualizerBarTrail,
+  BarVisualizerColorPalette,
   BarVisualizerDensity,
+  BarVisualizerGlow,
   BarVisualizerPreferences,
 } from '@widgets/radio-player/barVisualizer.types';
-import { BAR_VISUALIZER_PRESET_DEFINITIONS, getBarVisualizerDockLayout } from '@widgets/radio-player/barVisualizerPresets';
+import {
+  BAR_VISUALIZER_PRESET_DEFINITIONS,
+  getBarVisualizerDockLayout,
+  getBarVisualizerFullscreenLayout,
+  isFrequencyBarsVisualizerPreset,
+  isScopeVisualizerPreset,
+  listBarVisualizerPresetsForSurface,
+} from '@widgets/radio-player/barVisualizerPresets';
+import {
+  SCOPE_SMOOTHING_RANGE,
+} from '@widgets/radio-player/barVisualizerPreferences';
+import {
+  WEBGL_VISUALIZER_PRESETS,
+} from '@widgets/radio-player/webgl/webglVisualizerPresets';
 import {
   RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
   RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE,
@@ -41,6 +58,7 @@ import { stationSupportsTrackMetadata } from '@widgets/radio-player/radioStation
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styles from './RadioPlayerBar.module.css';
+import { RadioPlayerBpmDisplay } from './RadioPlayerBpmDisplay';
 import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
 
 export interface RadioPlayerBarPlaybackState {
@@ -178,6 +196,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     setSpectrumBarHeight,
     fullscreenSource,
     setFullscreenSource,
+    webglPresetId,
+    setWebglPresetId,
+    webglVisualizerCapability,
   } = useVisualizerMode();
   const handle = handleProp ?? contextHandle;
   const playerRef = useRef<HTMLDivElement>(null);
@@ -186,8 +207,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const metaBlockRef = useRef<HTMLDivElement>(null);
   const stationListRef = useRef<HTMLDivElement>(null);
   const stationPanelRef = useRef<HTMLElement>(null);
+  const lookPanelRef = useRef<HTMLElement>(null);
   const stationSearchInputRef = useRef<HTMLInputElement>(null);
   const prevActivePanelRef = useRef<RadioPlayerPanel>(null);
+  const prevLookPanelOpenRef = useRef(false);
   const lastSyncedStationRef = useRef<string | null>(null);
   const [playback, setPlayback] = useState<RadioPlayerBarPlaybackState | null>(null);
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
@@ -236,7 +259,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   }, [handle]);
 
   const playbackReady = playback !== null;
-  const visualizerPresetId = playback?.visualizerPrefs.presetId;
+  const visualizerPresetId = playback?.visualizerPrefs.dockPresetId;
+  const visualizerWaveStyle = playback?.visualizerPrefs.waveStyle ?? 'line';
   const visualizerDensity = playback?.visualizerPrefs.density;
   const visualizerEnabled = playback?.visualizerPrefs.enabled ?? true;
   const vizDockLayout = getBarVisualizerDockLayout(visualizerPresetId ?? 'wave');
@@ -272,8 +296,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', onResize);
+      handle.unmountBarCanvas();
     };
-  }, [handle, isActive, playbackReady, showDockInlineVisualizer, visualizerEnabled]);
+  }, [handle, isActive, playbackReady, showDockInlineVisualizer, visualizerEnabled, visualizerWaveStyle, visualizerPresetId, visualizerDensity]);
 
   useLayoutEffect(() => {
     if (!handle || !playbackReady || isActive || !visualizerEnabled || !showDockInlineVisualizer) {
@@ -287,7 +312,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [handle, isActive, playbackReady, showDockInlineVisualizer, visualizerPresetId, visualizerDensity, vizDockLayout, visualizerEnabled]);
+  }, [handle, isActive, playbackReady, showDockInlineVisualizer, visualizerPresetId, visualizerDensity, vizDockLayout, visualizerEnabled, visualizerWaveStyle]);
 
   useEffect(() => {
     if (!activePanel) {
@@ -442,6 +467,39 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     stationDefinitions,
   ]);
 
+  useEffect(() => {
+    const isLookOpen = activePanel === 'look';
+    const justOpenedLook = isLookOpen && !prevLookPanelOpenRef.current;
+    prevLookPanelOpenRef.current = isLookOpen;
+
+    if (!justOpenedLook) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const selectedOption = lookPanelRef.current?.querySelector<HTMLElement>(
+          '[data-look-option="true"][aria-pressed="true"]'
+        );
+        selectedOption?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [
+    activePanel,
+    fullscreenSource,
+    isActive,
+    playback?.visualizerPrefs.dockPresetId,
+    playback?.visualizerPrefs.enabled,
+    playback?.visualizerPrefs.presetId,
+    spectrumEnabled,
+    spectrumPresetIndex,
+    webglPresetId,
+  ]);
+
   if (!handle || !playback) {
     return null;
   }
@@ -449,19 +507,34 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const activeStation = findRadioStationDefinition(stationDefinitions, playback.stationName);
   const activeSpectrumPreset =
     RADIO_VISUALIZER_PRESETS[spectrumPresetIndex] ?? RADIO_VISUALIZER_PRESETS[0];
+  const activeCanvasPresetId = isActive
+    ? playback.visualizerPrefs.presetId
+    : playback.visualizerPrefs.dockPresetId;
   const activeBarPreset =
     BAR_VISUALIZER_PRESET_DEFINITIONS.find(
-      (preset) => preset.id === playback.visualizerPrefs.presetId
+      (preset) =>
+        preset.id ===
+        (isActive ? playback.visualizerPrefs.presetId : playback.visualizerPrefs.dockPresetId)
     ) ?? BAR_VISUALIZER_PRESET_DEFINITIONS[0];
+  const activeWebglPreset =
+    WEBGL_VISUALIZER_PRESETS.find((preset) => preset.id === webglPresetId) ??
+    WEBGL_VISUALIZER_PRESETS[0];
+  const webglPresetsAvailable = webglVisualizerCapability.isSupported;
   const activeLookLabel = isActive
     ? !spectrumEnabled
       ? 'None'
-      : fullscreenSource === 'bar'
-        ? activeBarPreset.label
+      : fullscreenSource === 'webgl' && webglPresetsAvailable
+        ? activeWebglPreset.label
+        : fullscreenSource === 'bar'
+        ? activeBarPreset.id === 'wave' && playback.visualizerPrefs.waveStyle === 'ribbon'
+          ? 'Wave ribbon'
+          : activeBarPreset.label
         : activeSpectrumPreset.label
     : !playback.visualizerPrefs.enabled
       ? 'None'
-      : activeBarPreset.label;
+      : activeBarPreset.id === 'wave' && playback.visualizerPrefs.waveStyle === 'ribbon'
+        ? 'Wave ribbon'
+        : activeBarPreset.label;
   const spectrumOpacityPct = Math.round(spectrumOpacity * 100);
   const spectrumBarHeightPct = Math.round(
     resolveRadioFullscreenVisualHeightRatio(spectrumBarHeight) * 100
@@ -750,13 +823,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
 
       {activePanel === 'look' ? (
         isActive ? (
-          <section className={styles.panel} aria-label="Fullscreen visualizer style">
+          <section ref={lookPanelRef} className={styles.panel} aria-label="Fullscreen visualizer style">
             <div className={styles.panelSection}>
               <div className={styles.optionList} role="listbox" aria-label="Fullscreen visualizer styles">
                 <button
                   type="button"
                   className={`${styles.optionRow} no-glass`}
                   role="option"
+                  data-look-option="true"
                   aria-pressed={!spectrumEnabled}
                   onClick={() => {
                     setSpectrumEnabled(false);
@@ -764,12 +838,41 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 >
                   None
                 </button>
-                {BAR_VISUALIZER_PRESET_DEFINITIONS.map((preset) => (
+                {webglPresetsAvailable
+                  ? WEBGL_VISUALIZER_PRESETS.map((preset) => (
+                  <button
+                    key={`webgl-${preset.id}`}
+                    type="button"
+                    className={`${styles.optionRow} no-glass`}
+                    role="option"
+                    data-look-option="true"
+                    aria-pressed={
+                      spectrumEnabled &&
+                      fullscreenSource === 'webgl' &&
+                      preset.id === webglPresetId
+                    }
+                    title={preset.description}
+                    onClick={() => {
+                      setWebglPresetId(preset.id);
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))
+                  : null}
+                {webglVisualizerCapability.isResolved && !webglPresetsAvailable ? (
+                  <p className={styles.panelSection__note} role="note">
+                    {webglVisualizerCapability.reason ??
+                      'WebGL2 visualizers are not available in this browser.'}
+                  </p>
+                ) : null}
+                {listBarVisualizerPresetsForSurface('expanded').map((preset) => (
                   <button
                     key={`bar-${preset.id}`}
                     type="button"
                     className={`${styles.optionRow} no-glass`}
                     role="option"
+                    data-look-option="true"
                     aria-pressed={
                       spectrumEnabled &&
                       fullscreenSource === 'bar' &&
@@ -778,7 +881,11 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     title={preset.description}
                     onClick={() => {
                       setFullscreenSource('bar');
-                      handle.setVisualizerPreferences({ presetId: preset.id, enabled: true });
+                      handle.setVisualizerPreferences({
+                        presetId: preset.id,
+                        enabled: true,
+                        ...(preset.fullscreenOnly ? {} : { dockPresetId: preset.id }),
+                      });
                       setPlayback((current) =>
                         current
                           ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
@@ -795,6 +902,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     type="button"
                     className={`${styles.optionRow} no-glass`}
                     role="option"
+                    data-look-option="true"
                     aria-pressed={
                       spectrumEnabled &&
                       fullscreenSource === 'spectrum' &&
@@ -809,8 +917,189 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 ))}
               </div>
             </div>
+            {spectrumEnabled &&
+            fullscreenSource === 'bar' &&
+            playback.visualizerPrefs.presetId === 'wave' ? (
+              <div className={styles.panelSection}>
+                <h2 className={styles.panelSection__title}>Wave style</h2>
+                <div className={styles.segments} role="group" aria-label="Wave line style">
+                  {(['line', 'ribbon'] as const).map((waveStyle) => (
+                    <button
+                      key={waveStyle}
+                      type="button"
+                      className={`${styles.segment} no-glass`}
+                      aria-pressed={playback.visualizerPrefs.waveStyle === waveStyle}
+                      onClick={() => {
+                        handle.setVisualizerPreferences({ waveStyle });
+                        setPlayback((current) =>
+                          current
+                            ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                            : current
+                        );
+                      }}
+                    >
+                      {waveStyle === 'line' ? 'Line' : 'Ribbon'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {spectrumEnabled &&
+            fullscreenSource === 'bar' &&
+            playback.visualizerPrefs.enabled &&
+            isScopeVisualizerPreset(playback.visualizerPrefs.presetId) ? (
+              <div className={styles.panelSection}>
+                <h2 className={styles.panelSection__title}>Wave smoothing</h2>
+                <div className={styles.opacityControl}>
+                  <input
+                    type="range"
+                    className={`${styles.opacityControl__slider} no-glass`}
+                    min={SCOPE_SMOOTHING_RANGE.min}
+                    max={SCOPE_SMOOTHING_RANGE.max}
+                    step={SCOPE_SMOOTHING_RANGE.step}
+                    value={playback.visualizerPrefs.scopeSmoothing}
+                    aria-label="Oscilloscope wave smoothing"
+                    aria-valuemin={Math.round(SCOPE_SMOOTHING_RANGE.min * 100)}
+                    aria-valuemax={Math.round(SCOPE_SMOOTHING_RANGE.max * 100)}
+                    aria-valuenow={Math.round(playback.visualizerPrefs.scopeSmoothing * 100)}
+                    aria-valuetext={`${Math.round(playback.visualizerPrefs.scopeSmoothing * 100)} percent`}
+                    onChange={(event) => {
+                      handle.setVisualizerPreferences({ scopeSmoothing: Number(event.target.value) });
+                      setPlayback((current) =>
+                        current
+                          ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                          : current
+                      );
+                    }}
+                  />
+                  <span className={styles.opacityControl__pct} aria-hidden="true">
+                    {Math.round(playback.visualizerPrefs.scopeSmoothing * 100)}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+            {spectrumEnabled &&
+            fullscreenSource === 'bar' &&
+            playback.visualizerPrefs.enabled &&
+            isFrequencyBarsVisualizerPreset(playback.visualizerPrefs.presetId) ? (
+              <>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Bar fill</h2>
+                  <div className={styles.segments} role="group" aria-label="Bar fill style">
+                    {(
+                      [
+                        { value: 'solid', label: 'Solid' },
+                        { value: 'glass', label: 'Glass' },
+                      ] as const satisfies { value: BarVisualizerBarFill; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.barFill === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ barFill: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Trail</h2>
+                  <div className={styles.segments} role="group" aria-label="Bar trail style">
+                    {(
+                      [
+                        { value: 'none', label: 'None' },
+                        { value: 'peaks', label: 'Peaks' },
+                        { value: 'cascade', label: 'Cascade' },
+                      ] as const satisfies { value: BarVisualizerBarTrail; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.barTrail === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ barTrail: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Glow</h2>
+                  <div className={styles.segments} role="group" aria-label="Bar glow">
+                    {(
+                      [
+                        { value: 'off', label: 'Off' },
+                        { value: 'soft', label: 'Soft' },
+                      ] as const satisfies { value: BarVisualizerGlow; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.glow === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ glow: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Colors</h2>
+                  <div className={styles.segments} role="group" aria-label="Visualizer colors">
+                    {(
+                      [
+                        { value: 'theme', label: 'Theme' },
+                        { value: 'prism', label: 'Prism' },
+                      ] as const satisfies { value: BarVisualizerColorPalette; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.colorPalette === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ colorPalette: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : null}
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Spectrum opacity</h2>
+              <h2 className={styles.panelSection__title}>Opacity</h2>
               <div className={styles.opacityControl}>
                 <input
                   type="range"
@@ -844,7 +1133,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   max={RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.max}
                   step={0.05}
                   value={spectrumBarHeight}
-                  disabled={!spectrumEnabled}
+                  disabled={
+                    !spectrumEnabled ||
+                    fullscreenSource === 'webgl' ||
+                    (spectrumEnabled &&
+                      fullscreenSource === 'bar' &&
+                      getBarVisualizerFullscreenLayout(playback.visualizerPrefs.presetId) !== 'strip')
+                  }
                   aria-label="Fullscreen visualizer height"
                   aria-valuemin={Math.round(RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.min * 100)}
                   aria-valuemax={Math.round(RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.max * 100)}
@@ -861,13 +1156,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             </div>
           </section>
         ) : (
-          <section className={styles.panel} aria-label="Bar visualizer look">
+          <section ref={lookPanelRef} className={styles.panel} aria-label="Bar visualizer look">
             <div className={styles.panelSection}>
               <h2 className={styles.panelSection__title}>Bar style</h2>
               <div className={styles.optionList} role="group" aria-label="Bar visualizer styles">
                 <button
                   type="button"
                   className={`${styles.optionRow} no-glass`}
+                  data-look-option="true"
                   aria-pressed={!playback.visualizerPrefs.enabled}
                   onClick={() => {
                     handle.setVisualizerPreferences({ enabled: false });
@@ -880,18 +1176,23 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 >
                   None
                 </button>
-                {BAR_VISUALIZER_PRESET_DEFINITIONS.map((preset) => (
+                {listBarVisualizerPresetsForSurface('dock').map((preset) => (
                   <button
                     key={preset.id}
                     type="button"
                     className={`${styles.optionRow} no-glass`}
+                    data-look-option="true"
                     aria-pressed={
                       playback.visualizerPrefs.enabled &&
-                      preset.id === playback.visualizerPrefs.presetId
+                      preset.id === playback.visualizerPrefs.dockPresetId
                     }
                     title={preset.description}
                     onClick={() => {
-                      handle.setVisualizerPreferences({ presetId: preset.id, enabled: true });
+                      handle.setVisualizerPreferences({
+                        presetId: preset.id,
+                        dockPresetId: preset.id,
+                        enabled: true,
+                      });
                       setPlayback((current) =>
                         current
                           ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
@@ -904,8 +1205,183 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 ))}
               </div>
             </div>
+            {playback.visualizerPrefs.enabled && playback.visualizerPrefs.dockPresetId === 'wave' ? (
+              <div className={styles.panelSection}>
+                <h2 className={styles.panelSection__title}>Wave style</h2>
+                <div className={styles.segments} role="group" aria-label="Wave line style">
+                  {(['line', 'ribbon'] as const).map((waveStyle) => (
+                    <button
+                      key={waveStyle}
+                      type="button"
+                      className={`${styles.segment} no-glass`}
+                      aria-pressed={playback.visualizerPrefs.waveStyle === waveStyle}
+                      onClick={() => {
+                        handle.setVisualizerPreferences({ waveStyle });
+                        setPlayback((current) =>
+                          current
+                            ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                            : current
+                        );
+                      }}
+                    >
+                      {waveStyle === 'line' ? 'Line' : 'Ribbon'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {playback.visualizerPrefs.enabled &&
+            isScopeVisualizerPreset(playback.visualizerPrefs.dockPresetId) ? (
+              <div className={styles.panelSection}>
+                <h2 className={styles.panelSection__title}>Wave smoothing</h2>
+                <div className={styles.opacityControl}>
+                  <input
+                    type="range"
+                    className={`${styles.opacityControl__slider} no-glass`}
+                    min={SCOPE_SMOOTHING_RANGE.min}
+                    max={SCOPE_SMOOTHING_RANGE.max}
+                    step={SCOPE_SMOOTHING_RANGE.step}
+                    value={playback.visualizerPrefs.scopeSmoothing}
+                    aria-label="Oscilloscope wave smoothing"
+                    aria-valuemin={Math.round(SCOPE_SMOOTHING_RANGE.min * 100)}
+                    aria-valuemax={Math.round(SCOPE_SMOOTHING_RANGE.max * 100)}
+                    aria-valuenow={Math.round(playback.visualizerPrefs.scopeSmoothing * 100)}
+                    aria-valuetext={`${Math.round(playback.visualizerPrefs.scopeSmoothing * 100)} percent`}
+                    onChange={(event) => {
+                      handle.setVisualizerPreferences({ scopeSmoothing: Number(event.target.value) });
+                      setPlayback((current) =>
+                        current
+                          ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                          : current
+                      );
+                    }}
+                  />
+                  <span className={styles.opacityControl__pct} aria-hidden="true">
+                    {Math.round(playback.visualizerPrefs.scopeSmoothing * 100)}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+            {playback.visualizerPrefs.enabled &&
+            isFrequencyBarsVisualizerPreset(playback.visualizerPrefs.dockPresetId) ? (
+              <>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Bar fill</h2>
+                  <div className={styles.segments} role="group" aria-label="Bar fill style">
+                    {(
+                      [
+                        { value: 'solid', label: 'Solid' },
+                        { value: 'glass', label: 'Glass' },
+                      ] as const satisfies { value: BarVisualizerBarFill; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.barFill === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ barFill: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Trail</h2>
+                  <div className={styles.segments} role="group" aria-label="Bar trail style">
+                    {(
+                      [
+                        { value: 'none', label: 'None' },
+                        { value: 'peaks', label: 'Peaks' },
+                        { value: 'cascade', label: 'Cascade' },
+                      ] as const satisfies { value: BarVisualizerBarTrail; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.barTrail === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ barTrail: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Glow</h2>
+                  <div className={styles.segments} role="group" aria-label="Bar glow">
+                    {(
+                      [
+                        { value: 'off', label: 'Off' },
+                        { value: 'soft', label: 'Soft' },
+                      ] as const satisfies { value: BarVisualizerGlow; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.glow === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ glow: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelSection}>
+                  <h2 className={styles.panelSection__title}>Colors</h2>
+                  <div className={styles.segments} role="group" aria-label="Visualizer colors">
+                    {(
+                      [
+                        { value: 'theme', label: 'Theme' },
+                        { value: 'prism', label: 'Prism' },
+                      ] as const satisfies { value: BarVisualizerColorPalette; label: string }[]
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`${styles.segment} no-glass`}
+                        aria-pressed={playback.visualizerPrefs.colorPalette === option.value}
+                        onClick={() => {
+                          handle.setVisualizerPreferences({ colorPalette: option.value });
+                          setPlayback((current) =>
+                            current
+                              ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                              : current
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : null}
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Bar spacing</h2>
+              <h2 className={styles.panelSection__title}>Density</h2>
               <div className={styles.segments} role="group" aria-label="Bar spacing">
                 {DENSITY_OPTIONS.map((density) => (
                   <button
@@ -1036,6 +1512,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             }}
           />
 
+          <RadioPlayerBpmDisplay isPlaying={playback.isPlaying} />
+
           <span className={styles.divider} aria-hidden="true" />
 
           <button
@@ -1046,9 +1524,11 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               isActive
                 ? !spectrumEnabled
                   ? 'Fullscreen visualizer disabled'
-                  : fullscreenSource === 'bar'
-                    ? `Fullscreen bar style: ${activeBarPreset.label}`
-                    : `Fullscreen spectrum style: ${activeSpectrumPreset.label}`
+                  : fullscreenSource === 'webgl' && webglPresetsAvailable
+                    ? `Fullscreen WebGL style: ${activeWebglPreset.label}`
+                    : fullscreenSource === 'bar'
+                      ? `Fullscreen bar style: ${activeBarPreset.label}`
+                      : `Fullscreen spectrum style: ${activeSpectrumPreset.label}`
                 : playback.visualizerPrefs.enabled
                   ? 'Bar visualizer look'
                   : 'Bar visualizer disabled'

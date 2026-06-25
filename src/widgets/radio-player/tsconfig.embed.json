@@ -18,7 +18,9 @@
     "radio-player.ts",
     "barVisualizerPreferences.ts",
     "barVisualizerThemes.ts",
+    "barVisualizer.types.ts",
     "barVisualizerPresets.ts",
+    "canvasVisualizerTimeDomain.ts",
     "spectrumNormalization.ts",
     "radioStationMetadata.ts",
     "radioStationCatalog.ts",
@@ -28,6 +30,8 @@
     "resolveRadioStreamUrl.ts",
     "radioStreamProbe.types.ts",
     "radioStreamProbe.ts",
-    "radioHlsPlayback.ts"
+    "radioHlsPlayback.ts",
+    "audioStreamTempo.ts",
+    "audioStreamTempo.types.ts"
   ]
 }

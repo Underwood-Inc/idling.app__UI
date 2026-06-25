@@ -16,17 +16,34 @@
 import type { BarVisualizerDensity, BarVisualizerPreferences } from './barVisualizer.types';
 import {
   BAR_COUNT_BY_DENSITY,
+  clampScopeSmoothing,
   DEFAULT_BAR_VISUALIZER_PREFERENCES,
   loadBarVisualizerPreferences,
   resolveBarCountForCanvas,
   resolveBarGapForDensity,
+  resolveBarVisualizerPresetForSurface,
   saveBarVisualizerPreferences,
+  SCOPE_SMOOTHING_RANGE,
 } from './barVisualizerPreferences';
 import {
   BAR_VISUALIZER_PRESET_DEFINITIONS,
   createBarVisualizerRuntime,
   getBarVisualizerPresetDefinition,
+  isBarVisualizerFullscreenOnly,
+  isBarVisualizerDockOnly,
+  isScopeVisualizerPreset,
+  listBarVisualizerPresetsForSurface,
+  normalizeBarVisualizerPresetId,
 } from './barVisualizerPresets';
+import {
+  createCanvasVisualizerTimeDomainBuffer,
+  sampleCanvasVisualizerTimeDomain,
+} from './canvasVisualizerTimeDomain';
+import {
+  AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
+  createAudioStreamTempoState,
+  tickAudioStreamTempo,
+} from './audioStreamTempo';
 import { getBarVisualizerTheme } from './barVisualizerThemes';
 import { attachRadioHlsPlayback } from './radioHlsPlayback';
 import type {
@@ -263,6 +280,11 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     </div>`;
   mountNode.appendChild(root);
 
+  const canvasParkingHost = document.createElement('div');
+  canvasParkingHost.setAttribute('data-irp-canvas-park', 'true');
+  canvasParkingHost.setAttribute('aria-hidden', 'true');
+  root.appendChild(canvasParkingHost);
+
   const shell = headless ? null : (root.querySelector('.irp__shell') as HTMLElement);
   const tap = root.querySelector('.irp__tap') as HTMLElement;
   const tapBtn = root.querySelector('.irp__tap-btn') as HTMLButtonElement;
@@ -331,9 +353,46 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   let source: MediaElementAudioSourceNode | null = null;
   let rafId = 0;
   let vizLoopActive = false;
+  let tempoRafId = 0;
+  let tempoState = createAudioStreamTempoState();
+  let lastTempoTickMs = 0;
+  let lastTempoDeltaSeconds = 1 / 60;
+  let tempoUniforms = AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS;
+
+  const resetTempoAnalysis = (): void => {
+    tempoState = createAudioStreamTempoState();
+    lastTempoTickMs = 0;
+    lastTempoDeltaSeconds = 1 / 60;
+    tempoUniforms = AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS;
+  };
+
+  const advanceTempoAnalysis = (frequencyData: Uint8Array): number => {
+    if (!analyser || !playing) {
+      return lastTempoDeltaSeconds;
+    }
+
+    const nowMs = performance.now();
+    const deltaSeconds =
+      lastTempoTickMs > 0 ? Math.min(0.05, (nowMs - lastTempoTickMs) / 1000) : 0;
+    lastTempoTickMs = nowMs;
+    lastTempoDeltaSeconds = deltaSeconds || 1 / 60;
+    const tempoTick = tickAudioStreamTempo({
+      frequencyData,
+      timestampMs: nowMs,
+      state: tempoState,
+      deltaSeconds,
+    });
+    tempoState = tempoTick.state;
+    tempoUniforms = tempoTick.uniforms;
+    return lastTempoDeltaSeconds;
+  };
+
   let playing = false;
   let needsTap = true;
   let rawFreq = new Uint8Array(ANALYSER_FFT_SIZE / 2);
+  let rawTime = new Uint8Array(ANALYSER_FFT_SIZE);
+  let timeWave = createCanvasVisualizerTimeDomainBuffer(ANALYSER_FFT_SIZE);
+  let smoothedTimeWave = createCanvasVisualizerTimeDomainBuffer(ANALYSER_FFT_SIZE);
   let spectrumNormalizer = createSpectrumNormalizer(barCount);
   let visualizerRuntime = createBarVisualizerRuntime(visualizerPrefs.presetId, barCount);
   let nowPlaying: RadioNowPlayingInfo = {
@@ -460,7 +519,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     };
 
     syncVisualizerControlsUi = () => {
-      const preset = getBarVisualizerPresetDefinition(visualizerPrefs.presetId);
+      const preset = getBarVisualizerPresetDefinition(visualizerPrefs.dockPresetId);
       const densityLabel = DENSITY_LABELS[visualizerPrefs.density] ?? DENSITY_LABELS.normal;
 
       lookTrigger.setAttribute('title', `${preset.label} style · ${densityLabel} spacing`);
@@ -471,7 +530,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
 
       styleList.querySelectorAll('.irp__look-style-option').forEach((node) => {
         const option = node as HTMLButtonElement;
-        const selected = option.dataset.presetId === visualizerPrefs.presetId;
+        const selected = option.dataset.presetId === visualizerPrefs.dockPresetId;
         option.setAttribute('aria-selected', selected ? 'true' : 'false');
       });
 
@@ -483,7 +542,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
 
     const buildVisualizerControls = () => {
       styleList.replaceChildren();
-      BAR_VISUALIZER_PRESET_DEFINITIONS.forEach((preset) => {
+      listBarVisualizerPresetsForSurface('dock').forEach((preset) => {
         const option = document.createElement('button');
         option.type = 'button';
         option.className = `irp__picker-option irp__look-style-option ${IRP_NO_GLASS_CLASS}`;
@@ -492,7 +551,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
         option.title = preset.description;
         option.textContent = preset.label;
         option.addEventListener('click', () => {
-          setVisualizerPreferences({ presetId: preset.id });
+          setVisualizerPreferences({ presetId: preset.id, dockPresetId: preset.id });
         });
         styleList.appendChild(option);
       });
@@ -593,14 +652,18 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   const rebuildVisualizer = (): void => {
     const host = canvas.parentElement;
     const layoutWidth = host?.clientWidth ?? canvas.getBoundingClientRect().width;
+    const activePresetId = resolveBarVisualizerPresetForSurface(
+      visualizerPrefs,
+      canvas.closest('[data-irp-bar-fullscreen="true"]') !== null ? 'expanded' : 'dock'
+    );
 
     barCount = resolveBarCountForCanvas({
       density: visualizerPrefs.density,
       canvasWidthPx: layoutWidth,
-      presetId: visualizerPrefs.presetId,
+      presetId: activePresetId,
     });
     spectrumNormalizer = createSpectrumNormalizer(barCount);
-    visualizerRuntime = createBarVisualizerRuntime(visualizerPrefs.presetId, barCount);
+    visualizerRuntime = createBarVisualizerRuntime(activePresetId, barCount);
     applyVisualizerThemeToRoot();
     syncVisualizerControlsUi?.();
     saveBarVisualizerPreferences(visualizerPrefs);
@@ -614,11 +677,15 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       host?.clientWidth ??
       canvas.getBoundingClientRect().width ??
       canvas.clientWidth;
+    const activePresetId = resolveBarVisualizerPresetForSurface(
+      visualizerPrefs,
+      canvas.closest('[data-irp-bar-fullscreen="true"]') !== null ? 'expanded' : 'dock'
+    );
 
     const nextCount = resolveBarCountForCanvas({
       density: visualizerPrefs.density,
       canvasWidthPx: measuredWidth,
-      presetId: visualizerPrefs.presetId,
+      presetId: activePresetId,
     });
 
     if (nextCount === barCount) {
@@ -635,10 +702,41 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   };
 
   const setVisualizerPreferences = (nextPrefs: Partial<BarVisualizerPreferences>): void => {
+    const incomingPreset =
+      nextPrefs.presetId !== undefined
+        ? normalizeBarVisualizerPresetId(nextPrefs.presetId)
+        : visualizerPrefs.presetId;
+    const presetIsExpandedOnly = isBarVisualizerFullscreenOnly(incomingPreset);
+    const presetIsDockOnly = isBarVisualizerDockOnly(incomingPreset);
+
     visualizerPrefs = {
-      presetId: nextPrefs.presetId ?? visualizerPrefs.presetId,
+      presetId:
+        nextPrefs.presetId !== undefined && !presetIsDockOnly
+          ? incomingPreset
+          : visualizerPrefs.presetId,
+      dockPresetId:
+        nextPrefs.dockPresetId !== undefined
+          ? resolveBarVisualizerPresetForSurface(
+              {
+                ...visualizerPrefs,
+                dockPresetId: nextPrefs.dockPresetId,
+              },
+              'dock'
+            )
+          : presetIsExpandedOnly || presetIsDockOnly
+            ? visualizerPrefs.dockPresetId
+            : incomingPreset,
       density: nextPrefs.density ?? visualizerPrefs.density,
       enabled: nextPrefs.enabled ?? visualizerPrefs.enabled,
+      waveStyle: nextPrefs.waveStyle ?? visualizerPrefs.waveStyle,
+      colorPalette: nextPrefs.colorPalette ?? visualizerPrefs.colorPalette,
+      barFill: nextPrefs.barFill ?? visualizerPrefs.barFill,
+      barTrail: nextPrefs.barTrail ?? visualizerPrefs.barTrail,
+      glow: nextPrefs.glow ?? visualizerPrefs.glow,
+      scopeSmoothing:
+        nextPrefs.scopeSmoothing !== undefined
+          ? clampScopeSmoothing(nextPrefs.scopeSmoothing)
+          : visualizerPrefs.scopeSmoothing,
     };
     rebuildVisualizer();
   };
@@ -648,6 +746,12 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     theme: getBarVisualizerTheme(),
     state: visualizerRuntime.getState(),
     fullscreen: canvas.closest('[data-irp-bar-fullscreen="true"]') !== null,
+    waveStyle: visualizerPrefs.waveStyle ?? 'line',
+    colorPalette: visualizerPrefs.colorPalette ?? 'theme',
+    timeData: timeWave,
+    barFill: visualizerPrefs.barFill ?? 'solid',
+    barTrail: visualizerPrefs.barTrail ?? 'none',
+    glow: visualizerPrefs.glow ?? 'off',
   });
 
   const fetchNowPlaying = async () => {
@@ -760,6 +864,9 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
         rawFreq = new Uint8Array(analyser.frequencyBinCount);
+        rawTime = new Uint8Array(analyser.fftSize);
+        timeWave = createCanvasVisualizerTimeDomainBuffer(analyser.fftSize);
+        smoothedTimeWave = createCanvasVisualizerTimeDomainBuffer(analyser.fftSize);
       } catch {
         analyser = null;
       }
@@ -772,6 +879,41 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     !prefersReducedMotion &&
     document.visibilityState === 'visible' &&
     canvas.isConnected;
+
+  const shouldRunTempoLoop = () =>
+    playing && analyser !== null && document.visibilityState === 'visible';
+
+  const tickTempoLoop = () => {
+    if (!shouldRunTempoLoop()) {
+      tempoRafId = 0;
+      return;
+    }
+
+    if (!shouldAnimateBarVisualizer() && analyser) {
+      analyser.getByteFrequencyData(rawFreq);
+      advanceTempoAnalysis(rawFreq);
+    }
+
+    tempoRafId = requestAnimationFrame(tickTempoLoop);
+  };
+
+  const syncTempoLoop = () => {
+    if (shouldRunTempoLoop()) {
+      if (!tempoRafId) {
+        tempoRafId = requestAnimationFrame(tickTempoLoop);
+      }
+      return;
+    }
+
+    if (tempoRafId) {
+      cancelAnimationFrame(tempoRafId);
+      tempoRafId = 0;
+    }
+
+    if (!playing) {
+      resetTempoAnalysis();
+    }
+  };
 
   const paintIdleVisualizerFrame = () => {
     const w = canvas.clientWidth;
@@ -791,6 +933,8 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       data: new Float32Array(barCount),
       ...getBarDrawContextBase(),
       playing: false,
+      tempo: AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
+      deltaSeconds: 0,
     });
   };
 
@@ -813,14 +957,32 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
 
     if (analyser) {
       analyser.getByteFrequencyData(rawFreq);
-      const normalized = spectrumNormalizer.normalize(rawFreq);
+      sampleCanvasVisualizerTimeDomain(analyser, rawTime, timeWave);
+      const activePresetId = resolveBarVisualizerPresetForSurface(
+        visualizerPrefs,
+        canvas.closest('[data-irp-bar-fullscreen="true"]') !== null ? 'expanded' : 'dock'
+      );
+      const smoothing = clampScopeSmoothing(visualizerPrefs.scopeSmoothing);
+      const timeDataForDraw = isScopeVisualizerPreset(activePresetId) ? smoothedTimeWave : timeWave;
+      if (isScopeVisualizerPreset(activePresetId)) {
+        for (let index = 0; index < timeWave.length; index += 1) {
+          smoothedTimeWave[index] =
+            smoothedTimeWave[index] * smoothing + (timeWave[index] ?? 0) * (1 - smoothing);
+        }
+      }
+      const deltaSeconds = advanceTempoAnalysis(rawFreq);
+      const normalized = spectrumNormalizer.normalize(rawFreq, deltaSeconds || 1 / 60);
+
       visualizerRuntime.draw({
         ctx,
         width: w,
         height: h,
         data: normalized,
         ...getBarDrawContextBase(),
+        timeData: timeDataForDraw,
         playing: true,
+        tempo: tempoUniforms,
+        deltaSeconds: deltaSeconds || 1 / 60,
       });
     }
 
@@ -837,6 +999,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   };
 
   const syncVisualizerLoop = () => {
+    syncTempoLoop();
     if (shouldAnimateBarVisualizer()) {
       startVisualizerLoop();
       return;
@@ -899,6 +1062,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       syncNowPlayingUi();
       startNowPlayingPoll();
       startVisualizerLoop();
+      syncTempoLoop();
     } catch {
       tap.hidden = false;
       needsTap = true;
@@ -978,6 +1142,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   syncNowPlayingUi();
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
+  canvasParkingHost.replaceChildren(canvas);
   paintIdleVisualizerFrame();
 
   if (options.autoplay !== false) {
@@ -989,6 +1154,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       return;
     }
     container.replaceChildren(canvas);
+    rebuildVisualizer();
     resizeCanvas();
     paintIdleVisualizerFrame();
     syncVisualizerLoop();
@@ -998,6 +1164,16 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       paintIdleVisualizerFrame();
       syncVisualizerLoop();
     });
+  };
+
+  const unmountBarCanvas = (): void => {
+    if (canvas.parentElement === canvasParkingHost) {
+      return;
+    }
+
+    canvasParkingHost.replaceChildren(canvas);
+    stopVisualizerLoop();
+    paintIdleVisualizerFrame();
   };
 
   const resizeBarCanvas = () => {
@@ -1040,13 +1216,31 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     },
     getVisualizerPreferences: () => ({ ...visualizerPrefs }),
     setVisualizerPreferences,
+    getAudioStreamTempo: () => ({ ...tempoUniforms }),
     getAudioElement: () => audio,
     getAnalyser: () => analyser,
     getAudioContext: () => audioCtx,
     getBarCanvas,
     mountBarCanvas,
+    unmountBarCanvas,
     resizeBarCanvas,
   };
 }
 
 export { DEFAULT_BAR_VISUALIZER_PREFERENCES, getBarVisualizerPresetDefinition };
+export {
+  advanceAudioStreamTempoPhase,
+  AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
+  createAudioStreamTempoState,
+  describeAudioStreamTempoBpm,
+  formatAudioStreamTempoBpmLabel,
+  resolveAudioStreamTempoMotionRate,
+  resolveAudioStreamTempoPhaseDelta,
+  tickAudioStreamTempo,
+} from './audioStreamTempo';
+export type {
+  AudioStreamTempoState,
+  AudioStreamTempoUniforms,
+  TickAudioStreamTempoInput,
+  TickAudioStreamTempoResult,
+} from './audioStreamTempo.types';

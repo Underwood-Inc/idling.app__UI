@@ -527,6 +527,16 @@
   color: var(--text-secondary, #a8a096);
 }
 
+.panelSection__note {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 4%);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 72%);
+}
+
 .optionList {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

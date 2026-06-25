@@ -1,3 +1,4 @@
+import { advanceAudioStreamTempoPhase } from './audioStreamTempo';
 function mixRgb(from, to, t) {
     const clamped = Math.max(0, Math.min(1, t));
     return {
@@ -14,6 +15,13 @@ function themeColor(drawContext, level, index, total) {
     const position = total <= 1 ? 0 : index / (total - 1);
     const blended = mixRgb(theme.primary, theme.secondary, position * 0.65 + level * 0.35);
     return rgba(blended, 0.35 + level * 0.65);
+}
+function resolveBarFill(drawContext, level, index, total) {
+    if (drawContext.colorPalette === 'prism') {
+        const hue = (index / Math.max(1, total)) * 300 + level * 40;
+        return `hsla(${hue}, 78%, 62%, ${0.35 + level * 0.55})`;
+    }
+    return themeColor(drawContext, level, index, total);
 }
 function roundRect(ctx, x, y, w, h, r) {
     const radius = Math.min(r, w / 2, h / 2);
@@ -50,16 +58,67 @@ function forEachBar(drawContext, drawBar) {
         drawBar(i, level, x, barW);
     }
 }
-function drawIdlingBars(drawContext) {
+function drawFrequencyBars(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, height } = drawContext;
+    const { ctx, height, theme, state, barFill, barTrail, glow } = drawContext;
+    const useGlow = glow === 'soft';
+    if (useGlow) {
+        ctx.globalCompositeOperation = 'lighter';
+    }
     forEachBar(drawContext, (index, level, x, barW) => {
-        const barH = Math.max(2, level * height * 0.88);
+        if (barTrail === 'peaks') {
+            state.peaks[index] = Math.max(level, state.peaks[index] * 0.968);
+        }
+        else if (barTrail === 'cascade') {
+            state.peaks[index] = Math.max(level, state.peaks[index] * 0.955);
+            const trailH = state.peaks[index] * height * 0.92;
+            const topY = height - trailH;
+            const trailGradient = ctx.createLinearGradient(x, topY, x, height);
+            trailGradient.addColorStop(0, resolveBarFill(drawContext, state.peaks[index], index, drawContext.data.length));
+            trailGradient.addColorStop(1, resolveBarFill(drawContext, level * 0.35, index, drawContext.data.length));
+            ctx.fillStyle = trailGradient;
+            roundRect(ctx, x, topY, barW, trailH, Math.min(barW / 2, 3));
+            ctx.fill();
+        }
+        const barH = Math.max(barFill === 'glass' ? 3 : 2, level * height * 0.88);
         const y = height - barH;
-        ctx.fillStyle = themeColor(drawContext, level, index, drawContext.data.length);
-        roundRect(ctx, x, y, barW, barH, Math.min(barW / 2, 4));
+        if (barFill === 'glass') {
+            const glass = ctx.createLinearGradient(x, y, x, height);
+            glass.addColorStop(0, rgba(theme.primary, 0.55 + level * 0.35));
+            glass.addColorStop(0.5, rgba(theme.secondary, 0.18 + level * 0.25));
+            glass.addColorStop(1, rgba(theme.secondary, 0.05));
+            ctx.fillStyle = glass;
+            roundRect(ctx, x, y, barW, barH, Math.min(barW / 2, 5));
+            ctx.fill();
+            ctx.strokeStyle = rgba(theme.primary, 0.18 + level * 0.35);
+            ctx.lineWidth = 1;
+            roundRect(ctx, x + 0.5, y + 0.5, Math.max(1, barW - 1), Math.max(1, barH - 1), Math.min(barW / 2, 4));
+            ctx.stroke();
+            return;
+        }
+        const liveH = barTrail === 'cascade' ? Math.max(2, level * height * 0.78) : barH;
+        const liveY = height - liveH;
+        ctx.fillStyle = resolveBarFill(drawContext, level, index, drawContext.data.length);
+        roundRect(ctx, x, liveY, barW, liveH, Math.min(barW / 2, 4));
         ctx.fill();
+        if (barH > 6 && barTrail === 'none') {
+            ctx.fillStyle = rgba(theme.primary, 0.12 + level * 0.28);
+            roundRect(ctx, x + 0.5, liveY + 0.5, Math.max(1, barW - 1), 2, 1);
+            ctx.fill();
+        }
+        if (barTrail === 'peaks') {
+            const peakY = height - state.peaks[index] * height * 0.88;
+            ctx.fillStyle = rgba(theme.secondary, 0.95);
+            roundRect(ctx, x, peakY, barW, 2, 1);
+            ctx.fill();
+        }
     });
+    if (useGlow) {
+        ctx.globalCompositeOperation = 'source-over';
+    }
+}
+function drawIdlingBars(drawContext) {
+    drawFrequencyBars(drawContext);
 }
 function drawMirrorBars(drawContext) {
     paintCanvasBg(drawContext);
@@ -67,41 +126,118 @@ function drawMirrorBars(drawContext) {
     const mid = height / 2;
     forEachBar(drawContext, (index, level, x, barW) => {
         const halfH = Math.max(2, level * mid * 0.92);
-        ctx.fillStyle = themeColor(drawContext, level, index, drawContext.data.length);
+        ctx.fillStyle = resolveBarFill(drawContext, level, index, drawContext.data.length);
         roundRect(ctx, x, mid - halfH, barW, halfH, Math.min(barW / 2, 3));
         ctx.fill();
         roundRect(ctx, x, mid, barW, halfH, Math.min(barW / 2, 3));
         ctx.fill();
     });
 }
-function drawWaveLine(drawContext) {
-    paintCanvasBg(drawContext);
-    const { ctx, width, height, data, theme } = drawContext;
+function buildWavePoints(drawContext) {
+    const { width, height, data } = drawContext;
     const count = data.length;
-    if (count < 2) {
-        return;
-    }
-    const gap = 2;
-    const step = width / (count - 1);
-    ctx.beginPath();
+    const step = count > 1 ? width / (count - 1) : width;
+    const points = [];
     for (let i = 0; i < count; i += 1) {
         const level = data[i] ?? 0;
-        const x = i * step;
-        const y = height - Math.max(4, level * height * 0.82);
-        if (i === 0)
-            ctx.moveTo(x, y);
-        else
-            ctx.lineTo(x, y);
+        points.push({
+            x: i * step,
+            y: height - Math.max(4, level * height * 0.86),
+        });
     }
-    ctx.strokeStyle = rgba(theme.primary, 0.9);
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
+    return points;
+}
+function traceAngularWavePath(ctx, points) {
+    if (points.length === 0) {
+        return;
+    }
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i += 1) {
+        ctx.lineTo(points[i].x, points[i].y);
+    }
+}
+function traceRibbonWavePath(ctx, points) {
+    if (points.length < 2) {
+        return;
+    }
+    if (points.length === 2) {
+        ctx.moveTo(points[0].x, points[0].y);
+        ctx.lineTo(points[1].x, points[1].y);
+        return;
+    }
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 0; i < points.length - 1; i += 1) {
+        const p0 = points[i - 1] ?? points[i];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = points[i + 2] ?? p2;
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+    }
+}
+function drawWaveLine(drawContext) {
+    paintCanvasBg(drawContext);
+    const { ctx, width, height, theme, waveStyle } = drawContext;
+    const points = buildWavePoints(drawContext);
+    if (points.length < 2) {
+        return;
+    }
+    const isRibbon = waveStyle === 'ribbon';
+    ctx.beginPath();
+    if (isRibbon) {
+        traceRibbonWavePath(ctx, points);
+    }
+    else {
+        traceAngularWavePath(ctx, points);
+    }
+    if (isRibbon) {
+        ctx.save();
+        ctx.shadowColor = rgba(theme.primary, 0.45);
+        ctx.shadowBlur = 8;
+        const ribbonStroke = ctx.createLinearGradient(0, 0, width, 0);
+        ribbonStroke.addColorStop(0, rgba(theme.primary, 0.95));
+        ribbonStroke.addColorStop(0.5, rgba(theme.secondary, 0.92));
+        ribbonStroke.addColorStop(1, rgba(theme.primary, 0.95));
+        ctx.strokeStyle = ribbonStroke;
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.restore();
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.closePath();
+        const ribbonFill = ctx.createLinearGradient(0, 0, 0, height);
+        ribbonFill.addColorStop(0, rgba(theme.secondary, 0.28));
+        ribbonFill.addColorStop(0.55, rgba(theme.primary, 0.12));
+        ribbonFill.addColorStop(1, rgba(theme.secondary, 0.02));
+        ctx.fillStyle = ribbonFill;
+        ctx.fill();
+        return;
+    }
+    ctx.strokeStyle = rgba(theme.primary, 0.92);
+    ctx.lineWidth = 1.75;
+    ctx.lineJoin = 'miter';
+    ctx.lineCap = 'butt';
     ctx.stroke();
+    for (let i = 0; i < points.length; i += 2) {
+        const point = points[i];
+        const level = drawContext.data[i] ?? 0;
+        if (level < 0.08) {
+            continue;
+        }
+        ctx.fillStyle = rgba(theme.primary, 0.55 + level * 0.35);
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 1.2 + level * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+    }
     ctx.lineTo(width, height);
     ctx.lineTo(0, height);
     ctx.closePath();
-    ctx.fillStyle = rgba(theme.primary, 0.12);
+    ctx.fillStyle = rgba(theme.primary, 0.1);
     ctx.fill();
 }
 function drawDots(drawContext) {
@@ -111,115 +247,243 @@ function drawDots(drawContext) {
         const radius = Math.max(1.5, level * Math.min(barW, height) * 0.42);
         const cx = x + barW / 2;
         const cy = height - radius - 2;
-        ctx.fillStyle = themeColor(drawContext, level, index, drawContext.data.length);
+        ctx.fillStyle = resolveBarFill(drawContext, level, index, drawContext.data.length);
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         ctx.fill();
     });
 }
-function drawPeakBars(drawContext) {
+function drawScope(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, height, state } = drawContext;
-    forEachBar(drawContext, (index, level, x, barW) => {
-        state.peaks[index] = Math.max(level, state.peaks[index] * 0.94);
-        const barH = Math.max(2, level * height * 0.84);
-        const y = height - barH;
-        ctx.fillStyle = themeColor(drawContext, level, index, drawContext.data.length);
-        roundRect(ctx, x, y, barW, barH, Math.min(barW / 2, 3));
-        ctx.fill();
-        const peakY = height - state.peaks[index] * height * 0.88;
-        ctx.fillStyle = rgba(drawContext.theme.secondary, 0.95);
-        roundRect(ctx, x, peakY, barW, 2, 1);
-        ctx.fill();
-    });
+    const { ctx, width, height, theme, timeData } = drawContext;
+    const mid = height / 2;
+    const count = timeData.length;
+    if (count < 2) {
+        return;
+    }
+    const step = width / (count - 1);
+    const amplitude = mid * 0.72;
+    ctx.beginPath();
+    for (let index = 0; index < count; index += 1) {
+        const x = index * step;
+        const sample = timeData[index] ?? 0;
+        const y = mid - sample * amplitude;
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        }
+        else {
+            const prevX = (index - 1) * step;
+            const prevSample = timeData[index - 1] ?? 0;
+            const prevY = mid - prevSample * amplitude;
+            const cpX = (prevX + x) / 2;
+            ctx.quadraticCurveTo(cpX, prevY, x, y);
+        }
+    }
+    ctx.strokeStyle = rgba(theme.primary, 0.16);
+    ctx.lineWidth = 4;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.strokeStyle = rgba(theme.secondary, 0.9);
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    const fill = ctx.createLinearGradient(0, 0, 0, height);
+    fill.addColorStop(0, rgba(theme.primary, 0.12));
+    fill.addColorStop(1, rgba(theme.secondary, 0.02));
+    ctx.fillStyle = fill;
+    ctx.fill();
 }
-function drawPrism(drawContext) {
+function drawDriftMist(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, height } = drawContext;
-    forEachBar(drawContext, (index, level, x, barW) => {
-        const hue = (index / drawContext.data.length) * 300 + level * 40;
-        const barH = Math.max(2, level * height * 0.88);
-        const y = height - barH;
-        ctx.fillStyle = `hsla(${hue}, 78%, 62%, ${0.35 + level * 0.55})`;
-        roundRect(ctx, x, y, barW, barH, Math.min(barW / 2, 4));
-        ctx.fill();
-    });
-}
-function drawLedSegments(drawContext) {
-    paintCanvasBg(drawContext);
-    const { ctx, height } = drawContext;
-    const segments = 6;
-    forEachBar(drawContext, (index, level, x, barW) => {
-        const lit = Math.round(level * segments);
-        const segGap = 1;
-        const segH = (height - segGap * (segments - 1)) / segments;
-        for (let s = 0; s < segments; s += 1) {
-            const segY = height - (s + 1) * segH - s * segGap;
-            const active = s < lit;
-            ctx.fillStyle = active
-                ? themeColor(drawContext, (s + 1) / segments, index, drawContext.data.length)
-                : rgba(drawContext.theme.primary, 0.08);
-            roundRect(ctx, x, segY, barW, segH, 1);
+    const { ctx, width, height, data, theme, state, fullscreen } = drawContext;
+    const layerCount = fullscreen ? 6 : 5;
+    advanceAudioStreamTempoPhase(state, drawContext.tempo, fullscreen ? 0.005 : 0.007, drawContext.deltaSeconds);
+    const mistReference = fullscreen ? Math.min(height, 200) : height;
+    const waveFrequency = fullscreen ? (150 / Math.max(width, 1)) * 0.012 : 0.012;
+    const crossFrequency = fullscreen ? (150 / Math.max(width, 1)) * 0.008 : 0.008;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (let layer = 0; layer < layerCount; layer += 1) {
+        const bandStart = Math.floor((layer / layerCount) * data.length);
+        const bandEnd = Math.floor(((layer + 1) / layerCount) * data.length);
+        let energy = 0;
+        for (let index = bandStart; index < bandEnd; index += 1) {
+            energy += data[index] ?? 0;
+        }
+        energy /= Math.max(1, bandEnd - bandStart);
+        const bandTop = fullscreen ? 0.1 : 0.25;
+        const bandReach = fullscreen ? 0.78 : 0.55;
+        const layerSpan = Math.max(1, layerCount - 1);
+        const baseY = height * (bandTop + (layer / layerSpan) * bandReach);
+        const amplitude = (fullscreen ? 8 : 10) + energy * mistReference * (fullscreen ? 0.1 : 0.18);
+        const phase = state.phase + layer * 1.3;
+        ctx.beginPath();
+        ctx.moveTo(0, baseY);
+        const step = Math.max(fullscreen ? 12 : 8, Math.floor(width / (fullscreen ? 52 : 24)));
+        for (let x = 0; x <= width; x += step) {
+            const y = baseY +
+                Math.sin(phase + x * waveFrequency + layer * 0.7) * amplitude +
+                Math.cos(phase * 0.6 + x * crossFrequency) * energy * mistReference * 0.04;
+            ctx.lineTo(x, y);
+        }
+        const color = mixRgb(theme.primary, theme.secondary, layer / layerCount);
+        const strokeAlpha = fullscreen ? 0.03 + energy * 0.1 : 0.05 + energy * 0.18;
+        const lineWidth = fullscreen ? 1.35 + energy * 2 : 6 + energy * 10;
+        if (fullscreen) {
+            ctx.shadowBlur = 18 + energy * 22;
+            ctx.shadowColor = rgba(color, strokeAlpha * 0.9);
+        }
+        else {
+            ctx.shadowBlur = 0;
+        }
+        ctx.strokeStyle = rgba(color, strokeAlpha);
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+        if (fullscreen && energy > 0.1) {
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = rgba(color, 0.012 + energy * 0.028);
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
             ctx.fill();
         }
-    });
-}
-function drawAmbientGlow(drawContext) {
-    paintCanvasBg(drawContext);
-    const { ctx, width, height, theme } = drawContext;
-    ctx.globalCompositeOperation = 'lighter';
-    forEachBar(drawContext, (index, level, x, barW) => {
-        const barH = Math.max(3, level * height * 0.95);
-        const y = height - barH;
-        const gradient = ctx.createLinearGradient(x, y, x, height);
-        gradient.addColorStop(0, rgba(theme.primary, 0.05 + level * 0.35));
-        gradient.addColorStop(1, rgba(theme.secondary, 0.45 + level * 0.35));
-        ctx.fillStyle = gradient;
-        roundRect(ctx, x - 1, y, barW + 2, barH, Math.min(barW, 8));
-        ctx.fill();
-    });
+    }
+    ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
 }
-function drawSparkLines(drawContext) {
+function drawOrbitSwarm(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, height, theme } = drawContext;
-    const mid = height / 2;
-    forEachBar(drawContext, (index, level, x, barW) => {
-        const span = Math.max(2, level * mid * 0.95);
-        ctx.strokeStyle = themeColor(drawContext, level, index, drawContext.data.length);
-        ctx.lineWidth = Math.max(1, barW * 0.35);
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(x + barW / 2, mid - span);
-        ctx.lineTo(x + barW / 2, mid + span);
-        ctx.stroke();
-    });
-    ctx.strokeStyle = rgba(theme.primary, 0.25);
+    const { ctx, data, theme, state } = drawContext;
+    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
+    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.007 + (data[0] ?? 0) * 0.012, drawContext.deltaSeconds);
+    let energy = 0;
+    for (let index = 0; index < data.length; index += 1) {
+        energy += data[index] ?? 0;
+    }
+    energy /= Math.max(1, data.length);
+    const baseR = extent * 0.14;
+    ctx.strokeStyle = rgba(theme.primary, 0.12 + energy * 0.2);
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(0, mid);
-    ctx.lineTo(drawContext.width, mid);
+    ctx.arc(cx, cy, baseR + energy * extent * 0.18, 0, Math.PI * 2);
     ctx.stroke();
+    for (let index = 0; index < data.length; index += 3) {
+        const level = data[index] ?? 0;
+        if (level < 0.06) {
+            continue;
+        }
+        const angle = (index / data.length) * Math.PI * 2 + state.phase;
+        const orbitR = baseR + level * extent * 0.34;
+        const px = cx + Math.cos(angle) * orbitR;
+        const py = cy + Math.sin(angle) * orbitR;
+        const dotR = 1.2 + level * 4.5;
+        const glow = ctx.createRadialGradient(px, py, 0, px, py, dotR * 2.2);
+        glow.addColorStop(0, rgba(theme.primary, 0.45 + level * 0.4));
+        glow.addColorStop(1, rgba(theme.secondary, 0));
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(px, py, dotR * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
-function drawOutlineBars(drawContext) {
+function fadeOrganicCanvas(drawContext, fadeAlpha) {
+    const { ctx, width, height, fullscreen } = drawContext;
+    if (!fullscreen) {
+        paintCanvasBg(drawContext);
+        return;
+    }
+    ctx.fillStyle = `rgba(8, 10, 14, ${fadeAlpha})`;
+    ctx.fillRect(0, 0, width, height);
+}
+function drawThreadWeave(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, height } = drawContext;
-    forEachBar(drawContext, (index, level, x, barW) => {
-        const barH = Math.max(3, level * height * 0.86);
-        const y = height - barH;
-        ctx.strokeStyle = themeColor(drawContext, level, index, drawContext.data.length);
-        ctx.lineWidth = 1.5;
-        roundRect(ctx, x + 0.75, y, barW - 1.5, barH, Math.min(barW / 2, 3));
+    const { ctx, width, height, data, theme, state } = drawContext;
+    const threadCount = 7;
+    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.009, drawContext.deltaSeconds);
+    for (let thread = 0; thread < threadCount; thread += 1) {
+        const bandStart = Math.floor((thread / threadCount) * data.length);
+        const bandEnd = Math.floor(((thread + 1) / threadCount) * data.length);
+        let energy = 0;
+        for (let i = bandStart; i < bandEnd; i += 1) {
+            energy += data[i] ?? 0;
+        }
+        energy /= Math.max(1, bandEnd - bandStart);
+        const baseY = ((thread + 1) / (threadCount + 1)) * height;
+        const amplitude = 6 + energy * height * 0.22;
+        const phase = state.phase + thread * 0.9;
+        ctx.beginPath();
+        ctx.moveTo(0, baseY);
+        const step = Math.max(6, Math.floor(width / 28));
+        for (let x = 0; x <= width; x += step) {
+            const bin = Math.min(data.length - 1, Math.floor((x / width) * data.length));
+            const local = data[bin] ?? 0;
+            const y = baseY +
+                Math.sin(phase + x * 0.018 + thread) * amplitude +
+                Math.cos(phase * 0.7 + x * 0.01) * local * height * 0.08;
+            ctx.lineTo(x, y);
+        }
+        const stroke = drawContext.colorPalette === 'prism'
+            ? `hsla(${thread * 48 + energy * 80}, 72%, 62%, ${0.35 + energy * 0.45})`
+            : rgba(mixRgb(theme.primary, theme.secondary, thread / threadCount), 0.28 + energy * 0.5);
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1 + energy * 2.4;
         ctx.stroke();
-    });
+        if (energy > 0.18) {
+            ctx.fillStyle = rgba(theme.primary, 0.04 + energy * 0.08);
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+}
+function resolveCircularVisualizerMetrics(drawContext) {
+    const { width, height } = drawContext;
+    const extent = Math.min(width, height);
+    return {
+        cx: width / 2,
+        cy: height / 2,
+        extent,
+    };
 }
 function drawArcSpectrum(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, width, height, data, theme } = drawContext;
+    const { ctx, data, theme, fullscreen, width, height } = drawContext;
     const count = data.length;
+    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
+    if (fullscreen) {
+        const cx = width / 2;
+        const cy = height;
+        const radiusBase = Math.min(width * 0.5, height * 0.92);
+        const inner = radiusBase * 0.34;
+        for (let i = 0; i < count; i += 1) {
+            const level = data[i] ?? 0;
+            const startAngle = Math.PI - (i / count) * Math.PI;
+            const endAngle = Math.PI - ((i + 1) / count) * Math.PI;
+            const outer = inner + Math.max(2, level * radiusBase * 0.5);
+            ctx.beginPath();
+            ctx.arc(cx, cy, outer, startAngle, endAngle);
+            ctx.arc(cx, cy, inner, endAngle, startAngle, true);
+            ctx.closePath();
+            ctx.fillStyle = resolveBarFill(drawContext, level, i, count);
+            ctx.fill();
+        }
+        ctx.fillStyle = rgba(theme.primary, 0.14);
+        ctx.beginPath();
+        ctx.arc(cx, cy, inner * 0.92, Math.PI, 0);
+        ctx.lineTo(cx - inner * 0.92, cy);
+        ctx.closePath();
+        ctx.fill();
+        return;
+    }
     const compact = height < 36;
-    const cx = width / 2;
-    const cy = compact ? height - 0.5 : height + 4;
+    const dockCy = compact ? height - 0.5 : height + 4;
     const radiusBase = compact
         ? Math.min(width * 0.48, height * 2.4)
         : Math.min(width, height * 2) * 0.42;
@@ -234,30 +498,29 @@ function drawArcSpectrum(drawContext) {
             : Math.PI + ((i + 1) / count) * Math.PI;
         const outer = inner + Math.max(2, level * radiusBase * (compact ? 0.55 : 0.45));
         ctx.beginPath();
-        ctx.arc(cx, cy, outer, startAngle, endAngle);
-        ctx.arc(cx, cy, inner, endAngle, startAngle, true);
+        ctx.arc(cx, dockCy, outer, startAngle, endAngle);
+        ctx.arc(cx, dockCy, inner, endAngle, startAngle, true);
         ctx.closePath();
-        ctx.fillStyle = themeColor(drawContext, level, i, count);
+        ctx.fillStyle = resolveBarFill(drawContext, level, i, count);
         ctx.fill();
     }
     ctx.fillStyle = rgba(theme.primary, compact ? 0.12 : 0.18);
     ctx.beginPath();
-    ctx.arc(cx, cy, inner * 0.92, 0, Math.PI * 2);
+    ctx.arc(cx, dockCy, inner * 0.92, 0, Math.PI * 2);
     ctx.fill();
 }
 function drawPulseBlob(drawContext) {
     paintCanvasBg(drawContext);
-    const { ctx, width, height, data, theme, state } = drawContext;
+    const { ctx, data, theme, state } = drawContext;
     let energy = 0;
     for (let i = 0; i < data.length; i += 1) {
         energy += data[i] ?? 0;
     }
     energy /= Math.max(1, data.length);
-    state.phase += 0.04 + energy * 0.08;
-    const cx = width / 2;
-    const cy = height / 2;
-    const baseR = Math.min(width, height) * 0.18;
-    const pulseR = baseR + energy * Math.min(width, height) * 0.28;
+    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.014 + energy * 0.028, drawContext.deltaSeconds);
+    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
+    const baseR = extent * 0.18;
+    const pulseR = baseR + energy * extent * 0.28;
     const gradient = ctx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, pulseR);
     gradient.addColorStop(0, rgba(theme.primary, 0.55 + energy * 0.25));
     gradient.addColorStop(0.55, rgba(theme.secondary, 0.18 + energy * 0.25));
@@ -272,42 +535,220 @@ function drawPulseBlob(drawContext) {
     ctx.arc(cx, cy, baseR + Math.sin(state.phase) * 3, 0, Math.PI * 2);
     ctx.stroke();
 }
+function drawHaloRing(drawContext) {
+    paintCanvasBg(drawContext);
+    const { ctx, data, theme, state } = drawContext;
+    let bassEnergy = 0;
+    const bassBins = Math.max(1, Math.floor(data.length * 0.22));
+    for (let i = 0; i < bassBins; i += 1) {
+        bassEnergy += data[i] ?? 0;
+    }
+    bassEnergy /= bassBins;
+    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.016 + bassEnergy * 0.02, drawContext.deltaSeconds);
+    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
+    const baseR = extent * 0.22;
+    const ringR = baseR + bassEnergy * extent * 0.2;
+    const thickness = 2 + bassEnergy * 7;
+    ctx.strokeStyle = rgba(theme.primary, 0.25 + bassEnergy * 0.55);
+    ctx.lineWidth = thickness;
+    ctx.beginPath();
+    ctx.arc(cx, cy, ringR + Math.sin(state.phase) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = rgba(theme.secondary, 0.15 + bassEnergy * 0.35);
+    ctx.lineWidth = Math.max(1, thickness * 0.45);
+    ctx.beginPath();
+    ctx.arc(cx, cy, ringR * 0.72, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < data.length; i += 4) {
+        const level = data[i] ?? 0;
+        if (level < 0.12) {
+            continue;
+        }
+        const angle = (i / data.length) * Math.PI * 2 + state.phase * 0.15;
+        const dotR = ringR + level * extent * 0.08;
+        const dx = cx + Math.cos(angle) * dotR;
+        const dy = cy + Math.sin(angle) * dotR;
+        ctx.fillStyle = rgba(theme.secondary, 0.2 + level * 0.6);
+        ctx.beginPath();
+        ctx.arc(dx, dy, 1 + level * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+export const FREQUENCY_BARS_PRESET_ID = 'idling-bars';
+export const REMOVED_BAR_VISUALIZER_PRESET_IDS = new Set([
+    'shimmer',
+    'aurora',
+    'constellation',
+    'led',
+    'rungs',
+    'embers',
+    'ember-field',
+    'spark',
+    'outline',
+    'ribbon',
+    'prism',
+    'glass',
+    'peaks',
+    'cascade',
+    'ambient',
+    'aurora-veil',
+    'starfall',
+]);
 export const BAR_VISUALIZER_PRESET_DEFINITIONS = [
-    { id: 'idling-bars', label: 'Idling bars', description: 'Default rounded bars', dockLayout: 'wide' },
-    { id: 'mirror', label: 'Mirror', description: 'Symmetric reflection', dockLayout: 'wide' },
-    { id: 'wave', label: 'Wave', description: 'Smooth line spectrum', dockLayout: 'wide' },
-    { id: 'dots', label: 'Dots', description: 'Reactive dots', dockLayout: 'wide' },
-    { id: 'peaks', label: 'Peaks', description: 'Bars with peak hold', dockLayout: 'wide' },
-    { id: 'prism', label: 'Prism', description: 'Rainbow index colors', dockLayout: 'wide' },
-    { id: 'led', label: 'LED', description: 'Segmented columns', dockLayout: 'wide' },
-    { id: 'ambient', label: 'Ambient glow', description: 'Soft additive glow', dockLayout: 'wide' },
-    { id: 'spark', label: 'Spark', description: 'Center spark lines', dockLayout: 'wide' },
-    { id: 'outline', label: 'Outline', description: 'Wireframe bars', dockLayout: 'wide' },
-    { id: 'arc', label: 'Arc', description: 'Radial arc spectrum', dockLayout: 'compact' },
-    { id: 'pulse', label: 'Pulse', description: 'Energy blob', dockLayout: 'compact' },
+    {
+        id: 'idling-bars',
+        label: 'Frequency bars',
+        description: 'Classic spectrum bars with fill and trail options',
+        dockLayout: 'wide',
+        fullscreenLayout: 'strip',
+    },
+    {
+        id: 'scope',
+        label: 'Oscilloscope',
+        description: 'Live waveform trace',
+        dockLayout: 'wide',
+        fullscreenLayout: 'strip',
+    },
+    {
+        id: 'mirror',
+        label: 'Mirror',
+        description: 'Symmetric reflection',
+        dockLayout: 'wide',
+        fullscreenLayout: 'strip',
+    },
+    {
+        id: 'wave',
+        label: 'Wave',
+        description: 'Frequency wave line or ribbon',
+        dockLayout: 'wide',
+        fullscreenLayout: 'strip',
+    },
+    {
+        id: 'dots',
+        label: 'Dots',
+        description: 'Reactive particle dots',
+        dockLayout: 'wide',
+        fullscreenLayout: 'strip',
+    },
+    {
+        id: 'thread-weave',
+        label: 'Thread weave',
+        description: 'Interlaced flowing threads',
+        dockLayout: 'wide',
+        dockOnly: true,
+    },
+    {
+        id: 'drift-mist',
+        label: 'Drift mist',
+        description: 'Layered mist bands',
+        dockLayout: 'wide',
+        fullscreenLayout: 'canvas',
+    },
+    {
+        id: 'orbit-swarm',
+        label: 'Orbit swarm',
+        description: 'Orbiting energy particles',
+        dockLayout: 'compact',
+        fullscreenLayout: 'radial',
+        fullscreenOnly: true,
+    },
+    {
+        id: 'arc',
+        label: 'Arc',
+        description: 'Radial arc ring',
+        dockLayout: 'compact',
+        fullscreenLayout: 'hemisphere',
+        fullscreenOnly: true,
+    },
+    {
+        id: 'halo',
+        label: 'Halo',
+        description: 'Reactive ring field',
+        dockLayout: 'compact',
+        fullscreenLayout: 'radial',
+        fullscreenOnly: true,
+    },
+    {
+        id: 'pulse',
+        label: 'Pulse',
+        description: 'Breathing energy core',
+        dockLayout: 'compact',
+        fullscreenLayout: 'radial',
+        fullscreenOnly: true,
+    },
 ];
 const PRESET_DRAWERS = {
     'idling-bars': drawIdlingBars,
+    scope: drawScope,
     mirror: drawMirrorBars,
     wave: drawWaveLine,
     dots: drawDots,
-    peaks: drawPeakBars,
-    prism: drawPrism,
-    led: drawLedSegments,
-    ambient: drawAmbientGlow,
-    spark: drawSparkLines,
-    outline: drawOutlineBars,
+    'thread-weave': drawThreadWeave,
+    'drift-mist': drawDriftMist,
+    'orbit-swarm': drawOrbitSwarm,
     arc: drawArcSpectrum,
+    halo: drawHaloRing,
     pulse: drawPulseBlob,
 };
+export function normalizeBarVisualizerPresetId(presetId) {
+    if (REMOVED_BAR_VISUALIZER_PRESET_IDS.has(presetId)) {
+        if (presetId === 'ribbon') {
+            return 'wave';
+        }
+        if (presetId === 'aurora-veil') {
+            return 'drift-mist';
+        }
+        if (presetId === 'starfall') {
+            return 'dots';
+        }
+        if (presetId === 'glass' || presetId === 'peaks' || presetId === 'cascade' || presetId === 'ambient' || presetId === 'prism') {
+            return FREQUENCY_BARS_PRESET_ID;
+        }
+        return 'wave';
+    }
+    return BAR_VISUALIZER_PRESET_DEFINITIONS.some((preset) => preset.id === presetId)
+        ? presetId
+        : 'wave';
+}
+export function isFrequencyBarsVisualizerPreset(presetId) {
+    return normalizeBarVisualizerPresetId(presetId) === FREQUENCY_BARS_PRESET_ID;
+}
+export function isBarVisualizerFullscreenOnly(presetId) {
+    const normalized = normalizeBarVisualizerPresetId(presetId);
+    return (BAR_VISUALIZER_PRESET_DEFINITIONS.find((preset) => preset.id === normalized)?.fullscreenOnly ===
+        true);
+}
+export function isBarVisualizerDockOnly(presetId) {
+    const normalized = normalizeBarVisualizerPresetId(presetId);
+    return (BAR_VISUALIZER_PRESET_DEFINITIONS.find((preset) => preset.id === normalized)?.dockOnly === true);
+}
+export function getBarVisualizerFullscreenLayout(presetId) {
+    const normalized = normalizeBarVisualizerPresetId(presetId);
+    const preset = BAR_VISUALIZER_PRESET_DEFINITIONS.find((entry) => entry.id === normalized);
+    return preset?.fullscreenLayout ?? 'strip';
+}
+export function isScopeVisualizerPreset(presetId) {
+    return normalizeBarVisualizerPresetId(presetId) === 'scope';
+}
+export function isBarVisualizerCircularPreset(presetId) {
+    const layout = getBarVisualizerFullscreenLayout(presetId);
+    return layout === 'radial' || layout === 'hemisphere';
+}
+export function listBarVisualizerPresetsForSurface(surface) {
+    if (surface === 'expanded') {
+        return BAR_VISUALIZER_PRESET_DEFINITIONS.filter((preset) => !preset.dockOnly);
+    }
+    return BAR_VISUALIZER_PRESET_DEFINITIONS.filter((preset) => !preset.fullscreenOnly);
+}
 export function createBarVisualizerRuntime(presetId, barCount) {
-    const drawer = PRESET_DRAWERS[presetId] ?? drawIdlingBars;
+    const normalizedPresetId = normalizeBarVisualizerPresetId(presetId);
+    const drawer = PRESET_DRAWERS[normalizedPresetId] ?? drawIdlingBars;
     const state = {
         peaks: new Float32Array(barCount),
         phase: 0,
     };
     return {
-        presetId: PRESET_DRAWERS[presetId] ? presetId : 'idling-bars',
+        presetId: PRESET_DRAWERS[normalizedPresetId] ? normalizedPresetId : 'idling-bars',
         draw(drawContext) {
             drawer(drawContext);
         },
@@ -324,7 +765,8 @@ export function createBarVisualizerRuntime(presetId, barCount) {
     };
 }
 export function getBarVisualizerPresetDefinition(presetId) {
-    return (BAR_VISUALIZER_PRESET_DEFINITIONS.find((preset) => preset.id === presetId) ??
+    const normalized = normalizeBarVisualizerPresetId(presetId);
+    return (BAR_VISUALIZER_PRESET_DEFINITIONS.find((preset) => preset.id === normalized) ??
         BAR_VISUALIZER_PRESET_DEFINITIONS[0]);
 }
 export function getBarVisualizerDockLayout(presetId) {

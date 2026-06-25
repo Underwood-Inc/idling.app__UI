@@ -5,6 +5,7 @@ import type AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { useCallback, useEffect, useRef } from 'react';
 import type { RadioVisualizerPreset } from '@widgets/radio-player/radioVisualizerPresets';
 import { RADIO_VISUALIZER_BASE_OPTIONS } from '@widgets/radio-player/radioVisualizerPresets';
+import { registerRadioVisualizerGradients } from '@widgets/radio-player/radioVisualizerGradients';
 import {
   resolveRadioFullscreenLinearBoost,
   resolveRadioFullscreenRadialRadius,
@@ -141,6 +142,21 @@ export function RadioVisualizerFullscreen({
         source: analyser,
         audioCtx,
         connectSpeakers: false,
+        gradient: 'classic',
+      });
+
+      registerRadioVisualizerGradients(instance);
+      instance.setOptions({
+        ...preset.options,
+        ...(isRadial
+          ? {
+              radius: resolveRadioFullscreenRadialRadius({
+                presetRadius: preset.options.radius,
+                channelLayout: preset.options.channelLayout,
+                spectrumBarHeight: barHeightRef.current,
+              }),
+            }
+          : {}),
       });
 
       if (cancelled) {

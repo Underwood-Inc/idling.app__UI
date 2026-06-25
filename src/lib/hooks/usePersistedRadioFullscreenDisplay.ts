@@ -10,6 +10,9 @@ import {
   loadRadioFullscreenVisualizerDisplay,
   saveRadioFullscreenVisualizerDisplay,
 } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
+import { normalizeWebglVisualizerPresetId } from '@widgets/radio-player/webgl/webglVisualizerPresets';
+import { normalizeNeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion';
+import type { NeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion.types';
 
 export interface UsePersistedRadioFullscreenDisplayResult {
   display: RadioFullscreenVisualizerDisplay;
@@ -18,6 +21,8 @@ export interface UsePersistedRadioFullscreenDisplayResult {
   setSpectrumOpacity: (opacity: number) => void;
   setSpectrumPresetIndex: (index: number) => void;
   setFullscreenSource: (source: RadioFullscreenVisualizerSource) => void;
+  setWebglPresetId: (presetId: string) => void;
+  setWebglConstellationMotion: (mode: NeonConstellationMotionMode) => void;
   setSpectrumBarHeight: (barHeight: number) => void;
 }
 
@@ -68,10 +73,26 @@ export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscree
     }));
   }, []);
 
+  const setWebglPresetId = useCallback((presetId: string) => {
+    setDisplay((current) => ({
+      ...current,
+      enabled: true,
+      source: 'webgl',
+      webglPresetId: normalizeWebglVisualizerPresetId(presetId),
+    }));
+  }, []);
+
   const setSpectrumBarHeight = useCallback((spectrumBarHeight: number) => {
     setDisplay((current) => ({
       ...current,
       spectrumBarHeight: clampRadioFullscreenSpectrumBarHeight(spectrumBarHeight),
+    }));
+  }, []);
+
+  const setWebglConstellationMotion = useCallback((mode: NeonConstellationMotionMode) => {
+    setDisplay((current) => ({
+      ...current,
+      webglConstellationMotion: normalizeNeonConstellationMotionMode(mode),
     }));
   }, []);
 
@@ -82,6 +103,8 @@ export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscree
     setSpectrumOpacity,
     setSpectrumPresetIndex,
     setFullscreenSource,
+    setWebglPresetId,
+    setWebglConstellationMotion,
     setSpectrumBarHeight,
   };
 }

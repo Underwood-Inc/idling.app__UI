@@ -567,6 +567,15 @@
   height: 100%;
 }
 
+.irp.irp--headless [data-irp-canvas-park='true'] {
+  position: absolute;
+  width: 320px;
+  height: 64px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 body.has-radio-player {
   padding-bottom: calc(var(--irp-bar-height, 5.5rem) + 1.25rem);
 }

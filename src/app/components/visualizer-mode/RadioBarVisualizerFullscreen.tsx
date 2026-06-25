@@ -2,7 +2,8 @@
 
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { resolveRadioFullscreenVisualHeightRatio } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
-import { useLayoutEffect, useRef } from 'react';
+import { getBarVisualizerFullscreenLayout } from '@widgets/radio-player/barVisualizerPresets';
+import { useLayoutEffect, useEffect, useRef, useState } from 'react';
 import styles from './VisualizerMode.module.css';
 
 export interface RadioBarVisualizerFullscreenProps {
@@ -22,6 +23,25 @@ export function RadioBarVisualizerFullscreen({
   const hostRef = useRef<HTMLDivElement>(null);
   const { handle, isAvailable } = useRadioPlayer();
   const visualHeightRatio = resolveRadioFullscreenVisualHeightRatio(barHeight);
+  const [barPresetId, setBarPresetId] = useState('wave');
+  const fullscreenLayout = getBarVisualizerFullscreenLayout(barPresetId);
+
+  useEffect(() => {
+    if (!isActive || !enabled || !handle) {
+      return undefined;
+    }
+
+    const syncPreset = () => {
+      setBarPresetId(handle.getVisualizerPreferences().presetId);
+    };
+
+    syncPreset();
+    const timer = window.setInterval(syncPreset, 300);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [enabled, handle, isActive]);
 
   useLayoutEffect(() => {
     if (!isActive || !enabled || !isAvailable || !handle) {
@@ -58,8 +78,9 @@ export function RadioBarVisualizerFullscreen({
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', syncSize);
+      handle.unmountBarCanvas();
     };
-  }, [enabled, handle, isActive, isAvailable]);
+  }, [barPresetId, enabled, handle, isActive, isAvailable]);
 
   useLayoutEffect(() => {
     if (!isActive || !enabled || !isAvailable || !handle) {
@@ -83,7 +104,7 @@ export function RadioBarVisualizerFullscreen({
     requestAnimationFrame(syncSize);
 
     return undefined;
-  }, [barHeight, enabled, handle, isActive, isAvailable]);
+  }, [barHeight, barPresetId, enabled, handle, isActive, isAvailable]);
 
   if (!isActive || !enabled) {
     return null;
@@ -94,6 +115,8 @@ export function RadioBarVisualizerFullscreen({
       ref={frameRef}
       className={styles.barFrame}
       data-irp-bar-fullscreen="true"
+      data-layout={fullscreenLayout}
+      data-radial={fullscreenLayout === 'radial' ? 'true' : 'false'}
       style={{ opacity }}
       aria-hidden="true"
     >

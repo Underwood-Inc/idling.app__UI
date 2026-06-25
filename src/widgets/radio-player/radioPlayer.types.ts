@@ -1,4 +1,5 @@
 import type { BarVisualizerDensity, BarVisualizerPreferences } from './barVisualizer.types';
+import type { AudioStreamTempoUniforms } from './audioStreamTempo.types';
 
 export interface RadioStationCatalog {
   [stationName: string]: string;
@@ -75,11 +76,13 @@ export interface RadioPlayerHandle {
   setVolume: (level: number) => void;
   getVisualizerPreferences: () => BarVisualizerPreferences;
   setVisualizerPreferences: (prefs: Partial<BarVisualizerPreferences>) => void;
+  getAudioStreamTempo: () => AudioStreamTempoUniforms;
   getAudioElement: () => HTMLAudioElement;
   getAnalyser: () => AnalyserNode | null;
   getAudioContext: () => AudioContext | null;
   getBarCanvas: () => HTMLCanvasElement;
   mountBarCanvas: (container: HTMLElement) => void;
+  unmountBarCanvas: () => void;
   resizeBarCanvas: () => void;
 }
 
