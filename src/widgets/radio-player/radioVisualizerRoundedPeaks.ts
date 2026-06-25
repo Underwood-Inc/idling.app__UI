@@ -50,6 +50,8 @@ export interface RadioVisualizerAnalyzerPeakSource {
   channelLayout: string;
 }
 
+export type RadioVisualizerPeakFillStyle = string | CanvasGradient | CanvasPattern;
+
 export function shouldUseRoundedPeakCaps(options: ConstructorOptions): boolean {
   if (options.showPeaks === false || options.peakLine === true || options.ledBars === true) {
     return false;
@@ -91,7 +93,7 @@ function resolvePeakFillStyle(
   barIndex: number,
   peakValue: number,
   canvasGradients: CanvasGradient[]
-): string | CanvasGradient {
+): RadioVisualizerPeakFillStyle {
   if (analyzer.colorMode === COLOR_BAR_INDEX) {
     const gradient = analyzer._gradients[analyzer._selectedGrads[channel]];
     const stops = gradient?.colorStops ?? [];

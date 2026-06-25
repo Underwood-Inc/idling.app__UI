@@ -91,7 +91,7 @@ export function normalizeRadioSpectrumGradientOverrides(
 
   const overrides: RadioSpectrumGradientOverrides = {};
   for (const [presetId, gradientId] of Object.entries(value as Record<string, unknown>)) {
-    if (isRegisteredRadioVisualizerGradient(gradientId)) {
+    if (typeof gradientId === 'string' && isRegisteredRadioVisualizerGradient(gradientId)) {
       overrides[presetId] = gradientId;
     }
   }

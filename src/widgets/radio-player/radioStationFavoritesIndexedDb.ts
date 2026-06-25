@@ -79,7 +79,7 @@ function runReadonlyTransaction<T>(
 }
 
 function runReadWriteTransaction(
-  operation: (store: IDBObjectStore) => IDBRequest<IDBValidKey>
+  operation: (store: IDBObjectStore) => IDBRequest
 ): Promise<void> {
   return openRadioPlayerIndexedDb().then(
     (database) =>
