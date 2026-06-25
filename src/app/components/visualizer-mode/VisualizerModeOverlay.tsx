@@ -5,6 +5,7 @@ import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import { RadioBarVisualizerFullscreen } from './RadioBarVisualizerFullscreen';
 import { RadioVisualizerFullscreen } from './RadioVisualizerFullscreen';
+import { RadioWebglVisualizerFullscreen } from './RadioWebglVisualizerFullscreen';
 import styles from './VisualizerMode.module.css';
 
 export function VisualizerModeOverlay() {
@@ -15,6 +16,10 @@ export function VisualizerModeOverlay() {
     spectrumOpacity,
     spectrumBarHeight,
     fullscreenSource,
+    spectrumGradientByPreset,
+    webglPresetId,
+    webglConstellationMotion,
+    webglVisualizerCapability,
   } = useVisualizerMode();
   const { isAvailable } = useRadioPlayer();
 
@@ -22,6 +27,10 @@ export function VisualizerModeOverlay() {
     RADIO_VISUALIZER_PRESETS[spectrumPresetIndex] ?? RADIO_VISUALIZER_PRESETS[0];
   const showSpectrum = spectrumEnabled && fullscreenSource === 'spectrum';
   const showBar = spectrumEnabled && fullscreenSource === 'bar';
+  const showWebgl =
+    spectrumEnabled &&
+    fullscreenSource === 'webgl' &&
+    webglVisualizerCapability.isSupported;
 
   if (!isActive) {
     return null;
@@ -35,12 +44,21 @@ export function VisualizerModeOverlay() {
         opacity={spectrumOpacity}
         barHeight={spectrumBarHeight}
         preset={activePreset}
+        spectrumGradientByPreset={spectrumGradientByPreset}
       />
       <RadioBarVisualizerFullscreen
         isActive={isActive}
         enabled={showBar}
         opacity={spectrumOpacity}
         barHeight={spectrumBarHeight}
+      />
+      <RadioWebglVisualizerFullscreen
+        isActive={isActive}
+        enabled={showWebgl}
+        opacity={spectrumOpacity}
+        presetId={webglPresetId}
+        constellationMotion={webglConstellationMotion}
+        capability={webglVisualizerCapability}
       />
       {!isAvailable ? (
         <p className={styles.overlay__emptyState} data-testid="visualizer-mode-overlay">

@@ -5,6 +5,19 @@ import type AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { useCallback, useEffect, useRef } from 'react';
 import type { RadioVisualizerPreset } from '@widgets/radio-player/radioVisualizerPresets';
 import { RADIO_VISUALIZER_BASE_OPTIONS } from '@widgets/radio-player/radioVisualizerPresets';
+import { registerRadioVisualizerGradients } from '@widgets/radio-player/radioVisualizerGradients';
+import type { RadioVisualizerGradientId } from '@widgets/radio-player/radioVisualizerGradients';
+import {
+  buildSpectrumGradientSetOptions,
+  resolveSpectrumGradientForPreset,
+  toAudioMotionGradientOptions,
+} from '@widgets/radio-player/radioVisualizerSpectrumColors';
+import type { RadioSpectrumGradientOverrides } from '@widgets/radio-player/radioVisualizerSpectrumColors';
+import {
+  drawRadioVisualizerRoundedPeaks,
+  shouldUseRoundedPeakCaps,
+  type RadioVisualizerAnalyzerPeakSource,
+} from '@widgets/radio-player/radioVisualizerRoundedPeaks';
 import {
   resolveRadioFullscreenLinearBoost,
   resolveRadioFullscreenRadialRadius,
@@ -23,6 +36,7 @@ export interface RadioVisualizerFullscreenProps {
   opacity: number;
   barHeight: number;
   preset: RadioVisualizerPreset;
+  spectrumGradientByPreset: RadioSpectrumGradientOverrides;
 }
 
 function syncAnalyzerCanvasSize(
@@ -43,6 +57,7 @@ export function RadioVisualizerFullscreen({
   opacity,
   barHeight,
   preset,
+  spectrumGradientByPreset,
 }: RadioVisualizerFullscreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const analyzerRef = useRef<AudioMotionAnalyzer | null>(null);
@@ -52,8 +67,24 @@ export function RadioVisualizerFullscreen({
   const peakRafRef = useRef(0);
   const { handle, isAvailable } = useRadioPlayer();
   const isRadial = preset.options.radial === true;
+  const useRoundedPeakCaps = shouldUseRoundedPeakCaps(preset.options);
+  const spectrumGradientId = resolveSpectrumGradientForPreset(
+    preset.id,
+    spectrumGradientByPreset
+  ) as RadioVisualizerGradientId;
+  const spectrumGradientRef = useRef(spectrumGradientId);
 
   barHeightRef.current = barHeight;
+  spectrumGradientRef.current = spectrumGradientId;
+
+  const applySpectrumGradient = useCallback(
+    (instance: AudioMotionAnalyzer, gradientId: RadioVisualizerGradientId) => {
+      instance.setOptions(
+        toAudioMotionGradientOptions(buildSpectrumGradientSetOptions(preset.id, gradientId))
+      );
+    },
+    [preset.id]
+  );
 
   const applyBarHeightSettings = useCallback(
     (instance: AudioMotionAnalyzer, nextBarHeight: number, rollingPeak: number) => {
@@ -141,6 +172,33 @@ export function RadioVisualizerFullscreen({
         source: analyser,
         audioCtx,
         connectSpeakers: false,
+        ...toAudioMotionGradientOptions(
+          buildSpectrumGradientSetOptions(preset.id, spectrumGradientRef.current)
+        ),
+        showPeaks: useRoundedPeakCaps ? false : RADIO_VISUALIZER_BASE_OPTIONS.showPeaks,
+        onCanvasDraw: useRoundedPeakCaps
+          ? (analyzer, drawInfo) => {
+              drawRadioVisualizerRoundedPeaks(
+                analyzer as unknown as RadioVisualizerAnalyzerPeakSource,
+                drawInfo
+              );
+            }
+          : undefined,
+      });
+
+      registerRadioVisualizerGradients(instance);
+      applySpectrumGradient(instance, spectrumGradientRef.current);
+      instance.setOptions({
+        ...preset.options,
+        ...(isRadial
+          ? {
+              radius: resolveRadioFullscreenRadialRadius({
+                presetRadius: preset.options.radius,
+                channelLayout: preset.options.channelLayout,
+                spectrumBarHeight: barHeightRef.current,
+              }),
+            }
+          : {}),
       });
 
       if (cancelled) {
@@ -198,7 +256,26 @@ export function RadioVisualizerFullscreen({
       analyzerRef.current = null;
       analyserRef.current = null;
     };
-  }, [applyBarHeightSettings, enabled, handle, isActive, isAvailable, isRadial, preset]);
+  }, [
+    applyBarHeightSettings,
+    applySpectrumGradient,
+    enabled,
+    handle,
+    isActive,
+    isAvailable,
+    isRadial,
+    preset,
+    useRoundedPeakCaps,
+  ]);
+
+  useEffect(() => {
+    const instance = analyzerRef.current;
+    if (!instance) {
+      return;
+    }
+
+    applySpectrumGradient(instance, spectrumGradientId);
+  }, [applySpectrumGradient, spectrumGradientId]);
 
   useEffect(() => {
     const instance = analyzerRef.current;

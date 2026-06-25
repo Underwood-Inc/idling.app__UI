@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import {
   clampRadioStationPanelHeight,
   loadRadioStationPanelHeight,
@@ -14,6 +14,7 @@ export interface UseRadioStationPanelHeightOptions {
 
 export interface UseRadioStationPanelHeightResult {
   panelHeightPx: number | null;
+  isPanelHeightResolved: boolean;
   isResizing: boolean;
   beginResize: (clientY: number) => void;
   resetHeight: () => void;
@@ -33,15 +34,17 @@ export function useRadioStationPanelHeight({
   enabled = true,
 }: UseRadioStationPanelHeightOptions): UseRadioStationPanelHeightResult {
   const [panelHeightPx, setPanelHeightPx] = useState<number | null>(null);
+  const [isPanelHeightResolved, setIsPanelHeightResolved] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled) {
+      setIsPanelHeightResolved(false);
       return;
     }
 
-    const stored = loadRadioStationPanelHeight();
-    setPanelHeightPx(stored);
+    setPanelHeightPx(loadRadioStationPanelHeight());
+    setIsPanelHeightResolved(true);
   }, [enabled]);
 
   useEffect(() => {
@@ -123,6 +126,7 @@ export function useRadioStationPanelHeight({
 
   return {
     panelHeightPx,
+    isPanelHeightResolved,
     isResizing,
     beginResize,
     resetHeight,

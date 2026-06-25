@@ -1,0 +1,25 @@
+.findBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 5%);
+  color: var(--text-secondary, #a8a096);
+  cursor: var(--mappy-cursor-pointer, pointer);
+}
+
+.findBtn:hover {
+  background: rgb(255 255 255 / 10%);
+  color: var(--brand-primary, #e5c185);
+  border-color: rgb(229 193 133 / 32%);
+}
+
+.findBtn:focus-visible {
+  outline: 2px solid rgb(229 193 133 / 55%);
+  outline-offset: 2px;
+}

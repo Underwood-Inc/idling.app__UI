@@ -1,10 +1,13 @@
 import {
   BAR_GAP_BY_DENSITY,
   BAR_SLOT_WIDTH_BY_DENSITY,
+  clampDockOpacity,
   DEFAULT_BAR_VISUALIZER_PREFERENCES,
+  DOCK_OPACITY_RANGE,
   loadBarVisualizerPreferences,
   resolveBarCountForCanvas,
   resolveBarGapForDensity,
+  resolveBarVisualizerPresetForSurface,
   saveBarVisualizerPreferences,
 } from './barVisualizerPreferences';
 import { getBarVisualizerDockLayout } from './barVisualizerPresets';
@@ -18,18 +21,206 @@ describe('barVisualizerPreferences', () => {
     expect(loadBarVisualizerPreferences()).toEqual(DEFAULT_BAR_VISUALIZER_PREFERENCES);
   });
 
-  test('persists valid preferences including enabled flag', () => {
+  test('persists dock preset, wave style, and enabled flag together', () => {
     saveBarVisualizerPreferences({
-      presetId: 'wave',
+      presetId: 'arc',
+      dockPresetId: 'idling-bars',
       density: 'wide',
       enabled: false,
+      waveStyle: 'ribbon',
+      barFill: 'glass',
     });
 
     expect(loadBarVisualizerPreferences()).toEqual({
-      presetId: 'wave',
+      presetId: 'arc',
+      dockPresetId: 'idling-bars',
       density: 'wide',
       enabled: false,
+      waveStyle: 'ribbon',
+      colorPalette: 'theme',
+      barFill: 'glass',
+      barTrail: 'none',
+      glow: 'off',
+      scopeSmoothing: 0.62,
+      dockOpacity: 0.28,
+      dockLayoutMode: 'backdrop',
     });
+  });
+
+  test('persists dock layout mode for inline and backdrop visualizer placement', () => {
+    saveBarVisualizerPreferences({
+      ...DEFAULT_BAR_VISUALIZER_PREFERENCES,
+      dockLayoutMode: 'inline',
+    });
+
+    expect(loadBarVisualizerPreferences().dockLayoutMode).toBe('inline');
+  });
+
+  test('clamps dock backdrop opacity below the fullscreen ceiling', () => {
+    expect(clampDockOpacity(0.9)).toBe(DOCK_OPACITY_RANGE.max);
+    expect(clampDockOpacity(0)).toBe(DOCK_OPACITY_RANGE.min);
+    expect(clampDockOpacity(0.28)).toBe(0.28);
+
+    localStorage.setItem(
+      'idling-radio-player-viz-prefs',
+      JSON.stringify({ dockOpacity: 0.88 })
+    );
+
+    expect(loadBarVisualizerPreferences().dockOpacity).toBe(DOCK_OPACITY_RANGE.max);
+  });
+
+  test('when glass was saved as a preset, frequency bars keep a glass fill option', () => {
+    localStorage.setItem(
+      'idling-radio-player-viz-prefs',
+      JSON.stringify({ presetId: 'glass', density: 'normal', enabled: true })
+    );
+
+    expect(loadBarVisualizerPreferences()).toEqual({
+      presetId: 'idling-bars',
+      dockPresetId: 'idling-bars',
+      density: 'normal',
+      enabled: true,
+      waveStyle: 'line',
+      colorPalette: 'theme',
+      barFill: 'glass',
+      barTrail: 'none',
+      glow: 'off',
+      scopeSmoothing: 0.62,
+      dockOpacity: 0.28,
+      dockLayoutMode: 'backdrop',
+    });
+  });
+
+  test('when prism was saved as a preset, it migrates to idling bars with prism colors', () => {
+    localStorage.setItem(
+      'idling-radio-player-viz-prefs',
+      JSON.stringify({ presetId: 'prism', density: 'normal', enabled: true })
+    );
+
+    expect(loadBarVisualizerPreferences()).toEqual({
+      presetId: 'idling-bars',
+      dockPresetId: 'idling-bars',
+      density: 'normal',
+      enabled: true,
+      waveStyle: 'line',
+      colorPalette: 'prism',
+      barFill: 'solid',
+      barTrail: 'none',
+      glow: 'off',
+      scopeSmoothing: 0.62,
+      dockOpacity: 0.28,
+      dockLayoutMode: 'backdrop',
+    });
+  });
+
+  test('when legacy storage used a removed preset, preferences migrate to wave', () => {
+    localStorage.setItem(
+      'idling-radio-player-viz-prefs',
+      JSON.stringify({ presetId: 'aurora', density: 'normal', enabled: true })
+    );
+
+    expect(loadBarVisualizerPreferences()).toMatchObject({
+      presetId: 'wave',
+      dockPresetId: 'wave',
+      waveStyle: 'line',
+    });
+  });
+
+  test('when ribbon was saved as a preset, wave style becomes ribbon', () => {
+    localStorage.setItem(
+      'idling-radio-player-viz-prefs',
+      JSON.stringify({ presetId: 'ribbon', density: 'normal', enabled: true })
+    );
+
+    expect(loadBarVisualizerPreferences()).toMatchObject({
+      presetId: 'wave',
+      dockPresetId: 'wave',
+      waveStyle: 'ribbon',
+    });
+  });
+
+  test('when the dock renders, fullscreen-only presets never drive the dock canvas', () => {
+    expect(
+      resolveBarVisualizerPresetForSurface(
+        {
+          presetId: 'arc',
+          dockPresetId: 'idling-bars',
+          density: 'normal',
+          enabled: true,
+          waveStyle: 'line',
+          colorPalette: 'theme',
+          barFill: 'glass',
+          barTrail: 'none',
+          glow: 'off',
+          scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
+        },
+        'dock'
+      )
+    ).toBe('idling-bars');
+
+    expect(
+      resolveBarVisualizerPresetForSurface(
+        {
+          presetId: 'arc',
+          dockPresetId: 'idling-bars',
+          density: 'normal',
+          enabled: true,
+          waveStyle: 'line',
+          colorPalette: 'theme',
+          barFill: 'glass',
+          barTrail: 'none',
+          glow: 'off',
+          scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
+        },
+        'expanded'
+      )
+    ).toBe('arc');
+  });
+
+  test('when fullscreen renders, dock-only presets never drive the expanded canvas', () => {
+    expect(
+      resolveBarVisualizerPresetForSurface(
+        {
+          presetId: 'thread-weave',
+          dockPresetId: 'thread-weave',
+          density: 'normal',
+          enabled: true,
+          waveStyle: 'line',
+          colorPalette: 'theme',
+          barFill: 'solid',
+          barTrail: 'none',
+          glow: 'off',
+          scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
+        },
+        'expanded'
+      )
+    ).toBe('wave');
+
+    expect(
+      resolveBarVisualizerPresetForSurface(
+        {
+          presetId: 'thread-weave',
+          dockPresetId: 'thread-weave',
+          density: 'normal',
+          enabled: true,
+          waveStyle: 'line',
+          colorPalette: 'theme',
+          barFill: 'solid',
+          barTrail: 'none',
+          glow: 'off',
+          scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
+        },
+        'dock'
+      )
+    ).toBe('thread-weave');
   });
 
   test('when the dock is wide, compact spacing draws more bars than wide spacing', () => {
@@ -57,12 +248,12 @@ describe('barVisualizerPreferences', () => {
     expect(wideCount).toBe(Math.round(canvasWidthPx / BAR_SLOT_WIDTH_BY_DENSITY.wide));
   });
 
-  test('keeps density-based bar count for compact presets', () => {
+  test('keeps density-based bar count for compact fullscreen presets', () => {
     expect(
       resolveBarCountForCanvas({
         density: 'normal',
         canvasWidthPx: 512,
-        presetId: 'pulse',
+        presetId: 'arc',
       })
     ).toBe(40);
   });
@@ -74,8 +265,7 @@ describe('barVisualizerPreferences', () => {
 });
 
 describe('getBarVisualizerDockLayout', () => {
-  test('marks pulse and arc as compact dock layouts', () => {
-    expect(getBarVisualizerDockLayout('pulse')).toBe('compact');
+  test('marks arc as a compact dock layout', () => {
     expect(getBarVisualizerDockLayout('arc')).toBe('compact');
     expect(getBarVisualizerDockLayout('peaks')).toBe('wide');
   });

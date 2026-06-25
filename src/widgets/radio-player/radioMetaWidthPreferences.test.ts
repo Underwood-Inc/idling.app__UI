@@ -34,7 +34,7 @@ describe('radioMetaWidthPreferences', () => {
   });
 
   test('resolveRadioMetaWidthMax leaves room for controls on narrow rows', () => {
-    expect(resolveRadioMetaWidthMax({ rowWidthPx: 400 })).toBe(80);
+    expect(resolveRadioMetaWidthMax({ rowWidthPx: 400 })).toBe(170);
     expect(resolveRadioMetaWidthMax({ rowWidthPx: 1200 })).toBe(RADIO_META_WIDTH_RANGE_PX.max);
   });
 

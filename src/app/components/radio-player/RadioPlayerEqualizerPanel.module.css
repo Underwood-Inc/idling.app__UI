@@ -1,0 +1,294 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.85rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #a8a096);
+}
+
+.resetBtn {
+  padding: 0.25rem 0.55rem;
+  border: 0;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--text-secondary, #a8a096);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.resetBtn:hover {
+  color: var(--text-primary, #ece8e0);
+  background: rgb(255 255 255 / 10%);
+}
+
+.matchExact,
+.matchNear {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.matchExact {
+  border: 1px solid rgb(255 120 120 / 38%);
+  background: rgb(120 28 28 / 22%);
+  color: #ffd5d5;
+}
+
+.matchNear {
+  border: 1px solid rgb(229 193 133 / 32%);
+  background: rgb(229 193 133 / 10%);
+  color: #f0dfbf;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.presetBtn {
+  min-height: 1.85rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 6px;
+  background: rgb(0 0 0 / 18%);
+  color: var(--text-secondary, #a8a096);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.presetBtn:hover {
+  color: var(--text-primary, #ece8e0);
+}
+
+.presetBtn[aria-pressed='true'] {
+  border-color: rgb(229 193 133 / 42%);
+  background: rgb(229 193 133 / 12%);
+  color: var(--brand-primary, #e5c185);
+}
+
+.customPresets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.customPresetSlot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.3rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.customPresetName {
+  min-width: 0;
+  min-height: 1.85rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 6px;
+  background: rgb(0 0 0 / 22%);
+  color: var(--text-primary, #ece8e0);
+  font: inherit;
+  font-size: 12px;
+}
+
+.customPresetName::placeholder {
+  color: var(--text-secondary, #a8a096);
+  opacity: 0.75;
+}
+
+.customPresetName:focus-visible {
+  outline: 2px solid rgb(229 193 133 / 55%);
+  outline-offset: 1px;
+}
+
+.customPresetDelete {
+  min-height: 1.85rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgb(255 120 120 / 22%);
+  border-radius: 6px;
+  background: rgb(255 80 80 / 8%);
+  color: rgb(255 170 170 / 92%);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.customPresetDelete:hover:not(:disabled) {
+  background: rgb(255 80 80 / 16%);
+  color: rgb(255 190 190 / 96%);
+}
+
+.customPresetDelete:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.customPresetDeleteConfirm {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.customPresetDeleteConfirmBtn {
+  min-height: 1.85rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgb(255 90 90 / 38%);
+  border-radius: 6px;
+  background: rgb(255 70 70 / 18%);
+  color: rgb(255 205 205 / 96%);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.customPresetDeleteConfirmBtn:hover {
+  background: rgb(255 70 70 / 28%);
+  color: rgb(255 225 225 / 98%);
+}
+
+.customPresetDeleteCancel {
+  min-height: 1.85rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--text-secondary, #a8a096);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.customPresetDeleteCancel:hover {
+  background: rgb(255 255 255 / 10%);
+  color: var(--text-primary, #ece8e0);
+}
+
+.customPresetLoad {
+  min-height: 1.85rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 6px;
+  background: rgb(0 0 0 / 18%);
+  color: var(--text-secondary, #a8a096);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.customPresetLoad:hover:not(:disabled) {
+  color: var(--text-primary, #ece8e0);
+}
+
+.customPresetLoad[aria-pressed='true'] {
+  border-color: rgb(229 193 133 / 42%);
+  background: rgb(229 193 133 / 12%);
+  color: var(--brand-primary, #e5c185);
+}
+
+.customPresetLoad:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.customPresetSave {
+  min-height: 1.85rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--text-primary, #ece8e0);
+  cursor: var(--mappy-cursor-pointer, pointer);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.customPresetSave:hover {
+  background: rgb(229 193 133 / 14%);
+  color: var(--brand-primary, #e5c185);
+}
+
+.bands {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(3.35rem, 1fr));
+  gap: 0.5rem;
+  align-items: end;
+  width: 100%;
+  min-height: 14.5rem;
+  padding: 0.35rem 0 0;
+}
+
+@media (max-width: 40rem) {
+  .presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .customPresets {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bands {
+    overflow-x: auto;
+    grid-template-columns: repeat(12, minmax(3.35rem, 1fr));
+    padding-bottom: 0.35rem;
+    scrollbar-width: auto;
+  }
+
+  .bands::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  .bands::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgb(229 193 133 / 48%);
+  }
+
+  .bands::-webkit-scrollbar-track {
+    background: rgb(255 255 255 / 10%);
+  }
+}

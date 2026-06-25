@@ -6,6 +6,6 @@ export interface SpectrumNormalizerOptions {
 }
 
 export interface SpectrumNormalizer {
-  normalize: (frequencyData: Uint8Array) => Float32Array;
+  normalize: (frequencyData: Uint8Array, deltaSeconds?: number) => Float32Array;
   reset: () => void;
 }

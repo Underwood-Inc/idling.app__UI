@@ -1,0 +1,120 @@
+.fader {
+  display: flex;
+  flex: 1 1 10rem;
+  align-items: stretch;
+  min-width: 10rem;
+}
+
+.fader__track {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 10rem;
+  height: 2.65rem;
+  padding: 0.35rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 10px;
+  background: rgb(8 8 12 / 88%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 2px 10px rgb(0 0 0 / 24%);
+  cursor: var(--mappy-cursor-ew-resize, ew-resize);
+  touch-action: none;
+  user-select: none;
+}
+
+.fader__track:focus-visible {
+  outline: 2px solid rgb(229 193 133 / 55%);
+  outline-offset: 2px;
+}
+
+.fader__well {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(0 0 0 / 42%);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 5%);
+}
+
+.fader__unfilled {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 3%) 0%,
+    rgb(255 255 255 / 7%) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fader__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgb(196 154 92 / 72%) 0%,
+    rgb(229 193 133 / 58%) 45%,
+    rgb(229 193 133 / 92%) 100%
+  );
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 22%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fader__track[data-fill-tone='muted'] .fader__fill {
+  background: linear-gradient(
+    90deg,
+    rgb(120 120 120 / 58%) 0%,
+    rgb(160 160 160 / 48%) 45%,
+    rgb(196 196 196 / 72%) 100%
+  );
+}
+
+.fader__thumb {
+  position: absolute;
+  top: 0.04rem;
+  bottom: 0.04rem;
+  width: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(10 10 14 / 88%);
+  border-radius: 5px;
+  background: linear-gradient(
+    180deg,
+    rgb(248 232 196) 0%,
+    rgb(229 193 133) 42%,
+    rgb(176 138 84) 100%
+  );
+  box-shadow:
+    0 3px 8px rgb(0 0 0 / 34%),
+    inset 0 1px 0 rgb(255 255 255 / 34%),
+    inset 0 -2px 0 rgb(0 0 0 / 18%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.fader__track[data-fill-tone='muted'] .fader__thumb {
+  background: linear-gradient(
+    180deg,
+    rgb(210 210 210) 0%,
+    rgb(170 170 170) 42%,
+    rgb(120 120 120) 100%
+  );
+}
+
+.fader__thumbGrip {
+  width: 3px;
+  height: 68%;
+  border-radius: 999px;
+  background: rgb(20 18 16 / 42%);
+  box-shadow:
+    3px 0 0 rgb(20 18 16 / 24%),
+    -1px 0 0 rgb(255 255 255 / 18%);
+}

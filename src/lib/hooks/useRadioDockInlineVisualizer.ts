@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/** Matches RadioPlayerBar.module.css — inline dock visualizer hidden at or below this width. */
+/** Matches RadioPlayerBar.module.css — inline dock strip hidden at or below this width (backdrop mode is unaffected). */
 export const RADIO_DOCK_INLINE_VIZ_MAX_WIDTH_PX = 860;
 
 export function useRadioDockInlineVisualizer(): boolean {

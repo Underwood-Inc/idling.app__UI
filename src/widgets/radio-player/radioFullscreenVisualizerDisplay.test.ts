@@ -57,29 +57,47 @@ describe('radioFullscreenVisualizerDisplay', () => {
     );
   });
 
-  test('persists enabled, source, opacity, preset index, and bar height preferences', () => {
+  test('persists enabled, source, opacity, preset index, bar height, and webgl preset preferences', () => {
     saveRadioFullscreenVisualizerDisplay({
       enabled: false,
-      source: 'bar',
+      source: 'webgl',
       opacity: 0.4,
       presetIndex: 2,
       spectrumBarHeight: 1.25,
+      webglPresetId: 'nebula-chamber',
+      webglConstellationMotion: 'drift',
+      spectrumGradientByPreset: { 'graph-steel': 'idling-violet' },
     });
 
     expect(JSON.parse(localStorage.getItem(RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY) ?? '')).toEqual({
       enabled: false,
-      source: 'bar',
+      source: 'webgl',
       opacity: 0.4,
       presetIndex: 2,
       spectrumBarHeight: 1.25,
+      webglPresetId: 'liquid-merge',
+      webglConstellationMotion: 'drift',
+      spectrumGradientByPreset: { 'graph-steel': 'idling-violet' },
     });
     expect(loadRadioFullscreenVisualizerDisplay()).toEqual({
       enabled: false,
-      source: 'bar',
+      source: 'webgl',
       opacity: 0.4,
       presetIndex: 2,
       spectrumBarHeight: 1.25,
+      webglPresetId: 'liquid-merge',
+      webglConstellationMotion: 'drift',
+      spectrumGradientByPreset: { 'graph-steel': 'idling-violet' },
     });
+  });
+
+  test('migrates saved pulse constellation motion to drift', () => {
+    saveRadioFullscreenVisualizerDisplay({
+      ...DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY,
+      webglConstellationMotion: 'pulse',
+    });
+
+    expect(loadRadioFullscreenVisualizerDisplay().webglConstellationMotion).toBe('drift');
   });
 
   test('tightens radial inner radius for dual-combined fullscreen presets', () => {

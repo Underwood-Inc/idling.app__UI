@@ -1,4 +1,5 @@
 import type { SpectrumNormalizer, SpectrumNormalizerOptions } from './spectrumNormalization.types';
+import { createBarLevelEnvelope } from './barLevelEnvelope';
 
 const DEFAULT_PEAK_DECAY = 0.994;
 const DEFAULT_NOISE_FLOOR = 0.03;
@@ -43,11 +44,12 @@ export function createSpectrumNormalizer(
   const minPeak = options.minPeak ?? DEFAULT_MIN_PEAK;
   const trebleBoost = options.trebleBoost ?? DEFAULT_TREBLE_BOOST;
   const peaks = new Float32Array(barCount);
+  const targets = new Float32Array(barCount);
+  const displayEnvelope = createBarLevelEnvelope(barCount);
 
   return {
-    normalize(frequencyData) {
+    normalize(frequencyData, deltaSeconds = 1 / 60) {
       const binCount = frequencyData.length;
-      const output = new Float32Array(barCount);
 
       for (let bar = 0; bar < barCount; bar += 1) {
         const { start, end } = getLogBinRange(bar, barCount, binCount);
@@ -63,15 +65,20 @@ export function createSpectrumNormalizer(
 
         peaks[bar] = Math.max(level, peaks[bar] * peakDecay);
         const scale = Math.max(peaks[bar], minPeak);
-        level = Math.min(1, level / scale);
+        let target = Math.min(1, level / scale);
 
-        output[bar] = level < noiseFloor ? 0 : level;
+        if (target < noiseFloor) {
+          target = (target * target) / Math.max(noiseFloor, 0.001);
+        }
+
+        targets[bar] = target;
       }
 
-      return output;
+      return displayEnvelope.smooth(targets, deltaSeconds);
     },
     reset() {
       peaks.fill(0);
+      displayEnvelope.reset();
     },
   };
 }

@@ -7,7 +7,11 @@ import {
 } from '@lib/fullscreen/documentFullscreen';
 import { isStandalonePwa } from '@lib/radio-pwa/isStandalonePwa';
 import { usePersistedRadioFullscreenDisplay } from '@lib/hooks/usePersistedRadioFullscreenDisplay';
+import { useWebglVisualizerCapability } from '@lib/hooks/useWebglVisualizerCapability';
+import type { WebglVisualizerCapabilityState } from '@lib/hooks/useWebglVisualizerCapability';
 import type { RadioFullscreenVisualizerSource } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
+import type { RadioVisualizerGradientId } from '@widgets/radio-player/radioVisualizerGradients';
+import type { NeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion.types';
 import {
   createContext,
   ReactNode,
@@ -25,12 +29,19 @@ export interface VisualizerModeContextValue {
   setSpectrumPresetIndex: (index: number) => void;
   fullscreenSource: RadioFullscreenVisualizerSource;
   setFullscreenSource: (source: RadioFullscreenVisualizerSource) => void;
+  webglPresetId: string;
+  setWebglPresetId: (presetId: string) => void;
+  webglConstellationMotion: NeonConstellationMotionMode;
+  setWebglConstellationMotion: (mode: NeonConstellationMotionMode) => void;
   spectrumEnabled: boolean;
   setSpectrumEnabled: (enabled: boolean) => void;
   spectrumOpacity: number;
   setSpectrumOpacity: (opacity: number) => void;
   spectrumBarHeight: number;
   setSpectrumBarHeight: (barHeight: number) => void;
+  spectrumGradientByPreset: Record<string, RadioVisualizerGradientId | undefined>;
+  setSpectrumGradientForPreset: (presetId: string, gradientId: RadioVisualizerGradientId) => void;
+  webglVisualizerCapability: WebglVisualizerCapabilityState;
   enterVisualizerMode: () => Promise<void>;
   exitFullscreen: () => Promise<void>;
   toggleDocumentFullscreen: () => Promise<void>;
@@ -46,14 +57,67 @@ export interface VisualizerModeProviderProps {
 export function VisualizerModeProvider({ children }: VisualizerModeProviderProps) {
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const webglVisualizerCapability = useWebglVisualizerCapability();
   const {
     display,
     setSpectrumEnabled,
     setSpectrumOpacity,
     setSpectrumPresetIndex,
     setFullscreenSource,
+    setWebglPresetId,
+    setWebglConstellationMotion,
     setSpectrumBarHeight,
+    setSpectrumGradientForPreset,
   } = usePersistedRadioFullscreenDisplay();
+
+  const guardedSetFullscreenSource = useCallback(
+    (source: RadioFullscreenVisualizerSource) => {
+      if (
+        source === 'webgl' &&
+        webglVisualizerCapability.isResolved &&
+        !webglVisualizerCapability.isSupported
+      ) {
+        return;
+      }
+
+      setFullscreenSource(source);
+    },
+    [
+      setFullscreenSource,
+      webglVisualizerCapability.isResolved,
+      webglVisualizerCapability.isSupported,
+    ]
+  );
+
+  const guardedSetWebglPresetId = useCallback(
+    (presetId: string) => {
+      if (webglVisualizerCapability.isResolved && !webglVisualizerCapability.isSupported) {
+        return;
+      }
+
+      setWebglPresetId(presetId);
+    },
+    [
+      setWebglPresetId,
+      webglVisualizerCapability.isResolved,
+      webglVisualizerCapability.isSupported,
+    ]
+  );
+
+  useEffect(() => {
+    if (!webglVisualizerCapability.isResolved || webglVisualizerCapability.isSupported) {
+      return;
+    }
+
+    if (display.source === 'webgl') {
+      setFullscreenSource('spectrum');
+    }
+  }, [
+    display.source,
+    setFullscreenSource,
+    webglVisualizerCapability.isResolved,
+    webglVisualizerCapability.isSupported,
+  ]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('visualizer-mode', isActive);
@@ -134,13 +198,20 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       spectrumPresetIndex: display.presetIndex,
       setSpectrumPresetIndex,
       fullscreenSource: display.source,
-      setFullscreenSource,
+      setFullscreenSource: guardedSetFullscreenSource,
+      webglPresetId: display.webglPresetId,
+      setWebglPresetId: guardedSetWebglPresetId,
+      webglConstellationMotion: display.webglConstellationMotion,
+      setWebglConstellationMotion,
       spectrumEnabled: display.enabled,
       setSpectrumEnabled,
       spectrumOpacity: display.opacity,
       setSpectrumOpacity,
       spectrumBarHeight: display.spectrumBarHeight,
       setSpectrumBarHeight,
+      spectrumGradientByPreset: display.spectrumGradientByPreset,
+      setSpectrumGradientForPreset,
+      webglVisualizerCapability,
       enterVisualizerMode,
       exitFullscreen,
       toggleDocumentFullscreen,
@@ -151,7 +222,10 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       display.opacity,
       display.presetIndex,
       display.source,
+      display.webglPresetId,
+      display.webglConstellationMotion,
       display.spectrumBarHeight,
+      display.spectrumGradientByPreset,
       enterVisualizerMode,
       exitFullscreen,
       toggleDocumentFullscreen,
@@ -161,8 +235,12 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       setSpectrumEnabled,
       setSpectrumOpacity,
       setSpectrumPresetIndex,
-      setFullscreenSource,
+      guardedSetFullscreenSource,
+      guardedSetWebglPresetId,
+      setWebglConstellationMotion,
       setSpectrumBarHeight,
+      setSpectrumGradientForPreset,
+      webglVisualizerCapability,
     ]
   );
 

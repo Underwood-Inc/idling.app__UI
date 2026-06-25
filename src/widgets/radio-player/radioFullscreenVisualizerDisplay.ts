@@ -2,13 +2,21 @@ import {
   getRadioVisualizerPresetIndex,
   RADIO_FULLSCREEN_DEFAULT_PRESET_ID,
 } from './radioVisualizerPresets';
+import { normalizeWebglVisualizerPresetId, WEBGL_DEFAULT_PRESET_ID } from './webgl/webglVisualizerPresets';
+import type { RadioSpectrumGradientOverrides } from './radioVisualizerSpectrumColors';
+import { normalizeRadioSpectrumGradientOverrides } from './radioVisualizerSpectrumColors';
+import {
+  NEON_CONSTELLATION_DEFAULT_MOTION_MODE,
+  normalizeNeonConstellationMotionMode,
+} from './webgl/neonConstellationMotion';
+import type { NeonConstellationMotionMode } from './webgl/neonConstellationMotion.types';
 
 export interface RadioFullscreenSpectrumBarHeightRange {
   min: number;
   max: number;
 }
 
-export type RadioFullscreenVisualizerSource = 'spectrum' | 'bar';
+export type RadioFullscreenVisualizerSource = 'spectrum' | 'bar' | 'webgl';
 
 export interface RadioFullscreenVisualizerDisplay {
   enabled: boolean;
@@ -16,6 +24,9 @@ export interface RadioFullscreenVisualizerDisplay {
   opacity: number;
   presetIndex: number;
   spectrumBarHeight: number;
+  webglPresetId: string;
+  webglConstellationMotion: NeonConstellationMotionMode;
+  spectrumGradientByPreset: RadioSpectrumGradientOverrides;
 }
 
 export const RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE: RadioFullscreenSpectrumBarHeightRange = {
@@ -90,6 +101,9 @@ export const DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY: RadioFullscreenVisuali
   opacity: 1,
   presetIndex: getRadioVisualizerPresetIndex(RADIO_FULLSCREEN_DEFAULT_PRESET_ID),
   spectrumBarHeight: 1,
+  webglPresetId: WEBGL_DEFAULT_PRESET_ID,
+  webglConstellationMotion: NEON_CONSTELLATION_DEFAULT_MOTION_MODE,
+  spectrumGradientByPreset: {},
 };
 
 export function clampRadioFullscreenVisualizerOpacity(value: number): number {
@@ -167,7 +181,7 @@ export function normalizeRadioFullscreenVisualizerPresetIndex(value: unknown): n
 }
 
 function isFullscreenVisualizerSource(value: unknown): value is RadioFullscreenVisualizerSource {
-  return value === 'spectrum' || value === 'bar';
+  return value === 'spectrum' || value === 'bar' || value === 'webgl';
 }
 
 export function loadRadioFullscreenVisualizerDisplay(): RadioFullscreenVisualizerDisplay {
@@ -199,6 +213,14 @@ export function loadRadioFullscreenVisualizerDisplay(): RadioFullscreenVisualize
         typeof parsed.spectrumBarHeight === 'number'
           ? clampRadioFullscreenSpectrumBarHeight(parsed.spectrumBarHeight)
           : DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY.spectrumBarHeight,
+      webglPresetId:
+        typeof parsed.webglPresetId === 'string'
+          ? normalizeWebglVisualizerPresetId(parsed.webglPresetId)
+          : DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY.webglPresetId,
+      webglConstellationMotion: normalizeNeonConstellationMotionMode(parsed.webglConstellationMotion),
+      spectrumGradientByPreset: normalizeRadioSpectrumGradientOverrides(
+        parsed.spectrumGradientByPreset
+      ),
     };
   } catch {
     return { ...DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY };
@@ -220,6 +242,13 @@ export function saveRadioFullscreenVisualizerDisplay(
       opacity: clampRadioFullscreenVisualizerOpacity(display.opacity),
       presetIndex: normalizeRadioFullscreenVisualizerPresetIndex(display.presetIndex),
       spectrumBarHeight: clampRadioFullscreenSpectrumBarHeight(display.spectrumBarHeight),
+      webglPresetId: normalizeWebglVisualizerPresetId(display.webglPresetId),
+      webglConstellationMotion: normalizeNeonConstellationMotionMode(
+        display.webglConstellationMotion
+      ),
+      spectrumGradientByPreset: normalizeRadioSpectrumGradientOverrides(
+        display.spectrumGradientByPreset
+      ),
     })
   );
 }

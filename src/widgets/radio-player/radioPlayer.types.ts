@@ -1,4 +1,6 @@
 import type { BarVisualizerDensity, BarVisualizerPreferences } from './barVisualizer.types';
+import type { AudioStreamTempoUniforms } from './audioStreamTempo.types';
+import type { RadioEqualizerCustomSlot, RadioEqualizerPresetId, RadioEqualizerSettings } from './radioEqualizer.types';
 
 export interface RadioStationCatalog {
   [stationName: string]: string;
@@ -75,11 +77,21 @@ export interface RadioPlayerHandle {
   setVolume: (level: number) => void;
   getVisualizerPreferences: () => BarVisualizerPreferences;
   setVisualizerPreferences: (prefs: Partial<BarVisualizerPreferences>) => void;
+  getAudioStreamTempo: () => AudioStreamTempoUniforms;
+  getEqualizerSettings: () => RadioEqualizerSettings;
+  setEqualizerBandGains: (bandGains: readonly number[]) => void;
+  applyEqualizerPreset: (presetId: RadioEqualizerPresetId) => void;
+  saveEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot, label: string) => void;
+  renameEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot, label: string) => void;
+  deleteEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot) => void;
+  applyEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot) => void;
+  resetEqualizerToLastSelection: () => void;
   getAudioElement: () => HTMLAudioElement;
   getAnalyser: () => AnalyserNode | null;
   getAudioContext: () => AudioContext | null;
   getBarCanvas: () => HTMLCanvasElement;
   mountBarCanvas: (container: HTMLElement) => void;
+  unmountBarCanvas: () => void;
   resizeBarCanvas: () => void;
 }
 
