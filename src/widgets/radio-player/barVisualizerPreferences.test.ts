@@ -1,7 +1,9 @@
 import {
   BAR_GAP_BY_DENSITY,
   BAR_SLOT_WIDTH_BY_DENSITY,
+  clampDockOpacity,
   DEFAULT_BAR_VISUALIZER_PREFERENCES,
+  DOCK_OPACITY_RANGE,
   loadBarVisualizerPreferences,
   resolveBarCountForCanvas,
   resolveBarGapForDensity,
@@ -40,7 +42,31 @@ describe('barVisualizerPreferences', () => {
       barTrail: 'none',
       glow: 'off',
       scopeSmoothing: 0.62,
+      dockOpacity: 0.28,
+      dockLayoutMode: 'backdrop',
     });
+  });
+
+  test('persists dock layout mode for inline and backdrop visualizer placement', () => {
+    saveBarVisualizerPreferences({
+      ...DEFAULT_BAR_VISUALIZER_PREFERENCES,
+      dockLayoutMode: 'inline',
+    });
+
+    expect(loadBarVisualizerPreferences().dockLayoutMode).toBe('inline');
+  });
+
+  test('clamps dock backdrop opacity below the fullscreen ceiling', () => {
+    expect(clampDockOpacity(0.9)).toBe(DOCK_OPACITY_RANGE.max);
+    expect(clampDockOpacity(0)).toBe(DOCK_OPACITY_RANGE.min);
+    expect(clampDockOpacity(0.28)).toBe(0.28);
+
+    localStorage.setItem(
+      'idling-radio-player-viz-prefs',
+      JSON.stringify({ dockOpacity: 0.88 })
+    );
+
+    expect(loadBarVisualizerPreferences().dockOpacity).toBe(DOCK_OPACITY_RANGE.max);
   });
 
   test('when glass was saved as a preset, frequency bars keep a glass fill option', () => {
@@ -60,6 +86,8 @@ describe('barVisualizerPreferences', () => {
       barTrail: 'none',
       glow: 'off',
       scopeSmoothing: 0.62,
+      dockOpacity: 0.28,
+      dockLayoutMode: 'backdrop',
     });
   });
 
@@ -80,6 +108,8 @@ describe('barVisualizerPreferences', () => {
       barTrail: 'none',
       glow: 'off',
       scopeSmoothing: 0.62,
+      dockOpacity: 0.28,
+      dockLayoutMode: 'backdrop',
     });
   });
 
@@ -123,6 +153,8 @@ describe('barVisualizerPreferences', () => {
           barTrail: 'none',
           glow: 'off',
           scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
         },
         'dock'
       )
@@ -141,6 +173,8 @@ describe('barVisualizerPreferences', () => {
           barTrail: 'none',
           glow: 'off',
           scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
         },
         'expanded'
       )
@@ -161,6 +195,8 @@ describe('barVisualizerPreferences', () => {
           barTrail: 'none',
           glow: 'off',
           scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
         },
         'expanded'
       )
@@ -179,6 +215,8 @@ describe('barVisualizerPreferences', () => {
           barTrail: 'none',
           glow: 'off',
           scopeSmoothing: 0.62,
+          dockOpacity: 0.28,
+          dockLayoutMode: 'backdrop',
         },
         'dock'
       )

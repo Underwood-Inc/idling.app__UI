@@ -11,8 +11,8 @@ export const RADIO_META_WIDTH_RANGE_PX: RadioMetaWidthRangePx = {
   max: 560,
 };
 
-/** Space reserved for play, dock visualizer, volume, and action buttons. */
-export const RADIO_META_WIDTH_ROW_RESERVE_PX = 320;
+/** Space reserved for play, transport, volume, and action buttons (dock viz is a backdrop). */
+export const RADIO_META_WIDTH_ROW_RESERVE_PX = 230;
 
 /** Fullscreen dock has no inline visualizer — only play, controls, and padding. */
 export const RADIO_META_WIDTH_ROW_RESERVE_FULLSCREEN_PX = 220;

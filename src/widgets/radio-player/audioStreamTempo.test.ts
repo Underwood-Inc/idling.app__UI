@@ -1,8 +1,11 @@
 import {
   advanceAudioStreamTempoPhase,
   AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
+  AUDIO_STREAM_TEMPO_MOTION_RATE_MAX_FACTOR,
+  AUDIO_STREAM_TEMPO_MOTION_SCALE_MAX,
   createAudioStreamTempoState,
   formatAudioStreamTempoBpmLabel,
+  resolveAudioStreamTempoBpmDisplay,
   resolveAudioStreamTempoMotionRate,
   resolveAudioStreamTempoPhaseDelta,
   tickAudioStreamTempo,
@@ -86,6 +89,12 @@ describe('audioStreamTempo', () => {
       confidence: 0.8,
       motionScale: 1.2,
     };
+    const veryFastTempo = {
+      ...AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
+      bpm: 180,
+      confidence: 0.9,
+      motionScale: AUDIO_STREAM_TEMPO_MOTION_SCALE_MAX,
+    };
 
     const slowDelta = resolveAudioStreamTempoPhaseDelta(slowTempo, 0.01, 1 / 60);
     const fastDelta = resolveAudioStreamTempoPhaseDelta(fastTempo, 0.01, 1 / 60);
@@ -93,6 +102,12 @@ describe('audioStreamTempo', () => {
     expect(fastDelta).toBeGreaterThan(slowDelta);
     expect(resolveAudioStreamTempoMotionRate(fastTempo, 0.01)).toBeGreaterThan(
       resolveAudioStreamTempoMotionRate(slowTempo, 0.01)
+    );
+    expect(resolveAudioStreamTempoMotionRate(veryFastTempo, 0.01)).toBeGreaterThan(
+      resolveAudioStreamTempoMotionRate(fastTempo, 0.01)
+    );
+    expect(resolveAudioStreamTempoMotionRate(veryFastTempo, 0.01)).toBeLessThanOrEqual(
+      0.01 * AUDIO_STREAM_TEMPO_MOTION_RATE_MAX_FACTOR
     );
 
     const phaseState = { phase: 0 };
@@ -105,10 +120,44 @@ describe('audioStreamTempo', () => {
       formatAudioStreamTempoBpmLabel({ bpm: 128, confidence: 0.8, isPlaying: false })
     ).toBe('—');
     expect(
-      formatAudioStreamTempoBpmLabel({ bpm: 128, confidence: 0.05, isPlaying: true })
+      formatAudioStreamTempoBpmLabel({
+        bpm: 128,
+        confidence: 0.05,
+        isPlaying: true,
+        bassLevel: 0.2,
+        beatSampleCount: 0,
+        playingForMs: 1000,
+      })
     ).toBe('···');
     expect(
-      formatAudioStreamTempoBpmLabel({ bpm: 127.6, confidence: 0.4, isPlaying: true })
+      formatAudioStreamTempoBpmLabel({
+        bpm: 127.6,
+        confidence: 0.4,
+        isPlaying: true,
+        bassLevel: 0.2,
+        beatSampleCount: 4,
+        playingForMs: 12000,
+      })
     ).toBe('128');
+    expect(
+      formatAudioStreamTempoBpmLabel({
+        bpm: 132,
+        confidence: 0.15,
+        isPlaying: true,
+        bassLevel: 0.18,
+        beatSampleCount: 2,
+        playingForMs: 5000,
+      })
+    ).toBe('~132');
+    expect(
+      resolveAudioStreamTempoBpmDisplay({
+        isPlaying: true,
+        bpm: 120,
+        confidence: 0,
+        bassLevel: 0.01,
+        beatSampleCount: 0,
+        playingForMs: 9000,
+      }).state
+    ).toBe('silent');
   });
 });

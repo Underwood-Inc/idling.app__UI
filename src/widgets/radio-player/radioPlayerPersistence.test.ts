@@ -8,8 +8,8 @@ import {
 import { RADIO_PLAYER_STORAGE_KEY } from './radio-player';
 
 describe('radioPlayerPersistence', () => {
-  test('does not preserve any IndexedDB databases', () => {
-    expect(isPreservedRadioIndexedDb('idling-radio-player')).toBe(false);
+  test('preserves the radio player IndexedDB database during cache clears', () => {
+    expect(isPreservedRadioIndexedDb('idling-radio-player')).toBe(true);
     expect(isPreservedRadioIndexedDb('some-other-db')).toBe(false);
   });
 
@@ -59,6 +59,6 @@ describe('radioPlayerPersistence', () => {
 
     await deleteNonPreservedIndexedDatabases();
 
-    expect(deleted).toEqual(['idling-radio-player', 'app-cache-db']);
+    expect(deleted).toEqual(['app-cache-db']);
   });
 });

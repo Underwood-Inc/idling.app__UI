@@ -1,7 +1,9 @@
 import type {
+  AudioStreamTempoBpmDisplayView,
   AudioStreamTempoState,
   AudioStreamTempoUniforms,
   FormatAudioStreamTempoBpmLabelInput,
+  ResolveAudioStreamTempoBpmDisplayInput,
   ResolveAudioStreamTempoMotionRateOptions,
   ResolveAudioStreamTempoPhaseDeltaOptions,
   TickAudioStreamTempoInput,
@@ -9,9 +11,12 @@ import type {
 } from './audioStreamTempo.types';
 
 export type {
+  AudioStreamTempoBpmDisplayState,
+  AudioStreamTempoBpmDisplayView,
   AudioStreamTempoState,
   AudioStreamTempoUniforms,
   FormatAudioStreamTempoBpmLabelInput,
+  ResolveAudioStreamTempoBpmDisplayInput,
   ResolveAudioStreamTempoMotionRateOptions,
   ResolveAudioStreamTempoPhaseDeltaOptions,
   TickAudioStreamTempoInput,
@@ -20,8 +25,18 @@ export type {
 
 export const AUDIO_STREAM_TEMPO_NEUTRAL_BPM = 120;
 export const AUDIO_STREAM_TEMPO_INTERVAL_BUFFER_SIZE = 12;
-export const AUDIO_STREAM_TEMPO_MIN_BEAT_INTERVAL_MS = 333;
+export const AUDIO_STREAM_TEMPO_MIN_BEAT_INTERVAL_MS = 280;
 export const AUDIO_STREAM_TEMPO_MAX_BEAT_INTERVAL_MS = 1000;
+export const AUDIO_STREAM_TEMPO_MOTION_SCALE_MIN = 0.68;
+export const AUDIO_STREAM_TEMPO_MOTION_SCALE_MAX = 1.72;
+export const AUDIO_STREAM_TEMPO_MOTION_RATE_MIN_FACTOR = 0.68;
+export const AUDIO_STREAM_TEMPO_MOTION_RATE_MAX_FACTOR = 1.72;
+
+export const AUDIO_STREAM_TEMPO_SILENCE_BASS_THRESHOLD = 0.035;
+export const AUDIO_STREAM_TEMPO_QUIET_BASS_THRESHOLD = 0.055;
+export const AUDIO_STREAM_TEMPO_SILENCE_AFTER_MS = 7000;
+export const AUDIO_STREAM_TEMPO_STABLE_CONFIDENCE = 0.35;
+export const AUDIO_STREAM_TEMPO_ESTIMATE_CONFIDENCE = 0.08;
 
 export const AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS: AudioStreamTempoUniforms = {
   bpm: AUDIO_STREAM_TEMPO_NEUTRAL_BPM,
@@ -29,6 +44,8 @@ export const AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS: AudioStreamTempoUniforms = {
   confidence: 0,
   beat: 0,
   motionScale: 1,
+  bassLevel: 0,
+  beatSampleCount: 0,
 };
 
 export function createAudioStreamTempoState(): AudioStreamTempoState {
@@ -99,7 +116,10 @@ function resolveIntervalConfidence(intervals: Float32Array, count: number, media
 function resolveMotionScale(bpm: number, confidence: number): number {
   const normalized = bpm / AUDIO_STREAM_TEMPO_NEUTRAL_BPM;
   const scaled = 1 + (normalized - 1) * confidence;
-  return Math.max(0.72, Math.min(1.38, scaled));
+  return Math.max(
+    AUDIO_STREAM_TEMPO_MOTION_SCALE_MIN,
+    Math.min(AUDIO_STREAM_TEMPO_MOTION_SCALE_MAX, scaled)
+  );
 }
 
 function pushBeatInterval(state: AudioStreamTempoState, intervalMs: number): AudioStreamTempoState {
@@ -124,7 +144,7 @@ function pushBeatInterval(state: AudioStreamTempoState, intervalMs: number): Aud
   }
 
   const targetBpm = 60000 / median;
-  state.bpm = state.bpm + (targetBpm - state.bpm) * 0.22;
+  state.bpm = state.bpm + (targetBpm - state.bpm) * 0.26;
   state.confidence = resolveIntervalConfidence(state.intervals, state.intervalCount, median);
   return state;
 }
@@ -168,7 +188,7 @@ export function tickAudioStreamTempo({
       : 0;
 
   const targetMotionScale = resolveMotionScale(nextState.bpm, nextState.confidence);
-  const motionScale = state.motionScale + (targetMotionScale - state.motionScale) * 0.12;
+  const motionScale = state.motionScale + (targetMotionScale - state.motionScale) * 0.16;
 
   const uniforms: AudioStreamTempoUniforms = {
     bpm: nextState.bpm,
@@ -176,6 +196,8 @@ export function tickAudioStreamTempo({
     confidence: nextState.confidence,
     beat: nextState.beat,
     motionScale,
+    bassLevel: bassSmoothed,
+    beatSampleCount: nextState.intervalCount,
   };
 
   nextState = { ...nextState, motionScale };
@@ -204,8 +226,8 @@ export function resolveAudioStreamTempoMotionRate(
   baseRate: number,
   options: ResolveAudioStreamTempoMotionRateOptions = {}
 ): number {
-  const minRate = options.minRate ?? baseRate * 0.72;
-  const maxRate = options.maxRate ?? baseRate * 1.38;
+  const minRate = options.minRate ?? baseRate * AUDIO_STREAM_TEMPO_MOTION_RATE_MIN_FACTOR;
+  const maxRate = options.maxRate ?? baseRate * AUDIO_STREAM_TEMPO_MOTION_RATE_MAX_FACTOR;
   const blended = baseRate * (1 - tempo.confidence) + baseRate * tempo.motionScale * tempo.confidence;
   return Math.max(minRate, Math.min(maxRate, blended));
 }
@@ -225,39 +247,83 @@ export function advanceAudioStreamTempoPhase(
   );
 }
 
-export function formatAudioStreamTempoBpmLabel({
+export function resolveAudioStreamTempoBpmDisplay({
+  isPlaying,
   bpm,
   confidence,
-  isPlaying,
-}: FormatAudioStreamTempoBpmLabelInput): string {
+  bassLevel,
+  beatSampleCount,
+  playingForMs,
+}: ResolveAudioStreamTempoBpmDisplayInput): AudioStreamTempoBpmDisplayView {
   if (!isPlaying) {
-    return '—';
+    return {
+      state: 'paused',
+      label: '—',
+      description: 'Tempo unavailable while paused',
+    };
   }
 
-  if (confidence < 0.12) {
-    return '···';
+  const isSilentSignal =
+    bassLevel < AUDIO_STREAM_TEMPO_SILENCE_BASS_THRESHOLD ||
+    (bassLevel < AUDIO_STREAM_TEMPO_QUIET_BASS_THRESHOLD &&
+      beatSampleCount === 0 &&
+      playingForMs >= AUDIO_STREAM_TEMPO_SILENCE_AFTER_MS);
+
+  if (isSilentSignal) {
+    return {
+      state: 'silent',
+      label: '—',
+      description: 'No clear beat in the stream right now',
+    };
   }
 
-  return String(Math.round(bpm));
+  if (confidence >= AUDIO_STREAM_TEMPO_STABLE_CONFIDENCE) {
+    const rounded = Math.round(bpm);
+    return {
+      state: 'stable',
+      label: String(rounded),
+      description: `Tempo ${rounded} beats per minute`,
+    };
+  }
+
+  if (beatSampleCount >= 2 || confidence >= AUDIO_STREAM_TEMPO_ESTIMATE_CONFIDENCE) {
+    const rounded = Math.round(bpm);
+    return {
+      state: 'estimating',
+      label: `~${rounded}`,
+      description: `Approximate tempo ${rounded} beats per minute`,
+    };
+  }
+
+  return {
+    state: 'listening',
+    label: '···',
+    description: 'Listening for beats in the stream',
+  };
 }
 
-export function describeAudioStreamTempoBpm({
-  bpm,
-  confidence,
-  isPlaying,
-}: FormatAudioStreamTempoBpmLabelInput): string {
-  if (!isPlaying) {
-    return 'Tempo unavailable while paused';
-  }
+export function formatAudioStreamTempoBpmLabel(
+  input: FormatAudioStreamTempoBpmLabelInput
+): string {
+  return resolveAudioStreamTempoBpmDisplay({
+    isPlaying: input.isPlaying,
+    bpm: input.bpm,
+    confidence: input.confidence,
+    bassLevel: input.bassLevel ?? 0,
+    beatSampleCount: input.beatSampleCount ?? 0,
+    playingForMs: input.playingForMs ?? 0,
+  }).label;
+}
 
-  const rounded = Math.round(bpm);
-  if (confidence < 0.12) {
-    return 'Estimating tempo from the stream';
-  }
-
-  if (confidence < 0.35) {
-    return `Approximate tempo ${rounded} beats per minute`;
-  }
-
-  return `Tempo ${rounded} beats per minute`;
+export function describeAudioStreamTempoBpm(
+  input: FormatAudioStreamTempoBpmLabelInput
+): string {
+  return resolveAudioStreamTempoBpmDisplay({
+    isPlaying: input.isPlaying,
+    bpm: input.bpm,
+    confidence: input.confidence,
+    bassLevel: input.bassLevel ?? 0,
+    beatSampleCount: input.beatSampleCount ?? 0,
+    playingForMs: input.playingForMs ?? 0,
+  }).description;
 }

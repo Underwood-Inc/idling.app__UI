@@ -29,6 +29,8 @@ export type BarVisualizerFullscreenLayout = 'strip' | 'canvas' | 'radial' | 'hem
 
 export type BarVisualizerSurface = 'dock' | 'expanded';
 
+export type BarVisualizerDockLayoutMode = 'backdrop' | 'inline';
+
 export interface BarVisualizerPreferences {
   /** Active preset in expanded (fullscreen / PWA) bar mode. */
   presetId: string;
@@ -42,6 +44,10 @@ export interface BarVisualizerPreferences {
   barTrail: BarVisualizerBarTrail;
   glow: BarVisualizerGlow;
   scopeSmoothing: number;
+  /** Translucency of the dock control-bar backdrop visualizer (0–1, capped below fullscreen). */
+  dockOpacity: number;
+  /** Full-bar backdrop visualizer vs inline strip between meta and tools. */
+  dockLayoutMode: BarVisualizerDockLayoutMode;
 }
 
 export type BarVisualizerDensity = 'compact' | 'normal' | 'wide';
@@ -82,6 +88,8 @@ export interface BarVisualizerDrawContext {
   playing: boolean;
   barGap: number;
   fullscreen?: boolean;
+  /** Dock bar fills the control row — skip opaque inset canvas chrome. */
+  dockBackdrop?: boolean;
   waveStyle: BarVisualizerWaveStyle;
   colorPalette: BarVisualizerColorPalette;
   timeData: Float32Array;

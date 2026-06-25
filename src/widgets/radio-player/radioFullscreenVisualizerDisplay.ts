@@ -3,6 +3,8 @@ import {
   RADIO_FULLSCREEN_DEFAULT_PRESET_ID,
 } from './radioVisualizerPresets';
 import { normalizeWebglVisualizerPresetId, WEBGL_DEFAULT_PRESET_ID } from './webgl/webglVisualizerPresets';
+import type { RadioSpectrumGradientOverrides } from './radioVisualizerSpectrumColors';
+import { normalizeRadioSpectrumGradientOverrides } from './radioVisualizerSpectrumColors';
 import {
   NEON_CONSTELLATION_DEFAULT_MOTION_MODE,
   normalizeNeonConstellationMotionMode,
@@ -24,6 +26,7 @@ export interface RadioFullscreenVisualizerDisplay {
   spectrumBarHeight: number;
   webglPresetId: string;
   webglConstellationMotion: NeonConstellationMotionMode;
+  spectrumGradientByPreset: RadioSpectrumGradientOverrides;
 }
 
 export const RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE: RadioFullscreenSpectrumBarHeightRange = {
@@ -100,6 +103,7 @@ export const DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY: RadioFullscreenVisuali
   spectrumBarHeight: 1,
   webglPresetId: WEBGL_DEFAULT_PRESET_ID,
   webglConstellationMotion: NEON_CONSTELLATION_DEFAULT_MOTION_MODE,
+  spectrumGradientByPreset: {},
 };
 
 export function clampRadioFullscreenVisualizerOpacity(value: number): number {
@@ -214,6 +218,9 @@ export function loadRadioFullscreenVisualizerDisplay(): RadioFullscreenVisualize
           ? normalizeWebglVisualizerPresetId(parsed.webglPresetId)
           : DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY.webglPresetId,
       webglConstellationMotion: normalizeNeonConstellationMotionMode(parsed.webglConstellationMotion),
+      spectrumGradientByPreset: normalizeRadioSpectrumGradientOverrides(
+        parsed.spectrumGradientByPreset
+      ),
     };
   } catch {
     return { ...DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY };
@@ -238,6 +245,9 @@ export function saveRadioFullscreenVisualizerDisplay(
       webglPresetId: normalizeWebglVisualizerPresetId(display.webglPresetId),
       webglConstellationMotion: normalizeNeonConstellationMotionMode(
         display.webglConstellationMotion
+      ),
+      spectrumGradientByPreset: normalizeRadioSpectrumGradientOverrides(
+        display.spectrumGradientByPreset
       ),
     })
   );

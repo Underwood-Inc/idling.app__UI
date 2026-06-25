@@ -3,6 +3,7 @@ import type {
   BarVisualizerBarTrail,
   BarVisualizerColorPalette,
   BarVisualizerDensity,
+  BarVisualizerDockLayoutMode,
   BarVisualizerGlow,
   BarVisualizerPreferences,
   BarVisualizerWaveStyle,
@@ -28,6 +29,8 @@ export const DEFAULT_BAR_VISUALIZER_PREFERENCES: BarVisualizerPreferences = {
   barTrail: 'none',
   glow: 'off',
   scopeSmoothing: 0.62,
+  dockOpacity: 0.28,
+  dockLayoutMode: 'backdrop',
 };
 
 export const BAR_COUNT_BY_DENSITY: Record<BarVisualizerDensity, number> = {
@@ -112,6 +115,29 @@ export const SCOPE_SMOOTHING_RANGE = {
 
 export function clampScopeSmoothing(value: number): number {
   return Math.min(SCOPE_SMOOTHING_RANGE.max, Math.max(SCOPE_SMOOTHING_RANGE.min, value));
+}
+
+export interface DockOpacityRange {
+  min: number;
+  max: number;
+  step: number;
+  default: number;
+}
+
+/** Dock backdrop opacity — lower ceiling than fullscreen spectrum. */
+export const DOCK_OPACITY_RANGE: DockOpacityRange = {
+  min: 0.05,
+  max: 0.45,
+  step: 0.05,
+  default: 0.28,
+};
+
+export function clampDockOpacity(value: number): number {
+  return Math.min(DOCK_OPACITY_RANGE.max, Math.max(DOCK_OPACITY_RANGE.min, value));
+}
+
+export function normalizeDockLayoutMode(value: unknown): BarVisualizerDockLayoutMode {
+  return value === 'inline' ? 'inline' : 'backdrop';
 }
 
 interface LegacyVisualizerStyleMigration {
@@ -223,6 +249,11 @@ export function loadBarVisualizerPreferences(): BarVisualizerPreferences {
         typeof parsed.scopeSmoothing === 'number'
           ? clampScopeSmoothing(parsed.scopeSmoothing)
           : DEFAULT_BAR_VISUALIZER_PREFERENCES.scopeSmoothing,
+      dockOpacity:
+        typeof parsed.dockOpacity === 'number'
+          ? clampDockOpacity(parsed.dockOpacity)
+          : DEFAULT_BAR_VISUALIZER_PREFERENCES.dockOpacity,
+      dockLayoutMode: normalizeDockLayoutMode(parsed.dockLayoutMode),
     };
   } catch {
     return { ...DEFAULT_BAR_VISUALIZER_PREFERENCES };

@@ -66,6 +66,7 @@ describe('radioFullscreenVisualizerDisplay', () => {
       spectrumBarHeight: 1.25,
       webglPresetId: 'nebula-chamber',
       webglConstellationMotion: 'drift',
+      spectrumGradientByPreset: { 'graph-steel': 'idling-violet' },
     });
 
     expect(JSON.parse(localStorage.getItem(RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY) ?? '')).toEqual({
@@ -76,6 +77,7 @@ describe('radioFullscreenVisualizerDisplay', () => {
       spectrumBarHeight: 1.25,
       webglPresetId: 'liquid-merge',
       webglConstellationMotion: 'drift',
+      spectrumGradientByPreset: { 'graph-steel': 'idling-violet' },
     });
     expect(loadRadioFullscreenVisualizerDisplay()).toEqual({
       enabled: false,
@@ -85,6 +87,7 @@ describe('radioFullscreenVisualizerDisplay', () => {
       spectrumBarHeight: 1.25,
       webglPresetId: 'liquid-merge',
       webglConstellationMotion: 'drift',
+      spectrumGradientByPreset: { 'graph-steel': 'idling-violet' },
     });
   });
 

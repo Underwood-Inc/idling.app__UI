@@ -17,6 +17,8 @@ import type { BarVisualizerDensity, BarVisualizerPreferences } from './barVisual
 import {
   BAR_COUNT_BY_DENSITY,
   clampScopeSmoothing,
+  clampDockOpacity,
+  normalizeDockLayoutMode,
   DEFAULT_BAR_VISUALIZER_PREFERENCES,
   loadBarVisualizerPreferences,
   resolveBarCountForCanvas,
@@ -44,6 +46,26 @@ import {
   createAudioStreamTempoState,
   tickAudioStreamTempo,
 } from './audioStreamTempo';
+import { createRadioEqualizerChain } from './radioEqualizer';
+import {
+  createDefaultRadioEqualizerSettings,
+  getRadioEqualizerPreset,
+  normalizeRadioEqualizerBandGains,
+} from './radioEqualizerPresets';
+import {
+  createRadioEqualizerLastSelectionFromCustom,
+  createRadioEqualizerLastSelectionFromPreset,
+} from './radioEqualizerLastSelection';
+import {
+  deleteRadioEqualizerCustomPresetEntry,
+  isRadioEqualizerCustomPresetSaved,
+  normalizeRadioEqualizerCustomPresetLabel,
+} from './radioEqualizerCustomPresets';
+import {
+  loadRadioEqualizerSettings,
+  saveRadioEqualizerSettings,
+} from './radioEqualizerPersistence';
+import type { RadioEqualizerChain, RadioEqualizerCustomSlot, RadioEqualizerPresetId, RadioEqualizerSettings } from './radioEqualizer.types';
 import { getBarVisualizerTheme } from './barVisualizerThemes';
 import { attachRadioHlsPlayback } from './radioHlsPlayback';
 import type {
@@ -332,6 +354,10 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   }
 
   const audio = new Audio();
+  audio.preload = 'none';
+
+  let stationLoadToken = 0;
+  let suppressStreamReconnect = false;
   audio.crossOrigin = 'anonymous';
   audio.preload = 'none';
 
@@ -351,6 +377,17 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   let audioCtx: AudioContext | null = null;
   let analyser: AnalyserNode | null = null;
   let source: MediaElementAudioSourceNode | null = null;
+  let equalizerChain: RadioEqualizerChain | null = null;
+  let equalizerSettings: RadioEqualizerSettings = createDefaultRadioEqualizerSettings();
+
+  const applyEqualizerToChain = (): void => {
+    equalizerChain?.setBandGains(equalizerSettings.bandGains);
+  };
+
+  void loadRadioEqualizerSettings().then((settings) => {
+    equalizerSettings = settings;
+    applyEqualizerToChain();
+  });
   let rafId = 0;
   let vizLoopActive = false;
   let tempoRafId = 0;
@@ -737,22 +774,38 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
         nextPrefs.scopeSmoothing !== undefined
           ? clampScopeSmoothing(nextPrefs.scopeSmoothing)
           : visualizerPrefs.scopeSmoothing,
+      dockOpacity:
+        nextPrefs.dockOpacity !== undefined
+          ? clampDockOpacity(nextPrefs.dockOpacity)
+          : visualizerPrefs.dockOpacity,
+      dockLayoutMode:
+        nextPrefs.dockLayoutMode !== undefined
+          ? normalizeDockLayoutMode(nextPrefs.dockLayoutMode)
+          : visualizerPrefs.dockLayoutMode,
     };
     rebuildVisualizer();
   };
 
-  const getBarDrawContextBase = () => ({
-    barGap: resolveBarGapForDensity(visualizerPrefs.density),
-    theme: getBarVisualizerTheme(),
-    state: visualizerRuntime.getState(),
-    fullscreen: canvas.closest('[data-irp-bar-fullscreen="true"]') !== null,
-    waveStyle: visualizerPrefs.waveStyle ?? 'line',
-    colorPalette: visualizerPrefs.colorPalette ?? 'theme',
-    timeData: timeWave,
-    barFill: visualizerPrefs.barFill ?? 'solid',
-    barTrail: visualizerPrefs.barTrail ?? 'none',
-    glow: visualizerPrefs.glow ?? 'off',
-  });
+  const getBarDrawContextBase = () => {
+    const isFullscreen = canvas.closest('[data-irp-bar-fullscreen="true"]') !== null;
+    const dockBackdrop =
+      !isFullscreen &&
+      canvas.parentElement?.getAttribute('data-irp-dock-viz-backdrop') === 'true';
+
+    return {
+      barGap: resolveBarGapForDensity(visualizerPrefs.density),
+      theme: getBarVisualizerTheme(),
+      state: visualizerRuntime.getState(),
+      fullscreen: isFullscreen,
+      dockBackdrop,
+      waveStyle: visualizerPrefs.waveStyle ?? 'line',
+      colorPalette: visualizerPrefs.colorPalette ?? 'theme',
+      timeData: timeWave,
+      barFill: visualizerPrefs.barFill ?? 'solid',
+      barTrail: visualizerPrefs.barTrail ?? 'none',
+      glow: visualizerPrefs.glow ?? 'off',
+    };
+  };
 
   const fetchNowPlaying = async () => {
     if (!playing || !stationSupportsTrackMetadata(activeName)) {
@@ -861,7 +914,12 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
         analyser.smoothingTimeConstant = 0.72;
         analyser.minDecibels = -88;
         analyser.maxDecibels = -22;
-        source.connect(analyser);
+        if (!equalizerChain) {
+          equalizerChain = createRadioEqualizerChain(audioCtx);
+          applyEqualizerToChain();
+        }
+        source.connect(equalizerChain.input);
+        equalizerChain.output.connect(analyser);
         analyser.connect(audioCtx.destination);
         rawFreq = new Uint8Array(analyser.frequencyBinCount);
         rawTime = new Uint8Array(analyser.fftSize);
@@ -1077,6 +1135,74 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     audio.load();
   };
 
+  const resumePlaybackAfterStationLoad = (loadToken: number): void => {
+    if (loadToken !== stationLoadToken || !playing || needsTap) {
+      return;
+    }
+
+    const attemptPlay = () => {
+      if (loadToken !== stationLoadToken) {
+        return;
+      }
+
+      void play();
+    };
+
+    if (audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      attemptPlay();
+      return;
+    }
+
+    const onReady = () => {
+      audio.removeEventListener('canplay', onReady);
+      audio.removeEventListener('loadeddata', onReady);
+      attemptPlay();
+    };
+
+    audio.addEventListener('canplay', onReady);
+    audio.addEventListener('loadeddata', onReady);
+  };
+
+  const reconnectActiveStationStream = (): void => {
+    if (suppressStreamReconnect || !playing || needsTap || !stations[activeName]) {
+      return;
+    }
+
+    const loadToken = ++stationLoadToken;
+
+    void (async () => {
+      teardownStreamPlayback();
+
+      try {
+        await bindResolvedStream(stations[activeName]);
+      } catch {
+        return;
+      }
+
+      if (loadToken !== stationLoadToken) {
+        return;
+      }
+
+      resumePlaybackAfterStationLoad(loadToken);
+    })();
+  };
+
+  audio.addEventListener('ended', () => {
+    reconnectActiveStationStream();
+  });
+
+  audio.addEventListener('stalled', () => {
+    if (!playing || needsTap) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (playing && audio.paused && !needsTap) {
+        reconnectActiveStationStream();
+      }
+    }, 1200);
+  });
+
   const bindResolvedStream = async (sourceUrl: string): Promise<void> => {
     const resolved = await resolveRadioStreamUrl({ url: sourceUrl });
 
@@ -1090,6 +1216,10 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   };
 
   const loadStation = (name: string, shouldResume: boolean): void => {
+    const loadToken = ++stationLoadToken;
+    const resumeAfterLoad = shouldResume;
+
+    suppressStreamReconnect = true;
     activeName = name;
     localStorage.setItem(storageKey, name);
     teardownStreamPlayback();
@@ -1104,22 +1234,23 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       } catch (error) {
         console.warn('[Idling Radio] Failed to load station stream.', error);
         syncStationName();
+        suppressStreamReconnect = false;
+        return;
+      }
+
+      if (loadToken !== stationLoadToken) {
         return;
       }
 
       syncStationName();
 
-      if (!shouldResume || needsTap) {
+      if (!resumeAfterLoad || needsTap) {
+        suppressStreamReconnect = false;
         return;
       }
 
-      const resume = () => {
-        audio.removeEventListener('canplay', resume);
-        void play();
-      };
-
-      audio.addEventListener('canplay', resume);
-      await play();
+      resumePlaybackAfterStationLoad(loadToken);
+      suppressStreamReconnect = false;
     })();
   };
 
@@ -1198,6 +1329,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       pause();
       teardownStreamPlayback();
       source?.disconnect();
+      equalizerChain?.disconnect();
       analyser?.disconnect();
       void audioCtx?.close();
       clearRuntimeStationDefinitions();
@@ -1217,6 +1349,149 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     getVisualizerPreferences: () => ({ ...visualizerPrefs }),
     setVisualizerPreferences,
     getAudioStreamTempo: () => ({ ...tempoUniforms }),
+    getEqualizerSettings: () => ({
+      presetId: equalizerSettings.presetId,
+      customPresetSlot: equalizerSettings.customPresetSlot,
+      bandGains: [...equalizerSettings.bandGains],
+      customPresets: equalizerSettings.customPresets.map((preset) => ({
+        slot: preset.slot,
+        label: preset.label,
+        bandGains: [...preset.bandGains],
+        savedAt: preset.savedAt,
+      })),
+      lastSelection: { ...equalizerSettings.lastSelection },
+    }),
+    setEqualizerBandGains: (bandGains) => {
+      equalizerSettings = {
+        ...equalizerSettings,
+        presetId: null,
+        customPresetSlot: null,
+        bandGains: [...normalizeRadioEqualizerBandGains(bandGains)],
+      };
+      applyEqualizerToChain();
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
+    applyEqualizerPreset: (presetId: RadioEqualizerPresetId) => {
+      const preset = getRadioEqualizerPreset(presetId);
+      equalizerSettings = {
+        ...equalizerSettings,
+        presetId,
+        customPresetSlot: null,
+        bandGains: [...preset.bandGains],
+        lastSelection: createRadioEqualizerLastSelectionFromPreset(presetId),
+      };
+      applyEqualizerToChain();
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
+    saveEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot, label: string) => {
+      const normalizedLabel = normalizeRadioEqualizerCustomPresetLabel(label, slot);
+      const nextPresets = equalizerSettings.customPresets.map((preset) =>
+        preset.slot === slot
+          ? {
+              slot,
+              label: normalizedLabel,
+              bandGains: [...normalizeRadioEqualizerBandGains(equalizerSettings.bandGains)],
+              savedAt: Date.now(),
+            }
+          : preset
+      );
+
+      equalizerSettings = {
+        ...equalizerSettings,
+        presetId: null,
+        customPresetSlot: slot,
+        customPresets: nextPresets,
+        lastSelection: createRadioEqualizerLastSelectionFromCustom(slot),
+      };
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
+    renameEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot, label: string) => {
+      const preset = equalizerSettings.customPresets.find((entry) => entry.slot === slot);
+      if (!preset || !isRadioEqualizerCustomPresetSaved(preset)) {
+        return;
+      }
+
+      const normalizedLabel = normalizeRadioEqualizerCustomPresetLabel(label, slot);
+      const nextPresets = equalizerSettings.customPresets.map((entry) =>
+        entry.slot === slot
+          ? {
+              ...entry,
+              label: normalizedLabel,
+            }
+          : entry
+      );
+
+      equalizerSettings = {
+        ...equalizerSettings,
+        customPresets: nextPresets,
+      };
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
+    deleteEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot) => {
+      const nextPresets = deleteRadioEqualizerCustomPresetEntry(equalizerSettings.customPresets, slot);
+      const clearedActiveSlot = equalizerSettings.customPresetSlot === slot;
+      const clearedLastSelection =
+        equalizerSettings.lastSelection.source === 'custom' &&
+        equalizerSettings.lastSelection.customSlot === slot;
+
+      equalizerSettings = {
+        ...equalizerSettings,
+        customPresets: nextPresets,
+        customPresetSlot: clearedActiveSlot ? null : equalizerSettings.customPresetSlot,
+        lastSelection: clearedLastSelection
+          ? createRadioEqualizerLastSelectionFromPreset('flat')
+          : equalizerSettings.lastSelection,
+      };
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
+    applyEqualizerCustomPreset: (slot: RadioEqualizerCustomSlot) => {
+      const preset = equalizerSettings.customPresets.find((entry) => entry.slot === slot);
+      if (!preset || !isRadioEqualizerCustomPresetSaved(preset)) {
+        return;
+      }
+
+      equalizerSettings = {
+        ...equalizerSettings,
+        presetId: null,
+        customPresetSlot: slot,
+        bandGains: [...preset.bandGains],
+        lastSelection: createRadioEqualizerLastSelectionFromCustom(slot),
+      };
+      applyEqualizerToChain();
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
+    resetEqualizerToLastSelection: () => {
+      const { lastSelection } = equalizerSettings;
+
+      if (lastSelection.source === 'custom') {
+        const preset = equalizerSettings.customPresets.find(
+          (entry) => entry.slot === lastSelection.customSlot
+        );
+        if (preset && isRadioEqualizerCustomPresetSaved(preset)) {
+          equalizerSettings = {
+            ...equalizerSettings,
+            presetId: null,
+            customPresetSlot: lastSelection.customSlot,
+            bandGains: [...preset.bandGains],
+            lastSelection: createRadioEqualizerLastSelectionFromCustom(lastSelection.customSlot),
+          };
+          applyEqualizerToChain();
+          void saveRadioEqualizerSettings(equalizerSettings);
+        }
+        return;
+      }
+
+      const preset = getRadioEqualizerPreset(lastSelection.presetId);
+      equalizerSettings = {
+        ...equalizerSettings,
+        presetId: lastSelection.presetId,
+        customPresetSlot: null,
+        bandGains: [...preset.bandGains],
+        lastSelection: createRadioEqualizerLastSelectionFromPreset(lastSelection.presetId),
+      };
+      applyEqualizerToChain();
+      void saveRadioEqualizerSettings(equalizerSettings);
+    },
     getAudioElement: () => audio,
     getAnalyser: () => analyser,
     getAudioContext: () => audioCtx,
@@ -1234,6 +1509,7 @@ export {
   createAudioStreamTempoState,
   describeAudioStreamTempoBpm,
   formatAudioStreamTempoBpmLabel,
+  resolveAudioStreamTempoBpmDisplay,
   resolveAudioStreamTempoMotionRate,
   resolveAudioStreamTempoPhaseDelta,
   tickAudioStreamTempo,

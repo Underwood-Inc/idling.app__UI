@@ -10,6 +10,7 @@ import type {
   BarVisualizerThemeRgb,
 } from './barVisualizer.types';
 import { advanceAudioStreamTempoPhase } from './audioStreamTempo';
+import { drawRoundedBarPeakCap } from './barVisualizerPeakCap';
 
 function mixRgb(from: BarVisualizerThemeRgb, to: BarVisualizerThemeRgb, t: number): BarVisualizerThemeRgb {
   const clamped = Math.max(0, Math.min(1, t));
@@ -68,10 +69,10 @@ function roundRect(
 }
 
 function paintCanvasBg(drawContext: BarVisualizerDrawContext): void {
-  const { ctx, width, height, theme, fullscreen } = drawContext;
+  const { ctx, width, height, theme, fullscreen, dockBackdrop } = drawContext;
   ctx.clearRect(0, 0, width, height);
 
-  if (fullscreen) {
+  if (fullscreen || dockBackdrop) {
     return;
   }
 
@@ -158,9 +159,17 @@ function drawFrequencyBars(drawContext: BarVisualizerDrawContext): void {
 
     if (barTrail === 'peaks') {
       const peakY = height - state.peaks[index] * height * 0.88;
-      ctx.fillStyle = rgba(theme.secondary, 0.95);
-      roundRect(ctx, x, peakY, barW, 2, 1);
-      ctx.fill();
+      const headroom =
+        (state.peaks[index] - level) / Math.max(state.peaks[index], 0.001);
+      drawRoundedBarPeakCap({
+        ctx,
+        x,
+        barWidth: barW,
+        peakY,
+        fillStyle: resolveBarFill(drawContext, state.peaks[index], index, drawContext.data.length),
+        alpha: 0.35 + Math.max(0, Math.min(1, headroom)) * 0.6,
+        maxCornerRadius: Math.min(barW / 2, 4),
+      });
     }
   });
 

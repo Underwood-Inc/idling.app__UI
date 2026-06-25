@@ -1,3 +1,10 @@
+export type AudioStreamTempoBpmDisplayState =
+  | 'paused'
+  | 'silent'
+  | 'listening'
+  | 'estimating'
+  | 'stable';
+
 export interface AudioStreamTempoUniforms {
   /** Estimated tempo in beats per minute. */
   bpm: number;
@@ -9,6 +16,25 @@ export interface AudioStreamTempoUniforms {
   beat: number;
   /** Multiplier for animation speeds derived from BPM and confidence. */
   motionScale: number;
+  /** Smoothed low-frequency energy, 0–1. */
+  bassLevel: number;
+  /** Number of beat intervals collected for tempo estimation. */
+  beatSampleCount: number;
+}
+
+export interface AudioStreamTempoBpmDisplayView {
+  state: AudioStreamTempoBpmDisplayState;
+  label: string;
+  description: string;
+}
+
+export interface ResolveAudioStreamTempoBpmDisplayInput {
+  isPlaying: boolean;
+  bpm: number;
+  confidence: number;
+  bassLevel: number;
+  beatSampleCount: number;
+  playingForMs: number;
 }
 
 export interface AudioStreamTempoState {
@@ -49,4 +75,7 @@ export interface FormatAudioStreamTempoBpmLabelInput {
   bpm: number;
   confidence: number;
   isPlaying: boolean;
+  bassLevel?: number;
+  beatSampleCount?: number;
+  playingForMs?: number;
 }

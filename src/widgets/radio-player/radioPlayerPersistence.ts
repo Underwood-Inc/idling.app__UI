@@ -3,6 +3,7 @@ import { RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY } from './radioFullscre
 import { BAR_VISUALIZER_PREFS_STORAGE_KEY } from './barVisualizerPreferences';
 import { RADIO_NO_TRACK_METADATA_STORAGE_KEY } from './radioStationMetadata';
 import { RADIO_STATION_GENRE_FILTER_STORAGE_KEY } from './radioStationGenreFilterPersistence';
+import { RADIO_PLAYER_INDEXED_DB_NAME } from './radioStationFavoritesIndexedDb';
 
 export interface RadioPlayerPersistenceSnapshot {
   localStorage: Record<string, string>;
@@ -17,8 +18,8 @@ export const PRESERVED_RADIO_LOCAL_STORAGE_KEYS: readonly string[] = [
   RADIO_NO_TRACK_METADATA_STORAGE_KEY,
 ];
 
-export function isPreservedRadioIndexedDb(_dbName: string): boolean {
-  return false;
+export function isPreservedRadioIndexedDb(dbName: string): boolean {
+  return dbName === RADIO_PLAYER_INDEXED_DB_NAME;
 }
 
 export function snapshotPreservedRadioLocalStorage(): Record<string, string> {

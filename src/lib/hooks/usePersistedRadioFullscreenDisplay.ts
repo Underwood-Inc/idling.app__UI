@@ -13,6 +13,7 @@ import {
 import { normalizeWebglVisualizerPresetId } from '@widgets/radio-player/webgl/webglVisualizerPresets';
 import { normalizeNeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion';
 import type { NeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion.types';
+import type { RadioVisualizerGradientId } from '@widgets/radio-player/radioVisualizerGradients';
 
 export interface UsePersistedRadioFullscreenDisplayResult {
   display: RadioFullscreenVisualizerDisplay;
@@ -24,6 +25,7 @@ export interface UsePersistedRadioFullscreenDisplayResult {
   setWebglPresetId: (presetId: string) => void;
   setWebglConstellationMotion: (mode: NeonConstellationMotionMode) => void;
   setSpectrumBarHeight: (barHeight: number) => void;
+  setSpectrumGradientForPreset: (presetId: string, gradientId: RadioVisualizerGradientId) => void;
 }
 
 export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscreenDisplayResult {
@@ -96,6 +98,19 @@ export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscree
     }));
   }, []);
 
+  const setSpectrumGradientForPreset = useCallback(
+    (presetId: string, gradientId: RadioVisualizerGradientId) => {
+      setDisplay((current) => ({
+        ...current,
+        spectrumGradientByPreset: {
+          ...current.spectrumGradientByPreset,
+          [presetId]: gradientId,
+        },
+      }));
+    },
+    []
+  );
+
   return {
     display,
     isLoaded,
@@ -106,5 +121,6 @@ export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscree
     setWebglPresetId,
     setWebglConstellationMotion,
     setSpectrumBarHeight,
+    setSpectrumGradientForPreset,
   };
 }

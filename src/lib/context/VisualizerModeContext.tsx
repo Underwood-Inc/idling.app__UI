@@ -10,6 +10,7 @@ import { usePersistedRadioFullscreenDisplay } from '@lib/hooks/usePersistedRadio
 import { useWebglVisualizerCapability } from '@lib/hooks/useWebglVisualizerCapability';
 import type { WebglVisualizerCapabilityState } from '@lib/hooks/useWebglVisualizerCapability';
 import type { RadioFullscreenVisualizerSource } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
+import type { RadioVisualizerGradientId } from '@widgets/radio-player/radioVisualizerGradients';
 import type { NeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion.types';
 import {
   createContext,
@@ -38,6 +39,8 @@ export interface VisualizerModeContextValue {
   setSpectrumOpacity: (opacity: number) => void;
   spectrumBarHeight: number;
   setSpectrumBarHeight: (barHeight: number) => void;
+  spectrumGradientByPreset: Record<string, RadioVisualizerGradientId | undefined>;
+  setSpectrumGradientForPreset: (presetId: string, gradientId: RadioVisualizerGradientId) => void;
   webglVisualizerCapability: WebglVisualizerCapabilityState;
   enterVisualizerMode: () => Promise<void>;
   exitFullscreen: () => Promise<void>;
@@ -64,6 +67,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
     setWebglPresetId,
     setWebglConstellationMotion,
     setSpectrumBarHeight,
+    setSpectrumGradientForPreset,
   } = usePersistedRadioFullscreenDisplay();
 
   const guardedSetFullscreenSource = useCallback(
@@ -205,6 +209,8 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       setSpectrumOpacity,
       spectrumBarHeight: display.spectrumBarHeight,
       setSpectrumBarHeight,
+      spectrumGradientByPreset: display.spectrumGradientByPreset,
+      setSpectrumGradientForPreset,
       webglVisualizerCapability,
       enterVisualizerMode,
       exitFullscreen,
@@ -219,6 +225,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       display.webglPresetId,
       display.webglConstellationMotion,
       display.spectrumBarHeight,
+      display.spectrumGradientByPreset,
       enterVisualizerMode,
       exitFullscreen,
       toggleDocumentFullscreen,
@@ -232,6 +239,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       guardedSetWebglPresetId,
       setWebglConstellationMotion,
       setSpectrumBarHeight,
+      setSpectrumGradientForPreset,
       webglVisualizerCapability,
     ]
   );

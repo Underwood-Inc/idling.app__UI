@@ -3,8 +3,7 @@
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import {
   AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
-  describeAudioStreamTempoBpm,
-  formatAudioStreamTempoBpmLabel,
+  resolveAudioStreamTempoBpmDisplay,
 } from '@widgets/radio-player/audioStreamTempo';
 import type { AudioStreamTempoUniforms } from '@widgets/radio-player/audioStreamTempo.types';
 import { useEffect, useState } from 'react';
@@ -31,7 +30,7 @@ export function useAudioStreamTempo({
     };
 
     sync();
-    const timer = window.setInterval(sync, 250);
+    const timer = window.setInterval(sync, 200);
 
     return () => {
       window.clearInterval(timer);
@@ -47,28 +46,47 @@ export interface RadioPlayerBpmDisplayProps {
 
 export function RadioPlayerBpmDisplay({ isPlaying }: RadioPlayerBpmDisplayProps) {
   const tempo = useAudioStreamTempo({ isPlaying });
-  const value = formatAudioStreamTempoBpmLabel({
+  const [playingSinceMs, setPlayingSinceMs] = useState<number | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setPlayingSinceMs(null);
+      return undefined;
+    }
+
+    setPlayingSinceMs(Date.now());
+    const timer = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, 400);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [isPlaying]);
+
+  const playingForMs =
+    isPlaying && playingSinceMs !== null ? Math.max(0, nowMs - playingSinceMs) : 0;
+
+  const display = resolveAudioStreamTempoBpmDisplay({
+    isPlaying,
     bpm: tempo.bpm,
     confidence: tempo.confidence,
-    isPlaying,
+    bassLevel: tempo.bassLevel,
+    beatSampleCount: tempo.beatSampleCount,
+    playingForMs,
   });
 
   return (
     <div
       className={styles.bpm}
-      data-confidence={
-        !isPlaying ? 'idle' : tempo.confidence >= 0.35 ? 'high' : tempo.confidence >= 0.12 ? 'mid' : 'low'
-      }
-      aria-label={describeAudioStreamTempoBpm({
-        bpm: tempo.bpm,
-        confidence: tempo.confidence,
-        isPlaying,
-      })}
+      data-state={display.state}
+      aria-label={display.description}
       data-testid="radio-player-bpm-display"
     >
       <span className={styles.bpm__label}>BPM</span>
       <span className={styles.bpm__value} aria-hidden="true">
-        {value}
+        {display.label}
       </span>
     </div>
   );

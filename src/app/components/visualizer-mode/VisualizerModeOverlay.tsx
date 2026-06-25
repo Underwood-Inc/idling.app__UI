@@ -16,6 +16,7 @@ export function VisualizerModeOverlay() {
     spectrumOpacity,
     spectrumBarHeight,
     fullscreenSource,
+    spectrumGradientByPreset,
     webglPresetId,
     webglConstellationMotion,
     webglVisualizerCapability,
@@ -43,6 +44,7 @@ export function VisualizerModeOverlay() {
         opacity={spectrumOpacity}
         barHeight={spectrumBarHeight}
         preset={activePreset}
+        spectrumGradientByPreset={spectrumGradientByPreset}
       />
       <RadioBarVisualizerFullscreen
         isActive={isActive}

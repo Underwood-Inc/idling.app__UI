@@ -51,19 +51,24 @@
   white-space: nowrap;
 }
 
-.spectrumFrame {
+.spectrumFrame,
+.barFrame,
+.webglFrame {
   position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  left: 0.75rem;
+  top: 0;
+  right: 0;
+  left: 0;
   width: auto;
-  height: calc(var(--irp-dock-top, calc(100vh - var(--irp-dock-height, 4rem) - var(--irp-dock-bottom-gap, 0.75rem))) - 0.75rem + 2px);
+  height: var(--irp-dock-top, calc(100vh - var(--irp-dock-height, 4rem) - var(--irp-dock-bottom-gap, 0.75rem)));
   z-index: 5000;
-  display: flex;
   box-sizing: border-box;
   container-type: size;
   pointer-events: none;
   overflow: hidden;
+}
+
+.spectrumFrame {
+  display: flex;
 }
 
 .spectrumFrame[data-radial='true'] {
@@ -101,20 +106,9 @@
 }
 
 .barFrame {
-  position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  left: 0.75rem;
-  width: auto;
-  height: calc(var(--irp-dock-top, calc(100vh - var(--irp-dock-height, 4rem) - var(--irp-dock-bottom-gap, 0.75rem))) - 0.75rem + 2px);
-  z-index: 5000;
   display: flex;
   align-items: flex-end;
   justify-content: stretch;
-  box-sizing: border-box;
-  container-type: size;
-  pointer-events: none;
-  overflow: hidden;
 }
 
 .barFrame[data-radial='true'] {
@@ -182,20 +176,9 @@
 }
 
 .webglFrame {
-  position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  left: 0.75rem;
-  width: auto;
-  height: calc(var(--irp-dock-top, calc(100vh - var(--irp-dock-height, 4rem) - var(--irp-dock-bottom-gap, 0.75rem))) - 0.75rem + 2px);
-  z-index: 5000;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
-  box-sizing: border-box;
-  container-type: size;
-  pointer-events: none;
-  overflow: hidden;
 }
 
 .webglFullscreen {
