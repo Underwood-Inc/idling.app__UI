@@ -34,7 +34,7 @@ function runEqualizerRead<T>(operation: (store: IDBObjectStore) => IDBRequest<T>
 }
 
 function runEqualizerWrite(
-  operation: (store: IDBObjectStore) => IDBRequest<IDBValidKey>
+  operation: (store: IDBObjectStore) => IDBRequest
 ): Promise<void> {
   return openRadioPlayerIndexedDb().then(
     (database) =>
