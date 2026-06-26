@@ -24,9 +24,10 @@ void main() {
 const FRAGMENT_SHADER = `#version 300 es
 precision highp float;
 uniform vec3 u_color;
+uniform float u_barOpacity;
 out vec4 outColor;
 void main() {
-  outColor = vec4(u_color, 1.0);
+  outColor = vec4(u_color, u_barOpacity);
 }
 `;
 
@@ -36,6 +37,7 @@ export function createMirrorBarsRenderer(gl: WebGL2RenderingContext): WebglVisua
   const program = compileShaderProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
   const matrixLoc = gl.getUniformLocation(program, 'u_matrix');
   const colorLoc = gl.getUniformLocation(program, 'u_color');
+  const barOpacityLoc = gl.getUniformLocation(program, 'u_barOpacity');
   const positionLoc = gl.getAttribLocation(program, 'a_position');
   const buffer = gl.createBuffer();
   const barEnvelope = createBarLevelEnvelope(BAR_COUNT);
@@ -80,6 +82,9 @@ export function createMirrorBarsRenderer(gl: WebGL2RenderingContext): WebglVisua
 
       const matrix = writeOrthoMatrix(orthoMatrix, 0, layoutWidth, layoutHeight, 0);
       gl.uniformMatrix4fv(matrixLoc, false, matrix);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.uniform1f(barOpacityLoc, frame.barOpacity);
 
       const gap = 2;
       const barWidth = (layoutWidth - gap * (BAR_COUNT - 1)) / BAR_COUNT;

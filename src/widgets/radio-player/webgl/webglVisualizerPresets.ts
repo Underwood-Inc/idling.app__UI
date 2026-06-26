@@ -4,6 +4,7 @@ import { createMirrorBarsRenderer } from './renderers/createMirrorBarsRenderer';
 import { createNeonConstellationRenderer } from './renderers/createNeonConstellationRenderer';
 import { createNetrunnerGridRenderer } from './renderers/createNetrunnerGridRenderer';
 import { createRadialSpectrumRenderer } from './renderers/createRadialSpectrumRenderer';
+import { createStarryHorizonRenderer } from './renderers/createStarryHorizonRenderer';
 import { createSpectrumBarsRenderer } from './renderers/createSpectrumBarsRenderer';
 import { createWaveformPathRenderer } from './renderers/createWaveformPathRenderer';
 
@@ -27,7 +28,14 @@ const LEGACY_WEBGL_PRESET_ID_MAP: Record<string, string> = {
   'hex-lattice': 'spectrum-bars',
   'circuit-matrix': 'spectrum-bars',
   'cyber-tunnel': 'netrunner-grid',
-  'ripple-pool': 'neon-constellation',
+  'cyber-tunnel-extreme': 'spectrum-bars',
+  'bar-city-extreme': 'spectrum-bars',
+  'netrunner-grid-extreme': 'spectrum-bars',
+  'idling-radio-tunnel': 'spectrum-bars',
+  'neon-cube-avenue': 'spectrum-bars',
+  'ripple-pool': 'starry-horizon',
+  'mirror-lake': 'starry-horizon',
+  'eq-horizon': 'starry-horizon',
   'spectrum-bloom': 'radial-spectrum',
 };
 
@@ -37,6 +45,12 @@ export const WEBGL_VISUALIZER_PRESETS: WebglVisualizerPresetDefinition[] = [
     label: 'Netrunner grid',
     description: '3D cyber avenue — neon towers on both sides over a scrolling grid',
     createRenderer: createNetrunnerGridRenderer,
+  },
+  {
+    id: 'starry-horizon',
+    label: 'Starry horizon',
+    description: 'Gold-to-teal EQ skyline on a low horizon — starry night mirrored in calm water',
+    createRenderer: createStarryHorizonRenderer,
   },
   {
     id: 'spectrum-bars',

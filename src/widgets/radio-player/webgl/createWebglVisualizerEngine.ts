@@ -1,4 +1,5 @@
 import { detectWebglVisualizerCapability } from './detectWebglVisualizerCapability';
+import { clampRadioFullscreenVisualizerOpacity } from '../radioFullscreenVisualizerDisplay';
 import {
   createWebglAudioReactiveState,
   tickWebglAudioReactive,
@@ -105,6 +106,7 @@ export function createWebglVisualizerEngine(
   let constellationMotion = normalizeNeonConstellationMotionMode(
     options.constellationMotion ?? NEON_CONSTELLATION_DEFAULT_MOTION_MODE
   );
+  let barOpacity = clampRadioFullscreenVisualizerOpacity(options.initialBarOpacity ?? 1);
 
   const onContextLost = (event: Event) => {
     event.preventDefault();
@@ -197,6 +199,7 @@ export function createWebglVisualizerEngine(
       tempo: tempoUniforms,
       deltaSeconds: deltaSeconds || 1 / 60,
       constellationMotion,
+      barOpacity,
     };
 
     try {
@@ -236,6 +239,10 @@ export function createWebglVisualizerEngine(
 
     setConstellationMotion(mode) {
       constellationMotion = normalizeNeonConstellationMotionMode(mode);
+    },
+
+    setBarOpacity(opacity: number) {
+      barOpacity = clampRadioFullscreenVisualizerOpacity(opacity);
     },
 
     resize(width: number, height: number) {

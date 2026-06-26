@@ -8,6 +8,8 @@ import { resolveWebglVisualizerThemeUniforms } from '@widgets/radio-player/webgl
 import { normalizeWebglVisualizerPresetId } from '@widgets/radio-player/webgl/webglVisualizerPresets';
 import { normalizeNeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion';
 import type { NeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion.types';
+import { AmbientSkyHorizonScene } from '../ambient-background';
+import { STARRY_HORIZON_Y } from '@widgets/radio-player/webgl/renderers/createStarryHorizonRenderer';
 import { useEffect, useRef, useState } from 'react';
 import styles from './VisualizerMode.module.css';
 
@@ -34,11 +36,28 @@ export function RadioWebglVisualizerFullscreen({
   const engineRef = useRef<ReturnType<typeof createWebglVisualizerEngine> | null>(null);
   const { handle, isAvailable } = useRadioPlayer();
   const normalizedPresetId = normalizeWebglVisualizerPresetId(presetId);
+  const showStarryHorizonStars = normalizedPresetId === 'starry-horizon';
   const normalizedConstellationMotion = normalizeNeonConstellationMotionMode(constellationMotion);
   const [engineError, setEngineError] = useState<string | null>(null);
   const reducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    if (showStarryHorizonStars && isActive && enabled) {
+      document.documentElement.dataset.starryHorizonVisualizer = 'true';
+    } else {
+      delete document.documentElement.dataset.starryHorizonVisualizer;
+    }
+
+    return () => {
+      delete document.documentElement.dataset.starryHorizonVisualizer;
+    };
+  }, [enabled, isActive, showStarryHorizonStars]);
+
+  useEffect(() => {
+    engineRef.current?.setBarOpacity(opacity);
+  }, [opacity]);
 
   useEffect(() => {
     engineRef.current?.setPreset(normalizedPresetId);
@@ -83,6 +102,7 @@ export function RadioWebglVisualizerFullscreen({
           reducedMotion,
           initialPresetId: normalizedPresetId,
           constellationMotion: normalizedConstellationMotion,
+          initialBarOpacity: opacity,
           onFatalError: (message) => {
             setEngineError(message);
           },
@@ -156,7 +176,6 @@ export function RadioWebglVisualizerFullscreen({
         ref={frameRef}
         className={styles.webglFrame}
         data-irp-webgl-fullscreen="true"
-        style={{ opacity }}
       >
         <p
           className={styles.overlay__emptyState}
@@ -174,14 +193,24 @@ export function RadioWebglVisualizerFullscreen({
       ref={frameRef}
       className={styles.webglFrame}
       data-irp-webgl-fullscreen="true"
-      style={{ opacity }}
+      data-starry-horizon={showStarryHorizonStars ? 'true' : 'false'}
       aria-hidden="true"
     >
-      <div
-        ref={hostRef}
-        className={styles.webglFullscreen}
-        data-testid="radio-webgl-visualizer-fullscreen"
-      />
+      {showStarryHorizonStars ? (
+        <AmbientSkyHorizonScene horizonRatio={STARRY_HORIZON_Y}>
+          <div
+            ref={hostRef}
+            className={styles.webglFullscreen}
+            data-testid="radio-webgl-visualizer-fullscreen"
+          />
+        </AmbientSkyHorizonScene>
+      ) : (
+        <div
+          ref={hostRef}
+          className={styles.webglFullscreen}
+          data-testid="radio-webgl-visualizer-fullscreen"
+        />
+      )}
     </div>
   );
 }

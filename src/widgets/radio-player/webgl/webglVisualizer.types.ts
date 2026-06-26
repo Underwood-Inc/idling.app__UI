@@ -28,6 +28,8 @@ export interface WebglDrawFrameInput {
   tempo: AudioStreamTempoUniforms;
   deltaSeconds: number;
   constellationMotion: NeonConstellationMotionMode;
+  /** Fullscreen spectrum opacity — bars only; scene backgrounds stay opaque. */
+  barOpacity: number;
 }
 
 export interface WebglVisualizerRenderer {
@@ -47,6 +49,7 @@ export interface WebglVisualizerPresetDefinition {
 export interface WebglVisualizerEngine {
   setPreset: (presetId: string) => void;
   setConstellationMotion: (mode: NeonConstellationMotionMode) => void;
+  setBarOpacity: (opacity: number) => void;
   resize: (width: number, height: number) => void;
   start: (analyser: AnalyserNode) => void;
   stop: () => void;
@@ -58,6 +61,7 @@ export interface CreateWebglVisualizerEngineOptions {
   reducedMotion?: boolean;
   initialPresetId?: string;
   constellationMotion?: NeonConstellationMotionMode;
+  initialBarOpacity?: number;
   onFatalError?: (message: string) => void;
 }
 
