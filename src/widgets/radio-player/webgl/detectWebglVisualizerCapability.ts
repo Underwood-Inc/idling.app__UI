@@ -16,7 +16,7 @@ void main() {
 }
 `;
 
-let cachedCapability: WebglVisualizerCapability | null = null;
+let cachedSupportedCapability: WebglVisualizerCapability | null = null;
 
 function compileProbeShader(
   gl: WebGL2RenderingContext,
@@ -77,16 +77,15 @@ function linkProbeProgram(gl: WebGL2RenderingContext): WebGLProgram | null {
 }
 
 export function detectWebglVisualizerCapability(): WebglVisualizerCapability {
-  if (cachedCapability) {
-    return cachedCapability;
+  if (cachedSupportedCapability?.isSupported) {
+    return cachedSupportedCapability;
   }
 
   if (typeof document === 'undefined') {
-    cachedCapability = {
+    return {
       isSupported: false,
       reason: 'WebGL visualizers require a browser environment.',
     };
-    return cachedCapability;
   }
 
   const canvas = document.createElement('canvas');
@@ -105,35 +104,33 @@ export function detectWebglVisualizerCapability(): WebglVisualizerCapability {
   }
 
   if (!gl) {
-    cachedCapability = {
+    return {
       isSupported: false,
       reason: 'WebGL2 is not available in this browser or is disabled.',
     };
-    return cachedCapability;
   }
 
   const program = linkProbeProgram(gl);
   if (!program) {
     gl.getExtension('WEBGL_lose_context')?.loseContext();
-    cachedCapability = {
+    return {
       isSupported: false,
       reason: 'WebGL2 shaders could not run on this device.',
     };
-    return cachedCapability;
   }
 
   gl.deleteProgram(program);
   gl.getExtension('WEBGL_lose_context')?.loseContext();
 
-  cachedCapability = {
+  cachedSupportedCapability = {
     isSupported: true,
     reason: null,
   };
-  return cachedCapability;
+  return cachedSupportedCapability;
 }
 
 export function resetWebglVisualizerCapabilityCacheForTests(): void {
-  cachedCapability = null;
+  cachedSupportedCapability = null;
 }
 
 export function isWebglVisualizerSourceAllowed(

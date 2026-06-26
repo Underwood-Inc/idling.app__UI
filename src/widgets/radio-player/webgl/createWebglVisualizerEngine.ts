@@ -1,24 +1,19 @@
-import { detectWebglVisualizerCapability } from './detectWebglVisualizerCapability';
-import { clampRadioFullscreenVisualizerOpacity } from '../radioFullscreenVisualizerDisplay';
-import {
-  createWebglAudioReactiveState,
-  tickWebglAudioReactive,
-} from './webglAudioReactiveState';
 import {
   AUDIO_STREAM_TEMPO_DEFAULT_UNIFORMS,
   createAudioStreamTempoState,
   tickAudioStreamTempo,
 } from '../audioStreamTempo';
-import { clearTransparentWebglFrame, releaseWebglContextState } from './webglGlUtils';
-import {
-  getWebglVisualizerPresetDefinition,
-  normalizeWebglVisualizerPresetId,
-  WEBGL_DEFAULT_PRESET_ID,
-} from './webglVisualizerPresets';
+import { detectWebglVisualizerCapability } from './detectWebglVisualizerCapability';
 import {
   NEON_CONSTELLATION_DEFAULT_MOTION_MODE,
   normalizeNeonConstellationMotionMode,
 } from './neonConstellationMotion';
+import {
+  createWebglAudioReactiveState,
+  tickWebglAudioReactive,
+} from './webglAudioReactiveState';
+import { resolveWebglDeviceProfile, resolveWebglPixelRatio } from './webglDeviceProfile';
+import { clearTransparentWebglFrame, releaseWebglContextState } from './webglGlUtils';
 import type {
   CreateWebglVisualizerEngineOptions,
   WebglDrawFrameInput,
@@ -26,6 +21,12 @@ import type {
   WebglVisualizerRenderer,
   WebglVisualizerThemeUniforms,
 } from './webglVisualizer.types';
+import {
+  getWebglVisualizerPresetDefinition,
+  normalizeWebglVisualizerPresetId,
+  WEBGL_DEFAULT_PRESET_ID,
+} from './webglVisualizerPresets';
+import { clampRadioFullscreenVisualizerOpacity } from '../radioFullscreenVisualizerDisplay';
 
 function destroyRenderer(gl: WebGL2RenderingContext, renderer: WebglVisualizerRenderer): void {
   try {
@@ -65,13 +66,14 @@ export function createWebglVisualizerEngine(
     throw new Error(capability.reason ?? 'WebGL2 is not available');
   }
 
+  const deviceProfile = resolveWebglDeviceProfile();
   const gl = canvas.getContext('webgl2', {
     alpha: true,
-    antialias: true,
+    antialias: deviceProfile.preferAntialias,
     depth: true,
     stencil: false,
     preserveDrawingBuffer: false,
-    powerPreference: 'high-performance',
+    powerPreference: deviceProfile.powerPreference,
   });
 
   if (!gl) {
@@ -79,7 +81,7 @@ export function createWebglVisualizerEngine(
   }
 
   const theme: WebglVisualizerThemeUniforms = options.theme;
-  const onFatalError = options.onFatalError;
+  const onRecovered = options.onRecovered;
   const initialPresetId = normalizeWebglVisualizerPresetId(
     options.initialPresetId ?? WEBGL_DEFAULT_PRESET_ID
   );
@@ -115,13 +117,33 @@ export function createWebglVisualizerEngine(
       cancelAnimationFrame(rafId);
       rafId = 0;
     }
-    onFatalError?.('WebGL context was lost. Leave and re-open fullscreen to restore visuals.');
+  };
+
+  const onContextRestored = (event: Event) => {
+    event.preventDefault();
+    destroyRenderer(gl, renderer);
+    const restored = createRendererForPreset(gl, presetId);
+    presetId = restored.presetId;
+    renderer = restored.renderer;
+    pendingPresetId = null;
+    renderer.resize(pixelWidth, pixelHeight);
+
+    if (!analyser) {
+      onRecovered?.();
+      return;
+    }
+
+    running = true;
+    lastFrameTimestamp = 0;
+    onRecovered?.();
+    rafId = requestAnimationFrame(drawFrame);
   };
 
   canvas.addEventListener('webglcontextlost', onContextLost);
+  canvas.addEventListener('webglcontextrestored', onContextRestored);
 
   const resolvePixelSize = () => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = resolveWebglPixelRatio(deviceProfile);
     pixelWidth = Math.max(1, Math.floor(layoutWidth * dpr));
     pixelHeight = Math.max(1, Math.floor(layoutHeight * dpr));
     return { pixelWidth, pixelHeight };
@@ -216,7 +238,6 @@ export function createWebglVisualizerEngine(
         renderer.draw(frame);
       } catch {
         running = false;
-        onFatalError?.('WebGL visualizer stopped after a draw failure.');
         return;
       }
     }
@@ -281,6 +302,7 @@ export function createWebglVisualizerEngine(
       this.stop();
       pendingPresetId = null;
       canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
       destroyRenderer(gl, renderer);
       analyser = null;
       frequencyBuffer = new Uint8Array(0);

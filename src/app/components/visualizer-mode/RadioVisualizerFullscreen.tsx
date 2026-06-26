@@ -10,6 +10,7 @@ import type { RadioVisualizerGradientId } from '@widgets/radio-player/radioVisua
 import {
   buildSpectrumGradientSetOptions,
   resolveSpectrumGradientForPreset,
+  stripAudioMotionGradientOptions,
   toAudioMotionGradientOptions,
 } from '@widgets/radio-player/radioVisualizerSpectrumColors';
 import type { RadioSpectrumGradientOverrides } from '@widgets/radio-player/radioVisualizerSpectrumColors';
@@ -28,6 +29,8 @@ import {
   resolveRadioSpectrumPeakSensitivity,
   tickRadioSpectrumPeakAutoGain,
 } from '@widgets/radio-player/radioSpectrumPeakAutoGain';
+import { waitForRadioAnalyser } from '@widgets/radio-player/waitForRadioAnalyser';
+import { scheduleVisualizerLayoutSync } from '@widgets/radio-player/visualizerLayoutSync';
 import styles from './VisualizerMode.module.css';
 
 export interface RadioVisualizerFullscreenProps {
@@ -60,6 +63,7 @@ export function RadioVisualizerFullscreen({
   spectrumGradientByPreset,
 }: RadioVisualizerFullscreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const analyzerRef = useRef<AudioMotionAnalyzer | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const barHeightRef = useRef(barHeight);
@@ -124,11 +128,18 @@ export function RadioVisualizerFullscreen({
 
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
+    let cancelLayoutSync: (() => void) | null = null;
 
     void (async () => {
-      await handle.play();
+      let analyser = await waitForRadioAnalyser({ handle, maxAttempts: 16, intervalMs: 125 });
 
-      const analyser = handle.getAnalyser();
+      while (!analyser && !cancelled) {
+        await new Promise<void>((resolve) => {
+          window.setTimeout(resolve, 1000);
+        });
+        analyser = await waitForRadioAnalyser({ handle, maxAttempts: 4, intervalMs: 125 });
+      }
+
       const audioCtx = handle.getAudioContext();
 
       if (!analyser || !audioCtx || cancelled) {
@@ -154,7 +165,7 @@ export function RadioVisualizerFullscreen({
       }
 
       const baseLinearBoost = RADIO_VISUALIZER_BASE_OPTIONS.linearBoost ?? 1.45;
-      const instance = new AudioMotion(container, {
+      const strippedOptions = stripAudioMotionGradientOptions({
         ...RADIO_VISUALIZER_BASE_OPTIONS,
         ...preset.options,
         ...(isRadial
@@ -169,12 +180,13 @@ export function RadioVisualizerFullscreen({
         linearBoost: resolveRadioFullscreenLinearBoost(baseLinearBoost, barHeightRef.current),
         minDecibels: initialSensitivity.minDecibels,
         maxDecibels: initialSensitivity.maxDecibels,
+      });
+
+      const instance = new AudioMotion(container, {
+        ...strippedOptions.options,
         source: analyser,
         audioCtx,
         connectSpeakers: false,
-        ...toAudioMotionGradientOptions(
-          buildSpectrumGradientSetOptions(preset.id, spectrumGradientRef.current)
-        ),
         showPeaks: useRoundedPeakCaps ? false : RADIO_VISUALIZER_BASE_OPTIONS.showPeaks,
         onCanvasDraw: useRoundedPeakCaps
           ? (analyzer, drawInfo) => {
@@ -209,6 +221,13 @@ export function RadioVisualizerFullscreen({
       analyzerRef.current = instance;
       applyBarHeightSettings(instance, barHeightRef.current, peakStateRef.current.rollingPeak);
       syncAnalyzerCanvasSize(container, instance);
+
+      cancelLayoutSync = scheduleVisualizerLayoutSync({
+        frame: frameRef.current ?? container,
+        onSize: () => {
+          syncAnalyzerCanvasSize(container, instance);
+        },
+      });
 
       resizeObserver = new ResizeObserver(() => {
         syncAnalyzerCanvasSize(container, instance);
@@ -247,6 +266,7 @@ export function RadioVisualizerFullscreen({
 
     return () => {
       cancelled = true;
+      cancelLayoutSync?.();
       if (peakRafRef.current) {
         cancelAnimationFrame(peakRafRef.current);
         peakRafRef.current = 0;
@@ -294,6 +314,7 @@ export function RadioVisualizerFullscreen({
 
   return (
     <div
+      ref={frameRef}
       className={styles.spectrumFrame}
       data-irp-fullscreen-viz-frame="true"
       data-radial={isRadial ? 'true' : 'false'}

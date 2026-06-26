@@ -63,6 +63,7 @@ export interface CreateWebglVisualizerEngineOptions {
   constellationMotion?: NeonConstellationMotionMode;
   initialBarOpacity?: number;
   onFatalError?: (message: string) => void;
+  onRecovered?: () => void;
 }
 
 export interface WebglVisualizerCapability {

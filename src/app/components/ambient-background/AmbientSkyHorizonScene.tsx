@@ -6,6 +6,7 @@ import { AmbientSkyEffectsLayer } from './AmbientSkyEffectsLayer';
 import { useAmbientStarfield } from './AmbientStarfieldProvider';
 
 export const AMBIENT_HORIZON_CLIP_BOTTOM_VAR = '--ambient-horizon-clip-bottom';
+export const AMBIENT_HORIZON_WATER_RATIO_VAR = '--ambient-horizon-water-ratio';
 
 export interface AmbientSkyHorizonSceneProps {
   /** Normalized height of the water band from the bottom (0–1). Sky occupies the rest. */
@@ -22,8 +23,11 @@ export interface AmbientSkyHorizonLayerProps {
 
 export function buildAmbientHorizonClipStyle(horizonRatio: number): CSSProperties {
   const clamped = Math.max(0.05, Math.min(0.95, horizonRatio));
+  const waterPercent = (clamped * 100).toFixed(4);
+
   return {
-    [AMBIENT_HORIZON_CLIP_BOTTOM_VAR]: `${(clamped * 100).toFixed(4)}%`,
+    [AMBIENT_HORIZON_CLIP_BOTTOM_VAR]: `${waterPercent}%`,
+    [AMBIENT_HORIZON_WATER_RATIO_VAR]: String(clamped),
   } as CSSProperties;
 }
 
