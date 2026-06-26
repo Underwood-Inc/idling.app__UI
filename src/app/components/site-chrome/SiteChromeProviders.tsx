@@ -14,6 +14,7 @@ import type { ReactNode } from 'react';
 import { RadioPlayerMountWrapper } from '../radio-player/RadioPlayerMountWrapper';
 import { RadioPwaStandaloneVisualizerBootstrap } from '../radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
 import { ServiceWorkerRegistration } from '../service-worker/ServiceWorkerRegistration';
+import { AmbientStarfieldProvider } from '../ambient-background';
 import { AmbientBackgroundWrapper } from '../ui/ClientWrappers';
 import { VisualizerModeGate } from '../visualizer-mode/VisualizerModeGate';
 
@@ -23,7 +24,7 @@ export interface SiteChromeProvidersProps {
 
 export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
   return (
-    <>
+    <AmbientStarfieldProvider>
       <AmbientBackgroundWrapper />
       <Script
         async
@@ -57,6 +58,6 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
         </UserPreferencesProvider>
       </SessionProvider>
       <div id="overlay-portal"></div>
-    </>
+    </AmbientStarfieldProvider>
   );
 }

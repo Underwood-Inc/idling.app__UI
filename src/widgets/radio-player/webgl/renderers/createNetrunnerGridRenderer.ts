@@ -10,6 +10,10 @@ import {
 } from '../webglGlUtils';
 import { resolveAudioStreamTempoMotionRate } from '../../audioStreamTempo';
 import { wrapTrackDepth } from '../netrunnerTrackDepth';
+import {
+  NETRUNNER_GRID_TUNING_STANDARD,
+  type NetrunnerGridRendererTuning,
+} from '../netrunnerGridRendererTuning';
 import { createReusableFloat32Buffer, createScratchNumberBuffer } from '../webglReusableBuffers';
 import type { ScratchNumberBuffer } from '../webglReusableBuffers';
 import type { WebglDrawFrameInput, WebglVisualizerRenderer } from '../webglVisualizer.types';
@@ -435,6 +439,13 @@ function appendBuildingSolids(target: ScratchNumberBuffer, layout: BuildingLayou
 }
 
 export function createNetrunnerGridRenderer(gl: WebGL2RenderingContext): WebglVisualizerRenderer {
+  return createNetrunnerGridRendererWithTuning(gl, NETRUNNER_GRID_TUNING_STANDARD);
+}
+
+function createNetrunnerGridRendererWithTuning(
+  gl: WebGL2RenderingContext,
+  tuning: NetrunnerGridRendererTuning
+): WebglVisualizerRenderer {
   const solidProgram = compileShaderProgram(gl, VERTEX_SHADER, SOLID_FRAGMENT);
   const lineProgram = compileShaderProgram(gl, VERTEX_SHADER, LINE_FRAGMENT);
   const sunProgram = compileShaderProgram(gl, SUN_VERTEX_SHADER, SUN_FRAGMENT_SHADER);
@@ -586,7 +597,7 @@ export function createNetrunnerGridRenderer(gl: WebGL2RenderingContext): WebglVi
           const seed = side * 137 + row * 41 + slot * 2.17;
 
           const spec = sampleFrequencyAt(frame.frequencyData, band);
-          smoothedBandSpec[bandIndex] = lerp(smoothedBandSpec[bandIndex], spec, 0.09);
+          smoothedBandSpec[bandIndex] = lerp(smoothedBandSpec[bandIndex], spec, tuning.bandResponseLerp);
           const calmSpec = smoothedBandSpec[bandIndex];
 
           const archetype = resolveArchetype(seed);
@@ -597,10 +608,11 @@ export function createNetrunnerGridRenderer(gl: WebGL2RenderingContext): WebglVi
           z = wrapTrackDepth({ z, spanZ });
           const enterFade = resolveBuildingEnterFade({ z, trackMin, trackLength });
 
-          let halfW = 0.28 + hashUnit(seed + 0.7) * 0.55;
-          let halfD = 0.22 + hashUnit(seed + 1.1) * 0.62 + row * 0.08;
+          let halfW = (0.28 + hashUnit(seed + 0.7) * 0.55) * tuning.buildingWidthScale;
+          let halfD = (0.22 + hashUnit(seed + 1.1) * 0.62 + row * 0.08) * tuning.buildingWidthScale;
           let height =
-            0.3 + Math.pow(Math.max(calmSpec, 0.05), 0.7) * (2.4 + smoothedBass * 0.65);
+            (0.3 + Math.pow(Math.max(calmSpec, 0.05), 0.7) * (2.4 + smoothedBass * 0.65)) *
+            tuning.buildingHeightScale;
 
           if (archetype === 'slab') {
             halfW *= 1.45;
@@ -648,8 +660,8 @@ export function createNetrunnerGridRenderer(gl: WebGL2RenderingContext): WebglVi
 
     draw(frame: WebglDrawFrameInput) {
       const aspect = layoutWidth / layoutHeight;
-      writePerspectiveMatrix(projectionMatrix, Math.PI / 2.35, aspect, 0.1, 60);
-      writeTranslationMatrix(viewMatrix, 0, -0.85, -3.2);
+      writePerspectiveMatrix(projectionMatrix, tuning.fieldOfViewRadians, aspect, 0.1, 60);
+      writeTranslationMatrix(viewMatrix, 0, tuning.cameraY, tuning.cameraZ);
       multiplyMatricesInto(viewProjectionMatrix, projectionMatrix, viewMatrix);
 
       smoothedEnergy = lerp(smoothedEnergy, frame.reactive.energy, 0.06);
@@ -657,7 +669,7 @@ export function createNetrunnerGridRenderer(gl: WebGL2RenderingContext): WebglVi
         ? 0
         : resolveAudioStreamTempoMotionRate(
             frame.tempo,
-            0.007 + smoothedEnergy * 0.01
+            (0.007 + smoothedEnergy * 0.01) * tuning.scrollRateScale
           );
       smoothedScrollRate = lerp(smoothedScrollRate, targetScrollRate, 0.07);
       scrollZ += smoothedScrollRate * frame.deltaSeconds * 60;
@@ -666,9 +678,15 @@ export function createNetrunnerGridRenderer(gl: WebGL2RenderingContext): WebglVi
 
       const floorPalette = resolveNetrunnerFloorPalette(frame.theme.primary, frame.theme.secondary);
       const gridPulse = smoothedBeat * 0.55 + smoothedBass * 0.3 + smoothedEnergy * 0.25;
-      const gridLineAlpha = 0.14 + smoothedBass * 0.1 + smoothedEnergy * 0.06;
-      const gridGlowAlpha = 0.06 + smoothedBeat * 1.05 + gridPulse * 0.28;
-      const avenueAlpha = 0.26 + gridPulse * 0.32;
+      const gridLineAlpha = Math.min(
+        1,
+        (0.14 + smoothedBass * 0.1 + smoothedEnergy * 0.06) * tuning.gridLineScale
+      );
+      const gridGlowAlpha = Math.min(
+        1,
+        (0.06 + smoothedBeat * 1.05 + gridPulse * 0.28) * tuning.gridGlowScale
+      );
+      const avenueAlpha = Math.min(1, (0.26 + gridPulse * 0.32) * tuning.avenueAlphaScale);
 
       buildFloorPlane(floorScratch);
       const spanZ = GRID_SPAN_Z;

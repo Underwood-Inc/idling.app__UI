@@ -11,6 +11,13 @@
   isolation: isolate;
 }
 
+.skyEffects {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  pointer-events: none;
+}
+
 /* Driven by RadioAudioEnergyBridge via documentElement custom properties. */
 .audioReactive {
   position: absolute;
@@ -652,4 +659,42 @@
 
 :global(html.visualizer-mode) .ambient {
   z-index: 0;
+}
+
+.skyHorizon__sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  clip-path: inset(0 0 var(--ambient-horizon-clip-bottom, 34%) 0);
+}
+
+.skyHorizon__reflection {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: var(--ambient-horizon-clip-bottom, 34%);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.skyHorizon__reflectionInner {
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  height: 100cqh;
+  transform: scaleY(-1);
+  transform-origin: center bottom;
+  opacity: 0.82;
+  filter: blur(0.5px);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+:global(html.visualizer-mode[data-starry-horizon-visualizer='true']) .ambient .skyEffects {
+  visibility: hidden;
 }

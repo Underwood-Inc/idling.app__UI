@@ -34,7 +34,7 @@ function getLogBinRange(barIndex: number, barCount: number, binCount: number): L
   return { start, end };
 }
 
-/** Peak-hold auto-gain normalizer — each bar scales to its recent maximum. */
+/** Peak-hold auto-gain normalizer with log-spaced FFT bins (canvas bars: per-bar peak; starry horizon: frame peak). */
 export function createSpectrumNormalizer(
   barCount: number,
   options: SpectrumNormalizerOptions = {}
@@ -42,14 +42,25 @@ export function createSpectrumNormalizer(
   const peakDecay = options.peakDecay ?? DEFAULT_PEAK_DECAY;
   const noiseFloor = options.noiseFloor ?? DEFAULT_NOISE_FLOOR;
   const minPeak = options.minPeak ?? DEFAULT_MIN_PEAK;
-  const trebleBoost = options.trebleBoost ?? DEFAULT_TREBLE_BOOST;
+  const mode = options.mode ?? 'per-bar-peak';
+  const trebleBoost =
+    options.trebleBoost ?? (mode === 'frame-peak' ? 0 : DEFAULT_TREBLE_BOOST);
   const peaks = new Float32Array(barCount);
   const targets = new Float32Array(barCount);
   const displayEnvelope = createBarLevelEnvelope(barCount);
+  let framePeak = minPeak;
+
+  const applyNoiseFloor = (target: number): number => {
+    if (target < noiseFloor) {
+      return (target * target) / Math.max(noiseFloor, 0.001);
+    }
+    return target;
+  };
 
   return {
     normalize(frequencyData, deltaSeconds = 1 / 60) {
       const binCount = frequencyData.length;
+      let frameMax = 0;
 
       for (let bar = 0; bar < barCount; bar += 1) {
         const { start, end } = getLogBinRange(bar, barCount, binCount);
@@ -61,23 +72,36 @@ export function createSpectrumNormalizer(
 
         const bandPosition = barCount <= 1 ? 0 : bar / (barCount - 1);
         const compensation = 1 + bandPosition * trebleBoost;
-        let level = (maxVal / 255) * compensation;
+        const level = (maxVal / 255) * compensation;
+        frameMax = Math.max(frameMax, level);
+        targets[bar] = level;
+      }
 
+      if (mode === 'frame-peak') {
+        framePeak = Math.max(frameMax, framePeak * peakDecay, minPeak);
+        const scale = Math.max(framePeak, minPeak);
+
+        for (let bar = 0; bar < barCount; bar += 1) {
+          let target = Math.min(1, (targets[bar] ?? 0) / scale);
+          targets[bar] = applyNoiseFloor(target);
+        }
+
+        return displayEnvelope.smooth(targets, deltaSeconds);
+      }
+
+      for (let bar = 0; bar < barCount; bar += 1) {
+        const level = targets[bar] ?? 0;
         peaks[bar] = Math.max(level, peaks[bar] * peakDecay);
         const scale = Math.max(peaks[bar], minPeak);
         let target = Math.min(1, level / scale);
-
-        if (target < noiseFloor) {
-          target = (target * target) / Math.max(noiseFloor, 0.001);
-        }
-
-        targets[bar] = target;
+        targets[bar] = applyNoiseFloor(target);
       }
 
       return displayEnvelope.smooth(targets, deltaSeconds);
     },
     reset() {
       peaks.fill(0);
+      framePeak = minPeak;
       displayEnvelope.reset();
     },
   };

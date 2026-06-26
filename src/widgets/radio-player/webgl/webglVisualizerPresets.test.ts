@@ -31,7 +31,13 @@ describe('webglVisualizerPresets', () => {
     expect(normalizeWebglVisualizerPresetId('hex-lattice')).toBe('spectrum-bars');
     expect(normalizeWebglVisualizerPresetId('circuit-matrix')).toBe('spectrum-bars');
     expect(normalizeWebglVisualizerPresetId('cyber-tunnel')).toBe('netrunner-grid');
-    expect(normalizeWebglVisualizerPresetId('ripple-pool')).toBe('neon-constellation');
+    expect(normalizeWebglVisualizerPresetId('cyber-tunnel-extreme')).toBe('spectrum-bars');
+    expect(normalizeWebglVisualizerPresetId('netrunner-grid-extreme')).toBe('spectrum-bars');
+    expect(normalizeWebglVisualizerPresetId('neon-cube-avenue')).toBe('spectrum-bars');
+    expect(normalizeWebglVisualizerPresetId('ripple-pool')).toBe('starry-horizon');
+    expect(normalizeWebglVisualizerPresetId('mirror-lake')).toBe('starry-horizon');
+    expect(normalizeWebglVisualizerPresetId('eq-horizon')).toBe('starry-horizon');
+    expect(normalizeWebglVisualizerPresetId('starry-horizon')).toBe('starry-horizon');
     expect(normalizeWebglVisualizerPresetId('spectrum-bloom')).toBe('radial-spectrum');
     expect(normalizeWebglVisualizerPresetId('waveform-scope')).toBe('waveform-path');
     expect(normalizeWebglVisualizerPresetId('particle-orbit')).toBe('neon-constellation');
