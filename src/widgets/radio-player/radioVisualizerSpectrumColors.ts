@@ -5,6 +5,26 @@ import {
   type RadioVisualizerGradientId,
 } from './radioVisualizerGradients';
 
+export interface StripAudioMotionGradientOptionsResult {
+  gradient?: string;
+  gradientLeft?: string;
+  gradientRight?: string;
+  options: Partial<ConstructorOptions>;
+}
+
+/** AudioMotion rejects custom gradient names until registerGradient runs — strip them from the ctor. */
+export function stripAudioMotionGradientOptions(
+  options: Partial<ConstructorOptions>
+): StripAudioMotionGradientOptionsResult {
+  const { gradient, gradientLeft, gradientRight, ...rest } = options;
+  return {
+    gradient,
+    gradientLeft,
+    gradientRight,
+    options: rest,
+  };
+}
+
 export interface RadioSpectrumGradientOverrides {
   [presetId: string]: RadioVisualizerGradientId | undefined;
 }

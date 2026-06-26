@@ -2,6 +2,8 @@
 
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { resolveRadioFullscreenVisualHeightRatio } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
+import { waitForRadioAnalyser } from '@widgets/radio-player/waitForRadioAnalyser';
+import { scheduleVisualizerLayoutSync } from '@widgets/radio-player/visualizerLayoutSync';
 import { getBarVisualizerFullscreenLayout } from '@widgets/radio-player/barVisualizerPresets';
 import { useLayoutEffect, useEffect, useRef, useState } from 'react';
 import styles from './VisualizerMode.module.css';
@@ -54,21 +56,44 @@ export function RadioBarVisualizerFullscreen({
       return undefined;
     }
 
-    handle.mountBarCanvas(host);
+    let cancelled = false;
+    let cancelLayoutSync: (() => void) | null = null;
 
     const syncSize = () => {
-      if (frame.clientWidth < 48) {
+      if (frame.clientWidth < 48 || frame.clientHeight < 48) {
         return;
       }
 
       handle.resizeBarCanvas();
     };
 
-    syncSize();
-    requestAnimationFrame(() => {
+    const mount = async () => {
+      let analyser: AnalyserNode | null = null;
+
+      while (!analyser && !cancelled) {
+        analyser = await waitForRadioAnalyser({ handle, maxAttempts: 8, intervalMs: 125 });
+        if (!analyser && !cancelled) {
+          await new Promise<void>((resolve) => {
+            window.setTimeout(resolve, 500);
+          });
+        }
+      }
+
+      if (cancelled || !host.isConnected) {
+        return;
+      }
+
+      handle.mountBarCanvas(host);
+      cancelLayoutSync = scheduleVisualizerLayoutSync({
+        frame,
+        onSize: () => {
+          syncSize();
+        },
+      });
       syncSize();
-      requestAnimationFrame(syncSize);
-    });
+    };
+
+    void mount();
 
     const observer = new ResizeObserver(syncSize);
     observer.observe(frame);
@@ -76,6 +101,8 @@ export function RadioBarVisualizerFullscreen({
     window.addEventListener('resize', syncSize);
 
     return () => {
+      cancelled = true;
+      cancelLayoutSync?.();
       observer.disconnect();
       window.removeEventListener('resize', syncSize);
       handle.unmountBarCanvas();
@@ -93,7 +120,7 @@ export function RadioBarVisualizerFullscreen({
     }
 
     const syncSize = () => {
-      if (frame.clientWidth < 48) {
+      if (frame.clientWidth < 48 || frame.clientHeight < 48) {
         return;
       }
 

@@ -3,6 +3,7 @@ import {
   buildSpectrumGradientSetOptions,
   normalizeRadioSpectrumGradientOverrides,
   resolveSpectrumGradientForPreset,
+  stripAudioMotionGradientOptions,
 } from './radioVisualizerSpectrumColors';
 
 describe('radioVisualizerSpectrumColors', () => {
@@ -34,6 +35,18 @@ describe('radioVisualizerSpectrumColors', () => {
       gradientLeft: 'idling-violet',
       gradientRight: 'idling-violet',
     });
+  });
+
+  test('stripAudioMotionGradientOptions removes custom gradients from AudioMotion ctor options', () => {
+    const stripped = stripAudioMotionGradientOptions({
+      gradient: 'idling-gold',
+      gradientLeft: 'idling-gold',
+      gradientRight: 'idling-teal',
+      mode: 0,
+    });
+
+    expect(stripped.gradient).toBe('idling-gold');
+    expect(stripped.options).toEqual({ mode: 0 });
   });
 
   test('normalizeRadioSpectrumGradientOverrides keeps only registered gradients', () => {

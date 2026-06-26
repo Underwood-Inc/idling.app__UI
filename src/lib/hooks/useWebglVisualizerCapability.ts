@@ -12,18 +12,44 @@ const DEFAULT_CAPABILITY_STATE: WebglVisualizerCapabilityState = {
   reason: null,
 };
 
+function readWebglVisualizerCapability(): WebglVisualizerCapabilityState {
+  const detected = detectWebglVisualizerCapability();
+  return {
+    isResolved: true,
+    isSupported: detected.isSupported,
+    reason: detected.reason,
+  };
+}
+
+function readInitialWebglVisualizerCapability(): WebglVisualizerCapabilityState {
+  if (typeof window === 'undefined') {
+    return DEFAULT_CAPABILITY_STATE;
+  }
+
+  return readWebglVisualizerCapability();
+}
+
 export function useWebglVisualizerCapability(): WebglVisualizerCapabilityState {
   const [capability, setCapability] = useState<WebglVisualizerCapabilityState>(
-    DEFAULT_CAPABILITY_STATE
+    readInitialWebglVisualizerCapability
   );
 
   useEffect(() => {
-    const detected = detectWebglVisualizerCapability();
-    setCapability({
-      isResolved: true,
-      isSupported: detected.isSupported,
-      reason: detected.reason,
-    });
+    setCapability(readWebglVisualizerCapability());
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') {
+        return;
+      }
+
+      setCapability(readWebglVisualizerCapability());
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, []);
 
   return capability;

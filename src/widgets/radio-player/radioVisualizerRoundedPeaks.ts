@@ -33,7 +33,7 @@ export interface RadioVisualizerAnalyzerLayout {
 
 export interface RadioVisualizerAnalyzerPeakSource {
   canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
+  canvasCtx: CanvasRenderingContext2D;
   _bars: RadioVisualizerAnalyzerBar[];
   _aux: RadioVisualizerAnalyzerLayout;
   _flg: { isRound: boolean };
@@ -98,7 +98,7 @@ function resolvePeakFillStyle(
     const gradient = analyzer._gradients[analyzer._selectedGrads[channel]];
     const stops = gradient?.colorStops ?? [];
     if (stops.length > 0) {
-      return stops[barIndex % stops.length]?.color ?? analyzer.ctx.fillStyle;
+      return stops[barIndex % stops.length]?.color ?? analyzer.canvasCtx.fillStyle;
     }
   }
 
@@ -116,7 +116,13 @@ function resolvePeakFillStyle(
     return channelGradient;
   }
 
-  return analyzer.ctx.fillStyle;
+  return analyzer.canvasCtx.fillStyle;
+}
+
+function resolveAnalyzerCanvasContext(
+  analyzer: RadioVisualizerAnalyzerPeakSource
+): CanvasRenderingContext2D | null {
+  return analyzer.canvasCtx ?? null;
 }
 
 function drawChannelRoundedPeaks(
@@ -132,7 +138,10 @@ function drawChannelRoundedPeaks(
 
   const analyzerBottom = channelCoord.analyzerBottom;
   const maxBarHeight = analyzerHeight;
-  const ctx = analyzer.ctx;
+  const ctx = resolveAnalyzerCanvasContext(analyzer);
+  if (!ctx) {
+    return;
+  }
 
   analyzer._bars.forEach((bar, barIndex) => {
     const peakValue = bar.peak[channel] ?? 0;
@@ -181,7 +190,10 @@ export function drawRadioVisualizerRoundedPeaks(
 
   const canvasGradients = drawInfo?.canvasGradients ?? [];
   const channelCount = analyzer.channelLayout === CHANNEL_SINGLE ? 1 : 2;
-  const ctx = analyzer.ctx;
+  const ctx = resolveAnalyzerCanvasContext(analyzer);
+  if (!ctx) {
+    return;
+  }
 
   for (let channel = 0; channel < channelCount; channel += 1) {
     drawChannelRoundedPeaks(analyzer, channel, canvasGradients);

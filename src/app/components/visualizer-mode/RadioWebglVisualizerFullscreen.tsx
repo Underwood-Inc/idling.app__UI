@@ -1,16 +1,18 @@
 'use client';
 
+import { AmbientSkyHorizonLayer } from '../ambient-background';
+import { STARRY_HORIZON_Y } from '@widgets/radio-player/webgl/renderers/createStarryHorizonRenderer';
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import type { WebglVisualizerCapabilityState } from '@lib/hooks/useWebglVisualizerCapability';
 import { getBarVisualizerTheme } from '@widgets/radio-player/barVisualizerThemes';
+import { scheduleVisualizerLayoutSync } from '@widgets/radio-player/visualizerLayoutSync';
+import { waitForRadioAnalyser } from '@widgets/radio-player/waitForRadioAnalyser';
 import { createWebglVisualizerEngine } from '@widgets/radio-player/webgl/createWebglVisualizerEngine';
-import { resolveWebglVisualizerThemeUniforms } from '@widgets/radio-player/webgl/resolveWebglVisualizerThemeUniforms';
-import { normalizeWebglVisualizerPresetId } from '@widgets/radio-player/webgl/webglVisualizerPresets';
 import { normalizeNeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion';
 import type { NeonConstellationMotionMode } from '@widgets/radio-player/webgl/neonConstellationMotion.types';
-import { AmbientSkyHorizonScene } from '../ambient-background';
-import { STARRY_HORIZON_Y } from '@widgets/radio-player/webgl/renderers/createStarryHorizonRenderer';
-import { useEffect, useRef, useState } from 'react';
+import { resolveWebglVisualizerThemeUniforms } from '@widgets/radio-player/webgl/resolveWebglVisualizerThemeUniforms';
+import { normalizeWebglVisualizerPresetId } from '@widgets/radio-player/webgl/webglVisualizerPresets';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './VisualizerMode.module.css';
 
 export interface RadioWebglVisualizerFullscreenProps {
@@ -31,17 +33,24 @@ export function RadioWebglVisualizerFullscreen({
   capability,
 }: RadioWebglVisualizerFullscreenProps) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const hostRef = useRef<HTMLDivElement>(null);
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const [hostElement, setHostElement] = useState<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<ReturnType<typeof createWebglVisualizerEngine> | null>(null);
   const { handle, isAvailable } = useRadioPlayer();
   const normalizedPresetId = normalizeWebglVisualizerPresetId(presetId);
   const showStarryHorizonStars = normalizedPresetId === 'starry-horizon';
   const normalizedConstellationMotion = normalizeNeonConstellationMotionMode(constellationMotion);
-  const [engineError, setEngineError] = useState<string | null>(null);
   const reducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const webglReady =
+    capability.isResolved === false || capability.isSupported === true;
+
+  const bindHostRef = useCallback((node: HTMLDivElement | null) => {
+    hostRef.current = node;
+    setHostElement(node);
+  }, []);
 
   useEffect(() => {
     if (showStarryHorizonStars && isActive && enabled) {
@@ -74,14 +83,14 @@ export function RadioWebglVisualizerFullscreen({
     canvasRef.current = null;
   };
 
-  useEffect(() => {
-    if (!isActive || !enabled || !isAvailable || !handle || !capability.isSupported) {
+  useLayoutEffect(() => {
+    if (!isActive || !enabled || !isAvailable || !handle || !webglReady) {
       releaseEngine();
       return undefined;
     }
 
     const frame = frameRef.current;
-    const host = hostRef.current;
+    const host = hostElement;
     if (!frame || !host) {
       return undefined;
     }
@@ -103,89 +112,86 @@ export function RadioWebglVisualizerFullscreen({
           initialPresetId: normalizedPresetId,
           constellationMotion: normalizedConstellationMotion,
           initialBarOpacity: opacity,
-          onFatalError: (message) => {
-            setEngineError(message);
-          },
         });
         engineRef.current = engine;
-        setEngineError(null);
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'WebGL2 visualizers could not start on this device.';
-        setEngineError(message);
+      } catch {
+        releaseEngine();
         return undefined;
       }
     }
 
     let cancelled = false;
+    let cancelLayoutSync: (() => void) | null = null;
 
-    const syncSize = () => {
-      if (frame.clientWidth < 48 || frame.clientHeight < 48) {
+    const syncSize = (width = frame.clientWidth, height = frame.clientHeight) => {
+      if (width < 48 || height < 48) {
         return;
       }
 
-      engine?.resize(frame.clientWidth, frame.clientHeight);
+      engine?.resize(width, height);
     };
 
     const startEngine = async () => {
-      await handle.play();
-      if (cancelled) {
+      let analyser: AnalyserNode | null = null;
+
+      while (!analyser && !cancelled) {
+        analyser = await waitForRadioAnalyser({ handle, maxAttempts: 8, intervalMs: 125 });
+        if (!analyser && !cancelled) {
+          await new Promise<void>((resolve) => {
+            window.setTimeout(resolve, 500);
+          });
+        }
+      }
+
+      if (cancelled || !analyser) {
         return;
       }
 
-      const analyser = handle.getAnalyser();
-      if (!analyser) {
-        setEngineError('Audio analyser is not ready yet. Start playback and try again.');
-        return;
-      }
-
+      cancelLayoutSync = scheduleVisualizerLayoutSync({
+        frame,
+        onSize: (width, height) => {
+          syncSize(width, height);
+        },
+      });
       syncSize();
       engine?.start(analyser);
     };
 
+    const onWindowResize = () => {
+      syncSize();
+    };
+
     void startEngine();
 
-    const observer = new ResizeObserver(syncSize);
+    const observer = new ResizeObserver(() => {
+      syncSize();
+    });
     observer.observe(frame);
-    window.addEventListener('resize', syncSize);
+    window.addEventListener('resize', onWindowResize);
 
     return () => {
       cancelled = true;
+      cancelLayoutSync?.();
       observer.disconnect();
-      window.removeEventListener('resize', syncSize);
+      window.removeEventListener('resize', onWindowResize);
       releaseEngine();
     };
   }, [
-    capability.isSupported,
     enabled,
     handle,
+    hostElement,
     isActive,
     isAvailable,
+    normalizedConstellationMotion,
+    normalizedPresetId,
+    opacity,
     reducedMotion,
+    showStarryHorizonStars,
+    webglReady,
   ]);
 
   if (!isActive || !enabled) {
     return null;
-  }
-
-  if (engineError) {
-    return (
-      <div
-        ref={frameRef}
-        className={styles.webglFrame}
-        data-irp-webgl-fullscreen="true"
-      >
-        <p
-          className={styles.overlay__emptyState}
-          data-testid="radio-webgl-visualizer-error"
-          role="alert"
-        >
-          {engineError}
-        </p>
-      </div>
-    );
   }
 
   return (
@@ -197,20 +203,16 @@ export function RadioWebglVisualizerFullscreen({
       aria-hidden="true"
     >
       {showStarryHorizonStars ? (
-        <AmbientSkyHorizonScene horizonRatio={STARRY_HORIZON_Y}>
-          <div
-            ref={hostRef}
-            className={styles.webglFullscreen}
-            data-testid="radio-webgl-visualizer-fullscreen"
-          />
-        </AmbientSkyHorizonScene>
-      ) : (
-        <div
-          ref={hostRef}
-          className={styles.webglFullscreen}
-          data-testid="radio-webgl-visualizer-fullscreen"
-        />
-      )}
+        <AmbientSkyHorizonLayer horizonRatio={STARRY_HORIZON_Y} variant="sky" />
+      ) : null}
+      <div
+        ref={bindHostRef}
+        className={styles.webglFullscreen}
+        data-testid="radio-webgl-visualizer-fullscreen"
+      />
+      {showStarryHorizonStars ? (
+        <AmbientSkyHorizonLayer horizonRatio={STARRY_HORIZON_Y} variant="reflection" />
+      ) : null}
     </div>
   );
 }

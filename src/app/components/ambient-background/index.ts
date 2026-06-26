@@ -4,6 +4,7 @@ export {
   AmbientSkyHorizonScene,
   AmbientSkyHorizonLayer,
   AMBIENT_HORIZON_CLIP_BOTTOM_VAR,
+  AMBIENT_HORIZON_WATER_RATIO_VAR,
   buildAmbientHorizonClipStyle,
 } from './AmbientSkyHorizonScene';
 export type {
