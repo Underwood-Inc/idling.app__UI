@@ -124,6 +124,9 @@ graph TB
         Compressy[Compressy Mod]
         Rituals[Rituals Datapack]
         Trials[Trials Modpack]
+        Alloys[Alloys Datapack]
+        Tally[Tally Datapack]
+        Shirecraft[Shirecraft Server]
     end
     
     subgraph Storage["💾 Storage"]
@@ -155,6 +158,9 @@ graph TB
     Compressy --> ModsAPI
     Rituals --> ModsAPI
     Trials --> ModsAPI
+    Alloys --> ModsAPI
+    Tally --> ModsAPI
+    Shirecraft --> ModsAPI
     
     classDef web fill:#458588,stroke:#83a598,stroke-width:2px,color:#ebdbb2
     classDef api fill:#b16286,stroke:#d3869b,stroke-width:2px,color:#ebdbb2
@@ -163,7 +169,7 @@ graph TB
     
     class Main,Card,SVG,Social,ModsHub,ControlPanel,Mappy web
     class Auth,Access,ModsAPI,Customer,Game,Streamkit api
-    class Compressy,Rituals,Trials mc
+    class Compressy,Rituals,Trials,Alloys,Tally,Shirecraft mc
     class PG,KV,R2,IDB storage
     `,
     dataflow: `
@@ -322,7 +328,7 @@ graph TB
         {activeTab === 'overview' && (
           <p className={styles.footer__text}>
             <strong>System overview:</strong> 7 web/desktop apps (including Mappy), 6 Cloudflare
-            Workers APIs, 3 Minecraft mods via Mods API, and storage across PostgreSQL, KV, R2, and
+            Workers APIs, 6 Minecraft projects via Mods API, and storage across PostgreSQL, KV, R2, and
             IndexedDB.
           </p>
         )}

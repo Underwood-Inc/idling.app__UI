@@ -13,7 +13,7 @@ const PORTFOLIO_HIGHLIGHTS = [
   { value: '1', label: 'Desktop map app' },
   { value: '6', label: 'Serverless APIs' },
   { value: '23', label: 'NPM packages' },
-  { value: '3', label: 'Minecraft mods' },
+  { value: '7', label: 'Minecraft projects' },
 ];
 
 interface AboutSectionLink {
@@ -33,9 +33,13 @@ const ABOUT_SECTIONS: AboutSectionDefinition[] = [
     id: 'minecraft',
     title: 'Minecraft Projects',
     highlights: [
-      'Compressy — infinite block compression',
+      'Compressy — infinite block compression (BuiltByBit + legacy Modrinth)',
+      'Offerings — premium daily kit lottery plugin',
       'Rituals — mystical magic datapack',
       'Trials of the Wild — hardcore survival modpack',
+      'Alloys — ten fantasy metals datapack',
+      'Tally — 10,000+ advancement completion pack',
+      'Shirecraft — whitelist survival server',
       'Thousands of downloads on Mods Hub and Modrinth',
     ],
     links: [{ href: 'https://mods.idling.app', label: 'Mods Hub' }],
