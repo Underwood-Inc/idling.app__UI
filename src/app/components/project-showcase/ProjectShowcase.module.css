@@ -382,6 +382,13 @@
   line-height: 0;
 }
 
+.project__statTooltip {
+  min-width: 0;
+  width: max-content;
+  max-width: min(16rem, 85vw);
+  padding: 0.625rem 0.75rem;
+}
+
 .project__statInfo {
   display: inline-flex;
   align-items: center;

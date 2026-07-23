@@ -228,10 +228,16 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     if (maxHeight) {
       tooltipContentRef.current.style.maxHeight = `${maxHeight}px`;
       tooltipContentRef.current.style.overflowY = 'auto';
+    } else {
+      tooltipContentRef.current.style.maxHeight = '';
+      tooltipContentRef.current.style.overflowY = '';
     }
     if (maxWidth) {
       tooltipContentRef.current.style.maxWidth = `${maxWidth}px`;
       tooltipContentRef.current.style.overflowX = 'hidden';
+    } else {
+      tooltipContentRef.current.style.maxWidth = '';
+      tooltipContentRef.current.style.overflowX = '';
     }
 
     // Restore visibility and set final position

@@ -32,6 +32,7 @@ function MetricStat({ icon, value, label, note }: MetricStatProps) {
         <span className={styles.project__statTooltipTrigger}>
           <InteractiveTooltip
             content={<div className="info-tooltip-content">{note}</div>}
+            className={styles.project__statTooltip}
             isInsideParagraph
             delay={200}
           >
