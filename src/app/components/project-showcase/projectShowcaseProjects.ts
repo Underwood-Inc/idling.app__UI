@@ -1,8 +1,12 @@
 import {
   Blocks,
+  Castle,
   Gamepad2,
+  Gem,
+  Gift,
   Image,
   Link,
+  ListChecks,
   Lock,
   Map,
   MessageCircle,
@@ -24,6 +28,7 @@ export type ProjectShowcaseProjectCategory = Exclude<ProjectShowcaseCategoryId, 
 export interface ProjectShowcaseProjectLinks {
   modrinth?: string;
   modsHub?: string;
+  builtByBit?: string;
   github?: string;
   demo?: string;
   live?: string;
@@ -39,6 +44,7 @@ export interface ProjectShowcaseProject {
   links: ProjectShowcaseProjectLinks;
   icon: LucideIconComponent;
   modrinthId?: string;
+  modrinthMetricsNote?: string;
   status?: 'WIP' | 'Beta' | 'Stable';
 }
 
@@ -67,9 +73,9 @@ export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
     id: 'compressy',
     title: 'Compressy',
     description:
-      'Fabric mod for infinite block compression. Compress 9 blocks into 1, up to 32 tiers! Works with ALL blocks automatically. Store incomprehensible amounts with fancy tooltips and roman numerals.',
+      'Infinite block compression for Minecraft 26.2+ as a Paper plugin. Compress 9 blocks into 1, up to 32 tiers, with fancy tooltips and roman numerals. Legacy Fabric builds remain on Modrinth.',
     category: 'Minecraft',
-    type: 'Fabric Mod',
+    type: 'Paper Plugin · Legacy Fabric',
     features: [
       'Infinite Compression',
       'Works with ALL Blocks',
@@ -77,12 +83,33 @@ export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
       'Automation Friendly',
     ],
     links: {
+      builtByBit: 'https://builtbybit.com/resources/compressy.114802/',
       modrinth: 'https://modrinth.com/mod/compressy',
       modsHub: 'https://mods.idling.app/compressy',
       github: 'https://github.com/Underwood-Inc/compressy',
     },
     icon: Package,
     modrinthId: 'compressy',
+    modrinthMetricsNote:
+      'Download count reflects the legacy Fabric release on Modrinth. The current Paper plugin for Minecraft 26.2+ is on BuiltByBit — purchase and update metrics are not public.',
+  },
+  {
+    id: 'offerings',
+    title: 'Offerings',
+    description:
+      'Premium daily kit lottery for Paper/Spigot — weighted tiers, loot tables, streaks, milestones, achievements, and full in-game admin. Powers daily rewards on Shirecraft.',
+    category: 'Minecraft',
+    type: 'Paper Plugin (BuiltByBit)',
+    features: [
+      'Weighted Daily Lottery',
+      'Streaks & Achievements',
+      'In-Game Admin Hub',
+      'LuckPerms Integration',
+    ],
+    links: {
+      builtByBit: 'https://builtbybit.com/resources/offerings.115060/',
+    },
+    icon: Gift,
   },
   {
     id: 'rituals',
@@ -124,6 +151,65 @@ export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
     },
     icon: Trees,
     modrinthId: 'strixun-trials-of-the-wild',
+  },
+  {
+    id: 'alloys',
+    title: 'Alloys',
+    description:
+      'Ten fantasy metals for Minecraft 26.2+ — bonus ore drops, full toolsets and armor, additive to vanilla. Datapack, companion resource pack, and optional Paper plugin.',
+    category: 'Minecraft',
+    type: 'Datapack + Resource Pack',
+    features: [
+      '10 Fantasy Metals',
+      'Additive to Vanilla',
+      'Full Toolsets & Armor',
+      'Optional Paper Plugin',
+    ],
+    links: {
+      modrinth: 'https://modrinth.com/datapack/s-alloys',
+      github: 'https://github.com/Underwood-Inc/s-alloys',
+      demo: 'https://underwood-inc.github.io/s-alloys/',
+    },
+    icon: Gem,
+    modrinthId: 's-alloys',
+  },
+  {
+    id: 'tally',
+    title: 'Tally',
+    description:
+      'Survival completion advancement pack with 10,255 pages across six tabs, hold tiers, XP and item rewards, and live policy toggles for server owners.',
+    category: 'Minecraft',
+    type: 'Datapack',
+    features: [
+      '10,255 Advancement Pages',
+      'Six Completion Tabs',
+      'Live Reward Policy',
+      'Tally Keeper Voice',
+    ],
+    links: {
+      modrinth: 'https://modrinth.com/datapack/tally',
+    },
+    icon: ListChecks,
+    modrinthId: 'tally',
+  },
+  {
+    id: 'shirecraft',
+    title: 'Shirecraft',
+    description:
+      'Whitelist Paper 26.2 survival server with custom plugins, datapacks, and resource packs. Lands, offerings, Tally, Compressy, and community-driven towns.',
+    category: 'Minecraft',
+    type: 'Minecraft Server',
+    features: [
+      'Whitelist Survival',
+      'Lands & Nations',
+      'Custom Plugins',
+      'mc.idling.app:25567',
+    ],
+    links: {
+      modrinth: 'https://modrinth.com/server/shirecraft',
+    },
+    icon: Castle,
+    modrinthId: 'shirecraft',
   },
   {
     id: 'obs-animation-suite',
@@ -354,3 +440,13 @@ export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
     icon: Search,
   },
 ];
+
+export interface ProjectShowcaseModrinthProject {
+  id: string;
+  modrinthId: string;
+}
+
+export const PROJECT_SHOWCASE_MODRINTH_PROJECTS: ProjectShowcaseModrinthProject[] =
+  PROJECT_SHOWCASE_PROJECTS.flatMap((project) =>
+    project.modrinthId ? [{ id: project.id, modrinthId: project.modrinthId }] : []
+  );

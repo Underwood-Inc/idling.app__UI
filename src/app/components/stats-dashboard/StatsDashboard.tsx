@@ -7,12 +7,18 @@ import {
   type SiteIconId,
 } from '@molecules/lucide/siteIconCatalog';
 import { useEffect, useState } from 'react';
+import {
+  fetchModrinthShowcaseMetrics,
+  formatModrinthCount,
+  type ModrinthContentMetrics,
+} from '../project-showcase/modrinthShowcaseStats';
 import { Card } from '../card/Card';
 import styles from './StatsDashboard.module.css';
 
 interface PortfolioStats {
   totalProjects: number | null;
   totalDownloads: string | null;
+  totalFollowers: string | null;
   githubStars: number | null;
 }
 
@@ -24,16 +30,11 @@ interface MetricDefinition {
 const LOADING_METRICS: MetricDefinition[] = [
   { iconId: 'package', label: 'Modrinth Projects' },
   { iconId: 'download', label: 'Mod Downloads' },
+  { iconId: 'users', label: 'Modrinth Followers' },
 ];
 
 const METRICS_PRIVACY_NOTE =
-  'Figures are from Modrinth and cover Minecraft mods only. We do not track downloads, activity, or users on our other applications — by design, for privacy — so there are no public metrics for those projects.';
-
-function formatDownloads(num: number): string {
-  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
-  return `${num}`;
-}
+  'Figures are from Modrinth and cover listed Minecraft projects only. BuiltByBit purchase and update metrics are not public. We do not track downloads, activity, or users on our other applications — by design, for privacy — so there are no public metrics for those projects.';
 
 function MetricIcon({ iconId }: { iconId: SiteIconId }) {
   return <SiteIcon id={iconId} className={styles.metric__icon} sizeRem={1.125} />;
@@ -43,36 +44,25 @@ export function StatsDashboard() {
   const [stats, setStats] = useState<PortfolioStats>({
     totalProjects: null,
     totalDownloads: null,
+    totalFollowers: null,
     githubStars: null,
   });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const modrinthSlugs = ['compressy', 'totem-rituals', 'strixun-trials-of-the-wild'];
-
-    Promise.all(
-      modrinthSlugs.map((slug) =>
-        fetch(`https://api.modrinth.com/v2/project/${slug}`, {
-          headers: {
-            'User-Agent': 'idling.app/1.0 (https://github.com/Underwood-Inc)',
-          },
-          cache: 'no-store',
-        })
-          .then((res) => (res.ok ? res.json() : null))
-          .catch(() => null)
-      )
-    )
-      .then((projects) => {
-        const validProjects = projects.filter((p) => p !== null);
-        const totalDownloads = validProjects.reduce(
-          (sum, project) => sum + (project.downloads || 0),
-          0
-        );
+    fetchModrinthShowcaseMetrics()
+      .then((metrics) => {
+        const values = Object.values(metrics);
+        const totalDownloads = values
+          .filter((metric): metric is ModrinthContentMetrics => metric.kind === 'content')
+          .reduce((sum, metric) => sum + metric.downloads, 0);
+        const totalFollowers = values.reduce((sum, metric) => sum + metric.followers, 0);
 
         setStats((prev) => ({
           ...prev,
-          totalProjects: validProjects.length,
-          totalDownloads: formatDownloads(totalDownloads),
+          totalProjects: values.length,
+          totalDownloads: formatModrinthCount(totalDownloads),
+          totalFollowers: formatModrinthCount(totalFollowers),
         }));
       })
       .catch((err) => console.error('Failed to fetch Modrinth stats:', err))
@@ -111,6 +101,15 @@ export function StatsDashboard() {
                   <div className={styles.metric__content}>
                     <span className={styles.metric__value}>{stats.totalDownloads}</span>
                     <span className={styles.metric__label}>Mod Downloads</span>
+                  </div>
+                </div>
+              )}
+              {stats.totalFollowers !== null && (
+                <div className={styles.metric}>
+                  <MetricIcon iconId="users" />
+                  <div className={styles.metric__content}>
+                    <span className={styles.metric__value}>{stats.totalFollowers}</span>
+                    <span className={styles.metric__label}>Modrinth Followers</span>
                   </div>
                 </div>
               )}
