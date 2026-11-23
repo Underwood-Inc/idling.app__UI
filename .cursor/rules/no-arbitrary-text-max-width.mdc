@@ -1,0 +1,47 @@
+---
+description: Do not cap marketing copy or headings with arbitrary max-width / ch units
+alwaysApply: true
+---
+
+# No arbitrary max-width on text
+
+Do **not** add `max-width` in `rem`, `ch`, `em`, or fixed `px` on headings, taglines, body copy, or section descriptions unless the user explicitly asks for a measure column (e.g. legal fine print, code blocks, modals with a stated width).
+
+## Allowed
+
+- **Page / section shells:** `max-width` on layout wrappers (e.g. `.dash`, `PageContainer`) that center the whole column — not on text nodes inside them.
+- **Media:** images, video, iframes, avatars, icons (intrinsic or explicit frame sizes).
+- **UI controls:** buttons, inputs, pills where width is part of the control pattern — not the prose inside marketing cards.
+- **Tables / code:** `pre`, `code`, horizontal scroll regions.
+
+## Forbidden without explicit user request
+
+```css
+/* ❌ */
+.headline {
+  max-width: 40rem;
+}
+.section__description {
+  max-width: 48rem;
+}
+.intro {
+  max-width: 65ch;
+}
+```
+
+```css
+/* ✅ — copy uses the parent column */
+.headline {
+  max-width: none;
+  width: 100%;
+}
+```
+
+## Headings
+
+- Prefer natural line breaks (`text-wrap: pretty` or default) over `text-wrap: balance` on long marketing headlines — balance can force short, awkward lines that look like a fixed measure.
+- Do **not** change markup or move blocks between columns to “fix” copy width unless the user asks for a layout change.
+
+## When unsure
+
+Use the parent flex/grid track (`minmax(0, 1fr)`) for layout — never a separate prose `max-width` to “improve readability.”
