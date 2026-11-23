@@ -60,7 +60,7 @@ export function QuotaDisplay({
       <div style={{ padding: '8px 12px', textAlign: 'center' }}>
         <div
           style={{
-            fontSize: '13px',
+            fontSize: 'var(--font-size-sm)',
             fontWeight: '600',
             color: 'white',
             marginBottom: '6px'

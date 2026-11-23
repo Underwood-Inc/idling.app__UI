@@ -606,6 +606,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
         const stationAtFetch = activeName;
         try {
             const response = await fetch(`${nowPlayingEndpoint}?station=${encodeURIComponent(stationAtFetch)}`, {
+                cache: 'no-store',
                 headers: {
                     'X-Background-Request': 'true',
                 },

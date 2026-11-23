@@ -70,15 +70,7 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
                 const isActive = currentPath === value;
                 const isExternal = value.startsWith('http');
 
-                let path = value;
-                const tags = searchParams.get('tags');
-                const isTagSupportedRoute =
-                  value === routeModule.NAV_PATHS.POSTS ||
-                  value === routeModule.NAV_PATHS.MY_POSTS;
-
-                if (isTagSupportedRoute && tags) {
-                  path = `${value}?tags=${tags}`;
-                }
+                const path = value;
 
                 const label = routeModule.NAV_PATH_LABELS[key] || item;
 

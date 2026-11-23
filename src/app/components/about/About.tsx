@@ -7,7 +7,7 @@ import { AboutExternalLink } from './AboutExternalLink';
 import { AboutSectionTitle } from './AboutSectionTitle';
 import './About.css';
 
-const PORTFOLIO_HIGHLIGHTS = [
+export const PORTFOLIO_HIGHLIGHTS = [
   { value: '38+', label: 'Open-source projects' },
   { value: '7', label: 'Web applications' },
   { value: '1', label: 'Desktop map app' },
@@ -57,12 +57,12 @@ const ABOUT_SECTIONS: AboutSectionDefinition[] = [
   },
   {
     id: 'mappy',
-    title: 'Mappy — Interactive Maps',
+    title: 'mappy — interactive maps',
     highlights: [
       'Offline-first map platform for open-world games and homebrew campaigns',
-      'MapLibre canvas, markers, progress tracking, unified search, measure tools',
+      'Living map canvas, markers, progress tracking, unified search, measure tools',
       'Marker Maker, Tile Studio, and Official Map Packs',
-      'Tauri 2 desktop — no login, no cloud sync, no telemetry',
+      'Desktop app — no login, no cloud sync, no telemetry',
     ],
     links: [
       { href: NAV_PATHS.MAPPY, label: 'Download (short.army/mappy)' },

@@ -59,7 +59,7 @@ const PRODUCTS: Product[] = [
       { label: 'Search', value: 'Real-time' },
       { label: 'Storage', value: 'Unlimited' }
     ],
-    status: 'live',
+    status: 'beta',
     url: 'https://mods.idling.app',
     detailsPath: NAV_PATHS.MODS_HUB_DETAIL
   },

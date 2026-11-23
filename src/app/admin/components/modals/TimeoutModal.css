@@ -48,7 +48,7 @@
 .timeout-modal__close {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;

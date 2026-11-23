@@ -706,6 +706,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       data-expanded={activePanel !== null && isControlBarPanelHeightResolved}
       data-visualizer-mode={isActive ? 'true' : 'false'}
       data-dock-viz-backdrop={showDockVizBackdrop ? 'true' : 'false'}
+      id="idle-radio"
+      tabIndex={-1}
       role="region"
       aria-label="Radio player"
       data-testid="radio-player-bar"

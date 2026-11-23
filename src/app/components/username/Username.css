@@ -24,17 +24,17 @@
 
 /* Size Variants */
 .username--sm {
-  font-size: 1.0rem; /* 14px */
+  font-size: var(--font-size-base); /* 14px */
   line-height: 1.25;
 }
 
 .username--md {
-  font-size: 1rem; /* 16px */
+  font-size: var(--font-size-base); /* 16px */
   line-height: 1.375;
 }
 
 .username--lg {
-  font-size: 1.125rem; /* 18px */
+  font-size: var(--font-size-md); /* 18px */
   line-height: 1.5;
 }
 

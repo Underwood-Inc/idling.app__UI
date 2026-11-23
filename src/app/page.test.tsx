@@ -1,66 +1,46 @@
 import React from 'react';
-import { PAGE_ASIDE_SELECTORS } from 'src/lib/test-selectors/components/page-aside.selectors';
 import { render, screen } from '../test-utils';
+import { getHomeProductPrimaryLink } from './components/marketing-dashboard/productMarketing';
+import { PROJECT_SHOWCASE_PROJECTS } from './components/project-showcase/projectShowcaseProjects';
 import Page from './page';
 
-// Keep original simple mocks
 vi.mock('./components/page-container/PageContainer', () => ({
   PageContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-page-container">{children}</div>
-  )
+  ),
 }));
 
-vi.mock('./components/page-header/PageHeader', () => ({
-  __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-page-header">{children}</div>
-  )
-}));
+test('when a guest opens the marketing home, an Apple-style product hub renders without catalog sidebar or feed widgets', () => {
+  render(<Page />);
 
-vi.mock('./components/page-content/PageContent', () => ({
-  __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-page-content">{children}</div>
-  )
-}));
+  expect(
+    screen.getByRole('heading', { level: 1, name: 'Maps. Mods. Tools. Radio.' })
+  ).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'See the lineup' })).toHaveAttribute('href', '#products');
+  expect(document.getElementById('products')).toBeInTheDocument();
+  expect(screen.getByTestId('home-product-hub')).toBeInTheDocument();
+  expect(screen.queryByTestId('page-aside-container')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('mock-recent-activity-feed')).not.toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: /open-source portfolio/i })).not.toBeInTheDocument();
 
-// Mock RecentActivityFeed to prevent next-auth import issues
-vi.mock('./components/recent-activity-feed', () => ({
-  RecentActivityFeed: () => (
-    <div data-testid="mock-recent-activity-feed">Recent Activity Feed</div>
-  )
-}));
+  expect(
+    screen.getByRole('heading', { level: 2, name: /Telemetry, overlays, and a drive archive/i })
+  ).toBeInTheDocument();
+  expect(screen.getByText(/Offline-first map workspace/i)).toBeInTheDocument();
+  expect(screen.queryByText(/live map/i)).not.toBeInTheDocument();
 
-vi.mock('./components/stats-dashboard/StatsDashboard', () => ({
-  StatsDashboard: () => (
-    <div data-testid="mock-stats-dashboard">Stats Dashboard</div>
-  )
-}));
+  const mappy = PROJECT_SHOWCASE_PROJECTS.find((project) => project.id === 'mappy');
+  expect(mappy).toBeDefined();
+  const primary = getHomeProductPrimaryLink(mappy!);
+  const mappyOpen = screen
+    .getAllByRole('link', { name: primary!.label })
+    .find((element) => element.getAttribute('href') === primary!.href);
+  expect(mappyOpen).toBeDefined();
 
-describe('Home Page', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders the page with correct structure and content', async () => {
-    const { container } = render(await Page());
-
-    // Check page structure
-    expect(screen.getByTestId('mock-page-container')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-page-content')).toBeInTheDocument();
-    // Check for the About section heading
-    expect(screen.getByText("Hi! I'm Strixun")).toBeInTheDocument();
-
-    // Check layout and sidebar content
-    const article = container.querySelector('article');
-    const cards = article?.querySelectorAll('.card');
-    expect(cards).toHaveLength(4); // About, Ecosystem, Projects, and Activity cards
-
-    expect(
-      screen.getByTestId(PAGE_ASIDE_SELECTORS.CONTAINER)
-    ).toBeInTheDocument();
-    expect(screen.getByTestId(PAGE_ASIDE_SELECTORS.ASIDE)).toBeInTheDocument();
-    expect(screen.getByTestId('mock-stats-dashboard')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-recent-activity-feed')).toBeInTheDocument();
-  });
+  expect(screen.getByRole('heading', { level: 2, name: /Daily kit lottery/i })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Player wiki tour' })).toHaveAttribute(
+    'href',
+    'https://underwood-inc.github.io/mappy/wiki/'
+  );
+  expect(screen.getByRole('link', { name: 'Stream Suite tour' })).toBeInTheDocument();
 });

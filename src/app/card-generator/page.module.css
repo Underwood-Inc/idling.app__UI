@@ -77,7 +77,7 @@
   border-radius: 8px;
   color: var(--dark-bg__text-color--primary);
   text-decoration: none;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   /* Optimized transitions - GPU accelerated */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -178,12 +178,12 @@
 }
 
 .loading__spinner {
-  font-size: 2rem;
+  font-size: var(--font-size-3xl);
   animation: spin 1s linear infinite;
 }
 
 .loading__message {
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   color: var(--dark-bg__text-color--secondary);
   text-align: center;
 }
@@ -221,7 +221,7 @@
 
 .download__button {
   padding: 0.875rem 1rem;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   flex: 1;
 }
 
@@ -286,7 +286,7 @@
 
   .download__button {
     padding: 0.875rem 1rem;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     flex: 1;
   }
 
@@ -492,7 +492,7 @@
 }
 
 .feature__icon {
-  font-size: 1.75rem;
+  font-size: var(--font-size-2xl);
   margin-right: 0.5rem;
   display: inline;
   vertical-align: middle;

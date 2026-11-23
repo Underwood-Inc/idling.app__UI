@@ -54,7 +54,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 18px;
+  font-size: var(--font-size-md);
   line-height: 1;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -62,7 +62,7 @@
 /* Text container */
 .footer-badge__text {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   opacity: 0;
   transform: translateX(-10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -266,7 +266,7 @@
   }
 
   .footer-badge__text {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     max-width: 150px;
   }
 }

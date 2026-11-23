@@ -17,15 +17,15 @@
 
   /* Typography adjustments */
   h1 {
-    font-size: 2rem !important;
+    font-size: var(--font-size-lg) !important;
   }
 
   h2 {
-    font-size: 1.5rem !important;
+    font-size: var(--font-size-base) !important;
   }
 
   h3 {
-    font-size: 1.2rem !important;
+    font-size: var(--font-size-xs) !important;
   }
 
   /* Component adjustments */
@@ -62,16 +62,16 @@
   }
 
   .mermaid text {
-    font-size: 10px !important;
+    font-size: var(--font-size-xs) !important;
   }
 
   .mermaid .nodeLabel,
   .mermaid .edgeLabel {
-    font-size: 10px !important;
+    font-size: var(--font-size-xs) !important;
   }
 
   .mermaid-container::after {
-    font-size: 10px;
+    font-size: var(--font-size-xs);
     padding: 2px 6px;
     top: 6px;
     right: 8px;

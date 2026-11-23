@@ -168,13 +168,14 @@
   --app-font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji',
     'Noto Color Emoji', 'Segoe UI Symbol', monospace;
 
-  /* Font size variables - metric scale with 10px base (1rem = 10px) */
+  /* Font size variables — 10px html root so 1rem = 10px. Always set type via these tokens; never raw px/rem below xs.
+     Floor: xs = 1.2rem (12px). Default copy/UI: base = 1.6rem (16px). Headings: h1–h6 below. */
   --font-size-xs: 1.2rem;
-  /* 12px */
+  /* 12px — smallest allowed */
   --font-size-sm: 1.4rem;
   /* 14px */
   --font-size-base: 1.6rem;
-  /* 16px - standard readable */
+  /* 16px — default for most UI */
   --font-size-md: 1.8rem;
   /* 18px */
   --font-size-lg: 2rem;
@@ -286,7 +287,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   font-family: var(--app-font-family);
   /* Remove all focus outlines for clean visual UX */
   outline: none !important;
@@ -368,7 +369,7 @@ h5 {
 }
 
 h6 {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-base);
 }
 
 h1,

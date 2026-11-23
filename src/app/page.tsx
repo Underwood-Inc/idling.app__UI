@@ -1,61 +1,16 @@
-import { About } from './components/about/About';
-import { AdUnit } from './components/ad-unit';
-import { Card } from './components/card/Card';
-import { EcosystemDiagram } from './components/ecosystem-diagram/EcosystemDiagram';
-import { PageAside } from './components/page-aside/PageAside';
+import type { Metadata } from 'next';
+import { HomeLanding } from './components/home-landing/HomeLanding';
+import { DASHBOARD_COPY } from './components/marketing-dashboard/productMarketing';
 import { PageContainer } from './components/page-container/PageContainer';
-import PageContent from './components/page-content/PageContent';
-import { ProjectShowcase } from './components/project-showcase/ProjectShowcase';
-import { RecentActivityFeed } from './components/recent-activity-feed';
-import { StatsDashboard } from './components/stats-dashboard/StatsDashboard';
-import styles from './page.module.css';
 
-export default async function Home() {
+export const metadata: Metadata = {
+  description: DASHBOARD_COPY.line,
+};
+
+export default function Home() {
   return (
-    <>
-      <div data-home-page>
-      <PageContainer>
-        <div className={styles.home__layout}>
-          <PageContent>
-            <article className={styles.home__container}>
-              {/* About Section */}
-              <Card width="full" className={styles.home__about}>
-                <About />
-              </Card>
-
-              {/* Advertisement */}
-              <AdUnit className="ad-unit--between-sections" testId="home-ad-1" />
-
-              {/* Ecosystem Architecture Diagram */}
-              <EcosystemDiagram />
-
-              {/* Advertisement */}
-              <AdUnit className="ad-unit--between-sections" testId="home-ad-2" />
-
-              {/* Featured Projects Showcase */}
-              <Card width="full" className={styles.home__projects}>
-                <ProjectShowcase />
-              </Card>
-
-              {/* Advertisement */}
-              <AdUnit className="ad-unit--between-sections" testId="home-ad-3" />
-
-              {/* Recent Activity Section */}
-              <Card width="full" className={styles.home__activity}>
-                <RecentActivityFeed />
-              </Card>
-            </article>
-          </PageContent>
-
-          <PageAside className={styles.stats_aside} bottomMargin={0}>
-            <StatsDashboard />
-
-            {/* Sidebar Advertisement */}
-            <AdUnit className="ad-unit--sidebar" testId="home-sidebar-ad" />
-          </PageAside>
-        </div>
-      </PageContainer>
-      </div>
-    </>
+    <PageContainer>
+      <HomeLanding />
+    </PageContainer>
   );
 }

@@ -12,7 +12,7 @@ sleep 5
 
 # Run database migrations
 echo "📊 Running database migrations..."
-if echo '1' | pnpm migrations; then
+if pnpm migrations:run; then
     echo "✅ Migrations completed successfully!"
 else
     echo "⚠️ Migrations failed, but continuing..."

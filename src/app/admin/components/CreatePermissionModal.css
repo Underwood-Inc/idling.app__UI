@@ -79,14 +79,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--text-primary, #ffffff);
   margin: 0;
 }
 
 .title-icon {
-  font-size: 1.8rem;
+  font-size: var(--font-size-3xl);
   filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.5));
 }
 
@@ -97,7 +97,7 @@
   border-radius: 50%;
   background: #E5E5E5;
   color: var(--text-primary, #ffffff);
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   display: flex;
@@ -134,7 +134,7 @@
 }
 
 .section-title {
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary, #ffffff);
   margin-bottom: 1rem;
@@ -164,7 +164,7 @@
   border: 1px solid var(--glass-border, rgba(255, 140, 0, 0.2));
   border-radius: 8px;
   color: var(--text-secondary, #cccccc);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
@@ -198,7 +198,7 @@
 .form-label {
   font-weight: 600;
   color: var(--text-primary, #ffffff);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -207,7 +207,7 @@
 .field-hint {
   font-weight: 400;
   color: var(--text-muted, #999999);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-style: italic;
 }
 
@@ -236,7 +236,7 @@
   border-radius: 8px;
   background: #E5E5E5;
   color: var(--text-primary, #ffffff);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   transition: all 0.2s ease;
   
 }
@@ -284,7 +284,7 @@
 
 .form-error {
   color: var(--error-color, #ef4444);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   margin-top: 0.25rem;
 }
@@ -349,11 +349,11 @@
 .risk-level-name {
   font-weight: 600;
   color: var(--text-primary, #ffffff);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 .risk-description {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: var(--text-muted, #999999);
   line-height: 1.3;
 }
@@ -383,7 +383,7 @@
   border: 1px solid rgba(255, 140, 0, 0.2);
   border-radius: 6px;
   color: var(--text-primary, #ffffff);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 .dependency-name {
@@ -394,7 +394,7 @@
   background: none;
   border: none;
   color: var(--orange-primary, #ff8c00);
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0;
   width: 20px;
@@ -459,7 +459,7 @@
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -505,7 +505,7 @@
 }
 
 .submit-icon {
-  font-size: 1.1rem;
+  font-size: var(--font-size-md);
 }
 
 .loading-spinner {
@@ -601,11 +601,11 @@
   }
 
   .modal-title {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .title-icon {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
   }
 
   .risk-option {
@@ -614,7 +614,7 @@
 
   .dependency-item {
     padding: 0.4rem 0.6rem;
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 }
 

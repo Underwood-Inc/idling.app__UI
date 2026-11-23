@@ -38,7 +38,7 @@
   border-radius: 0;
   padding: 0;
   box-shadow: none;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   overflow: visible;
 
   /* Ensure proper display */

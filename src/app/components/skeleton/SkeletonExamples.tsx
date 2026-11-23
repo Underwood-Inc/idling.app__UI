@@ -8,8 +8,6 @@ import {
   SkeletonText,
   useSmartSkeleton
 } from './SkeletonLoader';
-import { SmartPostsSkeleton } from './useSmartPostsSkeleton';
-
 /**
  * SkeletonExamples - Demonstrates various skeleton loader usage patterns
  *
@@ -50,8 +48,7 @@ export const SkeletonExamples: React.FC = () => {
         <button onClick={() => toggleExample(1)}>Basic Components</button>
         <button onClick={() => toggleExample(2)}>Manual Configurations</button>
         <button onClick={() => toggleExample(3)}>Smart Detection</button>
-        <button onClick={() => toggleExample(4)}>Posts Skeleton</button>
-        <button onClick={() => toggleExample(5)}>Real Content</button>
+        <button onClick={() => toggleExample(4)}>Real Content</button>
       </div>
 
       {showExample === 1 && (
@@ -225,26 +222,6 @@ export const SkeletonExamples: React.FC = () => {
 
       {showExample === 4 && (
         <div>
-          <h2>Specialized Posts Skeleton</h2>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3>Default Posts Skeleton</h3>
-            <SmartPostsSkeleton submissionCount={3} showPagination={true} />
-          </div>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3>Thread Mode Posts Skeleton</h3>
-            <SmartPostsSkeleton
-              submissionCount={2}
-              showPagination={false}
-              enableThreadMode={true}
-            />
-          </div>
-        </div>
-      )}
-
-      {showExample === 5 && (
-        <div>
           <h2>Real Content (For Comparison)</h2>
           <div
             style={{
@@ -263,14 +240,14 @@ export const SkeletonExamples: React.FC = () => {
               }}
             >
               <span style={{ fontWeight: 500 }}>John Doe</span>
-              <span style={{ color: '#666', fontSize: '0.875rem' }}>
+              <span style={{ color: '#666', fontSize: 'var(--font-size-sm)' }}>
                 2 hours ago
               </span>
             </div>
             <h3
               style={{
                 margin: '0 0 0.5rem 0',
-                fontSize: '1.125rem',
+                fontSize: 'var(--font-size-md)',
                 fontWeight: 600
               }}
             >
@@ -291,7 +268,7 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}
@@ -302,7 +279,7 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}
@@ -313,7 +290,7 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}
@@ -364,14 +341,14 @@ export const SkeletonExamples: React.FC = () => {
               }}
             >
               <span style={{ fontWeight: 500 }}>Jane Smith</span>
-              <span style={{ color: '#666', fontSize: '0.875rem' }}>
+              <span style={{ color: '#666', fontSize: 'var(--font-size-sm)' }}>
                 4 hours ago
               </span>
             </div>
             <h3
               style={{
                 margin: '0 0 0.5rem 0',
-                fontSize: '1.125rem',
+                fontSize: 'var(--font-size-md)',
                 fontWeight: 600
               }}
             >
@@ -388,7 +365,7 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}

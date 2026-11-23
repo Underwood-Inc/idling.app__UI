@@ -34,7 +34,7 @@ export function AdminUserTooltip({
   const [loading, setLoading] = useState(false);
 
   // Form state
-  const [timeoutType, setTimeoutType] = useState('post_creation');
+  const [timeoutType, setTimeoutType] = useState('general');
   const [reason, setReason] = useState('');
   const [durationHours, setDurationHours] = useState(24);
 
@@ -49,7 +49,7 @@ export function AdminUserTooltip({
     setLoading(true);
     try {
       const response = await fetch(
-        `/api/admin/users/timeout?userId=${userId}&type=post_creation`
+        `/api/admin/users/timeout?userId=${userId}&type=general`
       );
       if (response.ok) {
         const data = await response.json();
@@ -180,9 +180,10 @@ export function AdminUserTooltip({
                     value={timeoutType}
                     onChange={(e) => setTimeoutType(e.target.value)}
                   >
-                    <option value="post_creation">Post Creation</option>
-                    <option value="comment_creation">Comment Creation</option>
-                    <option value="full_access">Full Access</option>
+                    <option value="emoji_submission">Custom emoji</option>
+                    <option value="rate_limit">Rate limit</option>
+                    <option value="general">General</option>
+                    <option value="full_access">Full access</option>
                   </select>
                 </div>
 

@@ -117,7 +117,7 @@ export default function TestDismissalPage() {
             padding: '15px',
             borderRadius: '5px',
             fontFamily: 'monospace',
-            fontSize: '14px'
+            fontSize: 'var(--font-size-sm)'
           }}
         >
           <strong>Dismissed Alerts in localStorage:</strong>

@@ -20,7 +20,6 @@ interface UserProfileProps {
   user: UserProfileData;
   variant?: 'full' | 'compact' | 'tooltip';
   className?: string;
-  showStats?: boolean;
   isOwnProfile?: boolean;
   onBioUpdate?: (newBio: string) => Promise<void>;
   isPending?: boolean;
@@ -30,7 +29,6 @@ export function UserProfile({
   user,
   variant = 'full',
   className = '',
-  showStats = false,
   isOwnProfile = false,
   onBioUpdate,
   isPending = false
@@ -146,7 +144,7 @@ export function UserProfile({
               <SmartInput
                 value={bioText}
                 onChange={setBioText}
-                placeholder="Tell us about yourself... Use #hashtags, @mentions, and paste URLs!"
+                placeholder="Tell us about yourself... Use @mentions and paste URLs!"
                 className="user-profile__bio-smart-input"
                 as="textarea"
                 rows={3}
@@ -196,28 +194,6 @@ export function UserProfile({
           )}
         </div>
 
-        {showStats && (
-          <div className="user-profile__stats">
-            <div className="user-profile__stat">
-              <span className="user-profile__stat-number">
-                {user.posts_count || 0}
-              </span>
-              <span className="user-profile__stat-label">Posts</span>
-            </div>
-            <div className="user-profile__stat">
-              <span className="user-profile__stat-number">
-                {user.replies_count || 0}
-              </span>
-              <span className="user-profile__stat-label">Replies</span>
-            </div>
-            <div className="user-profile__stat">
-              <span className="user-profile__stat-number">
-                {user.total_submissions || 0}
-              </span>
-              <span className="user-profile__stat-label">Total</span>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -358,30 +334,6 @@ export function UserProfile({
         )}
       </div>
 
-      {showStats && (
-        <div className="user-profile__stats">
-          <div className="user-profile__stat">
-            <span className="user-profile__stat-number">
-              {user.total_submissions || 0}
-            </span>
-            <span className="user-profile__stat-label">
-              Total Contributions
-            </span>
-          </div>
-          <div className="user-profile__stat">
-            <span className="user-profile__stat-number">
-              {user.posts_count || 0}
-            </span>
-            <span className="user-profile__stat-label">Posts</span>
-          </div>
-          <div className="user-profile__stat">
-            <span className="user-profile__stat-number">
-              {user.replies_count || 0}
-            </span>
-            <span className="user-profile__stat-label">Replies</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

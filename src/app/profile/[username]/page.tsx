@@ -89,9 +89,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       view their profile information.
                     </p>
                     <div className="profile-page__private-actions">
-                      <a href="/posts" className="profile-page__private-link">
-                        ← Browse Posts
-                      </a>
+                      <InstantLink href="/" className="profile-page__private-link">
+                        ← Back home
+                      </InstantLink>
                     </div>
                   </div>
                 </Card>
@@ -106,14 +106,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       ? new Date(userProfile.created_at).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
-          day: 'numeric'
-        })
-      : null;
-
-    const lastActivity = userProfile.last_activity
-      ? new Date(userProfile.last_activity).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
           day: 'numeric'
         })
       : null;
@@ -149,58 +141,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     </div>
                   </div>
                 )}
-
-                {lastActivity && (
-                  <div className="profile-page__info-item">
-                    <SiteIcon id="flame" className="profile-page__info-icon" sizeRem={1.125} />
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">
-                        Last Active
-                      </span>
-                      <span className="profile-page__info-value">
-                        {lastActivity}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <InstantLink
-                  href={`/posts?author=${userProfile.id}`}
-                  className="profile-page__info-item profile-page__info-item--clickable"
-                  title="View all posts by this user"
-                  aria-label={`View all ${userProfile.posts_count || 0} posts by ${userProfile.username || userProfile.name}`}
-                >
-                  <div className="profile-page__info-wrapper">
-                    <SiteIcon id="pen" className="profile-page__info-icon" sizeRem={1.125} />
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">
-                        {userProfile.posts_count || 0} Posts
-                      </span>
-                      <span className="profile-page__info-value">
-                        View Posts →
-                      </span>
-                    </div>
-                  </div>
-                </InstantLink>
-
-                <InstantLink
-                  href={`/posts?author=${userProfile.id}&onlyReplies=true`}
-                  className="profile-page__info-item profile-page__info-item--clickable"
-                  title="View only replies by this user"
-                  aria-label={`View all ${userProfile.replies_count || 0} replies by ${userProfile.username || userProfile.name}`}
-                >
-                  <div className="profile-page__info-wrapper">
-                    <SiteIcon id="messages" className="profile-page__info-icon" sizeRem={1.125} />
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">
-                        {userProfile.replies_count || 0} Replies
-                      </span>
-                      <span className="profile-page__info-value">
-                        View Replies →
-                      </span>
-                    </div>
-                  </div>
-                </InstantLink>
 
                 <div className="profile-page__info-item">
                   <SiteIcon id="star" className="profile-page__info-icon" sizeRem={1.125} />

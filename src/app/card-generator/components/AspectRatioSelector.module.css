@@ -5,7 +5,7 @@
 }
 
 .selector__label {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--dark-bg__text-color--secondary);
   white-space: nowrap;
@@ -16,7 +16,7 @@
   background-color: var(--dark-background--secondary);
   border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--primary);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -51,19 +51,19 @@
 }
 
 .ratio__name {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
 }
 
 .ratio__dimensions {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--brand-primary);
 }
 
 .ratio__description {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--secondary);
   text-align: center;
 }

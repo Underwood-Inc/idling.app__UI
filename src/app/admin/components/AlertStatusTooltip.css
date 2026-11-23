@@ -1,7 +1,7 @@
 .alert-status-tooltip {
   max-width: 400px;
   padding: 16px;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   color: #ffffff; /* Bright white for primary text */
 }
@@ -16,12 +16,12 @@
 }
 
 .alert-status-tooltip__icon {
-  font-size: 18px;
+  font-size: var(--font-size-md);
 }
 
 .alert-status-tooltip__title {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #ffffff; /* Bright white for title */
 }
@@ -36,7 +36,7 @@
   padding: 8px 12px;
   border-radius: 6px;
   margin-bottom: 12px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .alert-status-tooltip__current--success {
@@ -64,7 +64,7 @@
 }
 
 .alert-status-tooltip__meaning {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   opacity: 0.9;
 }
 
@@ -73,7 +73,7 @@
   padding: 8px;
   background-color: #E5E5E5;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: #f1f5f9; /* Light text */
 }
 
@@ -88,7 +88,7 @@
 
 .alert-status-tooltip__examples li {
   margin-bottom: 4px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: #cbd5e1; /* Lighter gray for list items */
 }
 
@@ -113,7 +113,7 @@
   border: 1px solid #E5E5E5;
   background-color: #E5E5E5;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   transition: all 0.2s ease;
 }
 
@@ -125,7 +125,7 @@
 
 .alert-status-tooltip__matrix-status {
   display: block;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   margin-bottom: 4px;
 }
 
@@ -138,13 +138,13 @@
 
 .alert-status-tooltip__matrix-result {
   display: block;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: #cbd5e1; /* Medium gray for results */
 }
 
 .alert-status-tooltip__matrix-legend {
   text-align: center;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: #94a3b8; /* Lighter gray for legend */
   margin-top: 8px;
 }
@@ -158,7 +158,7 @@
   );
   border: 1px solid rgba(96, 165, 250, 0.3);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   text-align: center;
   color: #e2e8f0; /* Light text for key point */
 }

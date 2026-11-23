@@ -1,34 +1,31 @@
 .pwa-install-prompt {
   position: fixed;
   z-index: 1001;
-  /* Higher than timeout banner (z-index: 1000) and other fixed elements */
+  /* Higher than timeout banner (z-index: 1000); below radio dock (10003) */
   opacity: 0;
-  /* Consistent positioning - always 2rem from top and right regardless of route */
-  top: 2rem;
-  right: 2rem;
-  left: auto;
+  /* Below sticky header / Sign In; left of the full-width radio dock */
+  top: calc(var(--header-height, 11rem) + 0.75rem);
+  left: 1rem;
+  right: auto;
   bottom: auto;
-  /* max-width: 280px; */
   width: auto;
-  /* transform: translateY(-20px); */
-  animation: slideInFromTop 0.5s ease-out 0.5s forwards;
-  /* Ensure no margin/padding interference */
+  animation: slideInFromLeft 0.5s ease-out 0.5s forwards;
   margin: 0;
   padding: 0;
-  /* Prevent any potential box-sizing issues */
   box-sizing: border-box;
-  /* Ensure proper stacking and isolation */
   isolation: isolate;
-  /* Prevent any transform or filter inheritance */
   transform-style: flat;
-  /* Ensure proper containment */
   contain: layout style;
 }
 
-@keyframes slideInFromTop {
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+  }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
@@ -45,7 +42,7 @@
 }
 
 .pwa-install-prompt__icon {
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
@@ -106,7 +103,7 @@
   border: none;
   border-radius: var(--border-radius-sm);
   padding: 4px;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -152,12 +149,11 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .pwa-install-prompt {
-    /* Mobile positioning - centered horizontally with top margin */
-    top: 1rem;
-    right: 1rem;
-    max-width: none;
-    /* Keep same animation */
-    animation: slideInFromTop 0.5s ease-out 0.5s forwards;
+    top: calc(var(--header-height-mobile, 5.5rem) + 0.75rem);
+    left: 0.75rem;
+    right: auto;
+    max-width: min(280px, calc(100vw - 1.5rem));
+    animation: slideInFromLeft 0.5s ease-out 0.5s forwards;
   }
 
   .pwa-install-prompt__content {
@@ -166,7 +162,7 @@
   }
 
   .pwa-install-prompt__icon {
-    font-size: 18px;
+    font-size: var(--font-size-md);
   }
 
   .pwa-install-prompt__title {
@@ -174,34 +170,30 @@
   }
 
   .pwa-install-prompt__subtitle {
-    font-size: 11px;
+    font-size: var(--font-size-xs);
   }
 
   .pwa-install-prompt__install-btn {
     padding: 3px 6px;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
   }
 }
 
-/* Desktop-specific positioning to ensure proper right alignment */
 @media (min-width: 769px) {
   .pwa-install-prompt {
-    /* Ensure proper right alignment on desktop */
-    right: 1rem;
-    /* Account for potential scrollbar */
-    top: 1rem;
-    left: auto;
+    top: calc(var(--header-height, 11rem) + 0.75rem);
+    left: 1.25rem;
+    right: auto;
     bottom: auto;
-    /* Ensure it doesn't extend beyond viewport */
     max-width: min(280px, calc(100vw - 24px));
   }
 }
 
 @media (max-width: 480px) {
   .pwa-install-prompt {
-    /* Smaller margins on very small screens */
-    top: 1rem !important;
-    right: 1rem !important;
+    top: calc(var(--header-height-mobile, 5.5rem) + 0.5rem) !important;
+    left: 0.5rem !important;
+    right: auto !important;
   }
 }
 

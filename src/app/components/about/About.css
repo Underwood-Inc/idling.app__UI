@@ -22,7 +22,7 @@
 }
 
 .about__title {
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-size: clamp(var(--font-size-md), 4vw, var(--font-size-xl));
   font-weight: 800;
   color: var(--dark-bg__text-color--primary);
   margin: 0;

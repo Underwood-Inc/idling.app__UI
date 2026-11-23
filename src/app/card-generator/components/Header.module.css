@@ -45,7 +45,7 @@
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -115,6 +115,6 @@
 
   .header__button {
     padding: 0.625rem 1rem;
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 }

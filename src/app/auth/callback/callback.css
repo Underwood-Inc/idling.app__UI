@@ -19,7 +19,7 @@
 }
 
 .callback__icon {
-  font-size: 4rem;
+  font-size: var(--font-size-5xl);
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
@@ -55,7 +55,7 @@
 }
 
 .callback__title {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary, #ffffff);
   margin-bottom: 1rem;
@@ -63,7 +63,7 @@
 }
 
 .callback__message {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary, #cccccc);
   margin-bottom: 2rem;
   line-height: 1.5;
@@ -111,7 +111,7 @@
 }
 
 .callback__progress-text {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--tertiary, #999999);
   font-style: italic;
 }
@@ -134,7 +134,7 @@
   transition: all 0.2s ease;
   cursor: var(--mappy-cursor-pointer, pointer);
   border: none;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   min-width: 120px;
   justify-content: center;
 }
@@ -176,11 +176,11 @@
   }
 
   .callback__title {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .callback__message {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 
   .callback__actions {
@@ -264,7 +264,7 @@
 
 .callback__solutions h3 {
   margin: 0 0 1rem 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
 }
@@ -290,14 +290,14 @@
 
 .callback__solution-option h4 {
   margin: 0 0 0.5rem 0;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
 }
 
 .callback__solution-option p {
   margin: 0 0 1rem 0;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.5;
 }

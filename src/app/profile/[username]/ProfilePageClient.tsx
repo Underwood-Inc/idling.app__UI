@@ -142,7 +142,7 @@ export function ProfilePageClient({
       userId={userProfile.id}
       forceDecoration={selectedDecoration || undefined}
     >
-      <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+      <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'bold' }}>
         {userProfile.username || userProfile.name || 'Demo User'}
       </span>
     </UserDecorationWrapper>

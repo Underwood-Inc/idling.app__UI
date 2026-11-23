@@ -18,9 +18,13 @@ import { PROJECT_SHOWCASE_PROJECTS } from './projectShowcaseProjects';
 
 const CONTRAST_SAFE_SURFACE_CLASS = 'contrast-safe-surface';
 
-export function ProjectShowcase() {
+export interface ProjectShowcaseProps {
+  initialCategory?: ProjectShowcaseCategoryId;
+}
+
+export function ProjectShowcase({ initialCategory = 'All' }: ProjectShowcaseProps) {
   const [metrics, setMetrics] = useState<ModrinthMetricsByProjectId | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<ProjectShowcaseCategoryId>('All');
+  const [selectedCategory, setSelectedCategory] = useState<ProjectShowcaseCategoryId>(initialCategory);
   const projectsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,6 +100,8 @@ export function ProjectShowcase() {
                     <h3 className={styles.project__title}>{project.title}</h3>
                     {project.status === 'WIP' ? (
                       <span className={styles.project__status__wip}>WIP</span>
+                    ) : project.status === 'Beta' ? (
+                      <span className={styles.project__status__beta}>Beta</span>
                     ) : null}
                   </div>
                   <div className={styles.project__badges}>

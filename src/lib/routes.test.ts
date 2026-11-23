@@ -22,10 +22,10 @@ describe('public route infrastructure', () => {
   });
 
   test('when the path is a protected page, page auth still applies', () => {
-    expect(isPublicPagePath('/posts')).toBe(true);
-    expect(isPublicPagePath('/my-posts')).toBe(false);
+    expect(isPublicPagePath('/admin')).toBe(false);
+    expect(isPublicPagePath('/portfolio')).toBe(true);
+    expect(isPublicPagePath('/products/mappy')).toBe(true);
     expect(isPublicInfraPath('/manifest.json')).toBe(true);
-    expect(isPublicInfraPath('/posts')).toBe(false);
   });
 
   test('when the path is a public page route, guests may view it', () => {

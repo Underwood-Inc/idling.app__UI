@@ -32,17 +32,7 @@ export default function UserNotFound() {
               </ul>
 
               <div className="user-not-found__actions">
-                <a
-                  href="/posts"
-                  className="user-not-found__action user-not-found__action--primary"
-                >
-                  Browse Posts
-                </a>
-
-                <a
-                  href="/"
-                  className="user-not-found__action user-not-found__action--secondary"
-                >
+                <a href="/" className="user-not-found__action user-not-found__action--primary">
                   Go Home
                 </a>
               </div>
@@ -81,23 +71,11 @@ export default function UserNotFound() {
               </div>
 
               <div className="user-not-found__help-item">
-                <SiteIcon id="pen" className="user-not-found__help-icon" sizeRem={1.125} />
-                <div className="user-not-found__help-content">
-                  <span className="user-not-found__help-label">
-                    Browse Posts
-                  </span>
-                  <span className="user-not-found__help-description">
-                    Discover users through their posts
-                  </span>
-                </div>
-              </div>
-
-              <div className="user-not-found__help-item">
                 <SiteIcon id="users" className="user-not-found__help-icon" sizeRem={1.125} />
                 <div className="user-not-found__help-content">
-                  <span className="user-not-found__help-label">Community</span>
+                  <span className="user-not-found__help-label">Products</span>
                   <span className="user-not-found__help-description">
-                    Join discussions to meet users
+                    Browse the home lineup for apps and mods
                   </span>
                 </div>
               </div>

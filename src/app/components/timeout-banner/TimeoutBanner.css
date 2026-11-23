@@ -21,7 +21,7 @@
 }
 
 .timeout-banner__icon {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   flex-shrink: 0;
   animation: pulse 2s infinite;
 }
@@ -33,7 +33,7 @@
 
 .timeout-banner__title {
   font-weight: 600;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   margin-bottom: 0.25rem;
 }
 
@@ -41,7 +41,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   opacity: 0.9;
 }
 
@@ -67,7 +67,7 @@
   background: none;
   border: none;
   color: white;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: 4px;
@@ -120,15 +120,15 @@
   }
 
   .timeout-banner__details {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 
   .timeout-banner__title {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 
   .timeout-banner__icon {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 }
 
@@ -139,12 +139,12 @@
   }
 
   .timeout-banner__timer {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
     padding: 0.15rem 0.3rem;
   }
 
   .timeout-banner__title {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
     line-height: 1.3;
   }
 }

@@ -472,8 +472,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip authentication routes - they should never be cached
-  if (event.request.url.includes('/api/auth/')) {
+  // Skip authentication and live radio titles — they should never be cached
+  if (
+    event.request.url.includes('/api/auth/') ||
+    event.request.url.includes('/api/radio/now-playing')
+  ) {
     return;
   }
 

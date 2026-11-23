@@ -9,13 +9,13 @@ import {
   ListChecks,
   Lock,
   Map,
-  MessageCircle,
   Package,
   Search,
   Settings,
   Shield,
   Sparkles,
   Trees,
+  Truck,
   Video,
   WandSparkles,
   Zap,
@@ -50,12 +50,32 @@ export interface ProjectShowcaseProject {
 
 export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
   {
-    id: 'mappy',
-    title: 'Mappy',
+    id: 'overlane',
+    title: 'Overlane',
     description:
-      'Offline-first interactive map platform for open-world games, homebrew campaigns, and custom realms. MapLibre canvas, marker corpus, progress tracking, unified search, measure tools, and authoring — static files only, no application backend.',
+      'Telemetry console, searchable drive archive, dashboard charts, and stream overlays for ETS2 and ATS. Hybrid hot/cold local storage scales to millions of observations; one Windows app beside the game — OBS browser sources, session journal, no cloud account.',
     category: 'Gaming',
-    type: 'Desktop App (Tauri 2)',
+    type: 'Windows Desktop App',
+    features: [
+      'Live telemetry console',
+      'Archive search & inspector',
+      'Dashboard charts & rollups',
+      'Hot/cold local storage',
+      'OBS-ready overlay panels',
+    ],
+    links: {
+      live: 'https://short.army/overlane',
+    },
+    icon: Truck,
+    status: 'Beta',
+  },
+  {
+    id: 'mappy',
+    title: 'mappy',
+    description:
+      'Offline-first interactive map platform for open-world games, homebrew campaigns, and custom realms. Marker corpus, progress tracking, unified search, measure tools, and authoring — static files only, no application backend.',
+    category: 'Gaming',
+    type: 'Desktop app',
     features: [
       'Offline-First Maps',
       'Marker Maker & Tile Studio',
@@ -249,6 +269,7 @@ export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
       demo: '/strixun-stream-suite/mods-hub',
     },
     icon: Gamepad2,
+    status: 'Beta',
   },
   {
     id: 'auth-service',
@@ -307,25 +328,6 @@ export const PROJECT_SHOWCASE_PROJECTS: ProjectShowcaseProject[] = [
       github: 'https://github.com/Underwood-Inc/idling.app__UI',
     },
     icon: Image,
-  },
-  {
-    id: 'social-platform',
-    title: 'Social Platform',
-    description:
-      'Full-stack social platform with React 19/Next.js 15 frontend and PostgreSQL backend. Posts, profiles, emoji reactions, real-time updates, admin dashboard.',
-    category: 'Social',
-    type: 'Full-Stack App (React + PostgreSQL)',
-    features: [
-      'Posts & Profiles',
-      'Emoji Reactions',
-      'Real-time Updates',
-      'Admin Dashboard',
-    ],
-    links: {
-      live: '/posts',
-      github: 'https://github.com/Underwood-Inc/idling.app__UI',
-    },
-    icon: MessageCircle,
   },
   {
     id: 'url-shortener',

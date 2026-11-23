@@ -144,10 +144,6 @@ export class PermissionsService {
     try {
       // Basic content permissions for logged-in users
       const basicPermissions = [
-        'content.create.post',
-        'content.edit.own',
-        'content.delete.own',
-        'content.comment',
         'emoji.use.standard',
         'emoji.use.custom',
         'emoji.create.custom',
@@ -164,7 +160,6 @@ export class PermissionsService {
         'admin.emoji.approve',
         'admin.users.view',
         'admin.users.timeout',
-        'admin.posts.moderate'
       ];
 
       if (adminPermissions.includes(permissionName) && userId === 1) {
@@ -258,7 +253,7 @@ export class PermissionsService {
    */
   static async checkUserTimeout(
     userId: number,
-    timeoutType: string = 'post_creation'
+    timeoutType: string = 'general'
   ): Promise<TimeoutCheck> {
     try {
       const result = await sql<TimeoutQueryResult[]>`
@@ -743,13 +738,6 @@ export async function requireAdmin(): Promise<boolean> {
 }
 
 /**
- * Check if user can moderate content
- */
-export async function canModerate(): Promise<boolean> {
-  return await requireAnyPermission(['admin.posts.moderate', 'admin.access']);
-}
-
-/**
  * Common permission constants
  */
 export const PERMISSIONS = {
@@ -764,13 +752,6 @@ export const PERMISSIONS = {
     PERMISSIONS_MANAGE: 'admin.permissions.manage',
     ROLES_VIEW: 'admin.roles.view',
     ROLES_MANAGE: 'admin.roles.manage',
-    POSTS_MODERATE: 'admin.posts.moderate'
-  },
-  CONTENT: {
-    CREATE_POST: 'content.create.post',
-    EDIT_OWN: 'content.edit.own',
-    DELETE_OWN: 'content.delete.own',
-    COMMENT: 'content.comment'
   },
   EMOJI: {
     USE_STANDARD: 'emoji.use.standard',
@@ -784,7 +765,8 @@ export const PERMISSIONS = {
  * Timeout types
  */
 export const TIMEOUT_TYPES = {
-  POST_CREATION: 'post_creation',
-  COMMENT_CREATION: 'comment_creation',
-  FULL_ACCESS: 'full_access'
+  EMOJI_SUBMISSION: 'emoji_submission',
+  RATE_LIMIT: 'rate_limit',
+  GENERAL: 'general',
+  FULL_ACCESS: 'full_access',
 } as const;

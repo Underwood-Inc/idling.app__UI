@@ -170,7 +170,7 @@ jobs:
 
       # Setup test database
       - name: Run migrations
-        run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
+        run: pnpm migrations:run
 
       # Run E2E tests with sharding
       - name: Run Playwright tests (Shard ${{ matrix.shard }}/3)

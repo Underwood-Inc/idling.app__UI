@@ -66,52 +66,13 @@ curl -X GET http://localhost:3000/api/auth/session \
 }
 ```
 
-## 📝 Posts & Content
-
-### Post Endpoints
-
-| Method | Endpoint          | Description     |
-| ------ | ----------------- | --------------- |
-| GET    | `/api/posts`      | List posts      |
-| GET    | `/api/posts/[id]` | Get post by ID  |
-| POST   | `/api/posts`      | Create new post |
-| PUT    | `/api/posts/[id]` | Update post     |
-| DELETE | `/api/posts/[id]` | Delete post     |
-
-### Post Schema
-
-```json
-{
-  "id": "string",
-  "title": "string",
-  "content": "string",
-  "author_id": "string",
-  "created_at": "datetime",
-  "updated_at": "datetime",
-  "published": "boolean",
-  "tags": ["string"]
-}
-```
-
 ## 🔍 Search & Filtering
 
 ### Search Endpoints
 
-| Method | Endpoint            | Description    |
-| ------ | ------------------- | -------------- |
-| GET    | `/api/search`       | Search content |
-| GET    | `/api/search/users` | Search users   |
-| GET    | `/api/search/posts` | Search posts   |
-
-### Query Parameters
-
-```bash
-# Search with filters
-GET /api/search?q=keyword&type=post&limit=10&offset=0
-
-# Advanced filtering
-GET /api/posts?author=user123&published=true&sort=created_at&order=desc
-```
+| Method | Endpoint            | Description              |
+| ------ | ------------------- | ------------------------ |
+| GET    | `/api/search/users` | Search users (profiles)  |
 
 ## 🏥 Health & Monitoring
 
@@ -199,7 +160,6 @@ X-RateLimit-Reset: 1640995200
 
 - [Authentication Guide](/api/auth/)
 - [User Management](/api/users/)
-- [Post Management](/api/posts/)
 - [Development Guide](/development/)
 
 ---

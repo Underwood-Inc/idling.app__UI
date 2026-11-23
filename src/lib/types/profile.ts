@@ -11,17 +11,11 @@ export interface UserProfileData {
   image?: string;
   created_at?: string;
   profile_public?: boolean;
-  total_submissions?: number;
-  posts_count?: number;
-  replies_count?: number;
-  last_activity?: Date | null;
-  // User preferences
   spacing_theme?: 'cozy' | 'compact';
   pagination_mode?: 'traditional' | 'infinite';
   emoji_panel_behavior?: 'close_after_select' | 'stay_open';
   font_preference?: 'monospace' | 'default';
   flair_preference?: FlairPreference;
-  // Background settings
   background_movement_direction?:
     | 'static'
     | 'forward'

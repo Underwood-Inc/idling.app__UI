@@ -4,6 +4,10 @@
  * This mock covers all the navigation hooks used across our test suite
  */
 
+export function notFound(): never {
+  throw new Error('NEXT_NOT_FOUND');
+}
+
 export const useRouter = jest.fn(() => ({
   push: jest.fn(),
   replace: jest.fn(),

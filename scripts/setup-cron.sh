@@ -5,7 +5,7 @@
 
 set -e  # Exit on any error
 
-echo "🚀 Setting up automatic materialized view refresh..."
+echo "🚀 Materialized view cron setup (social platform removed — no-op refresh script only)"
 echo ""
 
 # Get the directory where this script is located
@@ -70,41 +70,10 @@ echo ""
 # Create the production refresh script
 echo "📝 Creating production refresh script..."
 
-cat > scripts/refresh-views-production.sh << EOF
+cat > scripts/refresh-views-production.sh << 'EOF'
 #!/bin/bash
-
-# Auto-generated production script for materialized view refresh
-# Generated on: $(date)
-
-# Load environment variables
-if [ -f "$APP_DIR/.env.local" ]; then
-    set -a
-    source "$APP_DIR/.env.local"
-    set +a
-elif [ -f "$APP_DIR/.env" ]; then
-    set -a
-    source "$APP_DIR/.env"
-    set +a
-else
-    echo "Error: No environment file found"
-    exit 1
-fi
-
-# Construct DATABASE_URL
-DATABASE_URL="postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@\${POSTGRES_HOST}:\${POSTGRES_PORT}/\${POSTGRES_DB}"
-
-# Log with timestamp
-echo "[\$(date)] Starting materialized view refresh..."
-
-# Refresh materialized view
-psql "\$DATABASE_URL" -c "REFRESH MATERIALIZED VIEW user_submission_stats;" 2>&1
-
-if [ \$? -eq 0 ]; then
-    echo "[\$(date)] ✅ Materialized view refresh completed successfully"
-else
-    echo "[\$(date)] ❌ Materialized view refresh failed"
-    exit 1
-fi
+echo "[$(date)] No materialized views to refresh (social platform sunset)."
+exit 0
 EOF
 
 chmod +x scripts/refresh-views-production.sh

@@ -75,7 +75,7 @@ export function withTimeoutInfo(handler: ApiHandler) {
           // Check timeout status using the existing PermissionsService
           const timeoutStatus = await PermissionsService.checkUserTimeout(
             userId,
-            TIMEOUT_TYPES.POST_CREATION
+            TIMEOUT_TYPES.GENERAL
           );
 
           timeoutInfo = {

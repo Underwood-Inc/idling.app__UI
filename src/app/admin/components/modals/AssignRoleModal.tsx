@@ -109,7 +109,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
               style={{
                 margin: '4px 0 0 0',
                 color: 'var(--text-secondary)',
-                fontSize: '0.9rem'
+                fontSize: 'var(--font-size-sm)'
               }}
             >
               ID: {userId}
@@ -171,7 +171,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       padding: '12px',
                       background: 'var(--light-background--secondary)',
                       borderRadius: '6px',
-                      fontSize: '0.9rem'
+                      fontSize: 'var(--font-size-sm)'
                     }}
                   >
                     <strong>Role Description:</strong>
@@ -194,7 +194,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       padding: '8px 12px',
                       border: '2px solid var(--light-background--tertiary)',
                       borderRadius: '6px',
-                      fontSize: '14px',
+                      fontSize: 'var(--font-size-sm)',
                       width: '100%'
                     }}
                   />
@@ -216,7 +216,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       padding: '8px 12px',
                       border: '2px solid var(--light-background--tertiary)',
                       borderRadius: '6px',
-                      fontSize: '14px',
+                      fontSize: 'var(--font-size-sm)',
                       width: '100%',
                       resize: 'vertical',
                       fontFamily: 'inherit'

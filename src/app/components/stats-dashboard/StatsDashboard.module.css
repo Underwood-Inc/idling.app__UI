@@ -10,7 +10,7 @@
 }
 
 .card__title {
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--dark-bg__text-color--primary);
   margin: 0 0 1rem 0;
@@ -53,14 +53,14 @@
 }
 
 .metric__value {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--brand-primary);
   line-height: 1;
 }
 
 .metric__label {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -75,7 +75,7 @@
   background: var(--ambient-surface-bg-elevated);
   border: 1px solid var(--ambient-surface-border);
   border-radius: 8px;
-  font-size: 0.8125rem;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   color: var(--dark-bg__text-color--secondary);
 }
@@ -155,7 +155,7 @@
   background: var(--ambient-surface-bg-elevated);
   border: 1px solid var(--ambient-surface-border);
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-secondary);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -251,14 +251,14 @@
 }
 
 .status__label {
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: var(--dark-bg__text-color--secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .status__value {
-  font-size: 0.938rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
 }
@@ -290,7 +290,7 @@
   }
 
   .metric__value {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 }
 

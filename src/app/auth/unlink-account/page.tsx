@@ -74,7 +74,7 @@ export default async function UnlinkAccountPage({
                     This will only unlink the OAuth provider, not delete any
                     user accounts
                   </li>
-                  <li>All user data and submissions will be preserved</li>
+                  <li>Your account data and subscription state will be preserved</li>
                   <li>
                     You&apos;ll need to sign in with the other account to
                     complete the process
@@ -158,7 +158,7 @@ export default async function UnlinkAccountPage({
                   This will only unlink the OAuth provider, not delete any user
                   accounts
                 </li>
-                <li>All user data and submissions will be preserved</li>
+                <li>Your account data and subscription state will be preserved</li>
                 <li>
                   You&apos;ll need to sign in with the other account to complete
                   the process

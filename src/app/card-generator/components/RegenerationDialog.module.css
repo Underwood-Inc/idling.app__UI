@@ -32,7 +32,7 @@
 }
 
 .dialog__title {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   margin: 0;
   color: var(--dark-bg__text-color--primary);
   font-weight: 700;
@@ -44,7 +44,7 @@
   border-radius: 6px;
   padding: 0.5rem;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--secondary);
   transition: all 0.2s ease;
   width: 2.5rem;
@@ -67,7 +67,7 @@
 }
 
 .dialog__message {
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   color: var(--dark-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0;
@@ -122,17 +122,17 @@
 }
 
 .dialog__button__icon {
-  font-size: 2.5rem;
+  font-size: var(--font-size-5xl);
 }
 
 .dialog__button__content h4 {
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   margin: 0 0 0.25rem 0;
   font-weight: 600;
 }
 
 .dialog__button__content p {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   margin: 0;
   opacity: 0.9;
   line-height: 1.4;

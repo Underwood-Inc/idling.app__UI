@@ -26,7 +26,21 @@
 .home__about,
 .home__livestream,
 .home__projects,
-.home__activity {
+.home__activity,
+.home__spotlight {
+  width: 100%;
+}
+
+.home__marketing {
+  width: 100%;
+  max-width: 92rem;
+  margin-inline: auto;
+  padding-block: 0.5rem 2rem;
+  background: transparent;
+}
+
+.home__marketing :global(.dash) {
+  max-width: none;
   width: 100%;
 }
 
@@ -38,6 +52,10 @@
 
 .home__container_item_full {
   width: 100%;
+}
+
+.home__anchor {
+  scroll-margin-block-start: 8rem;
 }
 
 /* Tablet/Mobile: Stack aside below content */

@@ -9,7 +9,7 @@
   border: none;
   padding: 0.5rem 0.75rem;
   border-radius: var(--border-radius);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -64,7 +64,7 @@
 
 .admin-user-tooltip__header strong {
   color: var(--light-bg__text-color--primary);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 .admin-user-tooltip__info {
@@ -72,7 +72,7 @@
 }
 
 .admin-user-tooltip__status {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 .admin-user-tooltip__status-normal {
@@ -91,7 +91,7 @@
 }
 
 .admin-user-tooltip__timeout-details {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.4;
 }
@@ -112,7 +112,7 @@
   border: none;
   padding: 0.5rem 0.75rem;
   border-radius: var(--border-radius);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: background 0.2s ease;
@@ -141,7 +141,7 @@
 }
 
 .admin-user-tooltip__form-field label {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--light-bg__text-color--primary);
 }
@@ -154,7 +154,7 @@
   border-radius: var(--border-radius);
   background: var(--light-background--quaternary);
   color: var(--light-bg__text-color--primary);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 .admin-user-tooltip__form-field textarea {
@@ -181,7 +181,7 @@
   padding: 0.5rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;

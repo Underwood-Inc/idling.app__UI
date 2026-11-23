@@ -174,7 +174,7 @@ async function getHandler(request: NextRequest) {
       );
     }
 
-    const { userId, type: timeoutType = TIMEOUT_TYPES.POST_CREATION } =
+    const { userId, type: timeoutType = TIMEOUT_TYPES.GENERAL } =
       paramsResult.data;
 
     // Check timeout status

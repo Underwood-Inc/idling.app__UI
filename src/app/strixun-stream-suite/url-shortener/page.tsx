@@ -3,7 +3,17 @@ import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
+import { ProductTechStack } from '../ProductTechStack';
+import { productTechStackItems } from '../productTechStackCatalog';
 import '../product-detail.css';
+
+const URL_SHORTENER_BUILT_WITH = [
+  'Cloudflare Workers',
+  'React',
+  'TypeScript',
+  'KV Storage',
+  '@strixun/api-framework',
+] as const;
 
 export default function URLShortenerPage() {
   return (
@@ -132,13 +142,7 @@ export default function URLShortenerPage() {
           
             <div className="product-section">
               <h2 className="product-section__title">Built With</h2>
-              <div className="product-tech">
-                <span className="product-tech__tag">Cloudflare Workers</span>
-                <span className="product-tech__tag">React</span>
-                <span className="product-tech__tag">TypeScript</span>
-                <span className="product-tech__tag">KV Storage</span>
-                <span className="product-tech__tag">@strixun/api-framework</span>
-              </div>
+              <ProductTechStack items={productTechStackItems([...URL_SHORTENER_BUILT_WITH])} />
             </div>
           </FadeIn>
         </div>

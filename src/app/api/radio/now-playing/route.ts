@@ -10,6 +10,7 @@ import { getCatalogTrackMetadataSupport } from '@widgets/radio-player/radioStati
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 function resolveStationStreamUrl(station: string, hostname: string): string | null {
   const catalog = buildRadioStationProbeCatalog(RADIO_STATIONS, hostname, true);
@@ -43,7 +44,8 @@ async function getHandler(request: NextRequest) {
 
   return NextResponse.json(nowPlaying, {
     headers: {
-      'Cache-Control': 'public, max-age=15',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      Pragma: 'no-cache',
     },
   });
 }

@@ -3,7 +3,20 @@ import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
+import { ProductTechStack } from '../ProductTechStack';
+import { productTechStackItems } from '../productTechStackCatalog';
 import '../product-detail.css';
+
+const AUTH_SERVICE_BUILT_WITH = [
+  'Cloudflare Workers',
+  'Svelte 5',
+  'TypeScript',
+  'KV Storage',
+  'Resend API',
+  'JWT',
+  'OpenAPI 3.1.0',
+  'Swagger UI',
+] as const;
 
 export default function AuthServicePage() {
   return (
@@ -170,16 +183,7 @@ export default function AuthServicePage() {
           
             <div className="product-section">
               <h2 className="product-section__title">Built With</h2>
-              <div className="product-tech">
-                <span className="product-tech__tag">Cloudflare Workers</span>
-                <span className="product-tech__tag">Svelte 5</span>
-                <span className="product-tech__tag">TypeScript</span>
-                <span className="product-tech__tag">KV Storage</span>
-                <span className="product-tech__tag">Resend API</span>
-                <span className="product-tech__tag">JWT</span>
-                <span className="product-tech__tag">OpenAPI 3.1.0</span>
-                <span className="product-tech__tag">Swagger UI</span>
-              </div>
+              <ProductTechStack items={productTechStackItems([...AUTH_SERVICE_BUILT_WITH])} />
             </div>
           </FadeIn>
         </div>
