@@ -259,7 +259,7 @@
   margin-left: auto;
   color: var(--brand-primary);
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: var(--font-size-md);
 }
 
 /* Responsive design */

@@ -395,7 +395,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
           <small
             style={{
               color: '#ccc',
-              fontSize: '12px',
+              fontSize: 'var(--font-size-xs)',
               marginTop: '2px',
               display: 'block'
             }}
@@ -583,7 +583,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                       <small
                         style={{
                           color: '#666',
-                          fontSize: '11px',
+                          fontSize: 'var(--font-size-xs)',
                           marginTop: '2px',
                           display: 'block'
                         }}
@@ -735,7 +735,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           padding: '5px 10px',
                           borderRadius: '4px',
                           cursor: 'pointer',
-                          fontSize: '12px'
+                          fontSize: 'var(--font-size-xs)'
                         }}
                       >
                         <IconText iconId="pencil">Edit</IconText>
@@ -749,7 +749,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           padding: '5px 10px',
                           borderRadius: '4px',
                           cursor: 'pointer',
-                          fontSize: '12px'
+                          fontSize: 'var(--font-size-xs)'
                         }}
                       >
                         <IconText iconId="trash">Delete</IconText>
@@ -763,7 +763,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                       gridTemplateColumns:
                         'repeat(auto-fit, minmax(150px, 1fr))',
                       gap: '10px',
-                      fontSize: '14px'
+                      fontSize: 'var(--font-size-sm)'
                     }}
                   >
                     <div>

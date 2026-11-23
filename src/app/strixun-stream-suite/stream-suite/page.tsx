@@ -2,7 +2,17 @@ import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
+import { ProductTechStack } from '../ProductTechStack';
+import { productTechStackItems } from '../productTechStackCatalog';
 import '../product-detail.css';
+
+const STREAM_SUITE_BUILT_WITH = [
+  'Svelte 5',
+  'TypeScript',
+  'Vite',
+  'OBS WebSocket',
+  'PWA',
+] as const;
 
 export default function StreamSuitePage() {
   return (
@@ -138,13 +148,7 @@ export default function StreamSuitePage() {
             {/* Tech Stack */}
             <div className="product-section">
               <h2 className="product-section__title">Built With</h2>
-              <div className="product-tech">
-                <span className="product-tech__tag">Svelte 5</span>
-                <span className="product-tech__tag">TypeScript</span>
-                <span className="product-tech__tag">Vite</span>
-                <span className="product-tech__tag">OBS WebSocket</span>
-                <span className="product-tech__tag">PWA</span>
-              </div>
+              <ProductTechStack items={productTechStackItems([...STREAM_SUITE_BUILT_WITH])} />
             </div>
           </FadeIn>
         </div>

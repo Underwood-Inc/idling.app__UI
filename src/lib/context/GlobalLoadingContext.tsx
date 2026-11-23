@@ -329,10 +329,6 @@ function getLoadingMessage(url: string, method: string): string | null {
     return 'Resetting quota usage...';
   }
 
-  if (url.includes('/api/submissions') || url.includes('/api/posts')) {
-    return 'Loading posts...';
-  }
-
   if (url.includes('/api/emojis')) {
     return 'Loading emojis...';
   }

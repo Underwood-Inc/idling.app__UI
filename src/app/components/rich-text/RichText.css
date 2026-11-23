@@ -11,7 +11,7 @@
 }
 
 .emoji--unicode {
-  font-size: 1.2em;
+  font-size: var(--font-size-lg);
   line-height: 1;
 }
 
@@ -24,7 +24,7 @@
 
 .emoji--ascii {
   font-family: 'Fira Code', 'Courier New', 'Monaco', 'Menlo', monospace;
-  font-size: 1.1em;
+  font-size: var(--font-size-md);
   line-height: 1.2;
   font-weight: 500;
   white-space: nowrap;
@@ -49,23 +49,23 @@
 
 /* ASCII emoji size variants */
 .emoji--ascii.emoji--small {
-  font-size: 0.9em;
+  font-size: var(--font-size-base);
   padding: 0.05em 0.15em;
 }
 
 .emoji--ascii.emoji--medium {
-  font-size: 1.1em;
+  font-size: var(--font-size-md);
   padding: 0.1em 0.2em;
 }
 
 .emoji--ascii.emoji--large {
-  font-size: 1.3em;
+  font-size: var(--font-size-xl);
   padding: 0.15em 0.25em;
 }
 
 /* Special handling for complex ASCII emojis */
 .emoji--ascii.emoji--complex {
-  font-size: 0.9em;
+  font-size: var(--font-size-base);
   padding: 0.2em 0.3em;
   min-width: 2em;
   text-align: center;
@@ -75,7 +75,7 @@
 
 /* Emoji Size Variants */
 .emoji--small {
-  font-size: 1em;
+  font-size: var(--font-size-base);
 }
 
 .emoji--small.emoji--custom {
@@ -84,7 +84,7 @@
 }
 
 .emoji--medium {
-  font-size: 1.2em;
+  font-size: var(--font-size-lg);
 }
 
 .emoji--medium.emoji--custom {
@@ -93,7 +93,7 @@
 }
 
 .emoji--large {
-  font-size: 1.5em;
+  font-size: var(--font-size-xl);
 }
 
 .emoji--large.emoji--custom {
@@ -149,7 +149,7 @@
 }
 
 .emoji-grid--ascii .emoji-button .emoji--ascii {
-  font-size: 1.2em;
+  font-size: var(--font-size-lg);
   margin-bottom: 4px;
   background: transparent;
   border: none;
@@ -158,7 +158,7 @@
 
 .emoji-grid--ascii .emoji-button::after {
   content: attr(title);
-  font-size: 0.7em;
+  font-size: var(--font-size-base);
   color: var(--text-secondary, #666);
   margin-top: 2px;
   max-width: 100%;
@@ -226,7 +226,7 @@
   color: var(--text-code, #d63384);
   padding: 2px 4px;
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: var(--font-size-base);
 }
 
 .rich-text del {
@@ -300,7 +300,7 @@
   top: 8px;
   right: 8px;
   opacity: 0.5;
-  font-size: 0.8em;
+  font-size: var(--font-size-base);
 }
 
 /* Content Pills (existing styles enhanced) */
@@ -308,7 +308,7 @@
   display: inline-block;
   padding: 2px 6px;
   border-radius: 12px;
-  font-size: 0.9em;
+  font-size: var(--font-size-base);
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -452,7 +452,7 @@
   }
 
   .emoji--unicode {
-    font-size: 1.1em;
+    font-size: var(--font-size-md);
   }
 
   .emoji--custom {
@@ -461,7 +461,7 @@
   }
 
   .emoji--ascii {
-    font-size: 1em;
+    font-size: var(--font-size-base);
     /* Maintain readability on mobile */
     padding: 0.08em 0.15em;
     margin: 0 0.05em;
@@ -480,11 +480,11 @@
   }
 
   .emoji-grid--ascii .emoji-button .emoji--ascii {
-    font-size: 1.1em;
+    font-size: var(--font-size-md);
   }
 
   .emoji-grid--ascii .emoji-button::after {
-    font-size: 0.65em;
+    font-size: var(--font-size-base);
   }
 
   .emoji-grid {

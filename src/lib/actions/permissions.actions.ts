@@ -346,7 +346,7 @@ export async function issueUserTimeout(
  * Server action to check if current user is timed out
  */
 export async function checkCurrentUserTimeout(
-  timeoutType: string = 'post_creation'
+  timeoutType: string = 'general'
 ) {
   const session = await auth();
   if (!session?.user?.id) {

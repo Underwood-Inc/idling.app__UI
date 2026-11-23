@@ -442,7 +442,7 @@ export const AssignSubscriptionModal: React.FC<
                     style={{
                       marginLeft: '10px',
                       padding: '4px 8px',
-                      fontSize: '12px'
+                      fontSize: 'var(--font-size-xs)'
                     }}
                   >
                     <IconText iconId="refresh">Retry</IconText>

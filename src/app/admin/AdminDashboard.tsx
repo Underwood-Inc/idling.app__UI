@@ -5,7 +5,6 @@ import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import './AdminDashboard.css';
-import AdminPostsList from './components/AdminPostsList';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import CustomAlertsPanel from './components/CustomAlertsPanel';
 import EmojiApprovalPanel from './components/EmojiApprovalPanel';
@@ -41,19 +40,11 @@ const ADMIN_TABS = ([
     description: 'Manage user accounts, roles, and permissions',
   },
   {
-    id: 'posts',
-    label: 'Posts Moderation',
-    iconId: 'fileText',
-    component: AdminPostsList,
-    sortOrder: 3,
-    description: 'Review and moderate user posts',
-  },
-  {
     id: 'emojis',
     label: 'Emoji Approval',
     iconId: 'smile',
     component: EmojiApprovalPanel,
-    sortOrder: 4,
+    sortOrder: 3,
     description: 'Approve or reject custom emoji submissions',
   },
   {
@@ -61,7 +52,7 @@ const ADMIN_TABS = ([
     label: 'Subscriptions',
     iconId: 'creditCard',
     component: SubscriptionManagementPanel,
-    sortOrder: 5,
+    sortOrder: 4,
     description: 'Manage subscription plans and user subscriptions',
   },
   {
@@ -69,7 +60,7 @@ const ADMIN_TABS = ([
     label: 'Permissions',
     iconId: 'key',
     component: PermissionManagementPanel,
-    sortOrder: 6,
+    sortOrder: 5,
     description: 'Configure system permissions and access control',
   },
   {
@@ -77,7 +68,7 @@ const ADMIN_TABS = ([
     label: 'Custom Alerts',
     iconId: 'bell',
     component: CustomAlertsPanel,
-    sortOrder: 7,
+    sortOrder: 6,
     description: 'Manage system alerts and notifications',
   },
   {
@@ -85,7 +76,7 @@ const ADMIN_TABS = ([
     label: 'Guest Quotas',
     iconId: 'barChart',
     component: GlobalGuestQuotaPanel,
-    sortOrder: 8,
+    sortOrder: 7,
     description: 'Configure guest user quotas and limits',
   },
 ] satisfies AdminTabConfig[]).toSorted((a, b) => a.sortOrder - b.sortOrder);

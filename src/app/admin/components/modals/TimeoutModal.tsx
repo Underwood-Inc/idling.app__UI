@@ -15,7 +15,7 @@ interface TimeoutModalProps {
 }
 
 export interface TimeoutOptions {
-  timeoutType: 'post_creation' | 'comment_creation' | 'full_access';
+  timeoutType: 'emoji_submission' | 'rate_limit' | 'general' | 'full_access';
   reason: string;
   durationHours: number;
   customDuration?: {
@@ -37,25 +37,30 @@ const TIMEOUT_PRESETS = [
 
 const TIMEOUT_TYPES = [
   {
-    value: 'post_creation' as const,
-    label: 'Post Creation',
-    description: 'User cannot create new posts'
+    value: 'emoji_submission' as const,
+    label: 'Custom emoji',
+    description: 'User cannot submit custom emojis for approval',
   },
   {
-    value: 'comment_creation' as const,
-    label: 'Comment Creation',
-    description: 'User cannot create comments or replies'
+    value: 'rate_limit' as const,
+    label: 'Rate limits',
+    description: 'Tighten automated rate limiting for this account',
+  },
+  {
+    value: 'general' as const,
+    label: 'General',
+    description: 'Account-wide restriction for non-specific violations',
   },
   {
     value: 'full_access' as const,
-    label: 'Full Access',
-    description: 'User cannot perform any actions'
-  }
+    label: 'Full access',
+    description: 'User cannot perform most signed-in actions',
+  },
 ];
 
 const COMMON_REASONS = [
   'Violation of community guidelines',
-  'Spam or excessive posting',
+  'Spam or abusive behavior',
   'Inappropriate content',
   'Harassment or abuse',
   'Multiple rule violations',
@@ -70,7 +75,7 @@ export function TimeoutModal({
   onTimeout
 }: TimeoutModalProps) {
   const [timeoutType, setTimeoutType] =
-    useState<TimeoutOptions['timeoutType']>('post_creation');
+    useState<TimeoutOptions['timeoutType']>('general');
   const [reason, setReason] = useState('');
   const [selectedPreset, setSelectedPreset] = useState(24); // Default to 24 hours
   const [customDays, setCustomDays] = useState(0);
@@ -148,7 +153,7 @@ export function TimeoutModal({
     if (isSubmitting) return;
 
     // Reset form
-    setTimeoutType('post_creation');
+    setTimeoutType('general');
     setReason('');
     setSelectedPreset(24);
     setCustomDays(0);

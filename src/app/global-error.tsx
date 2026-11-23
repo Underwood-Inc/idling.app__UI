@@ -43,7 +43,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
         >
           <h1
             style={{
-              fontSize: '3rem',
+              fontSize: 'var(--font-size-5xl)',
               marginBottom: '1rem',
               background: 'linear-gradient(135deg, #edae49, #f9df74)',
               WebkitBackgroundClip: 'text',
@@ -59,7 +59,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           </h1>
           <p
             style={{
-              fontSize: '1.25rem',
+              fontSize: 'var(--font-size-lg)',
               marginBottom: '1.5rem',
               color: '#b8b8b8',
               maxWidth: '600px',
@@ -69,7 +69,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           </p>
           <p
             style={{
-              fontSize: '1rem',
+              fontSize: 'var(--font-size-base)',
               marginBottom: '1.5rem',
               color: '#888',
               maxWidth: '500px',
@@ -80,7 +80,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           {error.digest && (
             <p
               style={{
-                fontSize: '0.875rem',
+                fontSize: 'var(--font-size-sm)',
                 color: '#666',
                 marginBottom: '1.5rem',
               }}
@@ -93,7 +93,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               onClick={reset}
               style={{
                 padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
+                fontSize: 'var(--font-size-base)',
                 fontWeight: 600,
                 backgroundColor: '#edae49',
                 color: '#1a1611',
@@ -108,7 +108,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               onClick={() => (window.location.href = '/')}
               style={{
                 padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
+                fontSize: 'var(--font-size-base)',
                 fontWeight: 600,
                 backgroundColor: 'transparent',
                 color: '#edae49',

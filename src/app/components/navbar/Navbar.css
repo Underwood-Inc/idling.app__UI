@@ -165,7 +165,7 @@
   }
 
   .navbar__item {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 
   .navbar-brand__avatar {

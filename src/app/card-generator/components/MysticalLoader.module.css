@@ -45,7 +45,7 @@
 }
 
 .crystal__core {
-  font-size: 3rem;
+  font-size: var(--font-size-5xl);
   animation: crystal-pulse 2s ease-in-out infinite;
   position: relative;
   z-index: 2;
@@ -91,7 +91,7 @@
 
 .symbol {
   position: absolute;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   opacity: 0.7;
   animation: float 3s ease-in-out infinite;
 }
@@ -134,7 +134,7 @@
 }
 
 .message__title {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -142,7 +142,7 @@
 }
 
 .message__text {
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
   font-style: italic;
@@ -236,7 +236,7 @@
   }
 
   .crystal__core {
-    font-size: 2.5rem;
+    font-size: var(--font-size-5xl);
   }
 
   .crystal__aura {
@@ -250,15 +250,15 @@
   }
 
   .symbol {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .message__title {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .message__text {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -274,7 +274,7 @@
   }
 
   .crystal__core {
-    font-size: 2rem;
+    font-size: var(--font-size-3xl);
   }
 
   .crystal__aura {
@@ -288,14 +288,14 @@
   }
 
   .symbol {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .message__title {
-    font-size: 1.125rem;
+    font-size: var(--font-size-md);
   }
 
   .message__text {
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 }

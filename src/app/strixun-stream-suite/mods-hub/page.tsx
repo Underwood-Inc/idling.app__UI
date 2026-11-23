@@ -2,7 +2,21 @@ import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
+import { ProductTechStack } from '../ProductTechStack';
+import { productTechStackItems } from '../productTechStackCatalog';
 import '../product-detail.css';
+
+const MODS_HUB_BUILT_WITH = [
+  'React 19',
+  'TypeScript',
+  'Vite',
+  'TanStack Query',
+  'Zustand',
+  '@preact/signals',
+  'styled-components',
+  'Cloudflare Workers',
+  'R2 Storage',
+] as const;
 
 export default function ModsHubPage() {
   return (
@@ -21,6 +35,9 @@ export default function ModsHubPage() {
             />
             <h1 className="product-hero__title">Mods Hub</h1>
             <p className="product-hero__tagline">Modern Mod Hosting Platform</p>
+            <p className="product-hero__status product-hero__status--beta" role="status">
+              Beta — still in active development
+            </p>
             <div className="product-hero__actions">
               <a
                 href="https://mods.idling.app"
@@ -160,17 +177,7 @@ export default function ModsHubPage() {
             {/* Tech Stack */}
             <div className="product-section">
               <h2 className="product-section__title">Built With</h2>
-              <div className="product-tech">
-                <span className="product-tech__tag">React 19</span>
-                <span className="product-tech__tag">TypeScript</span>
-                <span className="product-tech__tag">Vite</span>
-                <span className="product-tech__tag">TanStack Query</span>
-                <span className="product-tech__tag">Zustand</span>
-                <span className="product-tech__tag">@preact/signals</span>
-                <span className="product-tech__tag">styled-components</span>
-                <span className="product-tech__tag">Cloudflare Workers</span>
-                <span className="product-tech__tag">R2 Storage</span>
-              </div>
+              <ProductTechStack items={productTechStackItems([...MODS_HUB_BUILT_WITH])} />
             </div>
           </FadeIn>
         </div>

@@ -3,7 +3,17 @@ import { FeatureIcon } from '@molecules/lucide/FeatureIcon';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
+import { ProductTechStack } from '../ProductTechStack';
+import { productTechStackItems } from '../productTechStackCatalog';
 import '../product-detail.css';
+
+const ACCESS_HUB_BUILT_WITH = [
+  'React 18',
+  'TypeScript',
+  'Vite',
+  'Cloudflare Workers',
+  'Cloudflare Pages',
+] as const;
 
 export default function AccessHubPage() {
   return (
@@ -160,13 +170,7 @@ export default function AccessHubPage() {
           
             <div className="product-section">
               <h2 className="product-section__title">Built With</h2>
-              <div className="product-tech">
-                <span className="product-tech__tag">React 18</span>
-                <span className="product-tech__tag">TypeScript</span>
-                <span className="product-tech__tag">Vite</span>
-                <span className="product-tech__tag">Cloudflare Workers</span>
-                <span className="product-tech__tag">Cloudflare Pages</span>
-              </div>
+              <ProductTechStack items={productTechStackItems([...ACCESS_HUB_BUILT_WITH])} />
             </div>
           </FadeIn>
         </div>

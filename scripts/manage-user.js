@@ -335,34 +335,6 @@ async function displayUserInfo(userId) {
       console.error(chalk.red('❌ Error fetching sessions:'), error.message);
     }
 
-    // Activity statistics (handle permission errors gracefully)
-    try {
-      const activityStats = await sql`
-        SELECT 
-          COALESCE(COUNT(DISTINCT s.submission_id), 0) as total_submissions,
-          COALESCE(COUNT(DISTINCT p.id), 0) as total_posts,
-          COALESCE(COUNT(DISTINCT c.id), 0) as total_comments,
-          COALESCE(MAX(s.submission_datetime), NULL) as latest_submission_date,
-          COALESCE(MAX(p.created_at), NULL) as latest_post_date,
-          COALESCE(MAX(c.created_at), NULL) as latest_comment_date
-        FROM users u
-        LEFT JOIN submissions s ON u.id = s.user_id
-        LEFT JOIN posts p ON u.id = p.author_id  
-        LEFT JOIN comments c ON u.id = c.author_id
-        WHERE u.id = ${userId}
-        GROUP BY u.id
-      `;
-
-      if (activityStats.length > 0) {
-        console.log(chalk.green('\n📊 ACTIVITY STATISTICS'));
-        console.table(activityStats);
-      }
-    } catch (error) {
-      console.log(
-        chalk.yellow('⚠️ Activity stats unavailable (insufficient permissions)')
-      );
-    }
-
     // User roles with detailed permissions
     try {
       const roles = await sql`
@@ -555,93 +527,6 @@ async function displayUserInfo(userId) {
       console.groupCollapsed(chalk.green('🔐 ENCRYPTION KEYS'));
       console.table(encryptionKeys);
       console.groupEnd();
-    }
-
-    // Recent posts (if any) - use correct column name (subthread)
-    try {
-      const recentPosts = await sql`
-        SELECT 
-          id,
-          title,
-          subthread,
-          score,
-          comment_count,
-          created_at
-        FROM posts 
-        WHERE author_id = ${userId}
-        ORDER BY created_at DESC
-        LIMIT 5
-      `;
-
-      if (recentPosts.length > 0) {
-        console.groupCollapsed(chalk.green('📝 RECENT POSTS (LATEST 5)'));
-        console.table(recentPosts);
-        console.groupEnd();
-      }
-    } catch (error) {
-      console.log(
-        chalk.yellow(
-          '⚠️ Recent posts unavailable (table may not exist or insufficient permissions)'
-        )
-      );
-    }
-
-    // Recent comments (if any)
-    try {
-      const recentComments = await sql`
-        SELECT 
-          c.id,
-          LEFT(c.content, 100) as content_preview,
-          p.title as post_title,
-          c.score,
-          c.created_at
-        FROM comments c
-        LEFT JOIN posts p ON c.post_id = p.id
-        WHERE c.author_id = ${userId}
-        ORDER BY c.created_at DESC
-        LIMIT 5
-      `;
-
-      if (recentComments.length > 0) {
-        console.groupCollapsed(chalk.green('💬 RECENT COMMENTS (LATEST 5)'));
-        console.table(recentComments);
-        console.groupEnd();
-      }
-    } catch (error) {
-      console.log(
-        chalk.yellow(
-          '⚠️ Recent comments unavailable (table may not exist or insufficient permissions)'
-        )
-      );
-    }
-
-    // Recent submissions (if any)
-    try {
-      const recentSubmissions = await sql`
-        SELECT 
-          submission_id,
-          submission_name,
-          submission_title,
-          submission_url,
-          tags,
-          submission_datetime
-        FROM submissions 
-        WHERE user_id = ${userId}
-        ORDER BY submission_datetime DESC
-        LIMIT 5
-      `;
-
-      if (recentSubmissions.length > 0) {
-        console.groupCollapsed(chalk.green('📄 RECENT SUBMISSIONS (LATEST 5)'));
-        console.table(recentSubmissions);
-        console.groupEnd();
-      }
-    } catch (error) {
-      console.log(
-        chalk.yellow(
-          '⚠️ Recent submissions unavailable (insufficient permissions)'
-        )
-      );
     }
 
     // User subscriptions

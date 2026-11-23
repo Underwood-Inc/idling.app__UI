@@ -20,7 +20,7 @@
 }
 
 .bpm__label {
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -29,7 +29,7 @@
 
 .bpm__value {
   min-width: 2.75ch;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   color: var(--text-primary, #ece8e0);
 }
@@ -77,10 +77,10 @@
   }
 
   .bpm__label {
-    font-size: 9px;
+    font-size: var(--font-size-xs);
   }
 
   .bpm__value {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 }

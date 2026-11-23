@@ -42,8 +42,7 @@ export default defineConfig({
     environmentMatchGlobs: [
       ['src/lib/security/**', 'node'],
       ['src/lib/api/**', 'node'],
-      ['src/app/components/**/actions.test.ts', 'node'],
-      ['src/app/components/submissions-list/actions.test.ts', 'node']
+      ['src/app/components/**/actions.test.ts', 'node']
     ],
     server: {
       deps: {

@@ -3,7 +3,6 @@
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { createLogger } from '@lib/logging';
-import { NAV_PATHS } from '@lib/routes';
 import { ContentParser, ContentSegment } from '@lib/utils/content-parsers';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useMemo } from 'react';
@@ -106,20 +105,10 @@ function ContentWithPillsInternal({
           } else if (!currentTags) {
             params.set('tags', hashtagValue);
           }
-        } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
-          // Always use userId for author filtering (required)
-          if (segment?.userId) {
-            params.set('author', segment.userId);
-          }
-          // If no userId available, skip filtering (embedded data should always have userId)
         }
       }
 
       params.set('page', '1');
-
-      if (type === 'hashtag' && pathname.startsWith('/t/')) {
-        return `${NAV_PATHS.POSTS}?${params.toString()}`;
-      }
 
       return `${pathname}?${params.toString()}`;
     },
@@ -160,26 +149,6 @@ function ContentWithPillsInternal({
       } else if (type === 'mention' && onMentionClick && segment?.userId) {
         // Always use userId for author filtering
         onMentionClick(segment.userId, 'author');
-      } else if (
-        type === 'hashtag' &&
-        pathname.startsWith('/t/') &&
-        !onHashtagClick
-      ) {
-        // For thread pages without callback, navigate to posts with filter
-        const params = new URLSearchParams();
-        params.set('tags', value);
-        params.set('page', '1');
-        router.push(`${NAV_PATHS.POSTS}?${params.toString()}`);
-      } else if (
-        type === 'mention' &&
-        pathname === NAV_PATHS.POSTS &&
-        segment?.userId
-      ) {
-        // Direct navigation - only with userId
-        const params = new URLSearchParams(searchParams);
-        params.set('author', segment.userId);
-        params.set('page', '1');
-        router.push(`${pathname}?${params.toString()}`);
       }
     },
     [

@@ -365,10 +365,9 @@ export interface StatsQuickLinkDefinition {
 export const STATS_QUICK_LINKS: StatsQuickLinkDefinition[] = [
   { href: '/card-generator', label: 'Card Generator', iconId: 'wand' },
   { href: '/svg-converter', label: 'SVG Converter', iconId: 'palette' },
-  { href: '/posts', label: 'Social Feed', iconId: 'messages' },
   { href: 'https://streamkit.idling.app', label: 'OBS Suite', iconId: 'monitorPlay' },
   { href: 'https://mods.idling.app', label: 'Mods Hub', iconId: 'gamepad' },
-  { href: 'https://short.army/mappy', label: 'Mappy', iconId: 'map' },
+  { href: 'https://short.army/mappy', label: 'mappy', iconId: 'map' },
   { href: 'https://auth.idling.app', label: 'Auth Service', iconId: 'key' },
   { href: 'https://docs.idling.app', label: 'Documentation', iconId: 'bookOpen' },
   { href: 'https://design.idling.app', label: 'Design System', iconId: 'palette' },

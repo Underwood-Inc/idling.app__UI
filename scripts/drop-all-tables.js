@@ -32,6 +32,9 @@ async function dropAllTables() {
     await sql`DROP TABLE IF EXISTS verification_token CASCADE`;
     await sql`DROP TABLE IF EXISTS sessions CASCADE`;
     await sql`DROP TABLE IF EXISTS accounts CASCADE`;
+    await sql`DROP TABLE IF EXISTS votes CASCADE`;
+    await sql`DROP TABLE IF EXISTS comments CASCADE`;
+    await sql`DROP TABLE IF EXISTS posts CASCADE`;
     await sql`DROP TABLE IF EXISTS submissions CASCADE`;
     await sql`DROP TABLE IF EXISTS users CASCADE`;
     await sql`DROP TABLE IF EXISTS migrations CASCADE`;

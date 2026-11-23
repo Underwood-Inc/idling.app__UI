@@ -69,6 +69,7 @@ export async function fetchStreamNowPlaying(
   try {
     const response = await fetch(streamUrl, {
       method: 'GET',
+      cache: 'no-store',
       headers: {
         'Icy-MetaData': '1',
         'User-Agent': 'IdlingRadioNowPlaying/1.0 (https://idling.app)',
@@ -92,25 +93,34 @@ export async function fetchStreamNowPlaying(
     const reader = createByteReader(response.body.getReader());
 
     try {
-      const boundary = await reader.readExact(metaInt + 1);
-      if (!boundary) {
-        return buildRadioNowPlaying(station, null, true);
+      while (true) {
+        const boundary = await reader.readExact(metaInt + 1);
+        if (!boundary) {
+          return buildRadioNowPlaying(station, null, true);
+        }
+
+        const metadataLength = boundary[metaInt] * 16;
+        if (metadataLength > MAX_METADATA_BLOCK_BYTES) {
+          return buildRadioNowPlaying(station, null, true);
+        }
+
+        if (metadataLength <= 0) {
+          continue;
+        }
+
+        const metadataBytes = await reader.readExact(metadataLength);
+        if (!metadataBytes) {
+          return buildRadioNowPlaying(station, null, true);
+        }
+
+        const metadataText = new TextDecoder('utf-8').decode(metadataBytes);
+        const streamTitle = parseIcyStreamTitle(metadataText);
+        if (!streamTitle) {
+          continue;
+        }
+
+        return buildRadioNowPlaying(station, streamTitle, true);
       }
-
-      const metadataLength = boundary[metaInt] * 16;
-      if (metadataLength <= 0 || metadataLength > MAX_METADATA_BLOCK_BYTES) {
-        return buildRadioNowPlaying(station, null, true);
-      }
-
-      const metadataBytes = await reader.readExact(metadataLength);
-      if (!metadataBytes) {
-        return buildRadioNowPlaying(station, null, true);
-      }
-
-      const metadataText = new TextDecoder('utf-8').decode(metadataBytes);
-      const streamTitle = parseIcyStreamTitle(metadataText);
-
-      return buildRadioNowPlaying(station, streamTitle, true);
     } finally {
       await reader.cancel();
     }

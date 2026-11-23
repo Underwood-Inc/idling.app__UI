@@ -44,7 +44,7 @@ vi.mock('../../../lib/state/atoms', () => ({
 
 // Mock Next.js navigation
 vi.mock('next/navigation', () => ({
-  usePathname: vi.fn(() => '/posts'),
+  usePathname: vi.fn(() => '/profile/example'),
   useSearchParams: vi.fn(() => new URLSearchParams()),
   useRouter: vi.fn(() => ({
     push: vi.fn(),

@@ -77,28 +77,8 @@ export async function getUserProfileByDatabaseId(
 
     const user = userResult[0];
 
-    // Get submission statistics
-    let stats = null;
-    try {
-      const submissionStats = await sql`
-        SELECT 
-          COUNT(*) as total_submissions,
-          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
-          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
-          MAX(submission_datetime) as last_activity
-        FROM submissions 
-        WHERE user_id = ${user.id}
-      `;
-
-      if (submissionStats.length > 0) {
-        stats = submissionStats[0];
-      }
-    } catch (statsError) {
-      // Stats not available, continue without them
-    }
-
     return {
-      id: user.id.toString(), // Use database internal ID for consistency
+      id: user.id.toString(),
       providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
       username: user.name, // Use name as username for display
       name: user.name,
@@ -113,10 +93,6 @@ export async function getUserProfileByDatabaseId(
       emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
       font_preference: user.font_preference || 'default',
       flair_preference: user.flair_preference || 'auto',
-      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
-      posts_count: stats ? parseInt(stats.posts_count) : 0,
-      replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null
     };
   } catch (error) {
     logger.error('Error fetching user profile by database ID', error as Error, {
@@ -171,28 +147,8 @@ export async function getUserProfileById(
 
     const user = result[0];
 
-    // Get submission statistics
-    let stats = null;
-    try {
-      const submissionStats = await sql`
-        SELECT 
-          COUNT(*) as total_submissions,
-          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
-          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
-          MAX(submission_datetime) as last_activity
-        FROM submissions 
-        WHERE user_id = ${user.id}
-      `;
-
-      if (submissionStats.length > 0) {
-        stats = submissionStats[0];
-      }
-    } catch (statsError) {
-      // Stats not available, continue without them
-    }
-
     return {
-      id: user.id.toString(), // Use database internal ID for consistency with submissions
+      id: user.id.toString(),
       providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
       username: user.name, // Use name as username for display
       name: user.name,
@@ -207,10 +163,6 @@ export async function getUserProfileById(
       emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
       font_preference: user.font_preference || 'default',
       flair_preference: user.flair_preference || 'auto',
-      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
-      posts_count: stats ? parseInt(stats.posts_count) : 0,
-      replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null
     };
   } catch (error) {
     logger.error('Error fetching user profile by ID', error as Error, {
@@ -359,7 +311,7 @@ export async function updateUserProfile(
     const userRow = userWithAccount[0] || updatedUser;
 
     return {
-      id: userRow.id.toString(), // Use database internal ID for consistency with submissions
+      id: userRow.id.toString(),
       providerAccountId: userRow.providerAccountId, // Keep OAuth provider ID separate
       username: userRow.name, // Use name as username for display
       name: userRow.name,

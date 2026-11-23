@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.501.0",
+  "version": "0.502.0",
   "private": true,
   "engines": {
     "node": ">=22.0.0",
@@ -16,7 +16,6 @@
     "dev:docker:win": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-dev.ps1",
     "dev:docker:up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
     "dev:docker:down": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml down",
-    "dev:seed": "node seed-db-faker.js",
     "dev": "next dev",
     "docs:dev": "docusaurus start --port 3001 --host 0.0.0.0",
     "docs:build": "docusaurus build",
@@ -48,6 +47,7 @@
     "lint:css:vars": "node scripts/validate-css-variables.js",
     "build:radio-widget-embed": "tsc -p src/widgets/radio-player/tsconfig.embed.json",
     "migrations": "tsx scripts/migrations.ts main",
+    "migrations:run": "tsx scripts/migrations.ts run",
     "migrate:og-table": "node scripts/run-migration.js",
     "test:og-tracking": "node scripts/test-og-tracking.js",
     "migrate:og-generations": "node scripts/run-migration.js",

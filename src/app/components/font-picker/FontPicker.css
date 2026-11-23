@@ -46,7 +46,7 @@
 }
 
 .font-picker__icon {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   line-height: 1;
 }
 
@@ -57,7 +57,7 @@
 }
 
 .font-picker__arrow {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   transition: transform 0.2s ease-in-out;
   color: currentColor;
   opacity: 0.7;

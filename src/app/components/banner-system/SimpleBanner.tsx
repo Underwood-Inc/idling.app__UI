@@ -232,7 +232,7 @@ export function SimpleBanner({
               <h4
                 style={{
                   fontWeight: '600',
-                  fontSize: '16px',
+                  fontSize: 'var(--font-size-base)',
                   color: config.textColor,
                   margin: '0 0 4px 0',
                   lineHeight: '1.3'
@@ -244,7 +244,7 @@ export function SimpleBanner({
               {message && (
                 <p
                   style={{
-                    fontSize: '14px',
+                    fontSize: 'var(--font-size-sm)',
                     color: config.textColor,
                     opacity: 0.9,
                     lineHeight: '1.4',
@@ -276,7 +276,7 @@ export function SimpleBanner({
                   />
                   <span
                     style={{
-                      fontSize: '12px',
+                      fontSize: 'var(--font-size-xs)',
                       fontWeight: '500',
                       color: config.textColor
                     }}
@@ -290,7 +290,7 @@ export function SimpleBanner({
               {metadata?.reason && (
                 <p
                   style={{
-                    fontSize: '11px',
+                    fontSize: 'var(--font-size-xs)',
                     marginTop: '6px',
                     color: config.textColor,
                     opacity: 0.75
@@ -314,7 +314,7 @@ export function SimpleBanner({
                   color: config.textColor,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  fontSize: '14px',
+                  fontSize: 'var(--font-size-sm)',
                   width: '28px',
                   height: '28px',
                   display: 'flex',

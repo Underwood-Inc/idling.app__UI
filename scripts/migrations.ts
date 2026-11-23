@@ -673,7 +673,23 @@ function formatFileName(fileName: string): string {
     : `${chalk.cyan(base)}${chalk.blue('.' + extension)}`;
 }
 
+// Non-interactive: run all pending migrations (CI, Docker, deploy)
+async function runMigrationsCli(): Promise<void> {
+  try {
+    await ensureMigrationsDir();
+    await ensureMigrationsTable();
+    await runAllMigrations();
+  } catch (error) {
+    console.error(chalk.red('\n✖ Migration error:'), error);
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
 // Entry point when script is run directly
-if (process.argv[2] === 'main') {
-  main(true);
+const cliCommand = process.argv[2];
+if (cliCommand === 'run') {
+  void runMigrationsCli();
+} else if (cliCommand === 'main') {
+  void main(false);
 }

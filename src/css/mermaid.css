@@ -120,7 +120,7 @@
   color: var(--ambient-glass-control-text);
   border: 1px solid var(--ambient-glass-accent-border);
   border-radius: 0.5rem;
-  font-size: 2rem;
+  font-size: var(--font-size-lg);
   line-height: 1;
   font-weight: var(--font-weight-semibold);
   cursor: var(--mappy-cursor-pointer, pointer);
@@ -189,7 +189,7 @@
 .mermaid-container.mermaid-fullscreen .mermaid-control-btn {
   min-width: 4.8rem;
   min-height: 4.8rem;
-  font-size: 2.2rem;
+  font-size: var(--font-size-xl);
 }
 
 /* Enhanced diagram info overlay */
@@ -200,7 +200,7 @@
   background: var(--ambient-glass-panel-bg);
   border: 1px solid var(--ambient-glass-panel-border);
   color: var(--text-secondary);
-  font-size: 1.25rem;
+  font-size: var(--font-size-sm);
   font-family: var(--font-family-base);
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
@@ -322,7 +322,7 @@
 .mermaid .node text {
   fill: var(--text-primary) !important;
   font-family: var(--font-family-base) !important;
-  font-size: 14px !important;
+  font-size: var(--font-size-sm) !important;
   font-weight: var(--font-weight-medium) !important;
 }
 
@@ -343,7 +343,7 @@
   background-color: var(--dark-bg-primary) !important;
   color: var(--text-secondary) !important;
   font-family: var(--font-family-base) !important;
-  font-size: 12px !important;
+  font-size: var(--font-size-xs) !important;
   border-radius: var(--border-radius-sm) !important;
   padding: 2px 6px !important;
 }
@@ -370,7 +370,7 @@
 .mermaid .messageText {
   fill: var(--text-secondary) !important;
   font-family: var(--font-family-base) !important;
-  font-size: 12px !important;
+  font-size: var(--font-size-xs) !important;
 }
 
 /* Class diagram styling */
@@ -408,7 +408,7 @@
 .mermaid .taskText {
   fill: var(--text-primary) !important;
   font-family: var(--font-family-base) !important;
-  font-size: 11px !important;
+  font-size: var(--font-size-xs) !important;
 }
 
 /* Timeline styling */

@@ -44,23 +44,21 @@ function showMenu() {
   console.log(chalk.green('📊 Quick Views:'));
   console.log('  1. List all tables');
   console.log('  2. Recent users');
-  console.log('  3. Recent posts');
-  console.log('  4. Recent comments');
-  console.log('  5. Database statistics');
-  console.log('  6. Table sizes');
+  console.log('  3. Database statistics');
+  console.log('  4. Table sizes');
   
   console.log(chalk.yellow('\n🔍 Schema Info:'));
-  console.log('  7. Describe table');
-  console.log('  8. List indexes');
-  console.log('  9. Show relationships');
+  console.log('  5. Describe table');
+  console.log('  6. List indexes');
+  console.log('  7. Show relationships');
   
   console.log(chalk.cyan('\n⚡ Custom Queries:'));
-  console.log('  10. Run custom SQL');
-  console.log('  11. Popular queries');
+  console.log('  8. Run custom SQL');
+  console.log('  9. Popular queries');
   
   console.log(chalk.magenta('\n🛠️ Utilities:'));
-  console.log('  12. Connection info');
-  console.log('  13. Database health');
+  console.log('  10. Connection info');
+  console.log('  11. Database health');
   
   console.log(chalk.red('\n  0. Exit\n'));
 }
@@ -100,50 +98,6 @@ async function showRecentUsers() {
   console.table(users);
 }
 
-// Recent posts
-async function showRecentPosts() {
-  console.log(chalk.blue('📝 Recent Posts\n'));
-  
-  const posts = await sql`
-    SELECT 
-      p.id,
-      p.title,
-      u.name as author,
-      p.subthread,
-      p.score,
-      p.comment_count,
-      p.created_at
-    FROM posts p
-    JOIN users u ON p.author_id = u.id
-    ORDER BY p.created_at DESC
-    LIMIT 15
-  `;
-  
-  console.table(posts);
-}
-
-// Recent comments
-async function showRecentComments() {
-  console.log(chalk.blue('💬 Recent Comments\n'));
-  
-  const comments = await sql`
-    SELECT 
-      c.id,
-      LEFT(c.content, 60) as content_preview,
-      u.name as author,
-      p.title as post_title,
-      c.score,
-      c.created_at
-    FROM comments c
-    JOIN users u ON c.author_id = u.id
-    JOIN posts p ON c.post_id = p.id
-    ORDER BY c.created_at DESC
-    LIMIT 15
-  `;
-  
-  console.table(comments);
-}
-
 // Database statistics
 async function showDatabaseStats() {
   console.log(chalk.blue('📊 Database Statistics\n'));
@@ -156,24 +110,6 @@ async function showDatabaseStats() {
         COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END) as last_7_days,
         COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as last_30_days
       FROM users
-      
-      UNION ALL
-      
-      SELECT 
-        'Posts' as table_name,
-        COUNT(*) as total_count,
-        COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END) as last_7_days,
-        COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as last_30_days
-      FROM posts
-      
-      UNION ALL
-      
-      SELECT 
-        'Comments' as table_name,
-        COUNT(*) as total_count,
-        COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END) as last_7_days,
-        COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as last_30_days
-      FROM comments
       
       UNION ALL
       
@@ -358,11 +294,10 @@ async function runCustomSQL() {
 async function showPopularQueries() {
   console.log(chalk.blue('⚡ Popular Queries\n'));
   console.log('Select a query to run:');
-  console.log('  1. Most active users');
-  console.log('  2. Popular subthreads');
-  console.log('  3. Recent activity timeline');
-  console.log('  4. User engagement stats');
-  console.log('  5. Content moderation queue');
+  console.log('  1. Recent signups');
+  console.log('  2. Active subscriptions');
+  console.log('  3. Pending custom emojis');
+  console.log('  4. Admin role holders');
   console.log('  0. Back to main menu\n');
   
   const choice = await prompt('Enter choice: ');
@@ -372,16 +307,13 @@ async function showPopularQueries() {
       await runPopularQuery('most_active_users');
       break;
     case '2':
-      await runPopularQuery('popular_subthreads');
+      await runPopularQuery('active_subscriptions');
       break;
     case '3':
-      await runPopularQuery('recent_activity');
+      await runPopularQuery('pending_emojis');
       break;
     case '4':
-      await runPopularQuery('engagement_stats');
-      break;
-    case '5':
-      await runPopularQuery('moderation_queue');
+      await runPopularQuery('admin_users');
       break;
     case '0':
       return;
@@ -400,103 +332,46 @@ async function runPopularQuery(queryType) {
     switch (queryType) {
       case 'most_active_users':
         result = await sql`
-          SELECT 
-            u.name,
-            u.email,
-            COUNT(DISTINCT p.id) as posts,
-            COUNT(DISTINCT c.id) as comments,
-            (COUNT(DISTINCT p.id) + COUNT(DISTINCT c.id)) as total_activity
-          FROM users u
-          LEFT JOIN posts p ON u.id = p.author_id
-          LEFT JOIN comments c ON u.id = c.author_id
-          GROUP BY u.id, u.name, u.email
-          HAVING COUNT(DISTINCT p.id) > 0 OR COUNT(DISTINCT c.id) > 0
-          ORDER BY total_activity DESC
-          LIMIT 20
-        `;
-        break;
-        
-      case 'popular_subthreads':
-        result = await sql`
-          SELECT 
-            subthread,
-            COUNT(*) as post_count,
-            AVG(score) as avg_score,
-            SUM(comment_count) as total_comments
-          FROM posts
-          WHERE created_at > NOW() - INTERVAL '30 days'
-          GROUP BY subthread
-          ORDER BY post_count DESC
-          LIMIT 15
-        `;
-        break;
-        
-      case 'recent_activity':
-        result = await sql`
-          SELECT 
-            'post' as type,
-            title as content,
-            (SELECT name FROM users WHERE id = author_id) as author,
-            created_at
-          FROM posts
-          WHERE created_at > NOW() - INTERVAL '7 days'
-          
-          UNION ALL
-          
-          SELECT 
-            'comment' as type,
-            LEFT(content, 60) as content,
-            (SELECT name FROM users WHERE id = author_id) as author,
-            created_at
-          FROM comments
-          WHERE created_at > NOW() - INTERVAL '7 days'
-          
+          SELECT name, email, created_at, profile_public
+          FROM users
           ORDER BY created_at DESC
           LIMIT 25
         `;
         break;
-        
-      case 'engagement_stats':
+
+      case 'active_subscriptions':
         result = await sql`
-          SELECT 
-            DATE(created_at) as date,
-            COUNT(DISTINCT CASE WHEN author_id IS NOT NULL THEN author_id END) as active_users,
-            COUNT(*) as total_posts,
-            AVG(score) as avg_score,
-            SUM(comment_count) as total_comments
-          FROM posts
-          WHERE created_at > NOW() - INTERVAL '14 days'
-          GROUP BY DATE(created_at)
-          ORDER BY date DESC
+          SELECT u.name, u.email, sp.display_name AS plan, us.status, us.current_period_end
+          FROM user_subscriptions us
+          JOIN users u ON u.id = us.user_id
+          JOIN subscription_plans sp ON sp.id = us.plan_id
+          WHERE us.status IN ('active', 'trialing')
+          ORDER BY us.created_at DESC
+          LIMIT 25
         `;
         break;
-        
-      case 'moderation_queue':
+
+      case 'pending_emojis':
         result = await sql`
-          SELECT 
-            'post' as content_type,
-            id as content_id,
-            title as content,
-            score,
-            created_at,
-            (SELECT name FROM users WHERE id = author_id) as author
-          FROM posts
-          WHERE score < -2 OR title ILIKE '%spam%' OR title ILIKE '%test%'
-          
-          UNION ALL
-          
-          SELECT 
-            'comment' as content_type,
-            id as content_id,
-            LEFT(content, 100) as content,
-            score,
-            created_at,
-            (SELECT name FROM users WHERE id = author_id) as author
-          FROM comments
-          WHERE score < -2 OR content ILIKE '%spam%'
-          
-          ORDER BY created_at DESC
-          LIMIT 20
+          SELECT ce.id, ce.name, u.name AS submitted_by, ce.created_at
+          FROM custom_emojis ce
+          JOIN users u ON u.id = ce.user_id
+          WHERE ce.approval_status = 'pending'
+          ORDER BY ce.created_at ASC
+          LIMIT 25
+        `;
+        break;
+
+      case 'admin_users':
+        result = await sql`
+          SELECT u.name, u.email, ur.display_name AS role, ura.assigned_at
+          FROM user_role_assignments ura
+          JOIN users u ON u.id = ura.user_id
+          JOIN user_roles ur ON ur.id = ura.role_id
+          WHERE ura.is_active = true
+            AND ur.name IN ('admin', 'moderator')
+          ORDER BY ura.assigned_at DESC
+          LIMIT 25
         `;
         break;
     }
@@ -560,8 +435,8 @@ async function checkDatabaseHealth() {
     const recentActivity = await sql`
       SELECT 
         (SELECT COUNT(*) FROM users WHERE created_at > NOW() - INTERVAL '24 hours') as new_users_24h,
-        (SELECT COUNT(*) FROM posts WHERE created_at > NOW() - INTERVAL '24 hours') as new_posts_24h,
-        (SELECT COUNT(*) FROM comments WHERE created_at > NOW() - INTERVAL '24 hours') as new_comments_24h
+        (SELECT COUNT(*) FROM sessions WHERE expires > NOW()) as active_sessions,
+        (SELECT COUNT(*) FROM custom_emojis WHERE approval_status = 'pending') as pending_emojis
     `;
     
     console.log(chalk.green('✅ Recent activity (24h):'));
@@ -615,36 +490,30 @@ async function main() {
           await showRecentUsers();
           break;
         case '3':
-          await showRecentPosts();
-          break;
-        case '4':
-          await showRecentComments();
-          break;
-        case '5':
           await showDatabaseStats();
           break;
-        case '6':
+        case '4':
           await showTableSizes();
           break;
-        case '7':
+        case '5':
           await describeTable();
           break;
-        case '8':
+        case '6':
           await listIndexes();
           break;
-        case '9':
+        case '7':
           await showRelationships();
           break;
-        case '10':
+        case '8':
           await runCustomSQL();
           break;
-        case '11':
+        case '9':
           await showPopularQueries();
           break;
-        case '12':
+        case '10':
           await showConnectionInfo();
           break;
-        case '13':
+        case '11':
           await checkDatabaseHealth();
           break;
         case '0':

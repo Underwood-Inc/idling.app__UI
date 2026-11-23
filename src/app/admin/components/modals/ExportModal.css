@@ -56,7 +56,7 @@
 .export-modal__close {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;
@@ -158,7 +158,7 @@
 }
 
 .export-format-icon {
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
 }
 
 .export-format-label {
@@ -473,7 +473,7 @@
 .export-preview-header button {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;

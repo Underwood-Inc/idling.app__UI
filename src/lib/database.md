@@ -42,19 +42,15 @@ Comprehensive documentation for database schema, migrations, performance optimiz
 
 ### Core Tables
 
-- **users** - User accounts and profiles
-- **posts** - Main content posts
-- **comments** - Post comments and replies
-- **categories** - Content categorization
-- **tags** - Content tagging system
-- **attachments** - File uploads and media
+- **users**, **accounts**, **sessions** - NextAuth identity and profiles
+- **user_subscriptions**, **subscription_plans** - Billing and entitlements
+- **permissions**, **user_roles** - Admin access control
+- **custom_emojis** - User-uploaded emoji assets
 
 ### Relationships
 
-- Users can have many posts and comments
-- Posts belong to categories and have many tags
-- Comments belong to posts and users
-- Attachments can be linked to posts or comments
+- Users link to OAuth **accounts** and active **sessions**
+- Users have **subscriptions**, **roles**, and optional **custom_emojis**
 
 ## 🔧 Tools & Utilities
 

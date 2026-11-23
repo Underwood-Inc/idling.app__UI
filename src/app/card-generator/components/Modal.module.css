@@ -30,7 +30,7 @@
 .modal__content h3 {
   margin: 0 0 1rem 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   text-align: center;
 }
 
@@ -59,13 +59,13 @@
 .guide__option h4 {
   margin: 0 0 0.75rem 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
 }
 
 .guide__option p {
   margin: 0 0 1rem 0;
   color: var(--dark-bg__text-color--secondary);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
 }
 
@@ -98,7 +98,7 @@
   border-radius: 6px;
   background-color: var(--dark-background--primary);
   color: var(--dark-bg__text-color--primary);
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 .guide__input:focus {

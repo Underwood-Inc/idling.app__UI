@@ -15,12 +15,6 @@
 }
 
 .showcase {
-  --showcase-text-xs: 0.8125rem;
-  --showcase-text-sm: 0.9375rem;
-  --showcase-text-base: 1rem;
-  --showcase-text-md: 1.0625rem;
-  --showcase-text-lg: 1.125rem;
-
   width: 100%;
   padding: 0 0 1.25rem;
 }
@@ -33,7 +27,7 @@
 
 .showcase__eyebrow {
   margin: 0 0 0.5rem;
-  font-size: var(--showcase-text-xs);
+  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -41,7 +35,7 @@
 }
 
 .showcase__subtitle {
-  font-size: var(--showcase-text-md);
+  font-size: var(--font-size-md);
   line-height: 1.55;
   color: var(--dark-bg__text-color--secondary);
   margin: 0 auto 1rem;
@@ -74,12 +68,12 @@
   border: 1px solid var(--ambient-surface-border, rgb(255 255 255 / 10%));
   border-radius: 999rem;
   background: rgb(255 255 255 / 4%);
-  font-size: var(--showcase-text-sm);
+  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
 }
 
 .showcase__title {
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-size: clamp(var(--font-size-xl), 3.5vw, var(--font-size-2xl));
   font-weight: 800;
   margin: 0 0 0.75rem;
   color: var(--dark-bg__text-color--primary);
@@ -134,7 +128,7 @@
   border-radius: 999rem;
   background: rgb(255 255 255 / 4%);
   color: var(--dark-bg__text-color--secondary);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -299,11 +293,26 @@
   align-items: center;
   justify-content: center;
   padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--brand-primary);
   background: rgb(237 174 73 / 20%);
   border: 1px solid var(--brand-primary);
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.project__status__beta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem 0.5rem;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: rgb(234 179 8);
+  background: rgb(234 179 8 / 20%);
+  border: 1px solid rgb(234 179 8 / 60%);
   border-radius: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -325,7 +334,7 @@
   background: rgb(255 255 255 / 5%);
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 999rem;
-  font-size: var(--showcase-text-base);
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--brand-primary);
 }
@@ -338,7 +347,7 @@
 }
 
 .project__stat * {
-  font-size: var(--showcase-text-base);
+  font-size: var(--font-size-base);
 }
 
 .project__stat {
@@ -349,7 +358,7 @@
   border-radius: 999rem;
   background: rgb(255 255 255 / 4%);
   border: 1px solid rgb(255 255 255 / 8%);
-  font-size: var(--showcase-text-base);
+  font-size: var(--font-size-base);
   font-weight: 500;
   line-height: 1.25;
   color: var(--dark-bg__text-color--secondary);
@@ -417,7 +426,7 @@
 }
 
 .project__description {
-  font-size: var(--showcase-text-md);
+  font-size: var(--font-size-md);
   line-height: 1.6;
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
@@ -437,7 +446,7 @@
   background: rgb(255 255 255 / 4%);
   border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 999rem;
-  font-size: var(--showcase-text-base);
+  font-size: var(--font-size-base);
   font-weight: 500;
   line-height: 1.25;
   color: var(--dark-bg__text-color--secondary);
@@ -466,7 +475,7 @@
   gap: 0.5rem;
   padding: 0.6875rem 1.125rem;
   border-radius: 0.5rem;
-  font-size: var(--showcase-text-base);
+  font-size: var(--font-size-base);
   font-weight: 600;
   line-height: 1.25;
   text-decoration: none;
@@ -557,13 +566,13 @@
 
   .showcase__meta {
     gap: 0.45rem 0.65rem;
-    font-size: var(--showcase-text-sm);
+    font-size: var(--font-size-sm);
   }
 
   .filter__button {
     min-height: 2.35rem;
     padding-inline: 0.65rem 0.75rem;
-    font-size: var(--showcase-text-base);
+    font-size: var(--font-size-base);
   }
 
   .filter__icon {
@@ -576,7 +585,7 @@
   }
 
   .project__title {
-    font-size: var(--showcase-text-lg);
+    font-size: var(--font-size-lg);
   }
 }
 

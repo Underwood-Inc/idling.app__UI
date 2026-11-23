@@ -34,7 +34,7 @@
 }
 
 .welcome__intro h2 {
-  font-size: 2.75rem;
+  font-size: var(--font-size-5xl);
   margin: 0 0 1.5rem 0;
   /* Fixed: Use actual text color variable */
   color: var(--dark-bg__text-color--primary);
@@ -43,7 +43,7 @@
 }
 
 .welcome__intro p {
-  font-size: 1.375rem;
+  font-size: var(--font-size-xl);
   /* Fixed: Use actual text color variable with good contrast */
   color: var(--dark-bg__text-color--secondary);
   line-height: 1.7;
@@ -142,19 +142,19 @@
 }
 
 .button__icon {
-  font-size: 4rem;
+  font-size: var(--font-size-5xl);
   margin-bottom: 1rem;
   flex-shrink: 0;
 }
 
 .button__content h3 {
-  font-size: 1.75rem;
+  font-size: var(--font-size-2xl);
   margin: 0 0 0.5rem 0;
   font-weight: 700;
 }
 
 .button__content p {
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   margin: 0;
   opacity: 0.9;
 }
@@ -178,7 +178,7 @@
 
 .load__label {
   font-weight: 600;
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   /* Fixed: Use actual text color */
   color: var(--dark-bg__text-color--primary);
 }
@@ -196,7 +196,7 @@
   background-color: var(--dark-background--primary);
   border: 2px solid var(--dark-border--primary);
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   /* Fixed: Use actual text color */
   color: var(--dark-bg__text-color--primary);
 }
@@ -218,7 +218,7 @@
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -236,7 +236,7 @@
 }
 
 .load__help {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   /* Fixed: Use actual text color */
   color: var(--dark-bg__text-color--secondary);
   text-align: center;
@@ -250,7 +250,7 @@
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   /* Better contrast for code */
   color: var(--brand-primary);
 }
@@ -270,7 +270,7 @@
   margin: 0 0 1rem 0;
   color: #92400e;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
 }
 
 .upgrade__link {
@@ -287,7 +287,7 @@
   text-decoration: none;
   border-radius: 10px;
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: var(--font-size-md);
   transition: all 0.2s ease;
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
 }
@@ -309,11 +309,11 @@
   }
 
   .welcome__intro h2 {
-    font-size: 2.25rem;
+    font-size: var(--font-size-4xl);
   }
 
   .welcome__intro p {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .path__buttons {
@@ -326,15 +326,15 @@
   }
 
   .button__icon {
-    font-size: 3.5rem;
+    font-size: var(--font-size-5xl);
   }
 
   .button__content h3 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
   }
 
   .button__content p {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .load__input__group {
@@ -365,11 +365,11 @@
   }
 
   .welcome__intro h2 {
-    font-size: 1.875rem;
+    font-size: var(--font-size-3xl);
   }
 
   .welcome__intro p {
-    font-size: 1.125rem;
+    font-size: var(--font-size-md);
   }
 
   .path__button__large {
@@ -377,11 +377,11 @@
   }
 
   .button__icon {
-    font-size: 3rem;
+    font-size: var(--font-size-5xl);
   }
 
   .button__content h3 {
-    font-size: 1.375rem;
+    font-size: var(--font-size-xl);
   }
 
   .load__input__row {

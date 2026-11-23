@@ -12,7 +12,7 @@
 }
 
 .info-tooltip-content {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   line-height: 1.4;
   color: white;
   text-align: left;

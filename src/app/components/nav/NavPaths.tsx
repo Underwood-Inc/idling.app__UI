@@ -6,10 +6,9 @@ import {
   isExternalLink,
   NAV_GROUPS,
   NAV_PATH_LABELS,
-  NAV_PATHS
 } from '@lib/routes';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import { Navbar } from '../navbar/Navbar';
 import { InstantLink } from '../ui/InstantLink';
 
@@ -44,14 +43,10 @@ function NavGroup({
   groupKey,
   group,
   currentPath,
-  searchParams,
-  lastPath
 }: {
   groupKey: string;
   group: { label: string; items: readonly string[] };
   currentPath: string;
-  searchParams: URLSearchParams;
-  lastPath: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -92,16 +87,7 @@ function NavGroup({
           const isDisabled = false; // No disabled items in groups
           const isExternal = isExternalLink(value);
 
-          let path = value;
-          const tags = searchParams.get('tags');
-          const isTagSupportedRoute =
-            value === NAV_PATHS.POSTS || value === NAV_PATHS.MY_POSTS;
-
-          if (isTagSupportedRoute && tags) {
-            if (lastPath === '' || lastPath.startsWith(value)) {
-              path = `${value}?tags=${tags}`;
-            }
-          }
+          const path = value;
 
           return (
             <InstantLink
@@ -125,18 +111,7 @@ function NavGroup({
  * Internal NavPaths component that uses useSearchParams
  */
 function NavPathsInternal() {
-  const [lastPath, setLastPath] = useState('');
   const currentPath = usePathname();
-  const searchParams = useSearchParams();
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    if (!isFirstRender.current) {
-      setLastPath(`${currentPath}${searchParams.get('tags') || ''}`);
-    } else {
-      isFirstRender.current = false;
-    }
-  }, [currentPath, searchParams]);
 
   return (
     <>
@@ -146,8 +121,6 @@ function NavPathsInternal() {
             groupKey={groupKey}
             group={group}
             currentPath={currentPath}
-            searchParams={searchParams}
-            lastPath={lastPath}
           />
         </Navbar.Item>
       ))}

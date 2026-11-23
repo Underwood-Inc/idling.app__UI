@@ -14,7 +14,7 @@ describe('About', () => {
       .not.toHaveAttribute('target', '_blank');
 
     expect(screen.getByText("Hi! I'm Strixun")).toBeInTheDocument();
-    expect(screen.getByText('Mappy — Interactive Maps')).toBeInTheDocument();
+    expect(screen.getByText('mappy — interactive maps')).toBeInTheDocument();
     expect(screen.getByText('38+')).toBeInTheDocument();
 
     const mappyDownloadLink = screen.getByRole('link', {

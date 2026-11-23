@@ -1,11 +1,9 @@
 'use client';
 
 import {
-  PaginatedHashtagResult,
-  PaginatedUserResult,
-  searchHashtags,
-  searchUsers
-} from '@lib/actions/search.actions';
+  PaginatedUserSearchResult,
+  searchUsers,
+} from '@lib/actions/user-search.actions';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import {
   EmojiData,
@@ -35,7 +33,7 @@ export const SmartInput = forwardRef<
 >(
   (
     {
-      enableHashtags = true,
+      enableHashtags = false,
       enableUserMentions = true,
       enableEmojis = true,
       enableImagePaste = true,
@@ -62,40 +60,7 @@ export const SmartInput = forwardRef<
       hasMore: boolean;
       total: number;
     }> => {
-      if (!enableHashtags) {
-        return { items: [], hasMore: false, total: 0 };
-      }
-
-      try {
-        const result: PaginatedHashtagResult = await searchHashtags(
-          query,
-          page
-        );
-        const mappedResults = result.items.map((hashtagResult) => {
-          // Check if hashtag is already added
-          const hashtagValue = hashtagResult.value.startsWith('#')
-            ? hashtagResult.value
-            : `#${hashtagResult.value}`;
-          const isDisabled = existingHashtags.includes(hashtagValue);
-
-          return {
-            id: hashtagResult.id,
-            value: hashtagResult.value,
-            label: hashtagResult.label,
-            type: 'hashtag' as const,
-            disabled: isDisabled
-          };
-        });
-
-        return {
-          items: mappedResults,
-          hasMore: result.hasMore,
-          total: result.total
-        };
-      } catch (error) {
-        console.error('Error searching hashtags:', error);
-        return { items: [], hasMore: false, total: 0 };
-      }
+      return { items: [], hasMore: false, total: 0 };
     };
 
     // Enhanced user search function with pagination
@@ -112,7 +77,10 @@ export const SmartInput = forwardRef<
       }
 
       try {
-        const result: PaginatedUserResult = await searchUsers(query, page);
+        const result: PaginatedUserSearchResult = await searchUsers(
+          query,
+          page,
+        );
         const mappedResults = result.items.map((userResult) => {
           // Check if user is already added (by user ID)
           const isDisabled = existingUserIds.includes(userResult.value);

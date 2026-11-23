@@ -39,7 +39,7 @@
 .current__plan h3 {
   margin: 0 0 1rem 0;
   color: #495057;
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
 }
 
 .plan__limits {
@@ -71,7 +71,7 @@
   background: #e9ecef;
   padding: 0.25rem 0.75rem;
   border-radius: 6px;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
 }
 
 /* Tier Card */
@@ -107,12 +107,12 @@
 
 .tier__name {
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--font-size-3xl);
   font-weight: 700;
 }
 
 .tier__price {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 600;
   background: #E5E5E5;
   padding: 0.5rem 1rem;
@@ -128,7 +128,7 @@
 
 .tier__features h4 {
   margin: 0 0 1rem 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
   opacity: 0.9;
 }
@@ -145,7 +145,7 @@
 .feature__item {
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   padding: 0.5rem 0;
 }
@@ -155,7 +155,7 @@
   margin-right: 0.75rem;
   color: #4ade80;
   font-weight: bold;
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
 }
 
 .tier__actions {
@@ -170,7 +170,7 @@
   border: 2px solid #E5E5E5;
   padding: 1rem 2rem;
   border-radius: 8px;
-  font-size: 1.125rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
   cursor: var(--mappy-cursor-not-allowed, not-allowed);
   
@@ -185,7 +185,7 @@
 
 .coming__soon {
   margin: 1rem 0 0 0;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   opacity: 0.8;
   line-height: 1.5;
 }
@@ -247,11 +247,11 @@
   }
 
   .tier__name {
-    font-size: 1.75rem;
+    font-size: var(--font-size-2xl);
   }
 
   .tier__price {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .limit__item {
@@ -262,7 +262,7 @@
 
   .quota__message {
     padding: 1rem;
-    font-size: 1.0rem;
+    font-size: var(--font-size-base);
   }
 }
 

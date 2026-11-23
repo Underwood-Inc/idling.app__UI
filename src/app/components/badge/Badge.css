@@ -16,7 +16,7 @@
   box-shadow: inset 0 0 0 2px var(--brand-tertiary--dark);
   border-radius: 50%;
   padding: 0.5em;
-  font-size: 1em;
+  font-size: var(--font-size-base);
   font-weight: 700;
   min-width: 2em;
   line-height: 0.5em;

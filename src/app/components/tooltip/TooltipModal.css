@@ -206,7 +206,7 @@
 }
 
 .close-button {
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   font-weight: bold;
   line-height: 1;
 }

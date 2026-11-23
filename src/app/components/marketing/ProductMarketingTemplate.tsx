@@ -6,6 +6,9 @@
  */
 
 import { ReactNode } from 'react';
+import { ProductTechStack } from '../../strixun-stream-suite/ProductTechStack';
+import { productTechStackItems } from '../../strixun-stream-suite/productTechStackCatalog';
+import '../../strixun-stream-suite/product-detail.css';
 import './ProductMarketingTemplate.css';
 
 export interface ProductFeature {
@@ -120,13 +123,7 @@ export function ProductMarketingTemplate({
       {techStack && techStack.length > 0 && (
         <section className="product-marketing__tech-stack">
           <h2 className="product-marketing__section-title">Built With</h2>
-          <div className="product-marketing__tech-tags">
-            {techStack.map((tech, index) => (
-              <span key={index} className="product-marketing__tech-tag">
-                {tech}
-              </span>
-            ))}
-          </div>
+          <ProductTechStack items={productTechStackItems(techStack)} />
         </section>
       )}
 

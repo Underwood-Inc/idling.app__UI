@@ -58,6 +58,41 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/posts',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/posts/:path*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/my-posts',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/my-posts/:path*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/t/:submissionId',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/test-thread',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/test-thread/:path*',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
   async headers() {
@@ -199,9 +234,27 @@ const nextConfig = {
           }
         ]
       },
-      // API routes with short cache (excluding og-image)
+      // Live radio titles — never cache (SW, CDN, or browser)
       {
-        source: '/api/((?!og-image).*)',
+        source: '/api/radio/now-playing',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate'
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache'
+          },
+          {
+            key: 'X-App-Version',
+            value: version
+          }
+        ]
+      },
+      // API routes with short cache (excluding og-image and live radio titles)
+      {
+        source: '/api/((?!og-image|radio/now-playing).*)',
         headers: [
           {
             key: 'Cache-Control',

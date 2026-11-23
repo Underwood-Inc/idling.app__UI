@@ -577,7 +577,7 @@ export default function CustomAlertsPanel() {
           <p>Loading custom alerts...</p>
           <p
             style={{
-              fontSize: '0.8rem',
+              fontSize: 'var(--font-size-sm)',
               color: 'var(--light-bg__text-color--secondary)',
               marginTop: '1rem'
             }}
@@ -594,7 +594,7 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+          <div style={{ fontSize: 'var(--font-size-5xl)', marginBottom: '1rem' }}>
             <SiteIcon id="circleX" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
@@ -615,7 +615,7 @@ export default function CustomAlertsPanel() {
             <pre
               style={{
                 whiteSpace: 'pre-wrap',
-                fontSize: '0.9rem',
+                fontSize: 'var(--font-size-sm)',
                 margin: '0.5rem 0 0 0',
                 color: 'var(--error)'
               }}
@@ -656,7 +656,7 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+          <div style={{ fontSize: 'var(--font-size-5xl)', marginBottom: '1rem' }}>
             <SiteIcon id="lockKeyhole" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
@@ -681,7 +681,7 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+          <div style={{ fontSize: 'var(--font-size-5xl)', marginBottom: '1rem' }}>
             <SiteIcon id="ban" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
@@ -712,7 +712,7 @@ export default function CustomAlertsPanel() {
         {lastRefreshTime && (
           <p
             style={{
-              fontSize: '0.8rem',
+              fontSize: 'var(--font-size-sm)',
               color: 'var(--light-bg__text-color--secondary)'
             }}
           >

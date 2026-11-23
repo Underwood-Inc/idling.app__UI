@@ -130,7 +130,7 @@
 }
 
 .hamburger-icon {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: bold;
   line-height: 1;
 }
@@ -182,7 +182,7 @@
 
 /* Force gap on action icons and labels */
 .user-actions-menu .action-icon {
-  font-size: 16px !important;
+  font-size: var(--font-size-base) !important;
   width: 20px !important;
   text-align: center !important;
   flex-shrink: 0 !important;

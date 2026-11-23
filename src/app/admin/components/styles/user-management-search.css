@@ -24,7 +24,7 @@
   gap: 8px;
   padding: 16px;
   color: #E5E5E5;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   text-align: center;
 }
 
@@ -77,7 +77,7 @@
 
 .search-result-name {
   font-weight: 600;
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: white;
   white-space: nowrap;
   overflow: hidden;
@@ -85,7 +85,7 @@
 }
 
 .search-result-email {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   color: #E5E5E5;
   white-space: nowrap;
   overflow: hidden;
@@ -100,7 +100,7 @@
 }
 
 .role-badge--small {
-  font-size: 1.0rem;
+  font-size: var(--font-size-base);
   padding: 2px 6px;
   border-radius: 10px;
 }
