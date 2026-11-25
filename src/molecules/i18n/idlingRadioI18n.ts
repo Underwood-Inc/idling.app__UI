@@ -1,9 +1,9 @@
 import type { RadioEnCopy } from '$i18n-source/radio.en';
-import type { RadioEqualizerBandGainsMatch } from '@widgets/radio-player/radioEqualizer.types';
-import {
-  RADIO_EQUALIZER_CUSTOM_SLOTS,
-  type RadioEqualizerCustomSlot,
-} from '@widgets/radio-player/radioEqualizerCustomPresets';
+import type {
+  RadioEqualizerBandGainsMatch,
+  RadioEqualizerCustomSlot,
+} from '@widgets/radio-player/radioEqualizer.types';
+import { RADIO_EQUALIZER_CUSTOM_SLOTS } from '@widgets/radio-player/radioEqualizerCustomPresets';
 import type { RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
 import type { AudioStreamTempoBpmDisplayView } from '@widgets/radio-player/audioStreamTempo.types';
 

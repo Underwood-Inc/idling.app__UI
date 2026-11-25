@@ -20,7 +20,7 @@ export async function resolveServerIdlingLocale(): Promise<Locales> {
   const jar = await cookies();
   const fromCookie = jar.get(IDLING_UI_LOCALE_STORAGE_KEY)?.value?.trim();
   if (fromCookie && isSupportedLocale(fromCookie)) {
-    return fromCookie;
+    return fromCookie as Locales;
   }
 
   const headerBag = await headers();
