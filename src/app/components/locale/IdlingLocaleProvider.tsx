@@ -59,8 +59,8 @@ function testLocaleContext(): IdlingLocaleContextValue {
 }
 
 /**
- * Mappy-shaped locale orchestration: **sync English** for first paint; other locales load
- * only on explicit picker change or deferred stored preference (never navigator surprise).
+ * Sync English for first paint. Other UI locales load only on picker change or
+ * deferred localStorage preference (not navigator language on every visit).
  */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   const [localeId, setLocaleIdState] = useState<IdlingLocaleId>(IDLING_BASE_LOCALE);
