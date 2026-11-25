@@ -4,7 +4,10 @@ import { useOverlay } from '@lib/context/OverlayContext';
 import { formatTickerLine } from '@molecules/quotes/idlingMessageTickerFormat';
 import { buildMessageTickerQuoteOverlayViewModel } from '@molecules/quotes/messageTickerQuoteOverlay';
 import type { MessageTickerQuotePayload } from '@molecules/quotes/messageTickerQuotePayload';
-import { ensureQuoteLocaleShard } from '@molecules/quotes/idlingQuoteBundleRuntime';
+import {
+  ensureQuoteBundleReady,
+  ensureQuoteLocaleShard,
+} from '@molecules/quotes/idlingQuoteBundleRuntime';
 import { pickMessageTickerQuote } from '@molecules/quotes/messageTickerQuotePayload';
 import type { IdlingQuoteRecord } from '@molecules/quotes/idlingQuoteTypes';
 import type { TranslationFunctions } from '$i18n/i18n-types';
@@ -65,7 +68,9 @@ export default function MessageTickerWithInterval() {
 
   useEffect(() => {
     let cancelled = false;
-    void ensureQuoteLocaleShard(localeId).then(() => {
+    void ensureQuoteBundleReady()
+      .then(() => ensureQuoteLocaleShard(localeId))
+      .then(() => {
       if (cancelled) {
         return;
       }

@@ -1,7 +1,7 @@
 import type { Locales, TranslationFunctions } from './i18n-types';
 import { i18nObject } from './i18n-util';
-import { loadLocale } from './i18n-util.sync';
 import { loadLocaleAsync } from './i18n-util.async';
+import { loadBundledEnIfNeeded, tryLoadBundledLocaleSync } from './idling-sync-en';
 import {
   localeDirection,
   type IdlingLocaleId,
@@ -37,33 +37,28 @@ export function subscribeIdlingLocale(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-/** Sync init — bundled locale modules (English, tests, first paint). */
+/** Sync init — English on client; tests may use async for other locales (same as Overlane). */
 export function initIdlingI18n(locale: Locales = 'en'): void {
-  const changed = activeLocale !== locale;
-  loadLocale(locale);
+  const syncReady = tryLoadBundledLocaleSync(locale);
+  activeLocale = locale;
+  LL = i18nObject(syncReady ? locale : 'en');
+  applyDocumentLocale(locale);
+  notifyLocaleChange();
+}
+
+/** Async init — code-split locale chunks (Mappy site + Overlane console). */
+export async function initIdlingI18nAsync(locale: Locales): Promise<void> {
+  await loadLocaleAsync(locale);
   activeLocale = locale;
   LL = i18nObject(locale);
   applyDocumentLocale(locale);
-  if (changed) {
-    notifyLocaleChange();
-  }
-}
-
-/** Async init — code-split locale chunks at startup or on switch (no global notify; caller re-renders if needed). */
-export async function initIdlingI18nAsync(locale: Locales): Promise<void> {
-  await loadLocaleAsync(locale);
-  if (activeLocale !== locale) {
-    return;
-  }
-  LL = i18nObject(locale);
-  applyDocumentLocale(locale);
+  notifyLocaleChange();
 }
 
 export function getLocale(): Locales {
   return activeLocale;
 }
 
-/** Typed translation functions for the active locale. Initializes `en` on first use if needed. */
 export function getLL(): TranslationFunctions {
   if (!LL) {
     initIdlingI18n('en');
@@ -71,27 +66,11 @@ export function getLL(): TranslationFunctions {
   return LL!;
 }
 
-/** Activate target locale sync first (bundled modules), then refresh async chunks when they load. */
+/** Locale switch — preload `en`, then async chunk (Mappy `SiteLocaleContext.applyLocale`). */
 export async function setIdlingLocale(locale: Locales): Promise<void> {
-  const changed = activeLocale !== locale;
-  loadLocale('en');
-  loadLocale(locale);
-  activeLocale = locale;
-  LL = i18nObject(locale);
-  applyDocumentLocale(locale);
-  if (changed) {
-    notifyLocaleChange();
+  if (locale === activeLocale && LL) {
+    return;
   }
-
-  try {
-    await loadLocaleAsync('en');
-    await loadLocaleAsync(locale);
-    if (activeLocale !== locale) {
-      return;
-    }
-    LL = i18nObject(locale);
-    applyDocumentLocale(locale);
-  } catch {
-    /* sync activation already applied */
-  }
+  await loadLocaleAsync('en');
+  await initIdlingI18nAsync(locale);
 }

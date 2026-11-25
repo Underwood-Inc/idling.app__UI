@@ -14,10 +14,8 @@ import type { Locales, TranslationFunctions } from '$i18n/i18n-types';
 import { loadLocaleAsync } from '$i18n/i18n-util.async';
 import {
   getLL,
-  getLocale,
   initIdlingI18n,
   initIdlingI18nAsync,
-  setIdlingLocale,
   subscribeIdlingLocale,
 } from '$i18n/idling-i18n';
 import {
@@ -31,9 +29,11 @@ import {
 } from '@molecules/quotes/resolveIdlingLocale';
 import { writeIdlingLocaleCookie } from '@molecules/quotes/writeIdlingLocaleCookie';
 
+initIdlingI18n('en');
+
 interface IdlingLocaleContextValue {
   localeId: IdlingLocaleId;
-  /** Bumps after each successful `setIdlingLocale` / global locale notify. */
+  /** Bumps after async locale apply (radio / copy hooks). */
   localeRevision: number;
   ll: TranslationFunctions;
   loading: boolean;
@@ -54,19 +54,10 @@ function resolveInitialLocale(): IdlingLocaleId {
   return resolveIdlingLocale();
 }
 
-function bootLocaleSync(locale: IdlingLocaleId): void {
-  initIdlingI18n(locale as Locales);
-  try {
-    writeIdlingLocaleCookie(locale);
-  } catch {
-    /* ignore */
-  }
-}
-
 function testLocaleContext(): IdlingLocaleContextValue {
-  bootLocaleSync(IDLING_BASE_LOCALE);
+  initIdlingI18n(IDLING_BASE_LOCALE);
   return {
-    localeId: getLocale() as IdlingLocaleId,
+    localeId: IDLING_BASE_LOCALE,
     localeRevision: 0,
     ll: getLL(),
     loading: false,
@@ -75,43 +66,44 @@ function testLocaleContext(): IdlingLocaleContextValue {
   };
 }
 
-/** Same stack as Mappy site + Overlane console: typesafe-i18n global `getLL()`, async chunks on switch. */
+/**
+ * Mappy site pattern: {@link https://github.com/Underwood-Inc/mappy-internal/blob/main/site/src/context/SiteLocaleContext.tsx SiteLocaleContext}
+ * — async `loadLocaleAsync('en')` then `initIdlingI18nAsync`, never sync-boot a non-English locale.
+ */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
-  const [initialLocale] = useState<IdlingLocaleId>(resolveInitialLocale);
-  /** Sync bundled locales on first paint — never gate the whole app on async chunk loads. */
-  const [ready] = useState(() => {
-    bootLocaleSync(initialLocale);
-    return true;
-  });
+  const [localeId, setLocaleIdState] = useState<IdlingLocaleId>(resolveInitialLocale);
   const [localeEpoch, bumpLocale] = useState(0);
-  const loading = false;
+
+  const applyLocale = useCallback(async (id: IdlingLocaleId) => {
+    await loadLocaleAsync('en');
+    await initIdlingI18nAsync(id as Locales);
+    try {
+      writeIdlingLocaleCookie(id);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
-    if (isTestRuntime()) {
-      return;
-    }
     let cancelled = false;
-    void (async () => {
-      try {
-        await loadLocaleAsync('en');
-        await initIdlingI18nAsync(initialLocale as Locales);
-        writeIdlingLocaleCookie(initialLocale);
+    void applyLocale(localeId)
+      .then(() => {
         if (!cancelled) {
           bumpLocale((n) => n + 1);
         }
-      } catch {
-        /* sync boot already active */
-      }
-    })();
+      })
+      .catch(() => {
+        /* English module init remains usable */
+      });
     return () => {
       cancelled = true;
     };
-  }, [initialLocale]);
+  }, [localeId, applyLocale]);
 
   useEffect(() => subscribeIdlingLocale(() => bumpLocale((n) => n + 1)), []);
 
   const setLocaleId = useCallback((id: IdlingLocaleId) => {
-    if (getLocale() === id) {
+    if (id === localeId) {
       return;
     }
     try {
@@ -119,25 +111,20 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
-    writeIdlingLocaleCookie(id);
-    void setIdlingLocale(id as Locales);
-  }, []);
+    setLocaleIdState(id);
+  }, [localeId]);
 
   const value = useMemo(
     () => ({
-      localeId: getLocale() as IdlingLocaleId,
+      localeId,
       localeRevision: localeEpoch,
       ll: getLL(),
-      loading,
+      loading: false,
       setLocaleId,
       catalog: IDLING_LOCALE_CATALOG,
     }),
-    [ready, localeEpoch, loading, setLocaleId]
+    [localeId, localeEpoch, setLocaleId]
   );
-
-  if (!ready) {
-    return null;
-  }
 
   return (
     <IdlingLocaleContext.Provider value={value}>{children}</IdlingLocaleContext.Provider>
