@@ -78,15 +78,13 @@ function testLocaleContext(): IdlingLocaleContextValue {
 /** Same stack as Mappy site + Overlane console: typesafe-i18n global `getLL()`, async chunks on switch. */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   const [initialLocale] = useState<IdlingLocaleId>(resolveInitialLocale);
-  const [ready, setReady] = useState(() => {
-    if (!isTestRuntime()) {
-      return false;
-    }
+  /** Sync bundled locales on first paint — never gate the whole app on async chunk loads. */
+  const [ready] = useState(() => {
     bootLocaleSync(initialLocale);
     return true;
   });
   const [localeEpoch, bumpLocale] = useState(0);
-  const [loading, setLoading] = useState(() => !isTestRuntime());
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isTestRuntime()) {
@@ -98,11 +96,11 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
         await loadLocaleAsync('en');
         await initIdlingI18nAsync(initialLocale as Locales);
         writeIdlingLocaleCookie(initialLocale);
-      } finally {
         if (!cancelled) {
-          setReady(true);
-          setLoading(false);
+          bumpLocale((n) => n + 1);
         }
+      } catch {
+        /* sync boot already active */
       }
     })();
     return () => {
@@ -139,11 +137,7 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   );
 
   if (!ready) {
-    return (
-      <div data-idling-locale-boot aria-busy="true">
-        <span className="sr-only">{getLL().common.actions.loading()}</span>
-      </div>
-    );
+    return null;
   }
 
   return (
