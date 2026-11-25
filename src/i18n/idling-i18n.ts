@@ -39,20 +39,24 @@ export function subscribeIdlingLocale(listener: () => void): () => void {
 
 /** Sync init — bundled locale modules (English, tests, first paint). */
 export function initIdlingI18n(locale: Locales = 'en'): void {
+  const changed = activeLocale !== locale;
   loadLocale(locale);
   activeLocale = locale;
   LL = i18nObject(locale);
   applyDocumentLocale(locale);
-  notifyLocaleChange();
+  if (changed) {
+    notifyLocaleChange();
+  }
 }
 
-/** Async init — code-split locale chunks at startup or on switch. */
+/** Async init — code-split locale chunks at startup or on switch (no global notify; caller re-renders if needed). */
 export async function initIdlingI18nAsync(locale: Locales): Promise<void> {
   await loadLocaleAsync(locale);
-  activeLocale = locale;
+  if (activeLocale !== locale) {
+    return;
+  }
   LL = i18nObject(locale);
   applyDocumentLocale(locale);
-  notifyLocaleChange();
 }
 
 export function getLocale(): Locales {
@@ -69,20 +73,24 @@ export function getLL(): TranslationFunctions {
 
 /** Activate target locale sync first (bundled modules), then refresh async chunks when they load. */
 export async function setIdlingLocale(locale: Locales): Promise<void> {
+  const changed = activeLocale !== locale;
   loadLocale('en');
   loadLocale(locale);
   activeLocale = locale;
   LL = i18nObject(locale);
   applyDocumentLocale(locale);
-  notifyLocaleChange();
+  if (changed) {
+    notifyLocaleChange();
+  }
 
   try {
     await loadLocaleAsync('en');
     await loadLocaleAsync(locale);
-    activeLocale = locale;
+    if (activeLocale !== locale) {
+      return;
+    }
     LL = i18nObject(locale);
     applyDocumentLocale(locale);
-    notifyLocaleChange();
   } catch {
     /* sync activation already applied */
   }
