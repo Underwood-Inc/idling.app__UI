@@ -81,7 +81,21 @@
     "debrief": "node scripts/generate-feature-debrief.js",
     "clad:audit": "clad-audit audit --root . --preset structure --depth standard",
     "clad:audit:full": "clad-audit audit --root . --preset full --depth standard --verbose",
-    "clad:report": "clad-audit audit --root . --preset exhaustive --report clad-report.md"
+    "clad:report": "clad-audit audit --root . --preset exhaustive --report clad-report.md",
+    "i18n:sync": "node scripts/i18n-sync-locale-modules.mjs",
+    "i18n:generate": "typesafe-i18n generate --no-watch",
+    "i18n:translate": "node scripts/i18n-translate-locales.mjs",
+    "i18n:translate:sync-en": "node scripts/i18n-sync-en-locales.mjs",
+    "i18n:bootstrap-site": "tsx scripts/i18n/bootstrap-full-en-catalog.ts",
+    "locale:refresh:stub": "node scripts/i18n-sync-en-locales.mjs",
+    "locale:refresh": "node scripts/i18n-translate-locales.mjs",
+    "quotes:harvest": "node scripts/message-ticker/fetch-quote-data.mjs",
+    "quotes:export": "node scripts/message-ticker/export-quote-bundles.mjs",
+    "quotes:import-db": "node scripts/message-ticker/import-quotes-to-db.mjs",
+    "quotes:translate": "node scripts/message-ticker/translate-ticker-quotes.mjs",
+    "quotes:translate:sync-en": "node scripts/message-ticker/translate-ticker-quotes.mjs --sync-en",
+    "l10n:refresh": "node scripts/l10n-refresh.mjs",
+    "l10n:refresh:sync-en": "pnpm quotes:translate:sync-en && pnpm locale:refresh:stub && pnpm i18n:sync && pnpm i18n:generate"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
@@ -146,6 +160,7 @@
     "stream-browserify": "^3.0.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-react": "^5.32.6",
+    "typesafe-i18n": "5.27.1",
     "utf-8-validate": "^6.0.6",
     "util": "^0.12.5",
     "zod": "^4.4.3"

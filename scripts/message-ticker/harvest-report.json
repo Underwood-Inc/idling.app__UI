@@ -1,0 +1,74 @@
+{
+  "adapters": {
+    "urantia-dhammapada": {
+      "status": "ok",
+      "fetched": 414,
+      "accepted": 402,
+      "rejected": {
+        "text_too_long": 5
+      },
+      "duplicate": 7,
+      "error": null
+    },
+    "loving-universe": {
+      "status": "ok",
+      "fetched": 3,
+      "accepted": 0,
+      "rejected": {},
+      "duplicate": 3,
+      "error": null
+    },
+    "quotable": {
+      "status": "failed",
+      "fetched": 0,
+      "accepted": 0,
+      "rejected": {},
+      "duplicate": 0,
+      "error": "fetch failed"
+    },
+    "quotable-github-data": {
+      "status": "ok",
+      "fetched": 575,
+      "accepted": 573,
+      "rejected": {
+        "text_too_long": 2
+      },
+      "duplicate": 0,
+      "error": null
+    },
+    "zenquotes-filtered": {
+      "status": "ok",
+      "fetched": 0,
+      "accepted": 0,
+      "rejected": {},
+      "duplicate": 0,
+      "error": null
+    },
+    "buddha-api": {
+      "status": "ok",
+      "fetched": 0,
+      "accepted": 0,
+      "rejected": {},
+      "duplicate": 0,
+      "error": null
+    },
+    "palicanon-dhp": {
+      "status": "failed",
+      "fetched": 0,
+      "accepted": 0,
+      "rejected": {},
+      "duplicate": 0,
+      "error": "fetch failed"
+    },
+    "buddha-coza": {
+      "status": "ok",
+      "fetched": 0,
+      "accepted": 0,
+      "rejected": {},
+      "duplicate": 0,
+      "error": null
+    }
+  },
+  "totalAccepted": 975,
+  "generatedAt": "2026-11-24T14:27:29.924Z"
+}

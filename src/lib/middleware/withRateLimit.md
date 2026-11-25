@@ -112,7 +112,6 @@ enum RateLimitExemptPaths {
   LINK_PREVIEW = '/api/link-preview',
   TEST_HEALTH = '/api/test/health',
   NOTIFICATIONS_POLL = '/api/notifications/poll',
-  BUDDHA_API = 'https://buddha-api.com/api/random'
 }
 ```
 

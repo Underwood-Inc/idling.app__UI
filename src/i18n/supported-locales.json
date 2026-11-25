@@ -1,0 +1,16 @@
+{
+  "baseLocale": "en",
+  "locales": [
+    { "id": "en", "bcp47": "en", "label": "English", "direction": "ltr" },
+    { "id": "es", "bcp47": "es", "label": "Español", "direction": "ltr" },
+    { "id": "zh", "bcp47": "zh-Hans", "label": "简体中文", "direction": "ltr" },
+    { "id": "fr", "bcp47": "fr", "label": "Français", "direction": "ltr" },
+    { "id": "de", "bcp47": "de", "label": "Deutsch", "direction": "ltr" },
+    { "id": "ja", "bcp47": "ja", "label": "日本語", "direction": "ltr" },
+    { "id": "pt", "bcp47": "pt", "label": "Português", "direction": "ltr" },
+    { "id": "ru", "bcp47": "ru", "label": "Русский", "direction": "ltr" },
+    { "id": "ko", "bcp47": "ko", "label": "한국어", "direction": "ltr" },
+    { "id": "it", "bcp47": "it", "label": "Italiano", "direction": "ltr" },
+    { "id": "ar", "bcp47": "ar", "label": "العربية", "direction": "rtl" }
+  ]
+}

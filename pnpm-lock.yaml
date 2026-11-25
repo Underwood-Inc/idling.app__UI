@@ -200,6 +200,9 @@ importers:
       swagger-ui-react:
         specifier: ^5.32.6
         version: 5.32.6(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      typesafe-i18n:
+        specifier: 5.27.1
+        version: 5.27.1(typescript@6.0.3)
       utf-8-validate:
         specifier: ^6.0.6
         version: 6.0.6
@@ -10889,6 +10892,12 @@ packages:
 
   types-ramda@0.30.1:
     resolution: {integrity: sha512-1HTsf5/QVRmLzcGfldPFvkVsAdi1db1BBKzi7iW3KBUlOICg/nKnFS+jGqDJS3YD8VsWbAh7JiHeBvbsw8RPxA==}
+
+  typesafe-i18n@5.27.1:
+    resolution: {integrity: sha512-749uWo2ZXETT//kWjVYPm8QPYR8xLh8G0wLfoAyCAtAmysX67uCaAyLjAjAWojL6fuJpE5B6yIjwvO9orXzUPg==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=3.5.1'
 
   typescript-eslint@8.61.1:
     resolution: {integrity: sha512-V7PayAfJokV3pEHgN7/v03D1SpujhRfQtYLbLIiBfDDncdg4PAiRBfoS4cnCANK4jmAPncczi59QO3afiXUlNw==}
@@ -24486,6 +24495,10 @@ snapshots:
   types-ramda@0.30.1:
     dependencies:
       ts-toolbelt: 9.6.0
+
+  typesafe-i18n@5.27.1(typescript@6.0.3):
+    dependencies:
+      typescript: 6.0.3
 
   typescript-eslint@8.61.1(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3):
     dependencies:

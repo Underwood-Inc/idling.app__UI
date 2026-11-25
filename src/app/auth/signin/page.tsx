@@ -2,9 +2,9 @@ import { auth } from '@lib/auth';
 import { NAV_PATHS } from '@lib/routes';
 import { redirect } from 'next/navigation';
 import { PageContainer } from 'src/app/components/page-container/PageContainer';
-import { ClientSignIn } from '../../components/auth-buttons/ClientAuthButtons';
 import { SignInProviders } from '../../components/auth-buttons/types';
 import { OAuthAccountConflictHandler } from './OAuthAccountConflictHandler';
+import { SignInPageClient } from './SignInPageClient';
 import './page.css';
 
 interface SignInSearchParams {
@@ -45,23 +45,7 @@ export default async function Page({
 
   return (
     <PageContainer>
-      <article className="signin__container">
-        <div className="signin__header">
-          <h1 className="signin__title">Welcome to Idling App</h1>
-          <p className="signin__subtitle">
-            Choose your preferred sign-in method to continue
-          </p>
-        </div>
-        <div className="signin__providers">
-          {providers.map((provider) => (
-            <ClientSignIn
-              key={provider}
-              provider={provider}
-              redirectTo={redirectTo}
-            />
-          ))}
-        </div>
-      </article>
+      <SignInPageClient providers={providers} redirectTo={redirectTo} />
     </PageContainer>
   );
 }

@@ -59,6 +59,15 @@
       "@molecules/*": [
         "./src/molecules/*"
       ],
+      "$i18n/*": [
+        "./src/i18n/*"
+      ],
+      "$i18n-source/*": [
+        "./src/i18n-en-catalog/*"
+      ],
+      "@plugs/*": [
+        "./src/plugs/*"
+      ],
       "@widgets/*": [
         "./src/widgets/*"
       ]

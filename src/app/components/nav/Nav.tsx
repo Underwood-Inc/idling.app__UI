@@ -5,12 +5,12 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { Navbar } from '../navbar/Navbar';
 import { InstantLink } from '../ui/InstantLink';
-import { UserSearch } from '../user-search/UserSearch';
+import { LocalizedUserSearch } from './LocalizedUserSearch';
+import { NavBrandTitle } from './NavBrandTitle';
 import { MobileNav } from './MobileNav';
 import './Nav.css';
 import { NavAuth } from './NavAuth';
 import { NavPaths } from './NavPaths';
-
 export default async function Nav() {
   // Prevent caching to ensure fresh permission checks
   noStore();
@@ -36,7 +36,7 @@ export default async function Nav() {
             className="instant-link--brand"
             data-testid={NAV_SELECTORS.HOME_LINK}
           >
-            <h1 className="nav__header">Idling.app</h1>
+            <NavBrandTitle />
           </InstantLink>
         </Navbar.Content>
 
@@ -47,7 +47,7 @@ export default async function Nav() {
         >
           {session ? (
             <Navbar.Item className="nav__search">
-              <UserSearch placeholder="Find users..." />
+              <LocalizedUserSearch />
             </Navbar.Item>
           ) : null}
           <Navbar.Item className="nav__auth">

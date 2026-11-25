@@ -1,3 +1,6 @@
+'use client';
+
+import { useRadioCopy } from './useRadioCopy';
 import styles from './RadioPlayerPanelResizeHandle.module.css';
 
 export interface RadioPlayerPanelResizeHandleProps {
@@ -11,11 +14,13 @@ export function RadioPlayerPanelResizeHandle({
   onBeginResize,
   onResetHeight,
 }: RadioPlayerPanelResizeHandleProps) {
+  const { aria } = useRadioCopy();
+
   return (
     <div
       role="separator"
       aria-orientation="horizontal"
-      aria-label="Drag to resize panel. Double-click to reset height."
+      aria-label={aria.dragToResizePanel}
       aria-valuenow={panelHeightPx ?? undefined}
       data-panel-resize-handle="true"
       className={styles.panelResizeHandle}

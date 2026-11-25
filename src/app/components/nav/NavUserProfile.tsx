@@ -2,6 +2,7 @@
 
 import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { UserDecorationWrapper } from '../decoration/UserDecorationWrapper';
 
 interface NavUserProfileProps {
@@ -9,6 +10,7 @@ interface NavUserProfileProps {
 }
 
 export function NavUserProfile({ initialSession }: NavUserProfileProps) {
+  const { ll } = useIdlingLocale();
   const { data: session, status } = useSession();
 
   // Use initialSession during hydration to prevent layout shift
@@ -18,7 +20,7 @@ export function NavUserProfile({ initialSession }: NavUserProfileProps) {
   if (status === 'loading' && !currentSession) {
     return (
       <h3 className="header__user-name" style={{ opacity: 0.6 }}>
-        Loading...
+        {ll.common.actions.loading()}
       </h3>
     );
   }

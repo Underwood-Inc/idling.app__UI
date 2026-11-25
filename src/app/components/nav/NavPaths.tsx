@@ -5,17 +5,23 @@ import {
   HEADER_NAV_PATHS,
   isExternalLink,
   NAV_GROUPS,
-  NAV_PATH_LABELS,
+  ROUTE_KEYS,
 } from '@lib/routes';
+import {
+  resolveNavExternalLinkAria,
+  resolveNavGroupLabel,
+  resolveNavRouteLabel,
+} from '@molecules/i18n/idlingNavI18n';
 import { usePathname } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { Navbar } from '../navbar/Navbar';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { InstantLink } from '../ui/InstantLink';
 
 /**
  * Component for rendering an external link icon
  */
-function ExternalLinkIcon() {
+function ExternalLinkIcon({ label }: { label: string }) {
   return (
     <svg
       width="12"
@@ -27,7 +33,7 @@ function ExternalLinkIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       style={{ marginLeft: '4px', opacity: 0.7 }}
-      aria-label="External link"
+      aria-label={label}
     >
       <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
       <polyline points="15,3 21,3 21,9" />
@@ -45,10 +51,12 @@ function NavGroup({
   currentPath,
 }: {
   groupKey: string;
-  group: { label: string; items: readonly string[] };
+  group: { items: readonly ROUTE_KEYS[] };
   currentPath: string;
 }) {
+  const { ll } = useIdlingLocale();
   const [isOpen, setIsOpen] = useState(false);
+  const groupLabel = resolveNavGroupLabel(groupKey, ll);
 
   const hasActiveItem = group.items.some((item) => {
     const path = HEADER_NAV_PATHS[item as keyof typeof HEADER_NAV_PATHS];
@@ -62,7 +70,7 @@ function NavGroup({
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
       >
-        {group.label}
+        {groupLabel}
         <svg
           width="12"
           height="12"
@@ -97,8 +105,8 @@ function NavGroup({
               aria-disabled={isDisabled}
               target={isExternal ? '_blank' : undefined}
             >
-              {NAV_PATH_LABELS[key]}
-              {isExternal && <ExternalLinkIcon />}
+              {resolveNavRouteLabel(key, ll)}
+              {isExternal && <ExternalLinkIcon label={resolveNavExternalLinkAria(ll)} />}
             </InstantLink>
           );
         })}
@@ -110,6 +118,23 @@ function NavGroup({
 /**
  * Internal NavPaths component that uses useSearchParams
  */
+function NavPathsFallback() {
+  const { ll } = useIdlingLocale();
+  return (
+    <>
+      {Object.entries(NAV_GROUPS).map(([groupKey, group]) => (
+        <Navbar.Item key={`group--${groupKey}`}>
+          <div className="nav__group">
+            <button className="nav__group-trigger">
+              {resolveNavGroupLabel(groupKey, ll)}
+            </button>
+          </div>
+        </Navbar.Item>
+      ))}
+    </>
+  );
+}
+
 function NavPathsInternal() {
   const currentPath = usePathname();
 
@@ -133,19 +158,7 @@ function NavPathsInternal() {
  */
 export function NavPaths() {
   return (
-    <Suspense
-      fallback={
-        <>
-          {Object.entries(NAV_GROUPS).map(([groupKey, group]) => (
-            <Navbar.Item key={`group--${groupKey}`}>
-              <div className="nav__group">
-                <button className="nav__group-trigger">{group.label}</button>
-              </div>
-            </Navbar.Item>
-          ))}
-        </>
-      }
-    >
+    <Suspense fallback={<NavPathsFallback />}>
       <NavPathsInternal />
     </Suspense>
   );

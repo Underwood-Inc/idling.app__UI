@@ -1,10 +1,10 @@
 'use client';
 
-import { NAV_PATHS } from '@lib/routes';
 import { useSession } from 'next-auth/react';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { ClientSignOut } from '../auth-buttons/ClientAuthButtons';
 import { InstantLink } from '../ui/InstantLink';
+import { NavSignInLink } from './NavSignInLink';
 import { NavUserProfile } from './NavUserProfile';
 
 interface MobileNavAuthProps {
@@ -17,13 +17,7 @@ export function MobileNavAuth({ onClose }: MobileNavAuthProps) {
   if (!session) {
     return (
       <div className="nav__auth-links">
-        <InstantLink
-          href={NAV_PATHS.SIGNIN}
-          data-testid={NAV_SELECTORS.SIGN_IN_LINK}
-          onClick={onClose}
-        >
-          Sign In
-        </InstantLink>
+        <NavSignInLink onClick={onClose} />
       </div>
     );
   }

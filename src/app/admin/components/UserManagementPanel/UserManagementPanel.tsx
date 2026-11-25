@@ -9,6 +9,7 @@
  */
 
 import { usePaginationMode } from '@lib/context/UserPreferencesContext';
+import { useAdminCopy } from '../../AdminCopyContext';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AssignRoleModal } from '../modals/AssignRoleModal';
 import { ExportModal } from '../modals/ExportModal';
@@ -38,6 +39,8 @@ import { UserTable } from './UserTable';
 export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
   onUserUpdate
 }) => {
+  const userCopy = useAdminCopy().userManagement;
+
   // All the hooks for data management
   const {
     users,
@@ -321,7 +324,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
           userName={
             roleAssignmentUser.name ||
             roleAssignmentUser.email ||
-            'Unknown User'
+            userCopy.unknownUser
           }
           userId={roleAssignmentUser.id}
           isOpen={showRoleModal}
@@ -338,7 +341,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
           userName={
             subscriptionAssignmentUser.name ||
             subscriptionAssignmentUser.email ||
-            'Unknown User'
+            userCopy.unknownUser
           }
           userId={subscriptionAssignmentUser.id}
           isOpen={showSubscriptionModal}

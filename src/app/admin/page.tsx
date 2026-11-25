@@ -8,11 +8,10 @@ import AdminDashboard from './AdminDashboard';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const metadata = {
-  title: 'Admin Dashboard - Idling.app',
-  description:
-    'Administrative dashboard for managing users, content, and emojis'
-};
+export async function generateMetadata() {
+  const { buildAdminPageMetadata } = await import('@molecules/i18n/idlingMeta');
+  return buildAdminPageMetadata();
+}
 
 export default async function AdminPage() {
   // Check admin permissions

@@ -10,11 +10,10 @@ import { ProjectShowcase } from '../components/project-showcase/ProjectShowcase'
 import { StatsDashboard } from '../components/stats-dashboard/StatsDashboard';
 import styles from '../page.module.css';
 
-export const metadata: Metadata = {
-  title: 'Catalog & ecosystem',
-  description:
-    'Full idling.app catalog: about Strixun, ecosystem diagrams, filterable projects, activity, and live stats.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { buildPortfolioPageMetadata } = await import('@molecules/i18n/idlingMeta');
+  return buildPortfolioPageMetadata();
+}
 
 export default function PortfolioPage() {
   return (

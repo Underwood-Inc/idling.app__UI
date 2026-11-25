@@ -6,8 +6,10 @@ import {
   resolveAudioStreamTempoBpmDisplay,
 } from '@widgets/radio-player/audioStreamTempo';
 import type { AudioStreamTempoUniforms } from '@widgets/radio-player/audioStreamTempo.types';
+import { formatRadioBpmDescription } from '@molecules/i18n/idlingRadioI18n';
 import { useEffect, useState } from 'react';
 import styles from './RadioPlayerBpmDisplay.module.css';
+import { useRadioCopy } from './useRadioCopy';
 
 export interface UseAudioStreamTempoOptions {
   isPlaying: boolean;
@@ -45,6 +47,7 @@ export interface RadioPlayerBpmDisplayProps {
 }
 
 export function RadioPlayerBpmDisplay({ isPlaying }: RadioPlayerBpmDisplayProps) {
+  const radioCopy = useRadioCopy();
   const tempo = useAudioStreamTempo({ isPlaying });
   const [playingSinceMs, setPlayingSinceMs] = useState<number | null>(null);
   const [nowMs, setNowMs] = useState(() => Date.now());
@@ -77,14 +80,16 @@ export function RadioPlayerBpmDisplay({ isPlaying }: RadioPlayerBpmDisplayProps)
     playingForMs,
   });
 
+  const bpmDescription = formatRadioBpmDescription(radioCopy, display);
+
   return (
     <div
       className={styles.bpm}
       data-state={display.state}
-      aria-label={display.description}
+      aria-label={bpmDescription}
       data-testid="radio-player-bpm-display"
     >
-      <span className={styles.bpm__label}>BPM</span>
+      <span className={styles.bpm__label}>{radioCopy.bpm.label}</span>
       <span className={styles.bpm__value} aria-hidden="true">
         {display.label}
       </span>

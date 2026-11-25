@@ -1,4 +1,9 @@
+import {
+  formatRadioTrackSearchAria,
+  formatRadioTrackSearchTitle,
+} from '@molecules/i18n/idlingRadioI18n';
 import type { RadioPlayerHandle } from '@widgets/radio-player/radioPlayer.types';
+import { useRadioCopy } from './useRadioCopy';
 import {
   openRadioNowPlayingSearchInBrowser,
   resolveRadioNowPlayingSearchQuery,
@@ -15,6 +20,7 @@ export function RadioPlayerTrackSearchButton({
   handle,
   trackDisplay,
 }: RadioPlayerTrackSearchButtonProps) {
+  const radioCopy = useRadioCopy();
   const nowPlaying = handle.getNowPlaying();
   const searchQuery = resolveRadioNowPlayingSearchQuery({
     display: trackDisplay,
@@ -30,8 +36,8 @@ export function RadioPlayerTrackSearchButton({
     <button
       type="button"
       className={`${styles.findBtn} no-glass`}
-      aria-label={`Search the web for ${searchQuery}`}
-      title={`Find “${searchQuery}”`}
+      aria-label={formatRadioTrackSearchAria(radioCopy, searchQuery)}
+      title={formatRadioTrackSearchTitle(radioCopy, searchQuery)}
       data-testid="radio-track-search-button"
       onClick={() => {
         openRadioNowPlayingSearchInBrowser(searchQuery);

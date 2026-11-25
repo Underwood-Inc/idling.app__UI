@@ -3,11 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 import FadeIn, { DisplayType } from '../fade-in/FadeIn';
 import './MessageTicker.css';
 
-interface MessageTickerProps {
+export interface MessageTickerProps {
   messages?: string[];
+  onQuoteOpen?: () => void;
 }
 
-export function MessageTicker({ messages = [] }: MessageTickerProps) {
+export function MessageTicker({
+  messages = [],
+  onQuoteOpen,
+}: MessageTickerProps) {
   const tickerRef = useRef<HTMLDivElement>(null);
   const [animationDuration, setAnimationDuration] = useState('120s');
 
@@ -33,7 +37,7 @@ export function MessageTicker({ messages = [] }: MessageTickerProps) {
       : messages;
 
   return (
-    <div className="message-ticker__container">
+    <div className="message-ticker__container" onClick={onQuoteOpen}>
       <div
         className="message-ticker__content"
         ref={tickerRef}

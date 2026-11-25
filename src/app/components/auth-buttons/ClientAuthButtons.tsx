@@ -1,5 +1,8 @@
 'use client';
 
+import { AUTH_EN } from '$i18n-source/auth.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { NAV_PATHS } from '@lib/routes';
 import { useSecureLogout } from '@lib/security/useSecureLogout';
 import { AUTH_BUTTON_SELECTORS } from '@lib/test-selectors/components/auth-buttons.selectors';
@@ -14,6 +17,9 @@ export function ClientSignIn({
   provider: SignInProviders;
   redirectTo?: string;
 }>) {
+  const { ll } = useIdlingLocale();
+  const auth = resolveCatalogFromLl(AUTH_EN, ll.auth as Record<string, unknown>);
+
   const handleSignIn = async () => {
     await signIn(provider, {
       callbackUrl: redirectTo || NAV_PATHS.ROOT,
@@ -28,7 +34,8 @@ export function ClientSignIn({
       className="auth-button"
       data-testid={AUTH_BUTTON_SELECTORS.SIGN_IN}
     >
-      Login with <span className="capitalize">{provider}</span>
+      {auth.signIn.loginWithProviderPrefix}{' '}
+      <span className="capitalize">{provider}</span>
     </button>
   );
 }
@@ -38,6 +45,8 @@ export function ClientSignOut({
 }: {
   'data-testid'?: string;
 }) {
+  const { ll } = useIdlingLocale();
+  const auth = resolveCatalogFromLl(AUTH_EN, ll.auth as Record<string, unknown>);
   const { secureLogout } = useSecureLogout();
 
   const handleSignOut = async () => {
@@ -89,7 +98,7 @@ export function ClientSignOut({
       onClick={handleSignOut}
       data-testid={dataTestId || AUTH_BUTTON_SELECTORS.SIGN_OUT}
     >
-      Sign Out
+      {auth.signIn.signOut}
     </button>
   );
 }

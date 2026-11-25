@@ -1,59 +1,121 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useOverlay } from '@lib/context/OverlayContext';
+import { formatTickerLine } from '@molecules/quotes/idlingMessageTickerFormat';
+import { buildMessageTickerQuoteOverlayViewModel } from '@molecules/quotes/messageTickerQuoteOverlay';
+import type { IdlingQuoteRecord } from '@molecules/quotes/idlingQuoteTypes';
+import { useCallback, useEffect, useState } from 'react';
+
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { MessageTicker } from './MessageTicker';
-import { fetchBuddha } from './actions';
+import { openMessageTickerQuoteOverlay } from './openMessageTickerQuoteOverlay';
+import { fetchTickerQuote, type TickerQuotePayload } from './tickerActions';
+
+function payloadToRecord(payload: TickerQuotePayload, locale: string): IdlingQuoteRecord {
+  return {
+    id: payload.id,
+    locale,
+    text: payload.text,
+    author: payload.author,
+    sourceTitle: payload.sourceTitle,
+    attribution: payload.attribution,
+    textHash: '',
+    provenanceProvider: 'message-ticker-bundle',
+  };
+}
 
 export default function MessageTickerWithInterval() {
+  const { localeId, ll } = useIdlingLocale();
+  const { openOverlay, closeOverlay } = useOverlay();
   const [message, setMessage] = useState<string[]>([]);
+  const [activeQuote, setActiveQuote] = useState<TickerQuotePayload | null>(null);
+  const [pending, setPending] = useState(true);
+
+  const loadQuote = useCallback(() => {
+    setPending(true);
+    fetchTickerQuote(localeId, ll.messageTicker.separator())
+      .then((result) => {
+        if (result?.text) {
+          setActiveQuote(result);
+          const record = payloadToRecord(result, result.locale);
+          setMessage([formatTickerLine(record, ll)]);
+        } else {
+          setActiveQuote(null);
+          setMessage([ll.messageTicker.empty()]);
+        }
+      })
+      .catch(() => {
+        setActiveQuote(null);
+        setMessage([ll.messageTicker.empty()]);
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  }, [localeId, ll]);
 
   useEffect(() => {
-    // Generate random interval between 10-20 minutes (600000-1200000 ms)
+    loadQuote();
+
     const getRandomInterval = () => {
-      const minInterval = 10 * 60 * 1000; // 10 minutes in milliseconds
-      const maxInterval = 20 * 60 * 1000; // 20 minutes in milliseconds
+      const minInterval = 10 * 60 * 1000;
+      const maxInterval = 20 * 60 * 1000;
       return (
         Math.floor(Math.random() * (maxInterval - minInterval + 1)) +
         minInterval
       );
     };
 
-    const fetchData = () => {
-      fetchBuddha()
-        .then((result) => {
-          if (result?.text) {
-            setMessage([result.text]);
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-        });
-    };
+    const intervalRef = { current: undefined as ReturnType<typeof setTimeout> | undefined };
 
-    fetchData(); // Initial fetch
-
-    // Set up interval with random timing
     const setupInterval = () => {
       const randomInterval = getRandomInterval();
-
       return setTimeout(() => {
-        fetchData();
-        // Set up next interval after this one completes
+        loadQuote();
         intervalRef.current = setupInterval();
       }, randomInterval);
     };
 
-    const intervalRef = { current: setupInterval() };
+    intervalRef.current = setupInterval();
 
     return () => {
       if (intervalRef.current) {
         clearTimeout(intervalRef.current);
       }
     };
-  }, []);
+  }, [loadQuote]);
+
+  const handleOpenQuote = useCallback(() => {
+    if (!activeQuote) {
+      return;
+    }
+
+    const viewModel = buildMessageTickerQuoteOverlayViewModel(
+      payloadToRecord(activeQuote, localeId)
+    );
+
+    openMessageTickerQuoteOverlay({
+      openOverlay,
+      closeOverlay,
+      viewModel,
+      labels: {
+        modalTitle: ll.messageTicker.modalTitle(),
+        closeModalAria: ll.messageTicker.closeModalAria(),
+      },
+    });
+  }, [activeQuote, closeOverlay, localeId, ll, openOverlay]);
+
+  if (pending && message.length === 0) {
+    return <span>{ll.messageTicker.loading()}</span>;
+  }
+
+  if (message.length === 0) {
+    return <span>{ll.messageTicker.empty()}</span>;
+  }
 
   return (
-    <>
-      {message ? <MessageTicker messages={message} /> : <span>Loading...</span>}
-    </>
+    <MessageTicker
+      messages={message}
+      onQuoteOpen={activeQuote ? handleOpenQuote : undefined}
+    />
   );
 }

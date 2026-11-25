@@ -1,0 +1,126 @@
+'use client';
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+
+import type { Locales, TranslationFunctions } from '$i18n/i18n-types';
+import { loadLocaleAsync } from '$i18n/i18n-util.async';
+import {
+  getLL,
+  getLocale,
+  initIdlingI18n,
+  initIdlingI18nAsync,
+  setIdlingLocale,
+  subscribeIdlingLocale,
+} from '$i18n/idling-i18n';
+import {
+  IDLING_BASE_LOCALE,
+  IDLING_LOCALE_CATALOG,
+  type IdlingLocaleId,
+} from '@molecules/quotes/idlingLocaleCatalog';
+import {
+  IDLING_UI_LOCALE_STORAGE_KEY,
+  resolveIdlingLocale,
+} from '@molecules/quotes/resolveIdlingLocale';
+import { writeIdlingLocaleCookie } from '@molecules/quotes/writeIdlingLocaleCookie';
+
+interface IdlingLocaleContextValue {
+  localeId: IdlingLocaleId;
+  /** Bumps after each successful `setIdlingLocale` / global locale notify. */
+  localeRevision: number;
+  ll: TranslationFunctions;
+  loading: boolean;
+  setLocaleId: (id: IdlingLocaleId) => void;
+  catalog: typeof IDLING_LOCALE_CATALOG;
+}
+
+const IdlingLocaleContext = createContext<IdlingLocaleContextValue | null>(null);
+
+function resolveInitialLocale(): IdlingLocaleId {
+  if (typeof window === 'undefined') {
+    return IDLING_BASE_LOCALE;
+  }
+  return resolveIdlingLocale();
+}
+
+/** Same stack as Mappy site + Overlane console: typesafe-i18n global `getLL()`, async chunks on switch. */
+export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
+  const [initialLocale] = useState<IdlingLocaleId>(resolveInitialLocale);
+  const [ready, setReady] = useState(false);
+  const [localeEpoch, bumpLocale] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        await loadLocaleAsync('en');
+        await initIdlingI18nAsync(initialLocale as Locales);
+        writeIdlingLocaleCookie(initialLocale);
+      } finally {
+        if (!cancelled) {
+          setReady(true);
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialLocale]);
+
+  useEffect(() => subscribeIdlingLocale(() => bumpLocale((n) => n + 1)), []);
+
+  const setLocaleId = useCallback((id: IdlingLocaleId) => {
+    setLoading(true);
+    try {
+      localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, id);
+    } catch {
+      /* ignore */
+    }
+    writeIdlingLocaleCookie(id);
+    void setIdlingLocale(id as Locales).finally(() => {
+      setLoading(false);
+      bumpLocale((epoch) => epoch + 1);
+    });
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      localeId: getLocale() as IdlingLocaleId,
+      localeRevision: localeEpoch,
+      ll: getLL(),
+      loading,
+      setLocaleId,
+      catalog: IDLING_LOCALE_CATALOG,
+    }),
+    [ready, localeEpoch, loading, setLocaleId]
+  );
+
+  if (!ready) {
+    return (
+      <div data-idling-locale-boot aria-busy="true">
+        <span className="sr-only">{getLL().common.actions.loading()}</span>
+      </div>
+    );
+  }
+
+  return (
+    <IdlingLocaleContext.Provider value={value}>{children}</IdlingLocaleContext.Provider>
+  );
+}
+
+export function useIdlingLocale(): IdlingLocaleContextValue {
+  const ctx = useContext(IdlingLocaleContext);
+  if (!ctx) {
+    throw new Error('useIdlingLocale must be used within IdlingLocaleProvider');
+  }
+  return ctx;
+}

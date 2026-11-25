@@ -1,0 +1,2471 @@
+{
+  "locale": {
+    "pickerLabel": "Language",
+    "pickerAria": "Choose display language"
+  },
+  "messageTicker": {
+    "separator": " — ",
+    "loading": "Loading…",
+    "empty": "Take a mindful breath.",
+    "openQuoteAria": "打开完整引号",
+    "modalTitle": "引用",
+    "closeModalAria": "关闭引用"
+  },
+  "nav": {
+    "externalLinkAria": "外部链接",
+    "groups": {
+      "TOOLS": "工具",
+      "EXTERNAL": "外部"
+    },
+    "routes": {
+      "ROOT": "页 次",
+      "CARD_GENERATOR": "卡片生成器",
+      "SVG_CONVERTER": "SVG 到巴布亚新几内亚",
+      "GALAXY": "银河",
+      "MAPPY": "映射",
+      "COINS": "币",
+      "GAME": "游戏",
+      "SIGNIN": "签名",
+      "CALLBACK": "回电",
+      "ADMIN": "管理员",
+      "STRIXUN_STREAM_SUITE": "Strixun 流套间",
+      "STREAM_SUITE": "流套间",
+      "MODS_HUB": "模块枢纽",
+      "AUTH_SERVICE": "认证服务",
+      "URL_SHORTENER": "URL 缩短",
+      "ACCESS_HUB": "访问枢纽",
+      "STREAM_SUITE_DETAIL": "串流套件细节",
+      "MODS_HUB_DETAIL": "模块枢纽细节",
+      "AUTH_SERVICE_DETAIL": "Auth 服务细节",
+      "URL_SHORTENER_DETAIL": "URL 缩短细节",
+      "ACCESS_HUB_DETAIL": "访问中心详情"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "loginWithProviderPrefix": "登录方式",
+      "signOut": "签名退出"
+    },
+    "signInNav": "签名",
+    "oauthConflict": {
+      "title": "账户已链接",
+      "whatWouldYouLike": "你想怎么办?",
+      "option1Title": "备选案文1:用不同的账户签名",
+      "option1DescriptionSignin": "签出并签入另一个账户,该账户没有这个提供者账户链接.",
+      "option1ButtonSignin": "用不同的账户签名( S)",
+      "option2Title": "备选案文2:解开这个账户的链接",
+      "option2Description": "我们可以帮助您解开此提供者账户与其它用户的链接, 并将其链接到您的经常账户 .",
+      "option2Button": "解除链接和重新链接账户",
+      "option3Title": "备选办法3:联系支助",
+      "option3Description": "如果你需要帮助解决这个问题,我们的支援小组可以帮助你.",
+      "option3Button": "联系人支持",
+      "goHome": "滚回家"
+    },
+    "callback": {
+      "tryAgain": "再试一次",
+      "goHome": "滚回家",
+      "errors": {
+        "oauthSignin": "OAuth 登录程序出错 .",
+        "oauthCallback": "OAuth 回调时发生错误 .",
+        "oauthCreateAccount": "无法创建 OAuth 账户 .",
+        "emailCreateAccount": "无法创建电子邮件账户 .",
+        "callback": "调用处理器出错 .",
+        "emailSignin": "检查您的邮件登录链接 .",
+        "credentialsSignin": "提供无效证书.",
+        "sessionRequired": "请签名访问此页面 .",
+        "unexpected": "发生了意外认证错误 ."
+      },
+      "authErrorTitle": "认证错误",
+      "completingSignIn": "正在完成登录...",
+      "completingSignInWithProvider": "签名",
+      "waitMessage": "请稍候,我们完成你的帐户.",
+      "redirectingShortly": "很快会重新指导你...",
+      "accountAlreadyLinkedTitle": "账户已链接",
+      "oauthConflict": {
+        "option1Title": "备选案文1:与您的现有账户签名",
+        "option1Description": "如果你记得你的另一个账户, 签到这个.",
+        "option1Button": "用不同的账户签名"
+      },
+      "signInDifferentAccount": "用不同的账户签名"
+    },
+    "unlink": {
+      "howItWorksTitle": "如何运作:",
+      "howItWorksSteps": {
+        "0": "我们会找到一个账户,目前 与这个供应商的账户相连",
+        "1": "我们把它和那个账户解开",
+        "2": "然后可以链接到您的经常账户",
+        "3": "这个过程是安全的, 不会删除任何数据"
+      },
+      "cancel": "取消",
+      "needHelp": "需要帮忙吗?",
+      "title": "取消链接 OAuth 账户",
+      "subtitle": "解决连接冲突的账户",
+      "aboutTitle": "关于账户连接冲突",
+      "aboutBody": "当你试图与一个已经链接到另一个账户的OAuth供应商(如Google或Twitch)签约时,我们需要解决这一冲突.",
+      "importantNotesTitle": "重要注释 :",
+      "importantNotes": {
+        "0": "这将只取消 OAuth 提供者的链接, 不删除任何用户账户",
+        "1": "您的账户数据和订阅状态将被保存",
+        "2": "你要和另一个账户签约才能完成",
+        "3": "如果无法进入另一个账户,请联系人支持"
+      }
+    },
+    "signInPage": {
+      "headline": "欢迎使用 Idling App",
+      "subtitle": "选择您想要继续使用的登录方法"
+    }
+  },
+  "search": {
+    "findUsersPlaceholder": "查找用户..."
+  },
+  "mobile": {
+    "brandTitle": "Idling.应用",
+    "closeMenuAria": "关闭移动菜单",
+    "menuAria": "移动导航菜单"
+  },
+  "footer": {
+    "docs": "文档",
+    "discord": "调色板",
+    "discordAria": "加入我们的 Discord 服务器"
+  },
+  "home": {
+    "masthead": {
+      "title": "地图. 摩诃衍. 工具 (英语). 无线电.",
+      "line": "游戏,mods,溪流工具,和社区——下面的每个产品都有一个巡回或现场应用,等你准备好.",
+      "ctaSeeLineup": "见排队"
+    },
+    "minecraftBand": {
+      "title": "更多Minecraft项目",
+      "line": "插件、数据包和我们的白名单服务器——与Modrinth和BuiltByBit相同的线条."
+    },
+    "hubEyebrow": {
+      "windowsProprietary": "Windows 应用程序 − 专有"
+    },
+    "status": {
+      "wip": "进行中"
+    },
+    "homeLinks": {
+      "open": "打开",
+      "getIt": "拿着",
+      "modsHub": "模块枢纽",
+      "modrinth": "调酒",
+      "tour": "巡回演出"
+    },
+    "outboundLinks": {
+      "live": "实时应用",
+      "builtByBit": "内建ByBit",
+      "modsHub": "模块枢纽",
+      "modrinth": "调酒",
+      "demo": "产品参观",
+      "github": "GitHub 图像"
+    },
+    "outboundVariants": {
+      "inDepthTour": "深入参观",
+      "launchLiveApp": "启动实时应用"
+    },
+    "minecraftMore": {
+      "productTour": "产品参观",
+      "seeTour": "见巡视",
+      "modrinthPage": "模拟页面",
+      "builtByBitListing": "内建By 位点列表",
+      "onIdlingApp": "搭载. app"
+    },
+    "hooks": {
+      "overlane": "ETS2和ATS遥测.",
+      "mappy": "离线地图.",
+      "compressy": "堆积块×32.",
+      "offerings": "每日服务器彩票.",
+      "rituals": "灯火魔力.",
+      "trials_of_the_wild": "~250-模式生存.",
+      "alloys": "10种幻想金属.",
+      "tally": "10k+ 推进.",
+      "shirecraft": "白名单生存.",
+      "obs_animation_suite": "60 FPS流场景.",
+      "mods_hub": "主机 & 飞船 Mods.",
+      "auth_service": "用密码签名.",
+      "card_generator": "社会卡快速.",
+      "svg_converter": "SVG — PNG. (英语).",
+      "url_shortener": "短链接+统计.",
+      "access_hub": "角色权限( L) .",
+      "shared_components": "反应+Svelte包.",
+      "api_framework": "已键入 API 客户端 .",
+      "streamkit_api": "OBS场景同步.",
+      "search_query_parser": "智能搜索语法."
+    },
+    "audience": {
+      "overlane": "现场遥测,可搜索档案,仪表板图,以及混合热/冷存储 数百万观测数据——ETS2和ATS在您的PC上,无云账户.",
+      "mappy": "开放世界游戏和桌面运动的离线地图——探索,标注和测量而不签名.",
+      "mods_hub": "从一个为玩家建造的地方下载和浏览Minecraft mods.",
+      "compressy": "压缩Minecraft的垃圾堆 这样存储和建造可以管理.",
+      "obs_animation_suite": "控制浏览器的OBS,有平滑的场景开关和动画来源.",
+      "offerings": "您的Minecraft 服务器上的每日套装彩票.",
+      "rituals": "灯火魔法与仪式数据包.",
+      "shirecraft": "白名单生存在Shirecraft上.",
+      "trials_of_the_wild": "硬核生存模具 与数百个模具.",
+      "alloys": "十种幻想金属 寻找和铸造.",
+      "tally": "数千个进步 追求生存."
+    },
+    "hub": {
+      "overlane": {
+        "headline": "遥测、重叠和ETS2 & ATS的驱动器档案.",
+        "pitch": "除了Euro Truck模拟器2和美国卡车模拟器之外,还有一个Windows应用程序:实况遥测控制台、可逐英里搜索的档案、仪表板图表和滚动以及OBS准备的覆盖面板。 在你的PC(Memory Lane)上混合热冷存储是用来使数百万个驾驶观察可以搜索,控制台响应——包括会话日记,没有云账户.",
+        "learnMoreLabel": "产品概览",
+        "visualAlt": "Overlane 应用程序图标——卡车遥测和覆盖",
+        "highlights": {
+          "overlane__0__telemetry_console": {
+            "title": "遥测控制台",
+            "body": "生活速度,燃料,齿轮,气温计,和在可对接控制台中的主动合同——与你覆盖的URL暴露于OBS的一样."
+          },
+          "overlane__1__drive_archive": {
+            "title": "驱动归档",
+            "body": "将可选的会话记录为可搜索的时间表 。 折叠类似快照,在任何一英里处打开检查人员,并保持罚款和交付的可见度."
+          },
+          "overlane__2__dashboard_charts": {
+            "title": "挂载板和图表",
+            "body": "保存滚动布局,图表归档跨度跨度,从图表上的悬崖跳回导致它的归档瞬间."
+          },
+          "overlane__3__hot_cold_storage": {
+            "title": "热/冷储存",
+            "body": "内存 Lane把最近的事实放在热门的分类账中,而更古老的观察分级为寒冷的列文件和当地索引——建立在一个机器上,以保持数百万行的反应."
+          },
+          "overlane__4__stream_overlays": {
+            "title": "串流叠加",
+            "body": "复制本地主机浏览器- 源代码 URL 以获取速度, 显示器, 任务面板, 以及其它目录 —— 度量衡与控制台同步 ."
+          }
+        }
+      },
+      "mappy": {
+        "headline": "离线的地图.",
+        "pitch": "离线第一地图工作空间,用于开放世界游戏,土豪活动,以及定制域. 探索官方地图包,投放标记,跟踪进度,跨层搜索,并测量距离——没有登录和遥测的桌面应用程序.",
+        "learnMoreLabel": "玩家维基巡演",
+        "visualAlt": "映射——活画布 工作空间截图",
+        "highlights": {
+          "mappy__0__offline_map_workspace": {
+            "title": "离线地图工作空间",
+            "body": "Pan, 缩放, 层, 并跟踪地图上的进展, 你作为静态包保存着, 而不是我们服务器的活牌."
+          },
+          "mappy__1__marker_maker_tile_studio": {
+            "title": "标记制作 & 平板工作室",
+            "body": "作者标记、媒体说明和自定义应用中的牌,然后导出您可以共享或归档的运动包."
+          },
+          "mappy__2__unified_search": {
+            "title": "统一搜索",
+            "body": "搜索标记,区域,和笔记 从一个栏而不是狩猎 通过分散的文件或wiki."
+          },
+          "mappy__3__measure_progress": {
+            "title": "测量进度( P)",
+            "body": "规划路线的统治者和路径工具; 跨官方包或自己领域追踪完成情况."
+          }
+        }
+      },
+      "mods_hub": {
+        "headline": "你的模具,一个家.",
+        "pitch": "开源 Mod主机有语义版,高级搜索语法,以及R2备份存储. 上传有拖放,飞船直接下载链接,以及可选加密包客户端侧面——为玩家和作者构建的黄金主题UI,而不是FTP文件夹.",
+        "learnMoreLabel": "平台深潜",
+        "visualAlt": "Mods Hub——Mod托管平台艺术品",
+        "highlights": {
+          "mods-hub__0__authoring_workflow": {
+            "title": "撰写工作流程",
+            "body": "创建工程,以拖放方式上传版本,并在不触碰原始存储路径的情况下编辑元数据."
+          },
+          "mods-hub__1__semantic_versions": {
+            "title": "语义版本",
+            "body": "飞船会用变换日志的历史释放 使玩家确切知道建筑之间的变化."
+          },
+          "mods-hub__2__search_syntax": {
+            "title": "搜索语法",
+            "body": "用类:tools tag:优化更新的:>7d等方便人类的查询过滤器——不仅仅是关键词框."
+          },
+          "mods-hub__3__downloads_encryption": {
+            "title": "下载加密( E)",
+            "body": "直接的CDN链接在发射器和浏览器中工作;当您想要在 R2 中私有的包时,可选择客户端端加密."
+          }
+        }
+      },
+      "offerings": {
+        "headline": "纸质服务器的每日套装彩票.",
+        "pitch": "纸和斯皮戈特的每日优等奖项:加权掠夺等级、积分、里程碑、成就和完全的游戏管理中心。 在Shirecraft上的每日Powers工具包——不手工编辑YAML而配置表格,权限,和LuckPerms钩.",
+        "learnMoreLabel": "列出细节( F)",
+        "visualAlt": "供货——每日重装套装彩票(官方产品艺术品)",
+        "highlights": {
+          "offerings__0__weighted_lottery": {
+            "title": "重彩票",
+            "body": "每天从层层抢掠表上滚动套具 常见的奖励是常见的 而大奖是罕见的."
+          },
+          "offerings__1__streaks_milestones": {
+            "title": "断层( I)",
+            "body": "轨迹的玩家 里程碑的解锁 和成就 所以常客觉得奖励 数周,而不是一次."
+          },
+          "offerings__2__in_game_admin": {
+            "title": "游戏中管理员",
+            "body": "Tune表,预览卷,以及修正服务器上的错配置——不仅来自控制台或平面文件."
+          },
+          "offerings__3__luckperms_ready": {
+            "title": "运算准备",
+            "body": "许可的奖励等级、捐助级别和工作人员绕行规则都明确且可审计."
+          }
+        }
+      },
+      "obs_animation_suite": {
+        "headline": "动画你的溪流场景.",
+        "pitch": "从一个 Svelte 5 进步的网络应用中控制 OBS:动画源转换,智能源交换与布局内存,一击预设,以及带有打字机和glitch效果的文本循环器. 实时WebSocket控制器,在60 FPS有亚50ms的潜伏状态.",
+        "learnMoreLabel": "串流套间巡演",
+        "visualAlt": "OBS动画套件——流控艺术品",
+        "highlights": {
+          "obs-animation-suite__0__source_transitions": {
+            "title": "源转换",
+            "body": "淡出,滑出,缩放,和流行在OBS来源之间,在60 FPS没有为每个布局变化的手版场景."
+          },
+          "obs-animation-suite__1__smart_swapping": {
+            "title": "智能交换",
+            "body": "7个互换样式会记得位置和大小,所以反复出现的片段(相机,BRB,提醒)会立即回击."
+          },
+          "obs-animation-suite__2__layout_presets": {
+            "title": "布局预设",
+            "body": "将完整的场景布局保存为预设,并在溪流中从网络面板中召回——点击一次而不是在OBS进行人工狩猎."
+          },
+          "obs-animation-suite__3__text_cycler": {
+            "title": "文本循环器",
+            "body": "用相同的控制面板驱动的打字机、故障和摇摆效果旋转标题和下半身."
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "site": {
+      "defaultTitle": "Idling.应用",
+      "titleTemplate": "%s \\\\ Idling.应用程序",
+      "description": "您的创意和表达数字游戏场",
+      "keywords": {
+        "0": "创造力",
+        "1": "表达式",
+        "2": "数字",
+        "3": "操场"
+      },
+      "authorName": "Idling.应用 团队",
+      "creator": "Idling.应用",
+      "publisher": "Idling.应用",
+      "openGraphTitle": "Idling.应用",
+      "openGraphDescription": "您的创意和表达数字游戏场",
+      "siteName": "Idling.应用",
+      "twitterTitle": "Idling.应用",
+      "twitterDescription": "您的创意和表达数字游戏场",
+      "twitterCreator": "@ idlingapp"
+    },
+    "pages": {
+      "portfolioTitle": "分类和生态系统",
+      "portfolioDescription": "Full idling.app catalog:关于Strixun,生态系统图,可过滤项目,活动,和活式统计表.",
+      "adminTitle": "管理板 - Idling.app",
+      "adminDescription": "管理用户、内容和emojis的行政仪表板",
+      "signInHeadline": "欢迎使用 Idling App",
+      "signInSubtitle": "选择您想要继续使用的登录方法",
+      "subscriptionTitle": "订阅 QQ Idling.app",
+      "subscriptionDescription": "选择一个计划并升级您的 idling. app 订阅 ."
+    }
+  },
+  "common": {
+    "actions": {
+      "save": "保存",
+      "saving": "正在保存...",
+      "cancel": "取消",
+      "loading": "正在装入...",
+      "tryAgain": "再试一次",
+      "goHome": "滚回家",
+      "returnHome": "返回家园",
+      "close": "关闭",
+      "dismiss": "开除",
+      "retry": "重试",
+      "back": "回来",
+      "signIn": "签名",
+      "signOut": "签名退出",
+      "expand": "扩展",
+      "collapse": "折叠",
+      "next": "下一个",
+      "previous": "上一个",
+      "load": "装入",
+      "backHome": "回到家乡"
+    },
+    "backButton": {
+      "titleWithPage": "回上一页(页 {page})",
+      "titleGoBack": "回来",
+      "defaultLabel": "{\\fn黑体\\fs22\\bord1\\shad0\\3aHBE\\4aH00\\fscx67\\fscy66\\2cHFFFFFF\\3cH808080}请回到原位"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "code": "第404条",
+      "title": "未找到页面",
+      "message": "你寻找的页面不存在或已经移动. 也许巫师把它传送到别处?",
+      "returnHome": "返回家园"
+    },
+    "routeError": {
+      "title": "哎哟! 出问题了",
+      "fallbackMessage": "装入此页面时发生了意外错误 .",
+      "errorIdLabel": "错误 ID :",
+      "tryAgain": "再试一次"
+    },
+    "globalError": {
+      "title": "关键错误",
+      "criticalMessage": "装入应用程序时发生关键错误 .",
+      "unknownError": "未知错误",
+      "errorIdLabel": "错误 ID :",
+      "tryAgain": "再试一次",
+      "goHome": "滚回家"
+    },
+    "profileNotFound": {
+      "userNotFoundAria": "未找到用户",
+      "title": "未找到用户",
+      "message": "抱歉 我们找不到你要找的用户配置 如果:",
+      "reasons": {
+        "0": "用户名不存在",
+        "1": "用户已删除他们的账户",
+        "2": "配置文件 URL 不正确",
+        "3": "用户配置设置为私有"
+      },
+      "goHome": "滚回家",
+      "searchTitle": "搜索用户",
+      "searchDescription": "尝试搜索您要找的用户 :",
+      "searchPlaceholder": "通过名称或电子邮件搜索用户...",
+      "helpTitle": "帮助",
+      "helpSearchLabel": "搜索",
+      "helpSearchDescription": "使用上面的搜索查找用户名或电子邮件",
+      "helpProductsLabel": "产品",
+      "helpProductsDescription": "浏览应用程序和模式的主线条"
+    }
+  },
+  "catalog": {
+    "showcase": {
+      "overlane": {
+        "features": {
+          "0": "实况遥测控制台",
+          "1": "归档搜索检查器( I)",
+          "2": "盘式图表滚动",
+          "3": "热/冷本地存储",
+          "4": "OBS 准备覆盖面板"
+        },
+        "title": "覆盖",
+        "description": "遥测控制台,可搜索驱动器档案,仪表板图表,以及ETS2和ATS的流式叠加. 混合热/冷本地存储尺度为数百万观测;游戏旁边有一个Windows应用——OBS浏览器来源,会话日记,没有云账户.",
+        "type": "窗口桌面应用程序"
+      },
+      "mappy": {
+        "features": {
+          "0": "离线第一地图",
+          "1": "标记制作 & 平板工作室",
+          "2": "官方地图包",
+          "3": "不需要登录"
+        },
+        "title": "映射",
+        "description": "离线第一交互式地图平台,用于开放世界游戏,土豪活动,以及定制域. 标记符,进度跟踪,统一搜索,测量工具,以及作者——仅静态文件,没有应用程序后端.",
+        "type": "桌面应用程序"
+      },
+      "compressy": {
+        "title": "压缩",
+        "description": "无限块压缩Minecraft 26.2+作为纸张插件. 将9块压缩为1,最高可达32层,带有花哨的工具提示和罗马数字. 遗留的法布里克建筑仍保留在莫德林斯上.",
+        "type": "纸插件 ・ 遗物 织物",
+        "features": {
+          "0": "无限压缩",
+          "1": "所有块的工作",
+          "2": "最高32级",
+          "3": "方便自动化"
+        }
+      },
+      "offerings": {
+        "description": "纸袋/纸袋的每日优质彩票——加权级、抢劫桌、花样、里程碑、成就和全局管理。 鲍尔斯每天奖励希雷克拉夫.",
+        "type": "纸张插件( BuiltByBit)",
+        "features": {
+          "0": "每日重彩票",
+          "1": "错失成就( A)",
+          "2": "内部管理枢纽",
+          "3": "LuckPerms 整合"
+        },
+        "title": "出价"
+      },
+      "rituals": {
+        "title": "礼仪",
+        "description": "神秘的Minecraft数据包 带有仪式魔法,图腾,以及消防牺牲系统. 8种独特的仪式,6个图腾级,定制纹理和动画.",
+        "type": "数据包",
+        "features": {
+          "0": "8项独特的程序",
+          "1": "6 图腾级",
+          "2": "消防救援系统",
+          "3": "自定义纹理和动画"
+        }
+      },
+      "trials_of_the_wild": {
+        "type": "模块包",
+        "features": {
+          "0": "性能优化",
+          "1": "生活质量",
+          "2": "新内容和机械",
+          "3": "常规更新"
+        },
+        "title": "对野兽的审判",
+        "description": "硬核生存modpack 拥有~250探索,魔法,战斗,以及世界覆盖的mods. 包括图腾魔法的礼仪和大规模块存储的压缩."
+      },
+      "alloys": {
+        "title": "合金",
+        "description": "Minecraft 26.2+的十种幻想金属——奖金矿石滴,全工具具和装甲,香草添加剂. 数据包,伴奏资源包,以及可选纸插件.",
+        "type": "数据包+资源包",
+        "features": {
+          "0": "10 奇幻金属",
+          "1": "添加到香草上",
+          "2": "装满工具( A)",
+          "3": "可选纸张插件"
+        }
+      },
+      "tally": {
+        "features": {
+          "0": "10 255页",
+          "1": "六个补全标签",
+          "2": "现场奖励政策",
+          "3": "Tally 守护者的声音"
+        },
+        "title": "塔利语Name",
+        "description": "生存完成升级包,共10 255页,分6个标签,持有分级,XP和项目奖励,并为服务器所有者进行实时政策切换.",
+        "type": "数据包"
+      },
+      "shirecraft": {
+        "title": "手艺",
+        "description": "白名单纸 26.2 存续服务器带有自定义插件,数据包,以及资源包. 土地,供奉,塔利,压缩,以及社区驱动的城镇.",
+        "type": "矿产品服务器",
+        "features": {
+          "0": "白名单生存",
+          "1": "土地和国家",
+          "2": "自定义插件",
+          "3": "mc.idling.app:25567 (英语)"
+        }
+      },
+      "mods_hub": {
+        "type": "Full-Stack App (反应 + API)",
+        "features": {
+          "0": "语义版本",
+          "1": "高级搜索",
+          "2": "云存储",
+          "3": "直接下载"
+        },
+        "title": "模块枢纽",
+        "description": "配有React 19前端和Mods API后端的Full-stack Mod托管平台. 语义版,高级搜索,R2云存储,以及客户端加密."
+      },
+      "auth_service": {
+        "title": "认证服务",
+        "description": "多租户密码认证的后端API. 电子邮件 OTP, JWT 令牌, OpenAPI 3.1.0 spec. *. idling. app域的单一签名。 云浮华工.",
+        "type": "后端 API (云雾)",
+        "features": {
+          "0": "无密码检察官办公室",
+          "1": "多租户",
+          "2": "OpenAPI 光谱",
+          "3": "零信任安全"
+        }
+      },
+      "obs_animation_suite": {
+        "title": "OBS 动画套件",
+        "description": "OBS的前端控制面板有60个FPS动画源转换,文本循环,以及WebSocket控制. 由Svelte 5. Powers streamkit.idling.app所建. 星洲网.",
+        "type": "前端 App (Svelte) (英语)",
+        "features": {
+          "0": "60 FPS动画",
+          "1": "网络套件控制",
+          "2": "无依赖",
+          "3": "渐进 Web App"
+        }
+      },
+      "card_generator": {
+        "features": {
+          "0": "AI 功率布局",
+          "1": "自定义神通",
+          "2": "向导高级模式( A)",
+          "3": "配额管理"
+        },
+        "title": "神秘卡生成器",
+        "description": "前端软件用于创建惊人的社交媒体卡. AI-动力布局 定制的造型 神秘主题 向导和高级模式 。 与19号反应搭建.",
+        "type": "前端 App (反应)"
+      },
+      "svg_converter": {
+        "title": "SVG 到 PNG 转换器",
+        "description": "优质SVG到PNG转换的前端app. 自定义大小、批量处理、背景定制。 安全认证 与19号反应搭建.",
+        "type": "前端 App (反应)",
+        "features": {
+          "0": "高质量产出",
+          "1": "批处理",
+          "2": "自定义大小",
+          "3": "已验证的安全"
+        }
+      },
+      "url_shortener": {
+        "features": {
+          "0": "自定义 URL 代码",
+          "1": "点击分析",
+          "2": "地理跟踪",
+          "3": "自动过期"
+        },
+        "title": "URL 缩短",
+        "description": "装有 React 前端和 Cloudflare Worker 后端的全存储 URL 缩短器 。 点击分析,地理跟踪,自定义代码,自动失效.",
+        "type": "Full-Stack App (反应 + Cloudflare) (英语)"
+      },
+      "access_hub": {
+        "title": "访问枢纽",
+        "description": "中央RBAC的后端API. 广度权限,完整审计线索,定额管理,自动提供. 服务不可知论者. 云浮华工.",
+        "type": "后端 API (云雾)",
+        "features": {
+          "0": "RBAC 系统",
+          "1": "审计轨迹",
+          "2": "配额管理",
+          "3": "自动提供"
+        }
+      },
+      "shared_components": {
+        "title": "共享组件库",
+        "description": "具有React和Svelte变体的通用组件库. 包括工具提示,数据表,代码Block,多文件浏览器,状态Flair等. 故事书文献.",
+        "type": "通用软件包( NPM)",
+        "features": {
+          "0": "反弹 & Svelte",
+          "1": "故事书 Docs",
+          "2": "15+ 组件",
+          "3": "类型脚本支持"
+        }
+      },
+      "api_framework": {
+        "title": "API 框架",
+        "description": "企业级API框架通用软件包. 在Cloudflare工人和浏览器中工作. 类型安全客户端,请求解码,断路器,E2E加密. 国家防范机制一揽子计划.",
+        "type": "通用软件包( NPM)",
+        "features": {
+          "0": "类型安全客户端",
+          "1": "请求复制",
+          "2": "断路器",
+          "3": "E2E 加密"
+        }
+      },
+      "streamkit_api": {
+        "title": "流式 API",
+        "description": "OBS动画套装的后端API. 场景活动跟踪,布局同步,通过KV配置存储. Powers streamkit.idling. 应用后端. 云浮华工.",
+        "type": "后端 API (云雾)",
+        "features": {
+          "0": "现场活动跟踪",
+          "1": "配置同步",
+          "2": "KV 存储",
+          "3": "实时更新"
+        }
+      },
+      "search_query_parser": {
+        "title": "搜索查询解析器",
+        "description": "高级搜索查询解析的通用软件包 。 人性友好语法:引用短语,AND/OR逻辑,通配符. 反应和Svelte组件. 国家防范机制一揽子计划.",
+        "type": "通用软件包( NPM)",
+        "features": {
+          "0": "人类友好语法",
+          "1": "和/或逻辑",
+          "2": "通配符支持",
+          "3": "反弹 & Svelte"
+        }
+      }
+    }
+  },
+  "suite": {
+    "landing": {
+      "hero": {
+        "title": "Strixun 流套间",
+        "tagline": "专业流程工具和网络服务",
+        "description": "具有单一签注认证的开源应用综合生态系统. 任何*.idling.app域名上登入一次,你被认证到任何地方.",
+        "descriptionEmphasis": "麻省理工学院许可。 100%开放源代码. 隐私化.",
+        "viewOnGitHub": "在 GitHub 上查看"
+      },
+      "footer": {
+        "starOnGitHub": "GitHub 上的恒星",
+        "title": "准备好开始了吗?",
+        "description": "所有应用程序都是开源的,可以自由使用. 在GitHub上监视我们,加入我们的社区,帮助塑造流水工具的未来."
+      },
+      "productActions": {
+        "launchApp": "发射App →",
+        "learnMore": "学习更多"
+      },
+      "status": {
+        "live": "现场直播",
+        "beta": "贝塔",
+        "planned": "计划",
+        "development": "发展"
+      }
+    },
+    "products": {
+      "stream_suite": {
+        "name": "流套间",
+        "tagline": "专业OBS工作室控制面板",
+        "description": "以动画源的能见度,黄油烟雾源互换,以及即时布局预设来转变您的流动工作流程. 用WebSocket实时通信从美丽的网络界面控制一切. 以Svelte 5建造为进步Web App,用于本土类的表演.",
+        "keyFeatures": {
+          "0": "4 个效果类型的动画源转换( 淡化、 幻灯片、 缩放、 流行)",
+          "1": "具有7种样式和位置内存的智能源交换",
+          "2": "用于即时场景配置的一击布局预设",
+          "3": "带有打字机的文本循环器、 glitch 和 摇摆效果",
+          "4": "有WebSocket实时通信的基于网络的控制面板"
+        },
+        "highlights": {
+          "0": {
+            "label": "业绩",
+            "value": "60个FPS"
+          },
+          "1": {
+            "label": "延迟",
+            "value": "< 50 分钟"
+          },
+          "2": {
+            "label": "动画",
+            "value": "17岁以上"
+          }
+        }
+      },
+      "mods_hub": {
+        "keyFeatures": {
+          "0": "用拖放方式上传完整的 CRUD 操作",
+          "1": "带有自动更改日志的语义版本",
+          "2": "高级搜索:“类别:工具标记:优化更新:>7d”",
+          "3": "遍及各地的直接下载链接",
+          "4": "R2 云存储, 可选客户端加密"
+        },
+        "highlights": {
+          "0": {
+            "label": "上传速度",
+            "value": "即时"
+          },
+          "1": {
+            "label": "搜索",
+            "value": "实时"
+          },
+          "2": {
+            "label": "储存",
+            "value": "无限制"
+          }
+        },
+        "name": "模块枢纽",
+        "tagline": "现代模式托管平台",
+        "description": "带有CurseForge级特性但开源的Mod发行的未来. 完全语义版本,高级搜索与人性友好语法,R2云存储可选加密. 美丽的以黄金为主题的UI让Mod管理成为乐趣,而不是杂耍."
+      },
+      "auth_service": {
+        "highlights": {
+          "0": {
+            "label": "警卫",
+            "value": "零信任"
+          },
+          "1": {
+            "label": "设置 时间",
+            "value": "< 5分钟"
+          },
+          "2": {
+            "label": "时间",
+            "value": "99.9%"
+          }
+        },
+        "keyFeatures": {
+          "0": "通过电子邮件无密码的OTP - 没有密码存储风险",
+          "1": "JWT 标记与 Htp 只用于最大安全性的 cookie",
+          "2": "具有颗粒权限的多租户 API 密钥系统",
+          "3": "实时分析仪表板,由Svelte 5制造",
+          "4": "使用交互式 Swagger UI 完成 OpenAPI 3.1.0 光谱"
+        },
+        "name": "认证服务",
+        "tagline": "多用途检察官办公室 认证",
+        "description": "无密码认证成功 。 基于电子邮件的OTP,带有JWT标志,多用户API密钥,以及使集成变得微不足道的开发者仪表板. OpenAPI 3.1.0 Spec with Swagger UI 表示可以在几分钟内开始编码. 在所有 *.idling.app域上单签 - 登录一次,认证到任何地方."
+      },
+      "url_shortener": {
+        "name": "URL 缩短",
+        "keyFeatures": {
+          "0": "自定义可记忆的、方便品牌链接的 URL 代码",
+          "1": "实时点击地理跟踪分析",
+          "2": "临时链接的自动过期和清理",
+          "3": "与SSO整合的独立网络接口",
+          "4": "用于自动化和集成的直接API访问"
+        },
+        "highlights": {
+          "0": {
+            "label": "速度",
+            "value": "< 10 毫秒( x)"
+          },
+          "1": {
+            "label": "分析",
+            "value": "实时"
+          },
+          "2": {
+            "label": "时间",
+            "value": "99.99%"
+          }
+        },
+        "tagline": "与分析的短链接",
+        "description": "闪电快的URL缩短了Cloudflare工人的电源. 创建自定义品牌短链接,用地理数据和参考者信息跟踪每次点击,并从干净的网络界面管理一切. 自动过期会保持链接新鲜,分析师会告诉你什么是有效的."
+      },
+      "access_hub": {
+        "name": "访问枢纽",
+        "tagline": "访问控制板",
+        "keyFeatures": {
+          "0": "基于角色的自定义访问控制(RBAC)",
+          "1": "颗粒权限下至单个终点",
+          "2": "完成合规和安全审计线索",
+          "3": "每个用户或角色的配额管理",
+          "4": "无缝用户登机自动提供"
+        },
+        "highlights": {
+          "0": {
+            "label": "角色",
+            "value": "无限制"
+          },
+          "1": {
+            "label": "审计",
+            "value": "完成"
+          },
+          "2": {
+            "label": "设置",
+            "value": "即时"
+          }
+        },
+        "description": "集中控制所有服务 基于角色的许可,带有颗粒控制,完整的审计线索,以遵守,配额管理防止滥用. 服务不可知的设计意味着它与套房里的一切一起工作——一个系统来统治他们全部."
+      }
+    },
+    "details": {
+      "stream_suite": {
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "源动画",
+              "description": "以淡出,滑动,缩放,和流行效果的动画源能见度. 60 FPS的性能通过WebSocket与亚-50ms latency. 没有 OBS 时滞 - 所有动画都是黄油滑的."
+            },
+            "1": {
+              "title": "源交换",
+              "description": "动画位置和大小在来源之间的过渡. 7种不同的动画风格,每次都有位置内存进行完美的互换."
+            },
+            "2": {
+              "description": "在多源动画支持下保存并应用整个场景布局. 在流线、录音和自定义设置之间立即切换.",
+              "title": "布局预设"
+            },
+            "3": {
+              "title": "文本循环器",
+              "description": "动态文本效果的过渡包括淡出,幻灯片,打字机,闪烁,波浪,和摇摆. 完全适合警报和重叠."
+            },
+            "4": {
+              "title": "渐进 Web App",
+              "description": "安装为离线访问和本地应用体验的 PWA 。 多层存储系统(IndexedDB + localStorage + recovery)."
+            },
+            "5": {
+              "title": "统一控制面板",
+              "description": "一个网络码头控制一切 实时WebSocket与OBS Studio的通讯,以进行即时更新."
+            }
+          },
+          "title": "关键特性"
+        },
+        "builtWith": {
+          "title": "内置方式"
+        },
+        "a11y": {
+          "scrollForMore": "为更多内容滚动"
+        },
+        "hero": {
+          "ctaLaunch": "发射流套件 −",
+          "ctaViewSource": "查看来源",
+          "title": "流套间",
+          "tagline": "专业OBS工作室控制面板",
+          "mascotAlt": "红熊猫开发者"
+        },
+        "overview": {
+          "title": "什么是流套房?",
+          "description": "Stream Suite是一个综合性的OBS Studio控制面板,将专业级动画和自动化带入你的流动工作流程. 它与Svelte 5搭建,设计为进步Web App,以美丽,可定制的动画为您的OBS场景提供无缝控制."
+        }
+      },
+      "mods_hub": {
+        "hero": {
+          "title": "模块枢纽",
+          "tagline": "现代模式托管平台",
+          "mascotAlt": "红熊猫带礼物",
+          "statusBeta": "Beta——仍在积极发展之中",
+          "ctaLaunch": "启动 Mods 枢纽 −",
+          "ctaViewSource": "查看来源"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "模块上传管理( M)",
+              "description": "使用拖放接口上传、更新和管理您的模式。 用直观的UI进行完整的CRUD操作."
+            },
+            "1": {
+              "title": "语义版本",
+              "description": "有语义版本支持的完整版本控制. 跟踪更改,发布更新,并维护更改日志."
+            },
+            "2": {
+              "title": "高级搜索",
+              "description": "用 @strixun/search-query-parser 进行强大的搜索,支持分类,标记,引用的短语,AND/OR逻辑,以及通配符前缀匹配."
+            },
+            "3": {
+              "title": "直接下载链接",
+              "description": "在任何应用程序中共享直接下载链接 。 不重定向,不等待 - 用户即时下载."
+            },
+            "4": {
+              "title": "美丽的黄金UI",
+              "description": "惊人的黄金主题响应界面 以样式组件构建。 现代的,无障碍的, 和一个使用愉快的."
+            },
+            "5": {
+              "title": "R2 带有加密的云存储",
+              "description": "Cloudflare R2的存储有可选客户端加密,默认压缩,以及直接下载链接."
+            }
+          },
+          "title": "关键特性"
+        },
+        "extraSections": {
+          "0": {
+            "title": "三层国家建筑",
+            "description": "Mods Hub使用精密的三层状态模型来优化性能和开发者经验:",
+            "features": {
+              "0": {
+                "title": "信号层",
+                "description": "@ preact/signals- react for UI state - 组成字段,切换,以及带有自动反应的过滤器."
+              },
+              "1": {
+                "title": "分层",
+                "description": "Auth, UI 状态的全球客户端状态管理, 以及零锅炉板的通知."
+              },
+              "2": {
+                "title": "TanStack 查询层",
+                "description": "服务器状态管理有自动缓存,背景回溯,以及乐观的更新."
+              }
+            }
+          }
+        },
+        "overview": {
+          "title": "Mods Hub是什么来着?",
+          "description": "一个类似于Modrinth/CurseForge的现代Mod托管平台,由React 19和Cloudflare Workers建造. 美丽的金主题UI带有完整的语义版本,高级搜索与人类友好查询解析器,R2云存储与客户端加密."
+        },
+        "builtWith": {
+          "title": "内置方式"
+        },
+        "a11y": {
+          "scrollForMore": "为更多内容滚动"
+        }
+      },
+      "auth_service": {
+        "hero": {
+          "title": "认证服务",
+          "tagline": "多用途检察官办公室 认证",
+          "mascotAlt": "红熊猫大拇指",
+          "ctaLaunch": "发射Auth Service —",
+          "ctaViewSource": "查看来源"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "无密码检察官办公室",
+              "description": "基于电子邮件的一次性密码认证,没有密码存储. 安全,方便用户,并减少攻击表面."
+            },
+            "1": {
+              "title": "JWT 托肯管理",
+              "description": "工业标准JWT标志 与Http Only饼干 为了最大安全。 自动刷新和过期处理 ."
+            },
+            "2": {
+              "title": "API 密钥管理",
+              "description": "多租户API密钥系统,具有颗粒权限. 从开发者仪表板上创建,旋转,并吊销API密钥."
+            },
+            "3": {
+              "title": "分析盘",
+              "description": "与Svelte 5搭建,跟踪认证事件,监控使用,并以实时分析分析模式."
+            },
+            "4": {
+              "title": "OpenAPI 3.1.0 光谱",
+              "description": "使用 Swagger UI 集成完成 OpenAPI 规格. 交互式 API 文档以方便整合 ."
+            },
+            "5": {
+              "title": "单一签名",
+              "description": "SSO横跨所有 *. idling. app域与 Http Only cookie. 在任何服务上登入一次,在任何地方都认证."
+            }
+          },
+          "title": "关键特性"
+        },
+        "extraSections": {
+          "0": {
+            "title": "开发者- 第一设计",
+            "description": "Auth Service 提供开发人员需要的将安全认证纳入其应用程序的一切:",
+            "features": {
+              "0": {
+                "title": "可嵌入的 UI 组件",
+                "description": "React,Svelte,和香草JavaScript的滴入认证组件. 无需UI工作 ."
+              },
+              "1": {
+                "title": "综合文件",
+                "description": "PANDA CORE中300多页的文件,包括整合指南、API参考和安全最佳做法."
+              },
+              "2": {
+                "title": "完全测试覆盖",
+                "description": "与Playwright的E2E集成测试,与Vitest的单元测试,以及CI/CD工作流程以获得信心."
+              }
+            }
+          }
+        },
+        "overview": {
+          "title": "Auth服务是什么?",
+          "description": "在Cloudflare Workers上建立了一个多用户的OTP认证服务,通过Resend API提供基于电子邮件的无密码认证. 特征包括由Svelte 5制造的开发者仪表板,多租户API密钥管理,与Swagger UI的OpenAPI 3.1.0规格,以及审计记录. 在所有 *.idling. 应用域上使用 HttpOnly cookie 的单签名 ."
+        },
+        "builtWith": {
+          "title": "内置方式"
+        },
+        "a11y": {
+          "scrollForMore": "为更多内容滚动"
+        }
+      },
+      "access_hub": {
+        "hero": {
+          "title": "访问枢纽",
+          "tagline": "访问控制板",
+          "mascotAlt": "红熊猫自信",
+          "ctaLaunch": "发射接入枢纽 −",
+          "ctaViewSource": "查看来源"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "角色访问控制",
+              "description": "以颗粒权限定义和管理角色 。 指定用户承担各种服务的可扩展访问管理."
+            },
+            "1": {
+              "title": "权限管理",
+              "description": "查看所有可用的权限及其任务 。 精细控制用户能做什么和不能做什么."
+            },
+            "2": {
+              "title": "用户访问审计",
+              "description": "追踪谁能进入什么时间 完成合规和安全监测的审计线索."
+            },
+            "3": {
+              "title": "服务不可知设计",
+              "description": "在社会保障系统生态系统中从事任何服务。 所有应用程序和API的统一访问控制."
+            },
+            "4": {
+              "title": "配额管理",
+              "description": "监测和管理每个用户或角色的使用配额。 防止滥用并确保公平分配资源."
+            },
+            "5": {
+              "title": "简单, 干净的 UI",
+              "description": "直观的界面 让你离开。 直接API与Access Service后端集成."
+            }
+          },
+          "title": "关键特性"
+        },
+        "extraSections": {
+          "0": {
+            "features": {
+              "0": {
+                "title": "前端@ access.idling.app",
+                "description": "在Cloudflare Pages上部署反应18前端,通过GitHub Actions自动构建."
+              },
+              "1": {
+                "description": "Cloudflare Worker API 处理所有访问控制逻辑,存储,以及权限执行.",
+                "title": "后端@ access-api.idling.app"
+              }
+            },
+            "title": "结构模式",
+            "description": "Access Hub 遵循与 Mods Hub 相同的验证模式:"
+          }
+        },
+        "builtWith": {
+          "title": "内置方式"
+        },
+        "a11y": {
+          "scrollForMore": "为更多内容滚动"
+        },
+        "overview": {
+          "title": "什么是进入枢纽?",
+          "description": "Cloudflare Pages上部署的 Strixun 访问控制系统的最小前端 UI 。 使用干净,简单的界面查看所有可用的角色和权限. 后端API处理RBAC(基于作用的准入控制),许可管理,配额执行,以及自动提供 - 所有服务不可知并部署在Cloudflare工人上."
+        }
+      },
+      "url_shortener": {
+        "hero": {
+          "title": "URL 缩短",
+          "tagline": "与分析的短链接",
+          "mascotAlt": "红熊猫带太阳镜",
+          "ctaLaunch": "启动 URL 更短 □",
+          "ctaViewSource": "查看来源"
+        },
+        "keyFeatures": {
+          "title": "关键特性",
+          "features": {
+            "0": {
+              "title": "创建和管理简短的 URL( M)",
+              "description": "与自定义代码或自动生成的弹簧生成短链接. 管理您 URL 收藏的全部 CRUD 操作 ."
+            },
+            "1": {
+              "title": "点击分析",
+              "description": "音轨点击、裁判员和地理数据。 实时分析器存储在Cloudflare KV,用于即时透视."
+            },
+            "2": {
+              "title": "自定义 URL 代码",
+              "description": "选择你自己的短代码为可纪念的,方便品牌的链接. 自动验证可以防止碰撞."
+            },
+            "3": {
+              "title": "自动过期",
+              "description": "设定临时链接的终止日期 。 自动清理保存您的 URL 收藏新鲜且相关 ."
+            },
+            "4": {
+              "description": "与SSS品牌的美丽React网络界面. 从一个地方管理所有短链接 .",
+              "title": "独立的网络接口"
+            },
+            "5": {
+              "title": "检察官办公室认证",
+              "description": "与 Auth 服务集成,用于安全,无密码的认证. 所有SSS应用的SSO."
+            }
+          }
+        },
+        "builtWith": {
+          "title": "内置方式"
+        },
+        "a11y": {
+          "scrollForMore": "为更多内容滚动"
+        },
+        "overview": {
+          "title": "什么是 URL 缩短 ?",
+          "description": "基于Cloudflare Worker的URL通过共享的Strixun OTP组件,点击分析跟踪(IP,用户代理,参考器,地理数据)和独立的React web接口来缩短OTP认证服务. 使用Cloudflare KV进行子毫秒 URL 查看和自动基于 TTL 的过期,并有加密的 API 响应."
+        }
+      }
+    }
+  },
+  "portfolio": {
+    "showcase": {
+      "featuredLabel": "专辑",
+      "totalProjectsSuffix": "项目共计",
+      "showingPrefix": "显示",
+      "filterNavAria": "按类别过滤项目",
+      "eyebrow": "开源组合",
+      "title": "特色项目",
+      "subtitle": "单曲的曲解片——网络应用,桌面地图,Minecraft Mods,无服务器API,以及共享包."
+    },
+    "categories": {
+      "0": {
+        "id": "全体",
+        "label": "全体"
+      },
+      "1": {
+        "id": "矿产品",
+        "label": "矿产品"
+      },
+      "2": {
+        "id": "网络工具",
+        "label": "网络工具"
+      },
+      "3": {
+        "id": "社会",
+        "label": "社会"
+      },
+      "4": {
+        "id": "流线",
+        "label": "流线"
+      },
+      "5": {
+        "id": "赌博",
+        "label": "赌博"
+      },
+      "6": {
+        "id": "基础设施",
+        "label": "基础设施"
+      }
+    },
+    "about": {
+      "highlights": {
+        "0": {
+          "value": "38岁以上",
+          "label": "开源项目"
+        },
+        "1": {
+          "label": "网络应用程序",
+          "value": "页:1"
+        },
+        "2": {
+          "value": "页:1",
+          "label": "桌面映射应用程序"
+        },
+        "3": {
+          "value": "6个",
+          "label": "无服务器 API"
+        },
+        "4": {
+          "value": "第23条",
+          "label": "国家防范机制一揽子计划"
+        },
+        "5": {
+          "value": "页:1",
+          "label": "排雷项目"
+        }
+      },
+      "introAfterLink": "是下面所有东西的基地——开源、有文件记录和造船.",
+      "statsAria": "组合要点",
+      "sections": {
+        "0": {
+          "id": "采矿工具",
+          "title": "矿产品项目",
+          "highlights": {
+            "0": "压缩——无限块压缩(BuiltByBit + 遗留 Modrinth)",
+            "1": "提供——每日溢价套装彩票插件",
+            "2": "礼仪——神秘魔法数据包",
+            "3": "野兽实验——坚硬生存模式",
+            "4": "合金——十种幻想金属数据包",
+            "5": "Tally——10 000+升级完成包",
+            "6": "Shirecraft — 白名单生存服务器",
+            "7": "Mods Hub和Modrinth上数千次下载"
+          },
+          "links": {
+            "0": {
+              "href": "https://mods.idling.app(英语:",
+              "label": "模块枢纽"
+            }
+          }
+        },
+        "1": {
+          "id": "网络工具",
+          "title": "Web 应用程序工具( T)",
+          "highlights": {
+            "0": "卡片生成器——反应19前端",
+            "1": "SVG 转换器 — React 19 前端",
+            "2": "URL 缩短器 — React + Cloudflare 工作程序",
+            "3": "社会平台——Next.js 15 + PostgreSQL",
+            "4": "TypeScript, SSR, 以及全程的实时特性"
+          }
+        },
+        "2": {
+          "id": "映射",
+          "title": "映射——交互式地图",
+          "highlights": {
+            "0": "开放世界游戏和土豪运动的离线第一地图平台",
+            "1": "生活地图画布,标记,进度跟踪,统一搜索,测量工具",
+            "2": "标记制作器、 平板工作室和官方地图包",
+            "3": "桌面应用程序 — 没有登录, 没有云同步, 没有遥测"
+          },
+          "links": {
+            "0": {
+              "href": "https://short.army/mappy(英语:",
+              "label": "下载(短/短)"
+            },
+            "1": {
+              "href": "https://underwood-inc.github.io/mappy/wiki/(英语:",
+              "label": "玩家维基"
+            }
+          }
+        },
+        "3": {
+          "id": "流线",
+          "title": "生态系统的流化",
+          "highlights": {
+            "0": "OBS动画套件 — Svelte 5, 60 FPS, 17+效果, PWA",
+            "1": "Streamkit API——场景跟踪,配置同步,KV存储",
+            "2": "WebSocket 控制、布局预设、零依赖"
+          },
+          "links": {
+            "0": {
+              "href": "https://streamkit.idling.app(英语:",
+              "label": "streamkit.idling.应用程序"
+            }
+          }
+        },
+        "4": {
+          "links": {
+            "0": {
+              "href": "https://github.com/Underwood-Inc/strixun-stream-suite(英语:",
+              "label": "Strixun 流套间"
+            }
+          },
+          "id": "基础设施",
+          "title": "基础设施和APIs",
+          "highlights": {
+            "0": "6 Cloudflare 工人 APIs — Auth, Access, Mods, 客户 游戏, Streamkit",
+            "1": "23个国家预防机制软件包——共享组件、API框架、认证存储、搜索解析器等",
+            "2": "GitHub 上的 Monorepo 38+项目"
+          }
+        }
+      },
+      "eyebrow": "组合和生态系统",
+      "title": "顿! 我是史崔逊",
+      "tagline": "全渣开发商建设生产网络应用,Minecraft Mods,流线工具,云服务."
+    },
+    "ecosystem": {
+      "tabs": {
+        "0": {
+          "label": "系统概览",
+          "id": "概览"
+        },
+        "1": {
+          "id": "数据流",
+          "label": "数据流动"
+        },
+        "2": {
+          "id": "软件包",
+          "label": "一揽子生态系统"
+        }
+      },
+      "title": "生态系统结构",
+      "subtitle": "38+项目如何连接——下面选一个镜头",
+      "footer": {
+        "overview": "系统综述:7个网络/桌面应用(包括Mappy),6个Cloudflare工人API,6个Minecraft项目通过Mods API,并跨PostgreSQL,KV,R2和索引DB存储.",
+        "dataflow": "数据流:访问者,玩家,流线人,地图探险者各到达他们的应用表面. Web和mods使用API;Mappy与本地索引DB保持离线第一——不需要账户.",
+        "packages": "一揽子生态系统:23套国家防范机制包——核心框架、UI、公用事业、钩子和测试辅助工具——在React、Svelte和Cloudflare表面共享."
+      }
+    },
+    "stats": {
+      "quickLinksTitle": "快速链接",
+      "metrics": {
+        "modrinthProjects": "Modrinth 项目",
+        "modDownloads": "模式下载",
+        "modrinthFollowers": "Modrinth 跟踪器",
+        "githubStars": "GitHub 星号"
+      },
+      "quickLinks": {
+        "0": {
+          "href": "/ 证书生成器",
+          "label": "卡片生成器"
+        },
+        "1": {
+          "href": "/svg-转换器",
+          "label": "SVG 转换器"
+        },
+        "2": {
+          "href": "https://streamkit.idling.app(英语:",
+          "label": "OBS 套间"
+        },
+        "3": {
+          "href": "https://mods.idling.app(英语:",
+          "label": "模块枢纽"
+        },
+        "4": {
+          "href": "https://short.army/mappy(英语:",
+          "label": "映射"
+        },
+        "5": {
+          "href": "https://auth.idling.app(英语:",
+          "label": "认证服务"
+        },
+        "6": {
+          "href": "https://docs.idling.app(英语:",
+          "label": "文档"
+        },
+        "7": {
+          "href": "https://design.idling.app(英语:",
+          "label": "设计系统"
+        },
+        "8": {
+          "href": "https://short.army(英语:",
+          "label": "URL 缩短"
+        },
+        "9": {
+          "href": "https://access.idling.app(英语:",
+          "label": "访问枢纽"
+        },
+        "10": {
+          "href": "串流套间",
+          "label": "流套间"
+        },
+        "11": {
+          "href": "https://github.com/Underwood-Inc/strixun-stream-suite(英语:",
+          "label": "莫诺雷波(38+)"
+        },
+        "12": {
+          "href": "https://github.com/Underwood-Inc/idling.app__UI(英语:",
+          "label": "idling.应用 回收"
+        },
+        "13": {
+          "href": "https://discord.gg/mpThbx67J7(英语:",
+          "label": "调色板"
+        }
+      },
+      "privacyNote": "数字来自Modrinth,仅涵盖列出的Minecraft项目。 内建By 位购买和更新度量衡不公开 。 我们不跟踪我们其他应用程序的下载、活动或用户——通过设计,为隐私目的——因此这些项目没有公共衡量标准.",
+      "techCategories": {
+        "0": {
+          "title": "前端",
+          "badges": {
+            "0": "反应 19",
+            "1": "下一个.js 15",
+            "2": "斯维尔特 5",
+            "3": "类型脚本",
+            "4": "三个J"
+          }
+        },
+        "1": {
+          "title": "后端",
+          "badges": {
+            "0": "云旗工人",
+            "1": "节点.js",
+            "2": "网络安全套",
+            "3": "走开",
+            "4": "Py"
+          }
+        },
+        "2": {
+          "title": "数据库",
+          "badges": {
+            "0": "邮递SQL",
+            "1": "KV 存储",
+            "2": "R2 云层"
+          }
+        }
+      },
+      "modrinthMetricsTitle": "模拟量子",
+      "technologyStackTitle": "技术堆栈"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "管理板",
+      "tabs": {
+        "analytics": {
+          "label": "分析",
+          "description": "全球应用程序分析和用户行为跟踪"
+        },
+        "subscriptions": {
+          "label": "订阅",
+          "description": "管理订阅计划和用户订阅"
+        },
+        "permissions": {
+          "label": "权限",
+          "description": "配置系统权限和访问控制"
+        },
+        "alerts": {
+          "label": "自定义提醒",
+          "description": "管理系统提醒和通知"
+        },
+        "users": {
+          "label": "用户管理",
+          "description": "管理用户账户、角色和权限"
+        },
+        "emojis": {
+          "label": "爱莫吉核准",
+          "description": "批准或拒绝自定义的 emoji 呈件"
+        },
+        "quotas": {
+          "label": "客座配额",
+          "description": "配置访客用户配额和限制"
+        }
+      }
+    },
+    "subscription": {
+      "panelTitle": "订阅管理",
+      "panelDescription": "管理订阅计划、用户订阅和配额制度整合",
+      "tabs": {
+        "plans": "计划",
+        "subscriptions": "订阅",
+        "overview": "概览"
+      },
+      "overview": {
+        "totalPlans": "计划共计",
+        "activePlansSuffix": "活动",
+        "totalSubscriptions": "订阅共计",
+        "activeSuffix": "活动",
+        "trialUsers": "试用用户",
+        "currentlyTrialing": "审判中",
+        "monthlyRevenue": "月收入",
+        "recurringMonthly": "每月经常性",
+        "planDistribution": "计划分配",
+        "subscribersSuffix": "订户",
+        "loadingStats": "正在装入数据..."
+      },
+      "plans": {
+        "title": "订阅计划",
+        "createNewPlan": "创建新计划",
+        "createComingSoon": "即将创建计划功能 !",
+        "edit": "编辑",
+        "enable": "启用",
+        "disable": "禁用",
+        "free": "免费",
+        "periodMonth": "月数",
+        "periodYear": "年数",
+        "periodLifetime": "寿命"
+      },
+      "loadingData": "正在装入订阅数据...",
+      "systemNotAvailableTitle": "订阅系统不可用",
+      "systemNotAvailableBody": "订阅系统没有配置或可用 .",
+      "retry": "重试",
+      "subscriptions": {
+        "title": "用户订阅",
+        "assignSubscription": "指定订阅",
+        "searchPlaceholder": "搜索用户或计划...",
+        "allStatuses": "所有状态",
+        "allPlans": "所有计划",
+        "tableHeaders": {
+          "0": "用户",
+          "1": "计划",
+          "2": "状态",
+          "3": "计费",
+          "4": "过期",
+          "5": "由",
+          "6": "行动"
+        },
+        "edit": "编辑",
+        "cancel": "取消",
+        "previous": "上一个",
+        "next": "下一个"
+      },
+      "statusLabels": {
+        "active": "活动",
+        "trialing": "审判",
+        "cancelled": "已取消",
+        "expired": "过期",
+        "suspended": "暂停",
+        "pending": "待决"
+      }
+    },
+    "userManagement": {
+      "loadingUsers": "正在装入用户...",
+      "loadingMoreUsers": "正在装入更多用户...",
+      "retry": "重试",
+      "viewDetails": "查看细节",
+      "assignRole": "指定角色",
+      "manageSubscription": "管理订阅",
+      "manageQuota": "管理配额",
+      "unknownUser": "未知用户",
+      "panelTitle": "用户管理",
+      "panelDescription": "管理用户账户、角色、订阅和权限",
+      "filters": "过滤器",
+      "exportAll": "全部导出",
+      "searchPlaceholder": "按姓名、电子邮件或身份证搜索用户..."
+    },
+    "customAlerts": {
+      "panelTitle": "自定义提醒管理",
+      "panelDescription": "为不同的用户组创建、编辑和管理自定义提醒",
+      "createNewAlert": "创建新提醒",
+      "createFirstAlert": "创建第一个提醒",
+      "emptyTitle": "没有自定义提醒",
+      "emptyBody": "创建您的第一个自定义提示以开始与您的用户接触 !",
+      "editAlert": "编辑提醒",
+      "createAlert": "创建提醒",
+      "updateAlert": "更新提醒",
+      "cancel": "取消",
+      "retry": "重试",
+      "signInAgain": "再次签名",
+      "signIn": "签名",
+      "goHome": "滚回家",
+      "errorLoadingTitle": "装入提醒出错",
+      "authRequiredTitle": "需要认证",
+      "authRequiredBody": "您需要登录访问管理员面板 .",
+      "targetAudiences": {
+        "admins": "管理员",
+        "role_based": "基于角色",
+        "specific_users": "特定用户",
+        "all": "所有用户",
+        "authenticated": "认证用户",
+        "subscribers": "订阅者"
+      },
+      "active": "活动",
+      "published": "已出版",
+      "adminAccessTitle": "需要行政访问",
+      "adminAccessBody": "您没有权限访问此管理员功能 ."
+    },
+    "analytics": {
+      "title": "分析盘",
+      "loading": "正在装入分析数据...",
+      "errorTitle": "分析错误",
+      "retry": "重试",
+      "refresh": "刷新",
+      "tabs": {
+        "overview": "概览",
+        "geography": "地理",
+        "devices": "设备",
+        "heatmap": "加热图",
+        "subscriptions": "订阅"
+      },
+      "dateRangeLabel": "日期范围 :",
+      "dateRanges": {
+        "7d": "过去7天",
+        "30d": "过去30天",
+        "90d": "过去90天",
+        "1y": "上个年份"
+      },
+      "metrics": {
+        "totalSessions": "会议总数",
+        "uniqueUsers": "独一无二的用户",
+        "pageViews": "页视图",
+        "totalClicks": "点击总数",
+        "avgSessionDuration": "Avg 会期",
+        "bounceRate": "弹跳率",
+        "vpnUsage": "VPN 使用量",
+        "conversionRate": "换算率",
+        "metricChangeSample": "比上期增加12.5%"
+      },
+      "sections": {
+        "trafficTrends": "交通趋势",
+        "topCountries": "顶级国家",
+        "topCities": "顶级城市",
+        "vpnProxyUsage": "VPN 代理用户",
+        "vpnSessions": "VPN 届会",
+        "proxySessions": "代理会话",
+        "torSessions": "Tor 会话",
+        "vpnPercentage": "VPN 百分比",
+        "topVpnProviders": "顶级 VPN 供应商",
+        "deviceTypes": "设备类型",
+        "browsers": "浏览器",
+        "operatingSystems": "操作系统",
+        "topPagesByClicks": "点击顶页",
+        "clickPatterns": "单击模式",
+        "planPerformance": "计划执行情况",
+        "conversionFunnel": "转换漏斗",
+        "revenueImpact": "收入影响",
+        "totalAttributedRevenue": "分配收入共计",
+        "averageRevenuePerUser": "每用户平均收入"
+      },
+      "chart": {
+        "sessionsLabel": "会话 :",
+        "pageviewsLabel": "页面视图 :",
+        "clicksLabel": "点击:"
+      },
+      "subscriptionMetrics": {
+        "views": "视图 :",
+        "conversions": "转换:",
+        "conversionRate": "换算率 :"
+      }
+    },
+    "emojis": {
+      "statusLabel": "状态 :",
+      "statusOptions": {
+        "all": "所有状态",
+        "pending": "待决",
+        "approved": "核定数",
+        "rejected": "被拒绝"
+      },
+      "title": "爱莫吉管理",
+      "searchPlaceholder": "搜索emojis,用户,或分类...",
+      "search": "搜索",
+      "selectedCount": "选中",
+      "bulkApprove": "批量核准",
+      "loading": "正在装入情感...",
+      "createdPrefix": "创建时间 :",
+      "descriptionPrefix": "说明 :",
+      "approve": "核准",
+      "reject": "拒绝",
+      "delete": "删除",
+      "previous": "上一个",
+      "next": "下一个",
+      "pageOf": "页次",
+      "rejectModalTitle": "拒绝Emoji",
+      "rejectReasonLabel": "驳回理由:",
+      "selectAll": "全部选择",
+      "empty": "找不到当前过滤器的 emojis .",
+      "noImage": "无图像",
+      "byPrefix": "通过:",
+      "categoryPrefix": "类别 :",
+      "rejectReasonPlaceholder": "请提供拒绝这种情感的理由...",
+      "cancel": "取消",
+      "rejectEmoji": "拒绝Emoji",
+      "deleteConfirm": "您确定要永久删除此 emoji 吗 ?"
+    },
+    "permissions": {
+      "subtitle": "与企业级安全有关的全面许可和角色管理",
+      "createPermission": "创建新权限",
+      "createRole": "创建新角色",
+      "tabs": {
+        "permissions": "权限",
+        "roles": "角色",
+        "audit": "审计轨迹"
+      },
+      "loading": "正在装入",
+      "auditTitle": "审计轨迹",
+      "auditComingSoon": "全面审计记录即将到来...",
+      "noResultsTitle": "没有",
+      "title": "权限管理系统",
+      "noResultsFiltered": "尝试调整搜索标准或过滤器 .",
+      "noResultsEmptyPermission": "创建您启动的第一个权限 .",
+      "noResultsEmptyRole": "创建您的第一个角色开始 .",
+      "searchPlaceholder": "搜索"
+    },
+    "guestQuotas": {
+      "title": "全球客座配额管理",
+      "loading": "正在装入全球嘉宾配额...",
+      "addNewQuota": "添加新配额",
+      "createTitle": "创建全局嘉宾配额",
+      "currentQuotasTitle": "当前全球嘉宾配额",
+      "emptyList": "未配置全局嘉宾配额 。 客家用户会使用系统默认.",
+      "howItWorksBullets": {
+        "0": "优先级:全球配额适用于无特定用户的匿名用户",
+        "1": "地物水平:为不同的服务/地物设定不同的配额,以避免意外影响",
+        "2": "基于IP:配额通过IP地址和可选机器指纹跟踪",
+        "3": "重置周期:选择小时、每日、每周或每月重置周期",
+        "4": "无限制: 检查“ 无限制” 以完全取消配额限制"
+      },
+      "unlimitedPlaceholder": "无限制输入 0",
+      "descriptionPlaceholder": "此配额的可选描述",
+      "unlimitedPlaceholderShort": "无限制输入 0",
+      "descriptionPlaceholderShort": "可选说明",
+      "howItWorksTitle": "全球客人配额如何运作:"
+    }
+  },
+  "settings": {
+    "categories": {
+      "behavior": {
+        "title": "行为",
+        "description": "控制网站的行为和反应"
+      },
+      "accessibility": {
+        "title": "无障碍",
+        "description": "让网站更方便大家使用"
+      },
+      "background": {
+        "title": "背景效果",
+        "description": "自定义动画空间背景"
+      },
+      "appearance": {
+        "title": "外观",
+        "description": "定制网站的外观和感觉"
+      },
+      "privacy": {
+        "title": "隐私配置文件( P)",
+        "description": "控制您的剖面可见度和数据"
+      }
+    },
+    "page": {
+      "title": "设置",
+      "description": "定制您的经验和喜好",
+      "loading": "正在装入设置..."
+    },
+    "account": {
+      "signedInAsPrefix": "签名",
+      "syncNote": "跨设备同步设置",
+      "notSignedIn": "未签名",
+      "localOnlyNote": "仅本地保存的设置"
+    },
+    "appearance": {
+      "fontFamily": {
+        "reading": {
+          "label": "阅读",
+          "description": "系统字体 - 眼睛容易"
+        },
+        "cardTitle": "字体家族",
+        "code": {
+          "label": "代码",
+          "description": "Fira 代码 - 完美的编码"
+        }
+      },
+      "displayDensity": {
+        "cardTitle": "显示密度",
+        "cozy": {
+          "label": "舒适",
+          "description": "间距增加, 更容易阅读"
+        },
+        "compact": {
+          "label": "压缩",
+          "description": "缩短间隔,增加内容"
+        }
+      }
+    },
+    "behavior": {
+      "pageNavigation": {
+        "cardTitle": "页导航",
+        "traditional": {
+          "label": "传统",
+          "description": "下一页/上一页的页码"
+        },
+        "infiniteScroll": {
+          "label": "无限滚动",
+          "description": "滚动时自动加载内容"
+        }
+      },
+      "emojiPanel": {
+        "cardTitle": "Emoji小组",
+        "closeAfterSelect": {
+          "label": "选择后关闭",
+          "description": "选择一个emoji后小组关闭"
+        },
+        "stayOpen": {
+          "label": "继续打开",
+          "description": "关闭前选择多个情感"
+        }
+      }
+    },
+    "accessibility": {
+      "focusIndicators": {
+        "enabled": {
+          "label": "已启用",
+          "description": "显示键盘导航的焦点框架"
+        },
+        "cardTitle": "重点指标",
+        "disabled": {
+          "label": "已禁用",
+          "description": "干净的视觉设计,没有焦点大纲"
+        }
+      }
+    },
+    "background": {
+      "movementDirection": {
+        "cardTitle": "移动方向",
+        "static": {
+          "label": "静态",
+          "description": "无动静"
+        },
+        "left": {
+          "description": "左边漂流",
+          "label": "左边"
+        },
+        "right": {
+          "label": "对",
+          "description": "右转"
+        },
+        "up": {
+          "label": "上来",
+          "description": "漂流起来"
+        },
+        "forward": {
+          "label": "前进",
+          "description": "飞在前面"
+        },
+        "backward": {
+          "label": "向后转",
+          "description": "后退 后退 后退 后退"
+        },
+        "down": {
+          "label": "下来",
+          "description": "漂流下来"
+        }
+      },
+      "movementSpeed": {
+        "normal": {
+          "label": "常规",
+          "description": "标准速度"
+        },
+        "fast": {
+          "label": "快点",
+          "description": "高速"
+        },
+        "cardTitle": "移动速度",
+        "slow": {
+          "label": "慢点",
+          "description": "放松节奏"
+        }
+      },
+      "audioReactivity": {
+        "cardTitle": "背景音频反应",
+        "hint": "银河系背景如何强烈地响应无线电回放. 0%保持静态背景;100%是完全反应.",
+        "rangeLabel": "反应强度",
+        "tickOff": "关",
+        "tickFull": "满"
+      },
+      "animationLayers": {
+        "cardTitle": "动画图层",
+        "enabledCountSuffix": "5个已启用",
+        "stars": "恒星数",
+        "particles": "文章",
+        "nebula": "星云",
+        "planets": "行星",
+        "aurora": "奥罗拉"
+      }
+    },
+    "privacy": {
+      "profileVisibility": {
+        "private": {
+          "description": "隐藏于他人的配置文件",
+          "label": "私营"
+        },
+        "cardTitle": "配置文件可见度",
+        "public": {
+          "label": "公开",
+          "description": "人人可见的配置"
+        }
+      }
+    },
+    "common": {
+      "on": "打开",
+      "off": "关",
+      "enabled": "已启用",
+      "disabled": "已禁用"
+    }
+  },
+  "tools": {
+    "cardGenerator": {
+      "welcome": {
+        "loadPreviousDescription": "获取现有一代",
+        "initializing": "初始化的神秘能量...",
+        "generationIdLabel": "生成代号 :",
+        "loadPlaceholder": "粘贴您的世代 ID在这里...",
+        "load": "装入",
+        "title": "输入神秘创造王国",
+        "intro": "古老的能量等待你的命令。 选择你的神圣道路 编织魔法社交媒体卡 祝福神秘几何和深刻的智慧.",
+        "createNew": "创建新",
+        "createNewDescription": "生成新的神秘卡片",
+        "loadPrevious": "装入上一个",
+        "generationIdHint": "世代ID看起来像:",
+        "quotaReached": "每日达到配额!",
+        "upgradeCta": "无限世代升级为Pro"
+      },
+      "wizard": {
+        "steps": {
+          "basicConfiguration": "基本配置",
+          "proConfiguration": "Pro 配置",
+          "confirmAndGenerate": "确认生成( G)",
+          "platformSelection": "平台选择"
+        },
+        "stepDescriptions": {
+          "platform": "选择卡片的平台和宽度比",
+          "basic": "配置卡片的主要内容",
+          "pro": "具有 Pro 特性的微调高级设置",
+          "confirm": "审查您的配置并生成卡片"
+        },
+        "labels": {
+          "mainSeed": "主种子",
+          "avatarSeed": "阿凡达种子",
+          "author": "作者",
+          "quote": "引用",
+          "customWidth": "自定义宽度",
+          "customHeight": "自定义高度",
+          "shapeCount": "形状计数"
+        },
+        "choosePlatformTitle": "选择您的平台",
+        "choosePlatformBody": "选择您将共享卡片的平台 。 每个平台都优化了尺寸,以达到最佳的视觉效果.",
+        "loadingAspectRatios": "正在装入宽度比...",
+        "placeholders": {
+          "random": "空留随机",
+          "randomQuote": "留空用于随机启发引用",
+          "auto": "自动"
+        },
+        "cancel": "取消",
+        "previous": "上一个",
+        "next": "下一个",
+        "generateCard": "生成卡",
+        "generating": "正在生成...",
+        "hints": {
+          "pattern": "控制总体设计模式",
+          "avatar": "控制外观设计",
+          "author": "说这句话的人",
+          "quote": "您的卡片灵感信息"
+        },
+        "reviewTitle": "审查生成( G)",
+        "dailyQuotaExceeded": "每日配额超额",
+        "upgradeForUnlimited": "升级到Pro,为无限世代和先进的特性!",
+        "wizardTitle": "卡片生成向导",
+        "basicEmptyNote": "为随机生成留下空域 .",
+        "goToStepPrefix": "转到",
+        "proStep": {
+          "subscriptionNote": "这一步骤包含了仅提供给Pro订阅者的高级功能. 有基本配置的向导模式是完全免费的!",
+          "upgradeTitle": "升级到 Pro",
+          "upgradeBody": "这一步骤包含了仅提供给Pro订阅者的高级功能. 有基本配置的向导模式是完全免费的!",
+          "proFeatureSuffix": "(原始内容)",
+          "widthHint": "自定义像素宽度",
+          "heightHint": "自定义像素高度",
+          "shapeCountHint": "背景形状数",
+          "shapeCountPlaceholder": "第8条"
+        },
+        "confirmStep": {
+          "body": "检查您的配置并生成神秘卡 .",
+          "sections": {
+            "platform": "平台",
+            "content": "内容",
+            "seeds": "种子",
+            "proSettings": "方案设置"
+          },
+          "labels": {
+            "avatar": "阿凡达:",
+            "width": "宽度 :",
+            "height": "高度 :",
+            "shapes": "形状 :",
+            "format": "格式 :",
+            "dimensions": "尺寸 :",
+            "author": "作者 :",
+            "quote": "引语:",
+            "main": "主语:"
+          },
+          "randomValue": "随机"
+        }
+      },
+      "generationForm": {
+        "configuration": "配置",
+        "viewingLoadedGeneration": "查看装入的生成",
+        "readOnlyBanner": "此配置只读 。 创建新一代进行修改.",
+        "freeConfiguration": "免费配置",
+        "proConfigurationOptions": "Pro 配置选项",
+        "proBadge": "支持",
+        "hideDetails": "隐藏细节",
+        "showDetails": "显示细节",
+        "labels": {
+          "mainSeed": "主种子",
+          "avatarSeed": "阿凡达种子",
+          "author": "作者",
+          "quote": "引用",
+          "aspectRatio": "外观比",
+          "width": "宽度",
+          "height": "高度",
+          "shapeCount": "形状计数"
+        },
+        "placeholders": {
+          "customSeed": "输入自定义种子...",
+          "autoSeed": "自动生成种子",
+          "avatarSeed": "自定义avatar 种子( 空留随机)",
+          "quoteAuthor": "引用作者( 为随机留空)",
+          "customQuote": "输入自定义引号( 留空用于随机引用)",
+          "auto": "自动",
+          "shapeCountDefault": "第8条",
+          "avatarSeedUsesMain": "留空以使用主种子"
+        },
+        "randomizeAll": "全部随机化",
+        "generateImage": "生成图像",
+        "generating": "正在生成...",
+        "readOnlyGeneration": "仅读生成",
+        "loadingAspectRatios": "正在装入宽度比...",
+        "seedActions": {
+          "save": "保存种子",
+          "cancelEdit": "取消编辑",
+          "editMain": "编辑种子",
+          "editAvatar": "编辑阿凡达种子"
+        }
+      },
+      "advancedControls": {
+        "overlayBody": "准确控制你的神秘卡片的方方面面!",
+        "upgradeButton": "移动到 Archmage",
+        "sections": {
+          "avatarPositioning": "阿凡达定位",
+          "textLayout": "文本布局",
+          "visualEffects": "视觉效果",
+          "patternMagic": "图案魔法",
+          "watermarkControls": "水印控制器"
+        },
+        "paywallTitle": "解锁高级魔法",
+        "paywallBody": "获得对Avatar定位,文本布局,视觉造型的精确控制,更多与Pro订阅.",
+        "upgradeLink": "升级到 Pro",
+        "overlayTitle": "解锁高级魔法",
+        "labels": {
+          "avatarX": "阿凡达十世",
+          "avatarY": "阿凡达 Y",
+          "avatarSize": "阿凡达大小",
+          "textMaxWidth": "文本最大宽度",
+          "textStartY": "文字开始 Y",
+          "textPadding": "文本铺设",
+          "fontSize": "字体大小",
+          "lineHeight": "线条高度",
+          "watermarkText": "水印文字",
+          "position": "立场",
+          "rotationDegrees": "旋转(度)",
+          "size": "大小",
+          "opacityPercent": "不透明度(%)",
+          "borderOpacity": "边界不透明",
+          "borderColor": "边框颜色",
+          "patternSeed": "种子图案",
+          "glassBackground": "玻璃背景效果",
+          "enableWatermark": "启用自定义水印"
+        },
+        "placeholders": {
+          "auto": "自动",
+          "textPadding": "30个",
+          "lineHeight": "1.4 国家",
+          "borderOpacity": "0.7 (简体中文)",
+          "patternSeed": "自动生成",
+          "watermarkText": "https://idling.app/card-generator(英语:",
+          "rotation": "-25号",
+          "watermarkSize": "第 16 条",
+          "watermarkOpacity": "15个"
+        },
+        "watermarkPositions": {
+          "top-left": "左边",
+          "top-right": "右上边",
+          "bottom-left": "左下边",
+          "bottom-right": "右下边",
+          "center": "中间",
+          "repeated": "重复模式"
+        }
+      }
+    },
+    "svgConverter": {
+      "page": {
+        "title": "SVG 到 PNG 转换器",
+        "features": {
+          "0": "高质量巴布亚新几内亚产出",
+          "1": "自定义缩放尺寸( V)",
+          "2": "安全鉴定",
+          "3": "批处理",
+          "4": "背景定制",
+          "5": "实时进度"
+        },
+        "supportedTitle": "支助",
+        "formats": {
+          "inputLabel": "输入 :",
+          "inputValue": "特别志愿人员小组",
+          "outputLabel": "输出 :",
+          "outputValue": "巴布亚新几内亚",
+          "maxSizeLabel": "最大大小 :",
+          "maxSizeValue": "10MB (英语)",
+          "batchLabel": "批次 :",
+          "batchValue": "10个文件"
+        },
+        "tipsTitle": "提示",
+        "tips": {
+          "0": "删除用于安全的脚本标记",
+          "1": "使用简单的 SVG 以更快的转换",
+          "2": "质量较高 = 文件大小较大",
+          "3": "尝试视网膜显示的 2x 缩放"
+        },
+        "signedInTitle": "签名",
+        "signedInNoLimits": "没有注册用户的转换限制",
+        "description": "将您的 SVG 矢量图形转换成高质量的 PNG 图像, 具有自定义的尺寸、 质量设置和批量处理能力 .",
+        "conversionFailed": "转换失败",
+        "dismiss": "开除",
+        "featuresTitle": "特征"
+      },
+      "interface": {
+        "title": "将 SVG 转换为 PNG",
+        "subtitle": "上传 SVG 文件或粘贴 SVG 代码以启动",
+        "uploadFile": "上传文件",
+        "pasteCode": "粘贴代码",
+        "uploadPromptStrong": "单击上传",
+        "uploadPromptRest": "或拖动和投放",
+        "uploadHint": "只有 SVG 文件, 最大为 10MB",
+        "svgCodeLabel": "SVG 代码 :",
+        "svgCodePlaceholder": "在此粘贴您的 SVG 代码...",
+        "backgroundLabel": "背景情况:",
+        "backgroundOptions": {
+          "0": "透明",
+          "1": "白色",
+          "2": "黑色",
+          "3": "浅灰色"
+        },
+        "errors": {
+          "readFailed": "读取文件失败",
+          "dropSvg": "请放弃 SVG 文件",
+          "provideContent": "请提供 SVG 内容",
+          "selectSvg": "请选择 SVG 文件",
+          "fileTooLarge": "文件大小必须小于 10MB"
+        },
+        "convertToPng": "转换为 PNG",
+        "converting": "正在转换...",
+        "initializing": "正在初始化...",
+        "svgTagsHint": "确保您的 SVG 包含适当的打开和关闭标记",
+        "conversionOptionsTitle": "转换选项",
+        "filenameLabel": "文件名 :",
+        "qualityLabel": "质量",
+        "scaleLabel": "缩放"
+      }
+    }
+  },
+  "profile": {
+    "private": {
+      "title": "私人简介",
+      "message": "此用户将其配置设置为私有 。 只有他们才能查看自己的简介信息."
+    },
+    "metadata": {
+      "invalidUrlTitle": "无效的配置文件 URL QQ Idling. app",
+      "invalidUrlDescription": "配置文件 URL 只能使用数据库标识 .",
+      "notFoundTitle": "用户未找到 QQ Idling. app",
+      "notFoundDescription": "找不到请求的用户配置文件 .",
+      "privateTitle": "私人简介 QQ Idling.app",
+      "privateDescription": "此用户将其配置设置为私有 .",
+      "publicTitleSuffix": "- 用户简介 QQ Idling. app",
+      "publicOpenGraphTitleSuffix": "- 简介",
+      "publicFallbackDescription": "查看 {name}的简介,活动数据,以及Idling.app上的贡献.",
+      "publicFallbackOpenGraphDescription": "在idling.app上查看 {name}的简介和活动.",
+      "productNotFoundTitle": "产品"
+    },
+    "notFound": {
+      "message": "抱歉 我们找不到你要找的用户配置 如果:",
+      "reasons": {
+        "0": "用户名不存在",
+        "1": "用户已删除他们的账户",
+        "2": "配置文件 URL 不正确",
+        "3": "用户配置设置为私有"
+      },
+      "iconAria": "未找到用户",
+      "title": "未找到用户",
+      "goHome": "滚回家",
+      "searchTitle": "搜索用户",
+      "searchDescription": "尝试搜索您要找的用户 :",
+      "searchPlaceholder": "通过名称或电子邮件搜索用户...",
+      "helpTitle": "帮助",
+      "helpSearchLabel": "搜索",
+      "helpSearchDescription": "使用上面的搜索查找用户名或电子邮件",
+      "helpProductsLabel": "产品",
+      "helpProductsDescription": "浏览应用程序和模式的主线条"
+    },
+    "pageUi": {
+      "testDecorationsTitle": "用户名装饰测试( 只有admin)",
+      "subscriptionsTitle": "订阅",
+      "freeTierMessage": "免费等级用户",
+      "decorationOptions": {
+        "0": {
+          "value": "",
+          "label": "无"
+        },
+        "1": {
+          "value": "企业",
+          "label": "企业王室"
+        },
+        "2": {
+          "value": "溢价-银河",
+          "label": "银河系统"
+        },
+        "3": {
+          "value": "亲质a",
+          "label": "亲等离子体"
+        },
+        "4": {
+          "value": "活动光度",
+          "label": "活动 glow"
+        },
+        "5": {
+          "value": "审判程序",
+          "label": "试验脉冲"
+        }
+      },
+      "adminDecorationTitle": "用户名装饰测试",
+      "adminDecorationDescription": "在配置页面测试不同的用户名装饰",
+      "adminDecorationNote": "这是一个测试特性, 只能被管理员在自己的配置中看到",
+      "previewLabel": "预览 :",
+      "demoUserFallback": "演示用户",
+      "testDecorationsButton": "测试用户名装饰"
+    }
+  },
+  "subscription": {
+    "page": {
+      "title": "订阅",
+      "subtitle": "选择你的计划",
+      "subtitleQuota": "升级以继续生成emojis",
+      "loading": "正在装入订阅选项...",
+      "loadingData": "正在装入订阅数据...",
+      "errorHeading": "错误",
+      "noDataHeading": "无可用数据",
+      "noDataBody": "无法装入订阅数据 .",
+      "returnHome": "回归家园",
+      "quotaBannerTitle": "达到每日限制",
+      "advancedOptions": "高级选项 :",
+      "yes": "对",
+      "no": "没有",
+      "subscribeNow": "现在订阅",
+      "backToGenerator": "回到Emoji 发电机",
+      "quotaBannerBody": "你达到了你每天的世代极限。 升级为Pro 继续生成无限制日代的emojis.",
+      "whatYouGet": "你得到的东西是:",
+      "dailyLimitLabel": "每日限制 :",
+      "currentLimitsTitle": "您的当前限制( 自由计划 ) :",
+      "dailyGenerations": "代日报:",
+      "fetchFailed": "装入订阅数据失败"
+    },
+    "metadata": {
+      "title": "订阅 QQ Idling.app",
+      "description": "选择一个计划并升级您的 idling. app 订阅 ."
+    }
+  },
+  "radio": {
+    "aria": {
+      "searchStations": "搜索站的名称、描述或流派",
+      "clearSearch": "清空车站搜索",
+      "filterByGenre": "通过流派过滤",
+      "stations": "车站",
+      "playerSettings": "玩家设置",
+      "player": "无线电播放器",
+      "chooseStation": "选择一个站点",
+      "fullscreenVisualizerStyle": "全屏可视化器样式",
+      "fullscreenVisualizerStyles": "全屏可视化器样式",
+      "waveLineStyle": "波形线条样式",
+      "oscilloscopeSmoothing": "振荡波平滑",
+      "barFillStyle": "列填充样式",
+      "barTrailStyle": "条线索样式",
+      "barGlow": "栏光",
+      "visualizerColors": "可视化器颜色",
+      "spectrumVisualizerColors": "光谱可视化器颜色",
+      "fullscreenSpectrumOpacity": "全屏频谱不透明",
+      "fullscreenVisualizerHeight": "全屏可视化器高度",
+      "barVisualizerLook": "边框可视化器外观",
+      "barVisualizerStyles": "边框可视化器样式",
+      "controlBarVisualizerLayout": "控制列可视化器布局",
+      "controlBarVisualizerOpacity": "控制栏可视化器不透明",
+      "barSpacing": "栏间距",
+      "stationTransport": "车站运输",
+      "previousStation": "前一个车站",
+      "nextStation": "下一个车站",
+      "dragToWidenText": "拖放以扩大车站和跟踪文本 。 双击重置 .",
+      "play": "播放",
+      "pause": "暂停",
+      "mute": "静音",
+      "unmute": "解密",
+      "volume": "音量",
+      "volumeScrollHint": "卷-要调整的卷轴",
+      "enterFullscreen": "输入全屏",
+      "exitFullscreen": "退出全屏幕",
+      "openFullscreenVisualizer": "打开全屏可视化",
+      "exitFullscreenVisualizer": "退出全屏可视化器",
+      "equalizer": "平衡器",
+      "equalizerPresets": "均衡器预设",
+      "customEqualizerPresets": "自定义均衡器预设",
+      "equalizerBands": "均衡带",
+      "fullTrackTitle": "全音轨标题",
+      "dragToResizePanel": "拖曳以调整面板大小 。 双击重置高度 .",
+      "recheckStationPrefix": "重新检查",
+      "changeStationPrefix": "换站——现开通",
+      "nowOnSuffix": "",
+      "trackTitleTrigger": "现在播放: {track}. 点击以显示完整标题 .",
+      "checkingStreamTitle": "正在检查流",
+      "changeStationTitle": "换站",
+      "playerSettingsTitle": "玩家设置",
+      "searchWebForTrack": "搜索网络中的 {query}",
+      "findTrackTitle": "查找“{query}”",
+      "addFavorite": "在最爱中添加 {stationName} ",
+      "removeFavorite": "从最爱中删除 {stationName} "
+    },
+    "equalizer": {
+      "reset": "重设",
+      "resetAriaPrefix": "重置等效器为",
+      "title": "平衡器",
+      "load": "装入",
+      "save": "保存",
+      "delete": "删除",
+      "customSlotDefault": "自定义 {slot}",
+      "loadPresetAria": "装入 {label}",
+      "emptySlotAria": "自定义预设位置 {slot} 为空",
+      "slotEmptyTitle": "槽 {slot} 为空",
+      "nameSlotAria": "自定义预设槽的名称 {slot}",
+      "confirm": "确认",
+      "cancel": "取消",
+      "matchExact": "这些滑动器设置完全匹配 {label} . 选择预设而不是手动复制 .",
+      "matchNear": "这些滑动器设置接近 {label}. 考虑选择预设.",
+      "deleteConfirm": "删除已保存的预设“{label}” ? 这一点是无法消除的.",
+      "presets": {
+        "bass-boost": "贝斯助推",
+        "treble-boost": "双倍助推",
+        "vocal": "声音",
+        "rock": "摇滚",
+        "jazz": "爵士乐",
+        "flat": "平面",
+        "electronic": "电子",
+        "podcast": "播音员"
+      },
+      "saveToAria": "将当前 EQ 保存到 {label}",
+      "deletePresetAria": "删除已保存的预设 {label}",
+      "confirmDeleteAria": "确认删除 {label}",
+      "cancelDeleteAria": "取消 {label}的删除"
+    },
+    "bar": {
+      "pressPlayToStart": "按下播放开始",
+      "searchPlaceholder": "搜索站... (\"法国电台\"或#jazz)",
+      "checkingStationsOne": "正在检查1个车站..",
+      "checkingStationsMany": "正在检查 {count} 台站..",
+      "filterAll": "全体",
+      "filterFavorites": "爱好",
+      "filterUnreachable": "无法达到",
+      "recheckAll": "全部重新检查",
+      "emptyUnreachable": "没有无法到达的站台匹配此过滤器 .",
+      "emptyFavorites": "没有最喜欢的站台匹配此过滤器 .",
+      "emptySearchPrefix": "没有站台匹配",
+      "checkingStreamAvailability": "正在检查流可用性.."
+    },
+    "settings": {
+      "look": "听着",
+      "none": "无",
+      "waveStyle": "波浪风格",
+      "waveSmoothing": "波浪滑动",
+      "barFill": "栏填充",
+      "barTrail": "条线索",
+      "barGlow": "栏光",
+      "barColors": "条形颜色",
+      "spectrumColors": "光谱颜色",
+      "spectrumOpacity": "光谱不透明",
+      "spectrumHeight": "光谱高度",
+      "barLayout": "条形布局",
+      "opacity": "不透明度",
+      "density": "密度",
+      "barStyle": "条形样式",
+      "trail": "轨迹",
+      "glow": "光线",
+      "colors": "颜色",
+      "visualizerHeight": "视觉器高度",
+      "webglUnavailableFallback": "此浏览器中没有 WebGL2 可视化器 .",
+      "language": "语言"
+    },
+    "visualizer": {
+      "line": "行线",
+      "ribbon": "丝带",
+      "solid": "固态",
+      "soft": "软",
+      "theme": "主题",
+      "prism": "棱镜",
+      "compact": "压缩",
+      "normal": "常规",
+      "wide": "宽",
+      "fullBackground": "完整背景情况",
+      "inlineStrip": "内含条",
+      "glass": "眼镜",
+      "none": "无",
+      "peaks": "峰顶",
+      "cascade": "连锁店",
+      "off": "关"
+    },
+    "genres": {
+      "ambient": "环境",
+      "classical": "经典",
+      "community": "社区",
+      "custom": "自定义",
+      "eclectic": "电竞",
+      "electronic": "电子",
+      "jazz": "爵士乐",
+      "news": "新闻谈话( T)",
+      "public": "公共广播电台"
+    },
+    "bpm": {
+      "label": "BPM 组合",
+      "paused": "暂停时没有时间",
+      "silent": "溪水里现在没有明显的节拍",
+      "stable": "时间 {bpm} 每分钟的节拍",
+      "estimating": "近似节奏 {bpm} 每分钟节拍",
+      "listening": "在溪边听拍子"
+    },
+    "presetLabels": {
+      "webgl": {
+        "starry-horizon": {
+          "label": "星际视野",
+          "description": "低地平线上的黄金到黄金 EQ 天空线——在平静的水中镜像星光之夜"
+        },
+        "spectrum-bars": {
+          "label": "光谱条",
+          "description": "经典全宽 EQ 列"
+        },
+        "mirror-bars": {
+          "label": "镜像栏",
+          "description": "中间对称频谱列"
+        },
+        "netrunner-grid": {
+          "label": "净运行网格",
+          "description": "3D网络大道——两侧的霓虹塔在滚动网格之上"
+        },
+        "radial-spectrum": {
+          "label": "放射光谱",
+          "description": "装满屏幕的大圆形分析器"
+        },
+        "waveform-path": {
+          "label": "波形路径",
+          "description": "带有磷脂痕迹的示波器中风"
+        },
+        "liquid-merge": {
+          "label": "液体合并",
+          "description": "缓慢漂移的颜色块, 伸展、 相遇和合并, 当它们穿过屏幕时"
+        },
+        "neon-constellation": {
+          "label": "霓虹星座",
+          "description": "球状的霓虹网,它的顶点和与音乐的交织"
+        }
+      },
+      "bar": {
+        "idling-bars": {
+          "label": "频率栏",
+          "description": "带有填充和跟踪选项的经典频谱条"
+        },
+        "scope": {
+          "label": "示波器",
+          "description": "活波形跟踪"
+        },
+        "mirror": {
+          "label": "镜像",
+          "description": "对称反射"
+        },
+        "wave": {
+          "label": "挥手",
+          "description": "频率波线或丝带"
+        },
+        "dots": {
+          "label": "点",
+          "description": "反应粒子点"
+        },
+        "thread-weave": {
+          "label": "线织",
+          "description": "连接的流线"
+        },
+        "drift-mist": {
+          "label": "漂浮雾",
+          "description": "层状雾带"
+        },
+        "arc": {
+          "label": "弧形",
+          "description": "放射弧环"
+        }
+      },
+      "spectrum": {
+        "dual-steel-prism": "双声道",
+        "radial-prism": "放射棱镜",
+        "octave-classic": "八边形栏",
+        "mirror-rainbow": "镜彩虹",
+        "led-orangered": "LED 频谱",
+        "graph-steel": "波形图"
+      }
+    }
+  }
+}

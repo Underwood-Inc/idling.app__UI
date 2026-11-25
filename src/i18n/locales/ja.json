@@ -1,0 +1,2470 @@
+{
+  "locale": {
+    "pickerLabel": "用語集",
+    "pickerAria": "表示言語の選択"
+  },
+  "messageTicker": {
+    "separator": "—",
+    "loading": "ローディング..",
+    "empty": "息を飲む.",
+    "openQuoteAria": "完全な引用符を開けて下さい",
+    "modalTitle": "インフォメーション",
+    "closeModalAria": "引用符を閉じる"
+  },
+  "nav": {
+    "externalLinkAria": "外部リンク",
+    "groups": {
+      "TOOLS": "ツール",
+      "EXTERNAL": "外部リンク"
+    },
+    "routes": {
+      "ROOT": "ホーム >",
+      "CARD_GENERATOR": "カード発電機",
+      "SVG_CONVERTER": "SVG から PNG",
+      "GALAXY": "ギャラクシー",
+      "MAPPY": "地図ピー",
+      "COINS": "コイン",
+      "GAME": "ゲーム",
+      "SIGNIN": "サインイン",
+      "CALLBACK": "コールバック",
+      "ADMIN": "アドミン",
+      "STRIXUN_STREAM_SUITE": "Strixun Stream Suite, オーストラリア",
+      "STREAM_SUITE": "ストリームスイート",
+      "MODS_HUB": "Mods ハブ",
+      "AUTH_SERVICE": "Auth サービス",
+      "URL_SHORTENER": "URL短縮剤",
+      "ACCESS_HUB": "アクセスハブ",
+      "STREAM_SUITE_DETAIL": "ストリームスイートの詳細",
+      "MODS_HUB_DETAIL": "Mods ハブの細部",
+      "AUTH_SERVICE_DETAIL": "Auth サービスの詳細",
+      "URL_SHORTENER_DETAIL": "URL短縮剤 詳細",
+      "ACCESS_HUB_DETAIL": "アクセスハブの詳細"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "loginWithProviderPrefix": "ログイン",
+      "signOut": "サインアップ"
+    },
+    "signInNav": "サインイン",
+    "oauthConflict": {
+      "title": "既にリンクされているアカウント",
+      "whatWouldYouLike": "お問い合わせ?",
+      "option1Title": "オプション1:異なるアカウントでサインインする",
+      "option1DescriptionSignin": "このプロバイダーアカウントがリンクされていない別のアカウントでサインインしてサインインします.",
+      "option1ButtonSignin": "サインアップ & 異なるアカウントでサインイン",
+      "option2Title": "オプション2:このアカウントをアンインストールして再リンクする",
+      "option2Description": "このプロバイダーアカウントを他のユーザーから非リンクし、現在のアカウントにリンクすることができます.",
+      "option2Button": "アカウントのリンク解除と再リンク",
+      "option3Title": "オプション3: コンタクトサポート",
+      "option3Description": "この問題解決のお手伝いが必要な場合は、サポートチームがお手伝いします.",
+      "option3Button": "コンタクトサポート",
+      "goHome": "ホーム"
+    },
+    "callback": {
+      "authErrorTitle": "認証エラー",
+      "completingSignIn": "サインアップ.",
+      "completingSignInWithProvider": "サインイン",
+      "waitMessage": "アカウントの設定が完了したらお待ちください.",
+      "redirectingShortly": "短時間であなたをリダイレクト...",
+      "tryAgain": "お問い合わせ",
+      "goHome": "ホーム",
+      "errors": {
+        "oauthSignin": "OAuth のサインイン処理でエラーが発生しました.",
+        "oauthCallback": "OAuth コールバック中にエラーが発生しました.",
+        "oauthCreateAccount": "OAuth アカウントを作成できません.",
+        "emailCreateAccount": "メールアカウントを作成できません.",
+        "callback": "コールバックハンドラにエラーがありました.",
+        "emailSignin": "サインインリンクのメールアドレスを確認してください.",
+        "credentialsSignin": "提供された無効な資格情報.",
+        "sessionRequired": "このページにアクセスする.",
+        "unexpected": "予期しない認証エラーが発生しました."
+      },
+      "accountAlreadyLinkedTitle": "既にリンクされているアカウント",
+      "oauthConflict": {
+        "option1Title": "オプション1:既存のアカウントにサインインする",
+        "option1Description": "他のアカウントを覚えている場合は、その代わりにサインインしてください.",
+        "option1Button": "異なるアカウントでサインイン"
+      },
+      "signInDifferentAccount": "異なるアカウントでサインイン"
+    },
+    "unlink": {
+      "cancel": "キャンセル",
+      "needHelp": "お問い合わせ?",
+      "howItWorksTitle": "この作品の使い方:",
+      "howItWorksSteps": {
+        "0": "現在、このプロバイダーアカウントがリンクしているアカウントを見つけます",
+        "1": "そのアカウントからリンクを解除します",
+        "2": "現在のアカウントにリンクすることができます",
+        "3": "このプロセスは安全であり、データを削除しません"
+      },
+      "importantNotesTitle": "重要なノート:",
+      "importantNotes": {
+        "0": "これは、OAuth プロバイダをアンインストールするだけでなく、任意のユーザーアカウントを削除します",
+        "1": "アカウントデータとサブスクリプション状態が保存されます",
+        "2": "プロセスを完了するために他のアカウントでサインインする必要があります",
+        "3": "他のアカウントにアクセスできない場合は、サポートにお問い合わせください"
+      },
+      "title": "OAuthアカウントをアンインストールする",
+      "subtitle": "紛争をリンクするアカウントを解決する",
+      "aboutTitle": "紛争をリンクするアカウントについて",
+      "aboutBody": "既に他のアカウントにリンクしている OAuth プロバイダー (Google や Twitch など) でサインインしようとすると、この競合を解決する必要があります."
+    },
+    "signInPage": {
+      "headline": "Idlingアプリへようこそ",
+      "subtitle": "好みのサインイン方法を選んでください"
+    }
+  },
+  "search": {
+    "findUsersPlaceholder": "ユーザーの検索."
+  },
+  "mobile": {
+    "brandTitle": "アイドリングアプリ",
+    "closeMenuAria": "モバイルメニューを閉じる",
+    "menuAria": "モバイルナビゲーションメニュー"
+  },
+  "footer": {
+    "docs": "ドキュメント",
+    "discord": "ディスコード",
+    "discordAria": "Discordサーバーに参加する"
+  },
+  "home": {
+    "masthead": {
+      "title": "サイトマップ 変更。 ツール。 ラジオ.",
+      "line": "ゲーム、改造、ツールのストリーミング、コミュニティ - あなたが準備しているとき、以下の各製品にはツアーやライブアプリがあります.",
+      "ctaSeeLineup": "ラインナップを見る"
+    },
+    "minecraftBand": {
+      "title": "Minecraft プロジェクト",
+      "line": "プラグイン、データパック、ホワイトリストサーバ — Modrinth と BuildByBit と同じラインナップ."
+    },
+    "hubEyebrow": {
+      "windowsProprietary": "Windowsアプリ・独自"
+    },
+    "status": {
+      "wip": "進行状況"
+    },
+    "homeLinks": {
+      "open": "アクセス",
+      "getIt": "お問い合わせ",
+      "modsHub": "Mods ハブ",
+      "modrinth": "モドリンス",
+      "tour": "ツアー"
+    },
+    "outboundLinks": {
+      "live": "ライブアプリ",
+      "builtByBit": "ビルドバイビット",
+      "modsHub": "Mods ハブ",
+      "modrinth": "モドリンス",
+      "demo": "製品ツアー",
+      "github": "GitHubで"
+    },
+    "outboundVariants": {
+      "inDepthTour": "詳細なツアー",
+      "launchLiveApp": "ライブアプリの起動"
+    },
+    "minecraftMore": {
+      "productTour": "製品ツアー",
+      "seeTour": "ツアーを見る",
+      "modrinthPage": "Modrinth ページ",
+      "builtByBitListing": "ビルドバイ ビットリスト",
+      "onIdlingApp": "Idling.app で"
+    },
+    "hooks": {
+      "overlane": "ETS2&ATSテレメトリー.",
+      "mappy": "オフラインマップ.",
+      "compressy": "スタックブロック×32.",
+      "offerings": "毎日のサーバー宝くじ.",
+      "rituals": "光ファイアーマジック.",
+      "trials_of_the_wild": "〜250-mod生存.",
+      "alloys": "10のfantasyの金属.",
+      "tally": "10k+の進歩.",
+      "shirecraft": "ホワイトリストの生存.",
+      "obs_animation_suite": "60 FPSストリームシーン.",
+      "mods_hub": "ホストおよび船の改造.",
+      "auth_service": "コードでサインインします.",
+      "card_generator": "ソーシャルカードの高速化.",
+      "svg_converter": "SVG → PNG.",
+      "url_shortener": "ショートリンク+ステータス.",
+      "access_hub": "役割と権限.",
+      "shared_components": "反応+スヴェルトキット.",
+      "api_framework": "Typed API クライアント.",
+      "streamkit_api": "OBSシーンの同期.",
+      "search_query_parser": "スマート検索構文."
+    },
+    "audience": {
+      "overlane": "ライブテレメトリー、検索可能なアーカイブ、ダッシュボードチャート、および何百万人もの観測のためのハイブリッドホット/コールドストレージ — ETS2 と ATS PC、クラウドアカウントなし.",
+      "mappy": "オープンワールドゲームやテーブルトップキャンペーンのオフラインマップ — サインインせずに探索、マーク、測定.",
+      "mods_hub": "MinecraftのMODをダウンロードし、プレーヤーのために構築された場所から参照してください.",
+      "compressy": "Minecraftのブロックのスタックを圧縮して、ストレージとビルドが管理できるようにします.",
+      "obs_animation_suite": "スムーズなシーンスイッチとアニメーションソースでOBSをブラウザから制御します.",
+      "offerings": "Minecraftサーバー上の毎日のキット宝くじ.",
+      "rituals": "光ファイア魔法と儀式データパック.",
+      "shirecraft": "Shirecraftのホワイトリスト生存.",
+      "trials_of_the_wild": "ハードコア 生存 modpack と 数百 の mods.",
+      "alloys": "見つけ、鍛造する10のfantasyの金属.",
+      "tally": "生存中に追跡する何千もの進歩."
+    },
+    "hub": {
+      "overlane": {
+        "headline": "テレメトリー、オーバーレイ、およびETS2&ATSのドライブアーカイブ.",
+        "pitch": "ユーロトラックシミュレータ2とアメリカのトラックシミュレータの横にある1つのWindowsアプリ:ライブテレメトリーコンソール、検索可能なマイルバイマイルアーカイブ、ダッシュボードチャートとロールアップ、OBS対応オーバーレイパネル。 PC(メモリーレーン)上のハイブリッドホット/コールドストレージは、何百万もの運転観察を検索可能にし、コンソールレスポンシブ - セッションジャーナルは、クラウドアカウントが含まれていません.",
+        "learnMoreLabel": "製品概要",
+        "visualAlt": "オーバーレーンアプリのアイコン — テレメトリーとオーバーレイをトラック",
+        "highlights": {
+          "overlane__0__telemetry_console": {
+            "title": "テレメトリーコンソール",
+            "body": "ライブ速度、燃料、ギア、走行距離計、およびドック可能なコンソールでのアクティブ契約 - OBSに露出するオーバーレイURLと同じフィールド."
+          },
+          "overlane__1__drive_archive": {
+            "title": "ドライブアーカイブ",
+            "body": "任意のセッションを検索可能なタイムラインに記録します。 同様のスナップショットをフォールドし、任意のマイルで検査官を開き、罰金と配達を目に見える保ちます."
+          },
+          "overlane__2__dashboard_charts": {
+            "title": "ダッシュボードとチャート",
+            "body": "ロールアップレイアウトを保存し、チャートのアーカイブは時間とともに広がり、それを引き起こしたアーカイブの瞬間に戻ってチャート上のスパイクからジャンプします."
+          },
+          "overlane__3__hot_cold_storage": {
+            "title": "ホット/コールドストレージ",
+            "body": "メモリ レーンは、古い観察が冷たい列ファイルとローカルインデックスに層を帯びながら、最近の事実をホットレジャーに保ちます。1台のマシンで数千行に応答を維持するために構築されています."
+          },
+          "overlane__4__stream_overlays": {
+            "title": "ストリームオーバーレイ",
+            "body": "ローカルホストのブラウザソースのURLをコピーして、速度、物語、ジョブパネル、およびカタログの残りの部分をコピーします。メトリックはコンソールと同期します."
+          }
+        }
+      },
+      "mappy": {
+        "headline": "オフラインで動作する地図.",
+        "pitch": "オフラインファーストのマップワークスペースで、オープンワールドゲーム、ホームブライダルキャンペーン、カスタムの領域を実現します。 公式のマップパック、マーカーをドロップし、進捗状況を追跡し、レイヤーを横断検索し、距離を測定する - ログインなしでデスクトップアプリとテレメトリーなし.",
+        "learnMoreLabel": "プレイヤーウィキツアー",
+        "visualAlt": "mappy — 生きたキャンバスマップワークスペースのスクリーンショット",
+        "highlights": {
+          "mappy__0__offline_map_workspace": {
+            "title": "オフラインマップワークスペース",
+            "body": "パン、ズーム、レイヤー、静的パックとして保持するマップの進捗状況を追跡します。当社のサーバーからライブタイルはありません."
+          },
+          "mappy__1__marker_maker_tile_studio": {
+            "title": "マーカーメーカー&タイルスタジオ",
+            "body": "著者のマーカー、メディアの注釈、およびアプリ内のカスタムタイル、その後、あなたのキャンペーンと共有またはアーカイブできるパックをエクスポートします."
+          },
+          "mappy__2__unified_search": {
+            "title": "ユニファイド検索",
+            "body": "散布したファイルやwikiを介した代わりに、マーカー、地域、メモを検索します."
+          },
+          "mappy__3__measure_progress": {
+            "title": "測定と進捗",
+            "body": "ルーラーとルートの計画のためのパスツール。公式のパックまたはあなた自身の領域を渡る完了を追跡します."
+          }
+        }
+      },
+      "mods_hub": {
+        "headline": "あなたの商品、家.",
+        "pitch": "オープンソースのMODホスティングは、セマンティックなバージョン管理、高度な検索構文、およびR2バックアップストレージです。 ドラッグアンドドロップでアップロードし、直接ダウンロードリンクを出荷し、オプションでパッケージクライアント側を暗号化します。つまり、FTPフォルダではなく、プレイヤーや著者のために構築されたゴールドテーマUIです.",
+        "learnMoreLabel": "プラットフォームディープダイブ",
+        "visualAlt": "Mods Hub — mod ホスティング プラットフォーム アートワーク",
+        "highlights": {
+          "mods-hub__0__authoring_workflow": {
+            "title": "ワークフローの承認",
+            "body": "ドラッグアンドドロップでプロジェクトを作成、バージョンをアップロードし、保存パスに触れることなくメタデータを編集します."
+          },
+          "mods-hub__1__semantic_versions": {
+            "title": "Semanticバージョン",
+            "body": "変更履歴でSemverリリースを出荷するので、プレイヤーはビルド間で何が変更されたのかを正確に把握できます."
+          },
+          "mods-hub__2__search_syntax": {
+            "title": "構文検索",
+            "body": "カテゴリ:tools タグ:最適化更新:>7d — キーワードボックスではなく、人間に優しいクエリでフィルタリングします."
+          },
+          "mods-hub__3__downloads_encryption": {
+            "title": "ダウンロードと暗号化",
+            "body": "直接CDNリンクは、ランチャーやブラウザで動作します。 R2でプライベートパッケージが必要な場合は、オプションのクライアント側暗号化."
+          }
+        }
+      },
+      "offerings": {
+        "headline": "紙サーバー用の毎日のキット宝くじ.",
+        "pitch": "ペーパーとスパイゴットのためのプレミアム毎日の報酬:重みのあるルートティア、ストリーク、マイルストーン、達成、フルインゲーム管理ハブ。 Shirecraft で毎日キットを出力します。テーブル、パーミッション、LuckPerms は、YAML を手動で編集せずに使用できます.",
+        "learnMoreLabel": "リスト&詳細",
+        "visualAlt": "デイリーウェイトキット宝くじ(公式製品アートワーク)",
+        "highlights": {
+          "offerings__0__weighted_lottery": {
+            "title": "重ねられた宝くじ",
+            "body": "Tiered lootテーブルから毎日のキットをロールするので、一般的な報酬は一般的であり、ジャックポットはまれにとどまります."
+          },
+          "offerings__1__streaks_milestones": {
+            "title": "ストール&マイルストーン",
+            "body": "プレイヤーのストリークを追跡し、マイルストーンのアンロックを解除し、達成を追跡するので、レギュラーは1回オフではなく、数週間にわたって報われていると感じます."
+          },
+          "offerings__2__in_game_admin": {
+            "title": "ゲーム管理者",
+            "body": "チューンテーブル、プレビューロール、サーバーから誤った設定を修復するだけでなく、コンソールやフラットファイルからのみ."
+          },
+          "offerings__3__luckperms_ready": {
+            "title": "LuckPerms 対応",
+            "body": "パーミッション・アウェアは、ランク、ドナー・ティア、スタッフのバイパス・ルールが明示的かつ監査可能です."
+          }
+        }
+      },
+      "obs_animation_suite": {
+        "headline": "ストリームシーンをアニメーション化します.",
+        "pitch": "Svelte 5 のプログレッシブ Web アプリから OBS を制御する: アニメーション ソースの移行, レイアウト メモリと交換スマート ソース, ワン クリックプリセット, タイプ ライターとグリッチ 効果を持つテキスト サイクル. リアルタイムのWebSocketは、60 FPSで50msのレイテンシで制御します.",
+        "learnMoreLabel": "ストリームスイートツアー",
+        "visualAlt": "OBSアニメーションスイート — ストリームコントロールアートワーク",
+        "highlights": {
+          "obs-animation-suite__0__source_transitions": {
+            "title": "ソース移行",
+            "body": "Fade, Slide, ズーム, OBS ソース間のポップアップ 60 FPS すべてのレイアウト変更のための手編集シーンなし."
+          },
+          "obs-animation-suite__1__smart_swapping": {
+            "title": "スマートスワップ",
+            "body": "セブンスワップスタイルは、ポジションとサイズを記憶し、セグメント(カメラ、BRB、アラート)を瞬時にスナップします."
+          },
+          "obs-animation-suite__2__layout_presets": {
+            "title": "レイアウトプリセット",
+            "body": "フルシーンのレイアウトをプリセットとして保存し、ストリーム中にWebパネルからそれらをリコール - OBSの手動ハントの代わりにワンクリック."
+          },
+          "obs-animation-suite__3__text_cycler": {
+            "title": "テキスト サイクル",
+            "body": "タイトルを回転させ、タイプライター、グリッチ、スクランブル効果を同じコントロールパネルから動かします."
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "site": {
+      "defaultTitle": "アイドリングアプリ",
+      "titleTemplate": "%s | アイドリングアプリ",
+      "description": "創造性と表現のためのデジタルプレイグラウンド",
+      "keywords": {
+        "0": "クリエイティブ",
+        "1": "パスワード",
+        "2": "デジタル",
+        "3": "プレイグラウンド"
+      },
+      "authorName": "アイドリングアプリ スタッフ",
+      "creator": "アイドリングアプリ",
+      "publisher": "アイドリングアプリ",
+      "openGraphTitle": "アイドリングアプリ",
+      "openGraphDescription": "創造性と表現のためのデジタルプレイグラウンド",
+      "siteName": "アイドリングアプリ",
+      "twitterTitle": "アイドリングアプリ",
+      "twitterDescription": "創造性と表現のためのデジタルプレイグラウンド",
+      "twitterCreator": "@idlingapp からのツイート"
+    },
+    "pages": {
+      "adminTitle": "管理者ダッシュボード - Idling.app",
+      "adminDescription": "ユーザー、コンテンツ、絵文字の管理のための管理ダッシュボード",
+      "signInHeadline": "Idlingアプリへようこそ",
+      "signInSubtitle": "好みのサインイン方法を選んでください",
+      "portfolioTitle": "カタログ・エコシステム",
+      "portfolioDescription": "フルIDling.appカタログ: Strixun、エコシステム図、フィルタリング可能なプロジェクト、アクティビティ、ライブ統計.",
+      "subscriptionTitle": "サブスクリプション | Idling.app",
+      "subscriptionDescription": "プランを選択し、idling.appサブスクリプションをアップグレードします."
+    }
+  },
+  "common": {
+    "actions": {
+      "save": "保存する",
+      "saving": "保存...",
+      "cancel": "キャンセル",
+      "loading": "ローディング...",
+      "tryAgain": "お問い合わせ",
+      "goHome": "ホーム",
+      "returnHome": "返品について",
+      "close": "ふりがな",
+      "dismiss": "免責事項",
+      "retry": "リトリート",
+      "back": "バックナンバー",
+      "signIn": "サインイン",
+      "signOut": "サインアップ",
+      "expand": "プロモーション",
+      "collapse": "ログイン",
+      "next": "次へ →",
+      "previous": "← 前へ",
+      "load": "ログイン",
+      "backHome": "← 帰宅"
+    },
+    "backButton": {
+      "defaultLabel": "← 戻る",
+      "titleWithPage": "前のページに戻る (page {page})",
+      "titleGoBack": "戻る"
+    }
+  },
+  "errors": {
+    "globalError": {
+      "title": "重大なエラー",
+      "criticalMessage": "アプリケーションのロード中に重要なエラーが発生しました.",
+      "unknownError": "未知のエラー",
+      "errorIdLabel": "エラーID:",
+      "tryAgain": "お問い合わせ",
+      "goHome": "ホーム"
+    },
+    "notFound": {
+      "code": "404の",
+      "title": "ページが見つかりません",
+      "message": "あなたが探しているページは存在しません、または移動されています。 おそらく、ウィザードは他の場所でそれをテレポートしましたか?",
+      "returnHome": "返品について"
+    },
+    "routeError": {
+      "title": "オップス! 何かが間違っていた",
+      "fallbackMessage": "このページをロードする際に予期しないエラーが発生しました.",
+      "errorIdLabel": "エラーID:",
+      "tryAgain": "お問い合わせ"
+    },
+    "profileNotFound": {
+      "userNotFoundAria": "ユーザーが見つかりません",
+      "title": "ユーザーが見つかりません",
+      "message": "お探しのユーザープロフィールが見つかりませんでした。 これは、次の場合に起こりうる:",
+      "reasons": {
+        "0": "ユーザー名は存在しません",
+        "1": "ユーザーはアカウントを削除しました",
+        "2": "プロファイルURLが間違っています",
+        "3": "ユーザーのプロファイルはプライベートに設定されます"
+      },
+      "searchDescription": "あなたが探しているユーザーを検索してみてください:",
+      "searchPlaceholder": "ユーザー名または電子メールでユーザーを検索します.",
+      "helpTitle": "お問い合わせ",
+      "helpSearchLabel": "インフォメーション",
+      "helpSearchDescription": "上記の検索を使用して、名前または電子メールでユーザーを検索します",
+      "goHome": "ホーム",
+      "searchTitle": "ユーザーの検索",
+      "helpProductsLabel": "製品情報",
+      "helpProductsDescription": "アプリやアプリのホームラインアップをブラウズ"
+    }
+  },
+  "catalog": {
+    "showcase": {
+      "overlane": {
+        "features": {
+          "0": "ライブテレメトリーコンソール",
+          "1": "アーカイブ検索と検査",
+          "2": "ダッシュボードチャートとロールアップ",
+          "3": "ホット/コールドのローカルストレージ",
+          "4": "OBS対応オーバーレイパネル"
+        },
+        "title": "オーバーレーン",
+        "description": "テレメトリーコンソール、検索可能なドライブのアーカイブ、ダッシュボードチャート、およびETS2とATSのオーバーレイをストリームします。 ハイブリッドホット/コールドのローカルストレージは、何百万もの観測をスケールアップします。 OBSブラウザソース、セッションジャーナル、クラウドアカウントはありません.",
+        "type": "Windowsデスクトップアプリ"
+      },
+      "mappy": {
+        "title": "地図ピー",
+        "description": "オフライン初のインタラクティブマッププラットフォームで、オープンワールドゲーム、ホームブライクキャンペーン、カスタムの領域に対応。 マーカーのコルパス、進捗追跡、統一された検索、測定ツール、および作成 — 静的ファイルのみ、アプリケーションバックエンドなし.",
+        "type": "デスクトップアプリ",
+        "features": {
+          "0": "オフラインファーストマップ",
+          "1": "マーカーメーカー&タイルスタジオ",
+          "2": "公式マップパック",
+          "3": "ログイン不要 必須"
+        }
+      },
+      "compressy": {
+        "features": {
+          "0": "無限圧縮",
+          "1": "すべてのブロックで動作します",
+          "2": "最大32層",
+          "3": "オートメーションの友好的"
+        },
+        "title": "コンプレッサー",
+        "description": "Minecraft 26.2+ 用のInfiniteブロック圧縮をPaperプラグインとしてブロックします。 9ブロックを1、最大32層に圧縮し、豪華なツールチップとローマ数字で表示します。 レガシーファブリックはModrinthに残ります.",
+        "type": "ペーパープラグイン・レガシーファブリック"
+      },
+      "offerings": {
+        "title": "オファー",
+        "description": "ペーパー/スピゴットのためのプレミアム毎日のキット宝くじ - 重ねられた層、ルートテーブル、縞、マイルストーン、達成、フルゲーム管理者。 Shirecraft で毎日報酬を受け取りましょう.",
+        "type": "ペーパープラグイン(BuiltByBit)",
+        "features": {
+          "0": "ウエイトデイリー宝くじ",
+          "1": "スタッフと実績",
+          "2": "ゲーム管理者ハブ",
+          "3": "LuckPermsの統合"
+        }
+      },
+      "rituals": {
+        "features": {
+          "0": "8 ユニークな儀式",
+          "1": "6 トーテム ティア",
+          "2": "火災犠牲者システム",
+          "3": "カスタムテクスチャとアニメーション"
+        },
+        "type": "データパック",
+        "title": "リチュアル",
+        "description": "神秘的な Minecraft データパックと儀式マジック、トーテム、火災犠牲システム。 8つのユニークな儀式、6つのトーテム層、カスタムテクスチャとアニメーション."
+      },
+      "trials_of_the_wild": {
+        "title": "ワイルドトライアル",
+        "description": "~250 探査、魔法、戦闘、および世界オーバーホール MODs のハードコア生存モパック。 巨大なブロックストレージ用のトーテムマジックとコンプレッシー用のRitualsが含まれています.",
+        "type": "バージョン",
+        "features": {
+          "0": "最適化されたパフォーマンス",
+          "1": "生活の質",
+          "2": "新コンテンツ&メカニクス",
+          "3": "定期的な更新"
+        }
+      },
+      "alloys": {
+        "title": "合金",
+        "description": "Minecraft 26.2以上の10個のファンタシーメタル - ボーナスオードドロップ、フルツールセット、鎧、バニラへの添加。 Datapack、コンパニオンリソースパック、およびオプションのペーパープラグイン.",
+        "type": "データパック+リソースパック",
+        "features": {
+          "0": "10 ファンタシーメタル",
+          "1": "バニラへの添加剤",
+          "2": "フルツールセット&アーマー",
+          "3": "任意ペーパー プラグイン"
+        }
+      },
+      "tally": {
+        "title": "ツイート",
+        "description": "6つのタブに10,255ページのサバイバル完了の進歩パック、ティア、XPとアイテムの報酬を保持し、サーバー所有者のためのライブポリシートグル.",
+        "type": "データパック",
+        "features": {
+          "0": "10,255 アドバンストページ",
+          "1": "6つの完成タブ",
+          "2": "ライブリワードポリシー",
+          "3": "Tally Keeper 音声"
+        }
+      },
+      "shirecraft": {
+        "description": "カスタムプラグイン、データパック、リソースパックを備えたホワイトリストペーパー26.2サバイバルサーバー。 土地, 提供, タリー, 圧縮, コミュニティ主導の町.",
+        "type": "Minecraft サーバー",
+        "features": {
+          "0": "ホワイトリスト サバイバル",
+          "1": "土地と国",
+          "2": "カスタムプラグイン",
+          "3": "mc.idling.app:25567"
+        },
+        "title": "シレクラフト"
+      },
+      "obs_animation_suite": {
+        "title": "OBSアニメーションスイート",
+        "description": "60 FPSアニメーションソースの移行、テキストのサイクリング、WebSocket制御を備えたOBS用のフロントエンドコントロールパネル。 Svelte 5. パワーストリームキット.idling.app で構築.",
+        "type": "フロントエンドアプリ(Svelte)",
+        "features": {
+          "0": "60 FPSアニメーション",
+          "1": "Webソケット制御",
+          "2": "ゼロ依存関係",
+          "3": "プログレッシブWebアプリ"
+        }
+      },
+      "mods_hub": {
+        "title": "Mods ハブ",
+        "description": "React 19 のフロントエンドと Mods API バックエンドのフルスタック MOD ホスティング プラットフォーム。 高度な検索、R2クラウドストレージ、クライアント側の暗号化のセマンティックバージョン.",
+        "type": "フルスタックアプリ(React + API)",
+        "features": {
+          "0": "セマンティック・バージョン",
+          "1": "高度な検索",
+          "2": "クラウドストレージ",
+          "3": "ダウンロード"
+        }
+      },
+      "auth_service": {
+        "features": {
+          "0": "パスワードレスOTP",
+          "1": "マルチテナント",
+          "2": "OpenAPI 仕様",
+          "3": "ゼロトラストセキュリティ"
+        },
+        "title": "Auth サービス",
+        "description": "マルチテナントパスワードレス認証用のバックエンドAPI。 電子メール OTP、JWT トークン、OpenAPI 3.1.0 スペック。 *.idling.appドメインを渡るシングルサインオン。 Cloudflareワーカー.",
+        "type": "バックエンド API (Cloudflare)"
+      },
+      "card_generator": {
+        "title": "神秘的なカード発電機",
+        "description": "素晴らしいソーシャルメディアカードを作成するためのフロントエンドアプリ。 AI搭載レイアウト、カスタムアバター、神秘的なテーマ。 ウィザードと高度なモード。 React 19 でビルド.",
+        "type": "フロントエンドアプリ(React)",
+        "features": {
+          "0": "AIパワードレイアウト",
+          "1": "カスタムアバター",
+          "2": "ウィザードと高度なモード",
+          "3": "Quota 管理"
+        }
+      },
+      "svg_converter": {
+        "title": "SVG から PNG コンバーター",
+        "description": "高品質のSVGをPNGに変換するためのフロントエンドアプリ。 カスタムサイジング、バッチ処理、背景カスタマイズ。 セキュリティ検証 React 19 でビルド.",
+        "type": "フロントエンドアプリ(React)",
+        "features": {
+          "0": "高品質の出力",
+          "1": "バッチ処理",
+          "2": "カスタムサイジング",
+          "3": "セキュリティ検証済み"
+        }
+      },
+      "url_shortener": {
+        "type": "フルスタックアプリ(React + Cloudflare)",
+        "features": {
+          "0": "カスタム URL コード",
+          "1": "アナリティクスをクリック",
+          "2": "地理的追跡",
+          "3": "自動調査"
+        },
+        "title": "URL短縮剤",
+        "description": "React のフロントエンドと Cloudflare ワーカーのバックエンドでフルスタック URL 短縮装置。 分析、地理的追跡、カスタムコード、自動有効期限をクリックします."
+      },
+      "access_hub": {
+        "title": "アクセスハブ",
+        "description": "RBACを一元化するためのバックエンドAPI。 粒状許可、完全な監査証跡、クォータ管理、自動提案。 サービスアグノスティック Cloudflareワーカー.",
+        "type": "バックエンド API (Cloudflare)",
+        "features": {
+          "0": "RBACシステム",
+          "1": "監査コース",
+          "2": "Quota 管理",
+          "3": "自動提案"
+        }
+      },
+      "shared_components": {
+        "features": {
+          "0": "反応とスヴェルト",
+          "1": "ストーリーブック ドキュメント",
+          "2": "15以上のコンポーネント",
+          "3": "TypeScript サポート"
+        },
+        "title": "共有コンポーネントライブラリ",
+        "description": "React と Svelte の多様体を備えたユニバーサルコンポーネントライブラリ。 ツールチップ、DataTable、CodeBlock、MultiFileViewer、StatusFlairなどが含まれます。 ストーリーブックのドキュメント.",
+        "type": "ユニバーサルパッケージ(NPM)"
+      },
+      "api_framework": {
+        "title": "APIフレームワーク",
+        "description": "エンタープライズレベルの API フレームワークのユニバーサルパッケージ。 Cloudflareワーカーとブラウザで動作します。 タイプ安全クライアント、要求の重複排除、遮断器、E2Eの暗号化。 NPMパッケージ.",
+        "type": "ユニバーサルパッケージ(NPM)",
+        "features": {
+          "0": "Type-Safeクライアント",
+          "1": "要求の重複排除",
+          "2": "遮断器",
+          "3": "E2E暗号化"
+        }
+      },
+      "streamkit_api": {
+        "title": "ストリームキット API",
+        "description": "OBSアニメーションスイート用のバックエンドAPI。 シーンアクティビティトラッキング、レイアウト同期、コンフィグストレージをKV経由で設定します。 Powers Streamkit.idling.app バックエンド。 Cloudflareワーカー.",
+        "type": "バックエンド API (Cloudflare)",
+        "features": {
+          "0": "シーンアクティビティトラッキング",
+          "1": "Config 同期",
+          "2": "KVストレージ",
+          "3": "リアルタイムアップデート"
+        }
+      },
+      "search_query_parser": {
+        "title": "クエリパーサを検索",
+        "description": "高度な検索クエリ解析のためのユニバーサルパッケージ。 人間に優しい構文:引用されたフレーズ、および/または論理、ワイルドカードマッチング。 React と Svelte コンポーネント。 NPMパッケージ.",
+        "type": "ユニバーサルパッケージ(NPM)",
+        "features": {
+          "0": "ヒトフレンドリーシンタックス",
+          "1": "および/または論理",
+          "2": "ワイルドカードサポート",
+          "3": "反応とスヴェルト"
+        }
+      }
+    }
+  },
+  "suite": {
+    "landing": {
+      "status": {
+        "live": "ライブ",
+        "beta": "ログイン",
+        "planned": "スケジュール",
+        "development": "研究開発"
+      },
+      "footer": {
+        "title": "始める準備は?",
+        "description": "すべてのアプリケーションはオープンソースであり、自由に使用できます。 GitHub をスターし、コミュニティに参加し、ストリーミングツールの未来を形作ります.",
+        "starOnGitHub": "GitHubでスター"
+      },
+      "productActions": {
+        "launchApp": "アプリの起動 →",
+        "learnMore": "もっと知る"
+      },
+      "hero": {
+        "title": "Strixun Stream Suite, オーストラリア",
+        "tagline": "プロフェッショナルなストリーミングツールとWebサービス",
+        "description": "シングルサインオン認証によるオープンソースアプリケーションの包括的なエコシステム。 任意の*.idling.appドメインに一度ログインし、どこにでも認証されます.",
+        "descriptionEmphasis": "MITライセンス 100%の開いた源。 プライバシーポリシー.",
+        "viewOnGitHub": "GitHubで見る"
+      }
+    },
+    "products": {
+      "stream_suite": {
+        "name": "ストリームスイート",
+        "highlights": {
+          "0": {
+            "label": "パフォーマンス",
+            "value": "60のFPS"
+          },
+          "1": {
+            "value": "<50ms>",
+            "label": "レイテンシー"
+          },
+          "2": {
+            "label": "アニメーション",
+            "value": "17 +"
+          }
+        },
+        "keyFeatures": {
+          "0": "4つの効果タイプ(フェード、スライド、ズーム、ポップ)によるアニメーションソース移行",
+          "1": "スマートなソースは7つの様式および位置の記憶と交換します",
+          "2": "レイアウトプリセットをワンクリックで瞬時シーンを再構成",
+          "3": "タイプライター、グリッチ、スクランブル効果のあるテキストクレンサー",
+          "4": "リアルタイムWebSocket通信によるWebベースのコントロールパネル"
+        },
+        "tagline": "専門のOBSのスタジオのコントロール パネル",
+        "description": "ストリーミングワークフローをアニメーションソースの可視性、バシースムースソーススワップ、インスタントレイアウトプリセットで変換します。 リアルタイムのWebSocket通信で美しいWebインターフェイスからすべてを制御できます。 プログレッシブなWebアプリとして、Svelte 5でネイティブなパフォーマンスを実現します."
+      },
+      "mods_hub": {
+        "name": "Mods ハブ",
+        "tagline": "現代のModホスティングプラットフォーム",
+        "keyFeatures": {
+          "0": "ドラッグアンドドロップのアップロードでフルCRUD操作",
+          "1": "自動変更ログによるセマンティックバージョン管理",
+          "2": "高度な検索: \"category:tools タグ:optimization 更新:>7d\"",
+          "3": "どこでも動作する直接ダウンロードリンク",
+          "4": "任意顧客の側面の暗号化のR2の雲の貯蔵"
+        },
+        "highlights": {
+          "0": {
+            "label": "アップロード速度",
+            "value": "ログイン"
+          },
+          "1": {
+            "label": "インフォメーション",
+            "value": "リアルタイム"
+          },
+          "2": {
+            "label": "ストレージ",
+            "value": "無制限"
+          }
+        },
+        "description": "CurseForge グレードの機能とオープンソースのモジュ分布の未来。 人間にやさしい構文で高度な検索、オプションの暗号化でR2クラウドストレージ。 mod 管理を喜びにする美しい金をテーマにした UI は、chore ではありません."
+      },
+      "auth_service": {
+        "highlights": {
+          "0": {
+            "label": "セキュリティ",
+            "value": "ゼロトラスト"
+          },
+          "1": {
+            "label": "セットアップ タイムタイム",
+            "value": "<5分>"
+          },
+          "2": {
+            "label": "アップタイム",
+            "value": "99.9%の"
+          }
+        },
+        "keyFeatures": {
+          "0": "電子メールによるパスワードレスOTP - パスワード保存リスクなし",
+          "1": "HttpOnlyクッキーを使用したJWTトークンは、最大限のセキュリティを実現します",
+          "2": "多テナントAPIキーシステムと粒状許可",
+          "3": "Svelte 5で構築されたリアルタイム分析ダッシュボード",
+          "4": "インタラクティブな Swagger UI を使用した完全な OpenAPI 3.1.0 スペック"
+        },
+        "name": "Auth サービス",
+        "tagline": "マルチテナントOTP 認証",
+        "description": "パスワードレス認証が正しく行われます。 JWTトークン、マルチテナントAPIキー、および統合トバイアルを作る開発者ダッシュボードを備えたメールベースのOTP。 Swagger UI を使用した OpenAPI 3.1.0 仕様は、数分でコーディングを開始できます。 すべての*.idling.appドメイン全体でシングルサインオン - 一度ログインし、どこでも認証します."
+      },
+      "url_shortener": {
+        "highlights": {
+          "0": {
+            "value": "<10ms>",
+            "label": "スピード"
+          },
+          "1": {
+            "label": "アナリティクス",
+            "value": "リアルタイム"
+          },
+          "2": {
+            "label": "アップタイム",
+            "value": "99.99%の"
+          }
+        },
+        "keyFeatures": {
+          "0": "思い出に残る、ブランドに優しいリンクのためのカスタムURLコード",
+          "1": "地理的追跡によるリアルタイムクリック解析",
+          "2": "一時的なリンクの自動侵入およびクリーンアップ",
+          "3": "SSOの統合によるスタンドアローンのWebインターフェイス",
+          "4": "自動化および統合のためのダイレクトAPIアクセス"
+        },
+        "name": "URL短縮剤",
+        "tagline": "アナリティクスによるショートリンク",
+        "description": "Cloudflareワーカーによる超高速URL短縮 カスタムブランドのショートリンクを作成し、地理的なデータとレファラ情報をクリックしてすべてのクリックを追跡し、クリーンなWebインターフェイスからすべてを管理します。 自動化された有効期限は、リンクを新鮮に保ち、分析は正確に何を動作するかを教えてくれます."
+      },
+      "access_hub": {
+        "highlights": {
+          "0": {
+            "label": "ロール",
+            "value": "無制限"
+          },
+          "1": {
+            "label": "監査",
+            "value": "エントリー"
+          },
+          "2": {
+            "label": "セットアップ",
+            "value": "ログイン"
+          }
+        },
+        "keyFeatures": {
+          "0": "ロールベースのアクセス制御(RBAC)とカスタムロール",
+          "1": "個々のエンドポイントへの顆粒許可",
+          "2": "コンプライアンスとセキュリティのための完全な監査証",
+          "3": "ユーザーまたはロールごとのQuota管理",
+          "4": "シームレスなユーザーオンボーディングのための自動提案"
+        },
+        "name": "アクセスハブ",
+        "tagline": "アクセス制御ダッシュボード",
+        "description": "すべてのサービスに対する集中アクセス制御 顆粒制御によるロールベースの権限, コンプライアンスのための完全な監査証跡, 不正防止のためのクォータ管理. Service-agnostic 設計は、それはスイート - それらをすべて支配するための 1 つのシステムのすべての機能を意味します."
+      }
+    },
+    "details": {
+      "stream_suite": {
+        "hero": {
+          "title": "ストリームスイート",
+          "tagline": "専門のOBSのスタジオのコントロール パネル",
+          "mascotAlt": "レッドパンダ開発者",
+          "ctaLaunch": "ストリームスイートを起動 →",
+          "ctaViewSource": "ソースを見る"
+        },
+        "overview": {
+          "title": "Stream Suiteとは?",
+          "description": "Stream Suite は、プロフェッショナルなアニメーションと自動化をストリーミングワークフローに提供する包括的な OBS Studio コントロール パネルです。 Svelte 5 で構築され、プログレッシブ Web App として設計され、OBS シーンをシームレスに制御し、美しくカスタマイズ可能なアニメーションを提供します."
+        },
+        "a11y": {
+          "scrollForMore": "より多くのコンテンツのスクロール"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "ソースアニメーション",
+              "description": "フェード、スライド、ズーム、ポップ効果でソースの可視性をアニメーション化。 WebSocket によるサブ 50ms レイテンシーで 60 FPS のパフォーマンス。 OBS のラグなし - すべてのアニメーションはバギースムースです."
+            },
+            "1": {
+              "description": "ソース間でのポジションとサイズ遷移。 毎回完璧なスワップのための位置メモリを持つ7つの異なるアニメーションスタイル.",
+              "title": "ソーススワップ"
+            },
+            "2": {
+              "title": "レイアウトプリセット",
+              "description": "シーンレイアウト全体を複数のソースアニメーションサポートで保存して適用します。 ストリーミング、録画、カスタム設定を瞬時に切り替えます."
+            },
+            "3": {
+              "title": "テキストサイクル",
+              "description": "フェード、スライド、タイプライター、グリッチ、ウェーブ、スクランブルなどのトランジションによる動的テキスト効果。 アラートやオーバーレイに最適です."
+            },
+            "4": {
+              "title": "プログレッシブWebアプリ",
+              "description": "オフラインアクセスとネイティブアプリ体験用のPWAとしてインストールします。 多層ストレージシステム(IndexedDB + localStorage + Recovery)."
+            },
+            "5": {
+              "title": "統一されたコントロール パネル",
+              "description": "すべてを制御するための1つのWebベースのドック。 OBS Studio とのリアルタイム WebSocket 通信を瞬時に更新します."
+            }
+          },
+          "title": "主な特長"
+        },
+        "builtWith": {
+          "title": "造られると"
+        }
+      },
+      "mods_hub": {
+        "hero": {
+          "title": "Mods ハブ",
+          "tagline": "現代のModホスティングプラットフォーム",
+          "mascotAlt": "ギフト付きレッドパンダ",
+          "statusBeta": "ベータ — アクティブな開発",
+          "ctaLaunch": "Mods Hub を起動 →",
+          "ctaViewSource": "ソースを見る"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Mod のアップロードと管理",
+              "description": "Mods をドラッグ アンド ドロップ インターフェイスでアップロード、更新、管理できます。 直感的なUIで完全なCRUD操作."
+            },
+            "1": {
+              "title": "セマンティック・バージョン",
+              "description": "Semantic のversioning サポートとの完全な版制御。 変更を追跡し、更新を公開し、変更ログを維持します."
+            },
+            "2": {
+              "title": "高度な検索",
+              "description": "@strixun/search-query-parser 対応カテゴリ、タグ、引用句フレーズ、および/またはロジック、ワイルドカード接頭辞マッチングによる強力な検索."
+            },
+            "3": {
+              "title": "直接ダウンロードリンク",
+              "description": "直接ダウンロードリンクを任意のアプリケーションで共有します。 リダイレクトなし、待機なし - ユーザーのインスタントダウンロード."
+            },
+            "4": {
+              "title": "美しいゴールドUI",
+              "description": "スタイル化されたコンポーネントで構築されたゴールドテーマのレスポンシブインターフェイスをスタンスします。 モダンでアクセシビリティ、そして快適にお過ごしいただけます."
+            },
+            "5": {
+              "title": "暗号化によるR2クラウドストレージ",
+              "description": "Cloudflare R2ストレージ(オプションのクライアント側暗号化、デフォルト圧縮、直接ダウンロードリンク)."
+            }
+          },
+          "title": "主な特長"
+        },
+        "overview": {
+          "title": "Mods Hubとは?",
+          "description": "Modrinth/CurseForge と同様のモダンな mod ホスティング プラットフォームは、React 19 と Cloudflare ワーカーで構築されています。 完全なセマンティック・バージョン管理、人間に優しいクエリ・パーサ、クライアント・サイドの暗号化によるR2クラウド・ストレージによる高度な検索で、美しいゴールドをテーマにしたUI."
+        },
+        "extraSections": {
+          "0": {
+            "title": "3層国家建築",
+            "description": "Mods Hub は、洗練された 3 層のステートモデルを使用して、最適なパフォーマンスと開発者体験を実現します",
+            "features": {
+              "0": {
+                "title": "信号の層",
+                "description": "UI状態の@preact/signals-react - フォームフィールド、トグル、自動リアクションでフィルタ."
+              },
+              "1": {
+                "title": "Zustandの層",
+                "description": "Auth、UIの状態およびゼロボイラプレートとの通知のための全体的なクライアント状態管理."
+              },
+              "2": {
+                "title": "TanStack クエリレイヤー",
+                "description": "自動キャッシュ、バックグラウンドのリベット、および楽観的な更新によるサーバー状態管理."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "造られると"
+        },
+        "a11y": {
+          "scrollForMore": "より多くのコンテンツのスクロール"
+        }
+      },
+      "auth_service": {
+        "hero": {
+          "title": "Auth サービス",
+          "tagline": "マルチテナントOTP 認証",
+          "mascotAlt": "レッドパンダの親指アップ",
+          "ctaLaunch": "Auth サービスを起動 →",
+          "ctaViewSource": "ソースを見る"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "パスワードレスOTP",
+              "description": "パスワード保存なしでメールベースのワンタイムパスワード認証。 安全で、ユーザーフレンドリーで攻撃面を削減します."
+            },
+            "1": {
+              "title": "JWTトークン管理",
+              "description": "業界標準のJWTトークンは、HttpOnlyクッキーを使用して、最大限のセキュリティを実現します。 自動更新および剥離処理."
+            },
+            "2": {
+              "title": "APIキー管理",
+              "description": "多テナントAPIキーシステムと粒状許可 開発者ダッシュボードからAPIキーを作成、回転、および再実行します."
+            },
+            "3": {
+              "title": "アナリティクスダッシュボード",
+              "description": "Svelte 5、認証イベントを追跡し、使用状況を監視し、リアルタイム分析でパターンを分析します."
+            },
+            "4": {
+              "title": "OpenAPI 3.1.0 仕様",
+              "description": "Swagger UI の統合で OpenAPI 仕様を完了します。 簡単な統合のためのインタラクティブな API ドキュメント."
+            },
+            "5": {
+              "title": "シングルサインオン",
+              "description": "*.idling.app ドメイン全体で HttpOnly クッキーを使用します。 あらゆるサービスで一度ログインし、どこでも認証します."
+            }
+          },
+          "title": "主な特長"
+        },
+        "builtWith": {
+          "title": "造られると"
+        },
+        "a11y": {
+          "scrollForMore": "より多くのコンテンツのスクロール"
+        },
+        "overview": {
+          "title": "Auth サービスとは?",
+          "description": "Resend API によるメールベースのパスワードレス認証で Cloudflare Workers 上に構築されたマルチテナント OTP 認証サービス。 特徴は、Svelte 5、マルチテナントAPIキー管理、Swagger UIとOpenAPI 3.1.0仕様、および監査ロギングで構築された開発者ダッシュボードを含みます。 *.idling.app ドメインを HttpOnly の Cookie 全体でシングルサインオンします."
+        },
+        "extraSections": {
+          "0": {
+            "title": "開発者初のデザイン",
+            "description": "Auth Service は、安全な認証をアプリケーションに統合するために必要なすべての開発者に提供します",
+            "features": {
+              "0": {
+                "title": "埋め込み可能なUIコンポーネント",
+                "description": "React、Svelte、およびバニラ JavaScript の認証コンポーネントをドロップインします。 UIの作業は必要ありません."
+              },
+              "1": {
+                "title": "包括的なドキュメント",
+                "description": "PANDA CORE では、統合ガイド、API リファレンス、セキュリティのベストプラクティスに関するドキュメントの 300 ページ以上をカバーしています."
+              },
+              "2": {
+                "title": "完全なテスト適用範囲",
+                "description": "Playwright との E2E 統合テスト、Vitest による単体テスト、および CI/CD ワークフローの信頼性."
+              }
+            }
+          }
+        }
+      },
+      "access_hub": {
+        "hero": {
+          "title": "アクセスハブ",
+          "tagline": "アクセス制御ダッシュボード",
+          "mascotAlt": "レッドパンダ事件",
+          "ctaLaunch": "アクセスハブの起動 →",
+          "ctaViewSource": "ソースを見る"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "役割ベースのアクセス制御",
+              "description": "顆粒権限でロールを定義し、管理します。 ユーザーがサービスを横断するスケーラブルなアクセス管理の役割を割り当てます."
+            },
+            "1": {
+              "title": "権限管理",
+              "description": "利用可能なすべての権限とその割り当てを表示します。 どのユーザーができるかを細かく管理し、できない."
+            },
+            "2": {
+              "title": "ユーザーアクセス監査",
+              "description": "何といつアクセスしているかを追跡します。 コンプライアンスおよびセキュリティ監視のための完全な監査証."
+            },
+            "3": {
+              "title": "サービスアグノスティックデザイン",
+              "description": "SSSエコシステムのあらゆるサービスと連携 すべてのアプリケーションと API 間でアクセス制御を統一しました."
+            },
+            "4": {
+              "title": "Quota 管理",
+              "description": "ユーザーまたはロールごとの使用率を監視し、管理して下さい。 悪用を防ぎ、公正なリソース割り当てを確保します."
+            },
+            "5": {
+              "title": "シンプルでクリーンなUI",
+              "description": "あなたの方法から抜け出す直感的なインターフェイス。 Access Service バックエンドと直接 API 連携."
+            }
+          },
+          "title": "主な特長"
+        },
+        "extraSections": {
+          "0": {
+            "title": "建築パターン",
+            "description": "アクセスハブは、Mods Hubと同じ実証済みのパターンに従います",
+            "features": {
+              "0": {
+                "title": "フロントエンド@access.idling.app",
+                "description": "GitHub Actions 経由で自動ビルドで Cloudflare ページ上にデプロイされた React 18 フロントエンド."
+              },
+              "1": {
+                "title": "バックエンド @ access-api.idling.app",
+                "description": "Cloudflare Worker API は、アクセス制御ロジック、ストレージ、および権限の執行をすべて処理します."
+              }
+            }
+          }
+        },
+        "overview": {
+          "title": "アクセスハブとは?",
+          "description": "CloudflareページにデプロイされたStrixun Access Control System用の最小フロントエンドUI。 すべての利用可能なロールと権限をクリーンでシンプルなインターフェイスで表示します。 Backend API は、RBAC(ロールベースアクセス制御)、パーミッション管理、クオータの執行、および自動プロビジョニングを処理します。Cloudflare Worker では、すべてのサービスアゴノスティックおよびデプロイを行います."
+        },
+        "builtWith": {
+          "title": "造られると"
+        },
+        "a11y": {
+          "scrollForMore": "より多くのコンテンツのスクロール"
+        }
+      },
+      "url_shortener": {
+        "hero": {
+          "title": "URL短縮剤",
+          "tagline": "アナリティクスによるショートリンク",
+          "mascotAlt": "赤いパンダとサングラス",
+          "ctaLaunch": "URLの起動 ショートナー →",
+          "ctaViewSource": "ソースを見る"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "ショートURLの作成と管理",
+              "description": "カスタムコードまたは自動生成されたスラグを使用してショートリンクを生成します。 URLコレクションを管理するための完全なCRUD操作."
+            },
+            "1": {
+              "title": "アナリティクスをクリック",
+              "description": "クリック、レファラー、および地理的データを追跡します。 Cloudflare KV に保存されたリアルタイムの分析で、即時のインサイトを把握できます."
+            },
+            "2": {
+              "title": "カスタム URL コード",
+              "description": "思い出に残る、ブランドフレンドリーなリンクのためにあなた自身のショートコードを選択してください。 自動検証により衝突を防ぎます."
+            },
+            "3": {
+              "title": "自動有効期限",
+              "description": "一時的なリンクの有効期限を設定します。 自動クリーンアップは、URLコレクションを新鮮かつ関連性の高いものに保ちます."
+            },
+            "4": {
+              "title": "スタンドアローンWebインターフェイス",
+              "description": "SSSブランドの美しいReactベースのWebインターフェイス。 1つの場所からすべてのリンクを管理します."
+            },
+            "5": {
+              "title": "OTP認証",
+              "description": "安全なパスワードレス認証のためにAuthサービスと連携。 すべてのSSSSアプリケーションとSSO."
+            }
+          },
+          "title": "主な特長"
+        },
+        "builtWith": {
+          "title": "造られると"
+        },
+        "a11y": {
+          "scrollForMore": "より多くのコンテンツのスクロール"
+        },
+        "overview": {
+          "title": "URL短縮剤とは?",
+          "description": "Cloudflare Worker ベースの URL は、共有の Strixun OTP コンポーネントを介して OTP 認証でサービスを短縮し、分析トラッキング(IP、ユーザーエージェント、レファラー、地理データ)、スタンドアローン React ウェブインターフェイスをクリックします。 Cloudflare KV を使用して、サブミリ秒 URL のルックアップと、暗号化された API レスポンスで自動 TTL ベースのエクスピレーションを行います."
+        }
+      }
+    }
+  },
+  "portfolio": {
+    "showcase": {
+      "eyebrow": "オープンソースポートフォリオ",
+      "title": "特集プロジェクト",
+      "subtitle": "Monorepo — ウェブアプリ、デスクトップマップ、Minecraft mods、サーバーレス API、共有パッケージのキュレーションされたスライス.",
+      "featuredLabel": "特集記事",
+      "totalProjectsSuffix": "総プロジェクト",
+      "showingPrefix": "ニュース",
+      "filterNavAria": "カテゴリー別フィルタプロジェクト"
+    },
+    "categories": {
+      "0": {
+        "id": "すべて",
+        "label": "すべて"
+      },
+      "1": {
+        "id": "ミンクラフト",
+        "label": "ミンクラフト"
+      },
+      "2": {
+        "id": "ウェブツール",
+        "label": "ウェブツール"
+      },
+      "3": {
+        "id": "社会招聘",
+        "label": "社会招聘"
+      },
+      "4": {
+        "id": "ストリーミング",
+        "label": "ストリーミング"
+      },
+      "5": {
+        "id": "ゲーム",
+        "label": "ゲーム"
+      },
+      "6": {
+        "id": "インフラ",
+        "label": "インフラ"
+      }
+    },
+    "about": {
+      "introAfterLink": "オープンソース、文書化、そして造船に組み込まれたすべてのもののためのホームベースです.",
+      "statsAria": "ポートフォリオハイライト",
+      "highlights": {
+        "0": {
+          "value": "38+",
+          "label": "オープンソースプロジェクト"
+        },
+        "1": {
+          "value": "7月7日",
+          "label": "Webアプリケーション"
+        },
+        "2": {
+          "value": "1",
+          "label": "デスクトップマップアプリ"
+        },
+        "3": {
+          "value": "6月6日",
+          "label": "サーバーレス API"
+        },
+        "4": {
+          "value": "23 日",
+          "label": "NPMパッケージ"
+        },
+        "5": {
+          "value": "7月7日",
+          "label": "Minecraftプロジェクト"
+        }
+      },
+      "eyebrow": "ポートフォリオとエコシステム",
+      "title": "お問い合わせ サインイン",
+      "tagline": "ウェブアプリケーション、Minecraft mods、ストリーミングツール、クラウドサービスを構築するフルスタック開発者.",
+      "sections": {
+        "0": {
+          "title": "Minecraftプロジェクト",
+          "highlights": {
+            "0": "圧縮 — 無限ブロック圧縮 (BuiltByBit + レガシーModrinth)",
+            "1": "提供 - プレミアム毎日のキット宝くじプラグイン",
+            "2": "謎 — 神秘的な魔法のデータパック",
+            "3": "ワイルドの試用 — ハードコア生存モパック",
+            "4": "合金 — 10個のファンタシーメタルデータパック",
+            "5": "Tally — 10,000+ 進展完了パック",
+            "6": "Shirecraft — ホワイトリスト生存サーバー",
+            "7": "Mods Hub および Modrinth のダウンロード数千"
+          },
+          "id": "マイニングクラフト",
+          "links": {
+            "0": {
+              "label": "Mods ハブ",
+              "href": "サイトマップ"
+            }
+          }
+        },
+        "1": {
+          "id": "ウェブツール",
+          "title": "Webアプリケーションとツール",
+          "highlights": {
+            "0": "カードジェネレータ — リアクト 19 フロントエンド",
+            "1": "SVGコンバーター — React 19 フロントエンド",
+            "2": "URL 短縮 — React + Cloudflare ワーカー",
+            "3": "ソーシャルプラットフォーム — Next.js 15 + PostgreSQL",
+            "4": "TypeScript、SSR、リアルタイム機能"
+          }
+        },
+        "2": {
+          "id": "地図ピー",
+          "title": "mappy — インタラクティブなマップ",
+          "links": {
+            "0": {
+              "label": "ダウンロード(short.army/mappy)",
+              "href": "サイトマップ"
+            },
+            "1": {
+              "href": "サイトマップ",
+              "label": "プレイヤー wiki"
+            }
+          },
+          "highlights": {
+            "0": "オープンワールドゲームやホームブリューキャンペーンのためのオフラインファーストマッププラットフォーム",
+            "1": "生きている地図 キャンバス、マーカー、進捗追跡、統一された検索、測定ツール",
+            "2": "マーカーメーカー、タイルスタジオ、公式マップパック",
+            "3": "デスクトップアプリ — ログインなし、クラウド同期なし、テレメトリーなし"
+          }
+        },
+        "3": {
+          "id": "ストリーミング",
+          "title": "生態系の合理化",
+          "highlights": {
+            "0": "OBS Animation Suite — Svelte 5, 60 FPS, 17 + エフェクト, PWA",
+            "1": "Streamkit API — シーントラッキング、コンフィグ同期、KVストレージ",
+            "2": "WebSocket制御、レイアウトプリセット、ゼロ依存関係"
+          },
+          "links": {
+            "0": {
+              "href": "サイトマップ",
+              "label": "streamkit.idling.app の使い方"
+            }
+          }
+        },
+        "4": {
+          "links": {
+            "0": {
+              "href": "サイトマップ",
+              "label": "Strixun Stream Suite, オーストラリア"
+            }
+          },
+          "id": "インフラ",
+          "title": "インフラ&API",
+          "highlights": {
+            "0": "6 CloudflareワーカーAPI — Auth, Access, Mods, Customer, Game, Streamkit",
+            "1": "23 NPMパッケージ — 共有コンポーネント、APIフレームワーク、authストア、検索パーサなど",
+            "2": "Monorepo と 38+ GitHub のプロジェクト"
+          }
+        }
+      }
+    },
+    "ecosystem": {
+      "tabs": {
+        "0": {
+          "label": "システム概要",
+          "id": "プロフィール"
+        },
+        "1": {
+          "id": "データフロー",
+          "label": "データフロー"
+        },
+        "2": {
+          "id": "パッケージ",
+          "label": "パッケージエコシステム"
+        }
+      },
+      "title": "エコシステムアーキテクチャ",
+      "subtitle": "38以上のプロジェクトが接続する方法 — 下記のレンズを選ぶ",
+      "footer": {
+        "overview": "システム概要:7つのWeb /デスクトップアプリ(Mappyを含む)、6つのCloudflareワーカーAPI、Mods APIによる6つのMinecraftプロジェクト、およびPostgreSQL、KV、R2、およびIndexedDB全体のストレージ.",
+        "dataflow": "データフロー:訪問者、プレーヤー、ストリーミング、およびマップエクスプローラは、各アプリの表面に到達します。 Web と mods は API を使用します。Mappy は、ローカルの IndexedDB でオフラインで最初に滞在します。アカウントは必要ありません.",
+        "packages": "パッケージエコシステム: 23 NPM パッケージ — コアフレームワーク、UI、ユーティリティ、ホック、およびテストヘルパー — React、Svelte、および Cloudflare 面で共有."
+      }
+    },
+    "stats": {
+      "quickLinksTitle": "クイックリンク",
+      "metrics": {
+        "modrinthProjects": "Modrinth プロジェクト",
+        "modDownloads": "Mod ダウンロード",
+        "modrinthFollowers": "Modrinth フォロワー",
+        "githubStars": "GitHubスターズ"
+      },
+      "quickLinks": {
+        "0": {
+          "href": "/カードジェネレーション",
+          "label": "カード発電機"
+        },
+        "1": {
+          "href": "/svgコンバーター",
+          "label": "SVGコンバーター"
+        },
+        "2": {
+          "href": "サイトマップ",
+          "label": "OBSスイート"
+        },
+        "3": {
+          "href": "サイトマップ",
+          "label": "Mods ハブ"
+        },
+        "4": {
+          "href": "サイトマップ",
+          "label": "地図ピー"
+        },
+        "5": {
+          "href": "サイトマップ",
+          "label": "Auth サービス"
+        },
+        "6": {
+          "href": "サイトマップ",
+          "label": "ドキュメント"
+        },
+        "7": {
+          "href": "サイトマップ",
+          "label": "デザインシステム"
+        },
+        "8": {
+          "href": "サイトマップ",
+          "label": "URL短縮剤"
+        },
+        "9": {
+          "href": "サイトマップ",
+          "label": "アクセスハブ"
+        },
+        "10": {
+          "href": "/strixunストリームスイート",
+          "label": "ストリームスイート"
+        },
+        "11": {
+          "href": "サイトマップ",
+          "label": "モノレポ (38+)"
+        },
+        "12": {
+          "href": "サイトマップ __UI",
+          "label": "idling.app(アイドリング) リポ"
+        },
+        "13": {
+          "href": "サイトマップ",
+          "label": "ディスコード"
+        }
+      },
+      "techCategories": {
+        "0": {
+          "title": "フロントエンド",
+          "badges": {
+            "0": "反応 19",
+            "1": "次へ.js 15",
+            "2": "スヴェルト 5",
+            "3": "タイプスクリプト",
+            "4": "3.jsについて"
+          }
+        },
+        "1": {
+          "badges": {
+            "0": "Cloudflareワーカー",
+            "1": "ノード.js",
+            "2": "Webソケット",
+            "3": "おすすめ",
+            "4": "フィードバック"
+          },
+          "title": "バックエンド"
+        },
+        "2": {
+          "title": "データベース",
+          "badges": {
+            "0": "PostgreSQLについて",
+            "1": "KVストレージ",
+            "2": "R2クラウド"
+          }
+        }
+      },
+      "privacyNote": "数値はModrinthと表紙のMinecraftプロジェクトのみです。 ビルドバイ ビット購入とメトリックの更新は公開されません。 当社の他のアプリケーションでダウンロード、アクティビティ、またはユーザーをトラッキングしません。設計、プライバシーにより、これらのプロジェクトに公開メトリックはありません.",
+      "modrinthMetricsTitle": "Modrinth メトリック",
+      "technologyStackTitle": "技術スタック"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "管理者ダッシュボード",
+      "tabs": {
+        "analytics": {
+          "label": "アナリティクス",
+          "description": "グローバルアプリの分析とユーザー行動のトラッキング"
+        },
+        "subscriptions": {
+          "label": "サブスクリプション",
+          "description": "サブスクリプションプランとユーザーサブスクリプションの管理"
+        },
+        "permissions": {
+          "label": "パーミッション",
+          "description": "システム権限の設定とアクセス制御"
+        },
+        "alerts": {
+          "label": "カスタムアラート",
+          "description": "システムアラートと通知の管理"
+        },
+        "users": {
+          "label": "ユーザー管理",
+          "description": "ユーザーアカウント、ロール、権限の管理"
+        },
+        "emojis": {
+          "label": "絵文字の承認",
+          "description": "カスタム emoji 投稿の承認または拒否"
+        },
+        "quotas": {
+          "label": "ゲストクオタ",
+          "description": "ユーザユーザのクォータと制限を設定"
+        }
+      }
+    },
+    "subscription": {
+      "panelTitle": "サブスクリプション管理",
+      "panelDescription": "サブスクリプションプラン、ユーザーサブスクリプション、およびクォータシステム統合の管理",
+      "tabs": {
+        "plans": "プラン",
+        "subscriptions": "サブスクリプション",
+        "overview": "プロフィール"
+      },
+      "overview": {
+        "totalPlans": "合計プラン",
+        "activePlansSuffix": "アクティブ",
+        "totalSubscriptions": "総サブスクリプション",
+        "activeSuffix": "アクティブ",
+        "trialUsers": "トライアルユーザー",
+        "currentlyTrialing": "現在試用中です",
+        "monthlyRevenue": "毎月の収入",
+        "recurringMonthly": "毎月の再発",
+        "planDistribution": "プランの配布",
+        "subscribersSuffix": "サブスクリプション",
+        "loadingStats": "統計情報を読み込む..."
+      },
+      "loadingData": "サブスクリプションデータの読み込み...",
+      "systemNotAvailableTitle": "サブスクリプションシステム 利用不可",
+      "systemNotAvailableBody": "サブスクリプションシステムが構成されていないか、または使用可能です.",
+      "retry": "リトリート",
+      "plans": {
+        "title": "サブスクリプションプラン",
+        "createNewPlan": "新規プランの作成",
+        "createComingSoon": "近日公開予定のプラン機能を作成します!",
+        "edit": "編集",
+        "enable": "アクセス",
+        "disable": "免責事項",
+        "free": "無料",
+        "periodMonth": "/月",
+        "periodYear": "/年",
+        "periodLifetime": "ライフタイム"
+      },
+      "subscriptions": {
+        "title": "ユーザーサブスクリプション",
+        "assignSubscription": "サブスクリプションを割り当てる",
+        "searchPlaceholder": "ユーザーの検索や計画...",
+        "allStatuses": "すべてのステータス",
+        "allPlans": "すべてのプラン",
+        "tableHeaders": {
+          "0": "ユーザー登録",
+          "1": "プラン",
+          "2": "ステータス",
+          "3": "請求する",
+          "4": "プロモーション",
+          "5": "委託先",
+          "6": "アクション"
+        },
+        "edit": "編集",
+        "cancel": "キャンセル",
+        "previous": "← 前へ",
+        "next": "次へ →"
+      },
+      "statusLabels": {
+        "active": "アクティブ",
+        "trialing": "トライアル",
+        "cancelled": "キャンセル",
+        "expired": "有効期限",
+        "suspended": "中断された",
+        "pending": "ペンディング"
+      }
+    },
+    "userManagement": {
+      "loadingUsers": "ユーザーの読み込み.",
+      "loadingMoreUsers": "より多くのユーザーをロードする...",
+      "retry": "リトリート",
+      "viewDetails": "詳細を見る",
+      "assignRole": "役割を割り当てる",
+      "panelTitle": "ユーザー管理",
+      "panelDescription": "ユーザーアカウント、ロール、サブスクリプション、権限の管理",
+      "filters": "フィルター",
+      "exportAll": "すべての輸出",
+      "searchPlaceholder": "ユーザー名、Eメール、IDでユーザーを検索します.",
+      "manageSubscription": "サブスクリプションの管理",
+      "manageQuota": "Quota の管理",
+      "unknownUser": "未知のユーザー"
+    },
+    "customAlerts": {
+      "panelTitle": "カスタムアラート管理",
+      "panelDescription": "異なるユーザーグループにカスタムアラートを作成、編集、管理",
+      "createAlert": "アラートを作成する",
+      "updateAlert": "アラートの更新",
+      "cancel": "キャンセル",
+      "retry": "リトリート",
+      "signInAgain": "再びサインイン",
+      "createNewAlert": "新しいアラートを作成する",
+      "createFirstAlert": "最初のアラートを作成する",
+      "emptyTitle": "カスタムアラートはありません",
+      "emptyBody": "初めてのカスタムアラートを作成して、ユーザーとのやり取りを開始しましょう!",
+      "editAlert": "アラートの編集",
+      "signIn": "サインイン",
+      "goHome": "ホーム",
+      "errorLoadingTitle": "エラー読み込みアラート",
+      "authRequiredTitle": "認証 必須",
+      "authRequiredBody": "管理者パネルにアクセスするためにログインする必要があります.",
+      "targetAudiences": {
+        "admins": "管理者",
+        "role_based": "ロールベース",
+        "specific_users": "特定のユーザー",
+        "all": "すべてのユーザー",
+        "authenticated": "認証されたユーザー",
+        "subscribers": "購読者"
+      },
+      "active": "アクティブ",
+      "published": "ニュース",
+      "adminAccessTitle": "管理者アクセス 必須",
+      "adminAccessBody": "この管理者機能にアクセスできません."
+    },
+    "analytics": {
+      "title": "アナリティクスダッシュボード",
+      "loading": "分析データの読み込み...",
+      "errorTitle": "解析エラー",
+      "retry": "リトリート",
+      "refresh": "リフレッシュ",
+      "tabs": {
+        "overview": "プロフィール",
+        "geography": "プロフィール",
+        "devices": "デバイス",
+        "heatmap": "サイトマップ",
+        "subscriptions": "サブスクリプション"
+      },
+      "metrics": {
+        "totalSessions": "総セッション",
+        "uniqueUsers": "ユニークなユーザー",
+        "pageViews": "ページビュー",
+        "totalClicks": "総クリック数",
+        "avgSessionDuration": "Avgセッション期間",
+        "bounceRate": "バウンス率",
+        "vpnUsage": "VPNの利用",
+        "conversionRate": "転換率",
+        "metricChangeSample": "最後の期間から+12.5%"
+      },
+      "dateRangeLabel": "日付の範囲:",
+      "dateRanges": {
+        "7d": "最終7日間",
+        "30d": "最終30日",
+        "90d": "最後の90日",
+        "1y": "年末年始"
+      },
+      "sections": {
+        "trafficTrends": "交通動向",
+        "topCountries": "トップカントリー",
+        "topCities": "トップシティ",
+        "vpnProxyUsage": "VPNとプロキシの使用",
+        "vpnSessions": "VPNセッション",
+        "proxySessions": "プロキシセッション",
+        "torSessions": "Torセッション",
+        "vpnPercentage": "VPNのパーセンテージ",
+        "topVpnProviders": "トップVPNプロバイダ",
+        "deviceTypes": "デバイスの種類",
+        "browsers": "ブラウザ",
+        "operatingSystems": "オペレーティングシステム",
+        "topPagesByClicks": "クリックでトップページ",
+        "clickPatterns": "パターンをクリック",
+        "planPerformance": "プラン・パフォーマンス",
+        "conversionFunnel": "コンバージョンファネル",
+        "revenueImpact": "収益影響",
+        "totalAttributedRevenue": "総属性収益",
+        "averageRevenuePerUser": "ユーザーごとの平均収益"
+      },
+      "chart": {
+        "sessionsLabel": "セッション:",
+        "pageviewsLabel": "ページビュー:",
+        "clicksLabel": "クリック:"
+      },
+      "subscriptionMetrics": {
+        "views": "ビュー:",
+        "conversions": "変換:",
+        "conversionRate": "転換率:"
+      }
+    },
+    "emojis": {
+      "title": "絵文字管理",
+      "statusLabel": "ステータス:",
+      "statusOptions": {
+        "all": "すべてのステータス",
+        "pending": "ペンディング",
+        "approved": "承認済み",
+        "rejected": "注入される"
+      },
+      "searchPlaceholder": "Emoji、ユーザー、またはカテゴリを検索する...",
+      "search": "インフォメーション",
+      "selectedCount": "選択する",
+      "bulkApprove": "バルク承認",
+      "loading": "Emoji を読み込みます.",
+      "createdPrefix": "作成:",
+      "descriptionPrefix": "説明:",
+      "approve": "プロモーション",
+      "reject": "リジェクト",
+      "delete": "削除",
+      "previous": "新着情報",
+      "next": "次へ",
+      "pageOf": "サイトマップ",
+      "rejectModalTitle": "エモジを注入する",
+      "rejectReasonLabel": "拒絶理由:",
+      "selectAll": "すべてを選択",
+      "empty": "現在のフィルターの emojis が見つかりません.",
+      "noImage": "画像なし",
+      "byPrefix": "によって:",
+      "categoryPrefix": "カテゴリー:",
+      "rejectReasonPlaceholder": "この絵文字を拒絶する理由を教えてください.",
+      "cancel": "キャンセル",
+      "rejectEmoji": "エモジを注入する",
+      "deleteConfirm": "この絵文字を永久に削除したいですか?"
+    },
+    "permissions": {
+      "subtitle": "企業レベルのセキュリティで包括的な権限と役割管理",
+      "createPermission": "新たな許可を得る",
+      "createRole": "新しいロールを作成する",
+      "tabs": {
+        "permissions": "パーミッション",
+        "roles": "ロール",
+        "audit": "監査トレイル"
+      },
+      "loading": "ログイン",
+      "auditTitle": "監査トレイル",
+      "auditComingSoon": "包括的な監査ログが近日公開.",
+      "noResultsTitle": "なし",
+      "title": "パーミッション管理システム",
+      "noResultsFiltered": "検索条件やフィルターを調整してみてください.",
+      "noResultsEmptyPermission": "初めての許可を得る.",
+      "noResultsEmptyRole": "スタートする最初のロールを作成します.",
+      "searchPlaceholder": "インフォメーション"
+    },
+    "guestQuotas": {
+      "title": "グローバルゲストクオタマネジメント",
+      "loading": "グローバルゲストクォーターをロードする...",
+      "addNewQuota": "新しいQuotaを追加",
+      "createTitle": "グローバルゲストクオタを作成",
+      "currentQuotasTitle": "現在のグローバルゲストクオタ",
+      "emptyList": "グローバルなゲストクォータの設定はありません。 ゲストユーザーはシステムデフォルトを使用します.",
+      "howItWorksBullets": {
+        "0": "優先順位: ユーザ固有のオーバーライドが存在しない場合、グローバルクォータは匿名ユーザーに適用されます",
+        "1": "機能レベル: 異なるサービス/成熟のために異なるクォータを設定し、意図しない影響を避ける",
+        "2": "IP ベースの: Quotas は IP アドレスおよび任意機械指紋によって追跡されます",
+        "3": "リセット期間: 1時間、毎日、毎週、または毎月のリセットサイクルを選択します",
+        "4": "無制限の: \"無制限\"をチェックして、完全にクォータの制限を削除"
+      },
+      "unlimitedPlaceholder": "無制限で0を入力してください",
+      "descriptionPlaceholder": "このクォータのオプションの説明",
+      "unlimitedPlaceholderShort": "無制限で0を入力してください",
+      "descriptionPlaceholderShort": "オプションの記述",
+      "howItWorksTitle": "グローバルゲストクオータの仕組み:"
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "コンテンツ",
+      "description": "あなたの経験と好みをカスタマイズする",
+      "loading": "ローディング設定..."
+    },
+    "categories": {
+      "appearance": {
+        "title": "インフォメーション",
+        "description": "サイトがどのように見えるかをカスタマイズし、感じます"
+      },
+      "behavior": {
+        "title": "行動規範",
+        "description": "サイトがどのように動作するかを制御し、応答"
+      },
+      "accessibility": {
+        "title": "アクセス",
+        "description": "誰もが使いやすいサイトを作る"
+      },
+      "background": {
+        "title": "背景効果",
+        "description": "アニメーション空間の背景をカスタマイズする"
+      },
+      "privacy": {
+        "title": "プライバシーポリシー",
+        "description": "プロファイルの可視性とデータを制御"
+      }
+    },
+    "account": {
+      "notSignedIn": "サインインされていない",
+      "localOnlyNote": "ローカルに保存された設定のみ",
+      "signedInAsPrefix": "サインイン",
+      "syncNote": "デバイス間で同期の設定"
+    },
+    "appearance": {
+      "fontFamily": {
+        "cardTitle": "フォントファミリー",
+        "code": {
+          "label": "コードコード",
+          "description": "平コード - コーディングに最適"
+        },
+        "reading": {
+          "label": "読書",
+          "description": "システムフォント - 目に簡単"
+        }
+      },
+      "displayDensity": {
+        "cardTitle": "表示密度",
+        "cozy": {
+          "label": "コージー",
+          "description": "より多くの間隔、読みやすく"
+        },
+        "compact": {
+          "label": "コンパクト",
+          "description": "より少ない間隔、より多くの内容"
+        }
+      }
+    },
+    "behavior": {
+      "pageNavigation": {
+        "cardTitle": "ページナビゲーション",
+        "traditional": {
+          "label": "伝統文化",
+          "description": "次のページ/前のページ番号"
+        },
+        "infiniteScroll": {
+          "label": "無限スクロール",
+          "description": "スクロールとして自動ロードコンテンツ"
+        }
+      },
+      "emojiPanel": {
+        "cardTitle": "絵文字パネル",
+        "closeAfterSelect": {
+          "label": "選択後閉じる",
+          "description": "パネルは1つのemojiを選ぶの後で閉まります"
+        },
+        "stayOpen": {
+          "label": "宿泊プラン",
+          "description": "閉じる前に複数の絵文字を選ぶ"
+        }
+      }
+    },
+    "accessibility": {
+      "focusIndicators": {
+        "cardTitle": "焦点の表示器",
+        "disabled": {
+          "label": "バリアフリー",
+          "description": "焦点の輪郭なしで視覚設計をきれいにして下さい"
+        },
+        "enabled": {
+          "label": "有効化",
+          "description": "キーボードナビゲーションの焦点の輪郭を表示する"
+        }
+      }
+    },
+    "background": {
+      "movementDirection": {
+        "cardTitle": "運動方向",
+        "static": {
+          "label": "スタティック",
+          "description": "動きません"
+        },
+        "forward": {
+          "label": "ミッション",
+          "description": "先を飛ぶ"
+        },
+        "backward": {
+          "label": "バックワード",
+          "description": "バックを引っ張る"
+        },
+        "left": {
+          "label": "ふりがな",
+          "description": "左のドリフト"
+        },
+        "right": {
+          "label": "アクセス",
+          "description": "ドリフト右"
+        },
+        "up": {
+          "label": "新着情報",
+          "description": "ドリフトアップ"
+        },
+        "down": {
+          "label": "ダウンダウン",
+          "description": "ドリフトダウン"
+        }
+      },
+      "movementSpeed": {
+        "cardTitle": "移動速度",
+        "slow": {
+          "label": "スロウ",
+          "description": "リラックスしたペース"
+        },
+        "normal": {
+          "label": "ノーマル",
+          "description": "標準的な速度"
+        },
+        "fast": {
+          "label": "ツイート",
+          "description": "高速"
+        }
+      },
+      "audioReactivity": {
+        "cardTitle": "背景 音声反応",
+        "hint": "銀河の背景がラジオ再生にどのように反応するか。 0%は静的背景を保持します。100%は完全に反応します.",
+        "rangeLabel": "反応強度",
+        "tickOff": "オフ",
+        "tickFull": "スタッフ"
+      },
+      "animationLayers": {
+        "enabledCountSuffix": "5つの有効期間",
+        "stars": "スターズ",
+        "particles": "粒子",
+        "nebula": "ネブラ",
+        "planets": "プラネット",
+        "aurora": "オーロラ",
+        "cardTitle": "アニメーションレイヤー"
+      }
+    },
+    "privacy": {
+      "profileVisibility": {
+        "cardTitle": "プロフィールの可視性",
+        "public": {
+          "label": "パブリック",
+          "description": "誰もが見えるプロフィール"
+        },
+        "private": {
+          "label": "プライベート",
+          "description": "他の人から隠されているプロフィール"
+        }
+      }
+    },
+    "common": {
+      "on": "お問い合わせ",
+      "off": "オフ",
+      "enabled": "有効化",
+      "disabled": "バリアフリー"
+    }
+  },
+  "tools": {
+    "cardGenerator": {
+      "wizard": {
+        "steps": {
+          "basicConfiguration": "基本構成",
+          "proConfiguration": "プロ構成",
+          "confirmAndGenerate": "確認&生成",
+          "platformSelection": "プラットフォーム選択"
+        },
+        "stepDescriptions": {
+          "platform": "カードのプラットフォームとアスペクト比を選択します",
+          "basic": "カードの主な要素を構成する",
+          "pro": "Pro機能によるファインチューン高度な設定",
+          "confirm": "設定を見直し、カードを生成"
+        },
+        "wizardTitle": "カードジェネレーターウィザード",
+        "labels": {
+          "mainSeed": "主な種子",
+          "avatarSeed": "アバター種子",
+          "author": "プロフィール",
+          "quote": "インフォメーション",
+          "customWidth": "カスタム幅",
+          "customHeight": "注文の高さ",
+          "shapeCount": "形状カウント"
+        },
+        "placeholders": {
+          "random": "ランダムに空の",
+          "randomQuote": "ランダムなインスピレーションの引用符で空の残します",
+          "auto": "オートマチック"
+        },
+        "choosePlatformTitle": "プラットフォームを選択",
+        "choosePlatformBody": "カードを共有するプラットフォームを選択します。 各プラットフォームは、最高の視覚的影響のために最適化された寸法を持っています.",
+        "loadingAspectRatios": "アスペクト比をロードする...",
+        "hints": {
+          "pattern": "全体的な設計パターンを制御する",
+          "avatar": "アバター設計の制御",
+          "author": "引用符を言った人",
+          "quote": "カードのインスピレーションメッセージ"
+        },
+        "reviewTitle": "レビューと生成",
+        "cancel": "キャンセル",
+        "previous": "← 前へ",
+        "next": "次へ →",
+        "generateCard": "カードの生成",
+        "generating": "生成...",
+        "dailyQuotaExceeded": "毎日のキオタは搾出しました",
+        "upgradeForUnlimited": "無制限の世代と高度な機能のためにProにアップグレード!",
+        "basicEmptyNote": "ランダム生成のためにフィールドを空にします.",
+        "goToStepPrefix": "お問い合わせ",
+        "proStep": {
+          "subscriptionNote": "このステップは、プロ加入者にのみ利用可能な高度な機能が含まれています。 基本的な構成のウィザードモードは完全に無料です!",
+          "upgradeTitle": "Pro へのアップグレード",
+          "upgradeBody": "このステップは、プロ加入者にのみ利用可能な高度な機能が含まれています。 基本的な構成のウィザードモードは完全に無料です!",
+          "proFeatureSuffix": "(プロ機能)",
+          "widthHint": "ピクセルのカスタム幅",
+          "heightHint": "ピクセルのカスタム高さ",
+          "shapeCountHint": "背景形状の数",
+          "shapeCountPlaceholder": "8月8日"
+        },
+        "confirmStep": {
+          "body": "設定を確認し、mysticalカードを生成します.",
+          "sections": {
+            "platform": "プラットフォーム",
+            "content": "コンテンツ",
+            "seeds": "シード",
+            "proSettings": "プロの設定"
+          },
+          "labels": {
+            "format": "フォーマット:",
+            "dimensions": "寸法:",
+            "author": "著者:",
+            "quote": "引用:",
+            "main": "メイン:",
+            "avatar": "アバター:",
+            "width": "幅:",
+            "height": "高さ:",
+            "shapes": "形状:"
+          },
+          "randomValue": "ランダム"
+        }
+      },
+      "welcome": {
+        "loadPreviousDescription": "既存の世代を手に入れよう",
+        "initializing": "神秘的なエネルギーを初期化...",
+        "generationIdLabel": "生成ID:",
+        "loadPlaceholder": "ここにあなたの生成IDを貼り付ける...",
+        "load": "ログイン",
+        "generationIdHint": "生成 ID は次のようになります",
+        "quotaReached": "デイリークォータが届きました!",
+        "upgradeCta": "無制限の世代のためにプロにアップグレード",
+        "title": "神秘的な創造の領域を入力してください",
+        "intro": "古代のエネルギーはあなたのコマンドを待っています。 神秘的な幾何学と深い知恵に恵まれたエンチャントされたソーシャルメディアカードにあなたの神聖なパスを選択してください.",
+        "createNew": "新規作成",
+        "createNewDescription": "新鮮な神秘的なカードを生成する",
+        "loadPrevious": "過去の投稿"
+      },
+      "generationForm": {
+        "freeConfiguration": "自由な構成",
+        "proConfigurationOptions": "プロ構成オプション",
+        "proBadge": "プロモーション",
+        "hideDetails": "詳細を隠す",
+        "showDetails": "詳細を見る",
+        "labels": {
+          "mainSeed": "主な種子",
+          "avatarSeed": "アバター種子",
+          "author": "プロフィール",
+          "quote": "インフォメーション",
+          "aspectRatio": "アスペクト比",
+          "width": "フリガナ",
+          "height": "高さ",
+          "shapeCount": "形状カウント"
+        },
+        "placeholders": {
+          "customSeed": "カスタムシードを入力してください...",
+          "autoSeed": "自動生成シード",
+          "avatarSeed": "カスタムアバターシード(ランダムに空のリーブ)",
+          "quoteAuthor": "引用作者(ランダムに空の保存)",
+          "customQuote": "カスタム引用符を入力してください(ランダム引用符で空の保存)",
+          "auto": "オートマチック",
+          "shapeCountDefault": "8月8日",
+          "avatarSeedUsesMain": "メインシードを使用するために空の葉"
+        },
+        "configuration": "仕様",
+        "viewingLoadedGeneration": "ロードされた生成物を見る",
+        "readOnlyBanner": "この設定は読み取り専用です。 変化を生み出す新しい世代を創造します.",
+        "randomizeAll": "ランダム化 すべて",
+        "generateImage": "イメージの生成",
+        "generating": "生成...",
+        "readOnlyGeneration": "読み取り専用生成",
+        "loadingAspectRatios": "アスペクト比をロードする...",
+        "seedActions": {
+          "save": "シードを保存",
+          "cancelEdit": "編集をキャンセル",
+          "editMain": "シードの編集",
+          "editAvatar": "アバターシードの編集"
+        }
+      },
+      "advancedControls": {
+        "sections": {
+          "patternMagic": "パターンマジック",
+          "watermarkControls": "透かしコントロール",
+          "avatarPositioning": "アバターポジショニング",
+          "textLayout": "テキストレイアウト",
+          "visualEffects": "視覚効果"
+        },
+        "labels": {
+          "avatarX": "アバターX",
+          "avatarY": "アバター Y",
+          "avatarSize": "アバター サイズ",
+          "textMaxWidth": "テキスト 最高の幅",
+          "textStartY": "テキスト スタート Y",
+          "textPadding": "テキストパディング",
+          "fontSize": "文字サイズ",
+          "lineHeight": "ライン高さ",
+          "borderOpacity": "ボーダーオパシティ",
+          "borderColor": "ボーダー色",
+          "patternSeed": "パターン種子",
+          "glassBackground": "ガラス背景効果",
+          "enableWatermark": "カスタム透かしを有効にする",
+          "watermarkText": "透かしテキスト",
+          "position": "ポジション",
+          "rotationDegrees": "回転(程度)",
+          "size": "サイズ:",
+          "opacityPercent": "不透明度(%)"
+        },
+        "overlayBody": "あなたの神秘的なカードのあらゆる面で精密な制御を得て下さい!",
+        "upgradeButton": "アーチメイジに昇格",
+        "paywallTitle": "高度なマジックをロック解除",
+        "paywallBody": "Proサブスクリプションでアバター位置、テキストレイアウト、ビジュアルスタイリングなど、より正確に制御できます.",
+        "upgradeLink": "Pro へのアップグレード",
+        "overlayTitle": "高度なマジックをロック解除",
+        "placeholders": {
+          "auto": "オートマチック",
+          "textPadding": "30日",
+          "lineHeight": "1.4 の",
+          "borderOpacity": "0.7の",
+          "patternSeed": "自動生成",
+          "watermarkText": "サイトマップ",
+          "rotation": "-25 の",
+          "watermarkSize": "16 日",
+          "watermarkOpacity": "15 日"
+        },
+        "watermarkPositions": {
+          "top-right": "トップ右",
+          "bottom-left": "最下左",
+          "bottom-right": "ボトム右",
+          "center": "センター",
+          "repeated": "繰り返しパターン",
+          "top-left": "左上のトップ"
+        }
+      }
+    },
+    "svgConverter": {
+      "page": {
+        "title": "SVG から PNG コンバーター",
+        "features": {
+          "0": "高品質のPNG出力",
+          "1": "カスタムスケーリング&寸法",
+          "2": "セキュリティ検証",
+          "3": "バッチ処理",
+          "4": "背景のカスタマイズ",
+          "5": "リアルタイムの進捗"
+        },
+        "description": "SVGベクターグラフィックスをカスタムサイジング、品質設定、バッチ処理機能で高品質のPNG画像に変換します.",
+        "conversionFailed": "変換 失敗",
+        "dismiss": "免責事項",
+        "featuresTitle": "特徴:",
+        "supportedTitle": "サポート",
+        "formats": {
+          "inputLabel": "入力:",
+          "inputValue": "SVGの特長",
+          "outputLabel": "出力:",
+          "outputValue": "ツイート",
+          "maxSizeLabel": "最高のサイズ:",
+          "maxSizeValue": "10メガバイト",
+          "batchLabel": "バッチ:",
+          "batchValue": "10ファイル"
+        },
+        "tipsTitle": "ニュース",
+        "tips": {
+          "0": "セキュリティ用のスクリプトタグを削除",
+          "1": "簡単なSVGを使用して変換を高速化",
+          "2": "高品質 = 大きいファイルサイズ",
+          "3": "網膜の表示のための2xスケールを試みて下さい"
+        },
+        "signedInTitle": "サインイン",
+        "signedInNoLimits": "登録ユーザーのコンバージョン制限なし"
+      },
+      "interface": {
+        "svgTagsHint": "SVGに適切な開口部とクローズタグが含まれていることを確認してください",
+        "conversionOptionsTitle": "変換オプション",
+        "filenameLabel": "ファイル名:",
+        "qualityLabel": "よくある質問",
+        "scaleLabel": "スケール",
+        "uploadPromptStrong": "アップロードをクリック",
+        "uploadPromptRest": "ドラッグ&ドロップ",
+        "uploadHint": "SVGファイルのみ、最大10MB",
+        "svgCodeLabel": "SVGコード:",
+        "svgCodePlaceholder": "SVGコードを貼り付ける.",
+        "title": "SVGをPNGに変換",
+        "subtitle": "SVG ファイルをアップロードするか、SVG コードを貼り付けて起動します",
+        "uploadFile": "アップロードファイル",
+        "pasteCode": "ペーストコード",
+        "backgroundLabel": "背景:",
+        "backgroundOptions": {
+          "0": "トランスペアレント",
+          "1": "ホワイト",
+          "2": "ブラック",
+          "3": "ライトグレー"
+        },
+        "errors": {
+          "readFailed": "ファイルを読む失敗",
+          "dropSvg": "SVGファイルをドロップしてください",
+          "provideContent": "SVGコンテンツの提供",
+          "selectSvg": "SVGファイルを選択してください",
+          "fileTooLarge": "ファイルサイズは10MB未満"
+        },
+        "convertToPng": "PNGへの変換",
+        "converting": "変換...",
+        "initializing": "初期化..."
+      }
+    }
+  },
+  "profile": {
+    "metadata": {
+      "notFoundDescription": "リクエストされたユーザープロファイルが見つかりませんでした.",
+      "privateTitle": "プロフィール | Idling.app",
+      "privateDescription": "プロフィールをプライベートにセットしました.",
+      "publicTitleSuffix": "- ユーザープロフィール | Idling.app",
+      "publicOpenGraphTitleSuffix": "- プロフィール",
+      "invalidUrlTitle": "無効なURL | IDLING.app",
+      "invalidUrlDescription": "プロフィール URL は、データベース ID のみを使用する必要があります.",
+      "notFoundTitle": "ユーザが見つかりません | Idling.app",
+      "publicFallbackDescription": "Idling.app で {name}のプロファイル、アクティビティのステータス、および貢献を表示します.",
+      "publicFallbackOpenGraphDescription": "Idling.app で {name}のプロファイルとアクティビティを表示します.",
+      "productNotFoundTitle": "プロダクト"
+    },
+    "private": {
+      "title": "プロフィール",
+      "message": "プロフィールをプライベートにセットしました。 プロフィール情報を閲覧できるだけ."
+    },
+    "notFound": {
+      "goHome": "ホーム",
+      "searchTitle": "ユーザーの検索",
+      "searchDescription": "あなたが探しているユーザーを検索してみてください:",
+      "searchPlaceholder": "ユーザー名または電子メールでユーザーを検索します.",
+      "helpTitle": "お問い合わせ",
+      "iconAria": "ユーザーが見つかりません",
+      "title": "ユーザーが見つかりません",
+      "message": "お探しのユーザープロフィールが見つかりませんでした。 これは、次の場合に起こりうる:",
+      "reasons": {
+        "0": "ユーザー名は存在しません",
+        "1": "ユーザーはアカウントを削除しました",
+        "2": "プロファイルURLが間違っています",
+        "3": "ユーザーのプロファイルはプライベートに設定されます"
+      },
+      "helpSearchLabel": "インフォメーション",
+      "helpSearchDescription": "上記の検索を使用して、名前または電子メールでユーザーを検索します",
+      "helpProductsLabel": "製品情報",
+      "helpProductsDescription": "アプリやアプリのホームラインアップをブラウズ"
+    },
+    "pageUi": {
+      "adminDecorationTitle": "ユーザー名デコレーションテスト",
+      "testDecorationsTitle": "ユーザー名デコレーションテスト(管理者のみ)",
+      "subscriptionsTitle": "サブスクリプション",
+      "freeTierMessage": "無料ティアユーザー",
+      "decorationOptions": {
+        "0": {
+          "value": "",
+          "label": "なし"
+        },
+        "1": {
+          "value": "企業クラウン",
+          "label": "エンタープライズクラウン"
+        },
+        "2": {
+          "value": "プレミアム銀河",
+          "label": "プレミアムギャラクシー"
+        },
+        "3": {
+          "value": "プロプラズマ",
+          "label": "プロプラズマ"
+        },
+        "4": {
+          "value": "アクティブグロー",
+          "label": "活動的な白"
+        },
+        "5": {
+          "value": "トライアルパルス",
+          "label": "試験パルス"
+        }
+      },
+      "adminDecorationDescription": "プロフィールページで異なるユーザー名の装飾をテストする",
+      "adminDecorationNote": "これは、自分のプロフィールで管理者にのみ表示されるテスト機能です",
+      "previewLabel": "プレビュー:",
+      "demoUserFallback": "デモユーザー",
+      "testDecorationsButton": "ユーザー名デコレーションをテスト"
+    }
+  },
+  "subscription": {
+    "page": {
+      "title": "サブスクリプション",
+      "subtitle": "プランを選ぶ",
+      "subtitleQuota": "Emojis を生成し続けるためにアップグレード",
+      "loading": "サブスクリプションオプションの読み込み...",
+      "loadingData": "サブスクリプションデータの読み込み...",
+      "errorHeading": "エラー",
+      "noDataHeading": "利用可能なデータなし",
+      "noDataBody": "サブスクリプションデータはロードできません.",
+      "returnHome": "ホームに戻る",
+      "quotaBannerTitle": "毎日の限界に達した",
+      "advancedOptions": "高度なオプション:",
+      "yes": "お問い合わせ",
+      "no": "なし",
+      "subscribeNow": "今すぐ購読する",
+      "backToGenerator": "← エモジジェネレーターに戻る",
+      "quotaBannerBody": "日々の世代の限界に達しました。 Pro にアップグレードして、毎日無制限の世代で emojis を生成します.",
+      "whatYouGet": "あなたが得るもの:",
+      "dailyLimitLabel": "毎日の限界:",
+      "currentLimitsTitle": "あなたの現在の制限(無料プラン):",
+      "dailyGenerations": "毎日の世代:",
+      "fetchFailed": "サブスクリプションデータをロードできなかった"
+    },
+    "metadata": {
+      "title": "サブスクリプション | Idling.app",
+      "description": "プランを選択し、idling.appサブスクリプションをアップグレードします."
+    }
+  },
+  "radio": {
+    "aria": {
+      "player": "ラジオプレーヤー",
+      "chooseStation": "駅を選ぶ",
+      "searchStations": "名前、説明、またはジャンル別に検索ステーション",
+      "clearSearch": "クリアステーション検索",
+      "filterByGenre": "ジャンル別フィルター",
+      "stations": "ステーション",
+      "playerSettings": "プレーヤーの設定",
+      "fullscreenVisualizerStyle": "フルスクリーンの視覚化器様式",
+      "fullscreenVisualizerStyles": "フルスクリーンの視覚化器様式",
+      "waveLineStyle": "波ライン様式",
+      "oscilloscopeSmoothing": "Oscilloscopeの波のスムース",
+      "barFillStyle": "棒の盛り土様式",
+      "barTrailStyle": "バートレイルスタイル",
+      "barGlow": "バーグロー",
+      "visualizerColors": "ビジュアルカラー",
+      "spectrumVisualizerColors": "Spectrum の視覚を妨げる色",
+      "fullscreenSpectrumOpacity": "フルスクリーンのスペクトルの不透明度",
+      "fullscreenVisualizerHeight": "フルスクリーンの視覚化装置の高さ",
+      "barVisualizerLook": "棒視覚化装置一見",
+      "barVisualizerStyles": "棒視覚化器様式",
+      "controlBarVisualizerLayout": "制御バーの視覚化装置レイアウト",
+      "controlBarVisualizerOpacity": "コントロールバーの視覚化器不透明度",
+      "play": "プレイ",
+      "pause": "パデュース",
+      "mute": "ミュート",
+      "unmute": "ミュート",
+      "volume": "ボリューム",
+      "barSpacing": "バーの間隔",
+      "stationTransport": "駅の輸送",
+      "previousStation": "前の駅",
+      "nextStation": "次の駅",
+      "dragToWidenText": "広い場所にドラッグし、テキストを追跡します。 ダブルクリックしてリセットします.",
+      "volumeScrollHint": "ボリューム — スクロールを調整する",
+      "enterFullscreen": "フルスクリーンを入力してください",
+      "exitFullscreen": "出口のフルスクリーン",
+      "openFullscreenVisualizer": "フルスクリーンの視覚化装置を開けて下さい",
+      "exitFullscreenVisualizer": "フルスクリーン・ビジュアライザの出口",
+      "equalizer": "エクアライザー",
+      "equalizerPresets": "Equalizerプリセット",
+      "customEqualizerPresets": "カスタムイコライザープリセット",
+      "equalizerBands": "エカライザーバンド",
+      "fullTrackTitle": "フルトラックのタイトル",
+      "dragToResizePanel": "パネルのサイズを変更するためにドラッグします。 ダブルクリックして高さをリセットします.",
+      "recheckStationPrefix": "再確認",
+      "changeStationPrefix": "駅変更 — 今",
+      "nowOnSuffix": "",
+      "searchWebForTrack": " {query}の Web を検索します",
+      "findTrackTitle": "\"{query}\" を検索",
+      "addFavorite": " {stationName} をお気に入りに追加",
+      "removeFavorite": "お気に入りから {stationName} を削除",
+      "trackTitleTrigger": "再生: {track}. クリックして、フルタイトルを表示します.",
+      "checkingStreamTitle": "ストリームのチェック",
+      "changeStationTitle": "駅変更",
+      "playerSettingsTitle": "プレーヤーの設定"
+    },
+    "equalizer": {
+      "title": "エクアライザー",
+      "reset": "リセット",
+      "resetAriaPrefix": "イコライザーをリセットする",
+      "load": "ログイン",
+      "save": "保存する",
+      "delete": "削除",
+      "confirm": "お問い合わせ",
+      "cancel": "キャンセル",
+      "matchExact": "これらのスライダ設定は、 {label} を正確にマッチします。 手動でそれを複製するのではなく、そのプリセットを選択します.",
+      "matchNear": "これらのスライダの設定は、 {label}に近いです。 そのプリセットを選択することを検討してください.",
+      "deleteConfirm": "保存されたプリセットを削除 \"{label}\"? これは元に戻すことができません.",
+      "customSlotDefault": "カスタム {slot}",
+      "loadPresetAria": "ロード {label}",
+      "emptySlotAria": "カスタムプリセットスロット {slot} は空です",
+      "slotEmptyTitle": "スロット {slot} は空です",
+      "nameSlotAria": "カスタムプリセットスロット名 {slot}",
+      "saveToAria": "現在の EQ を {label}に保存",
+      "deletePresetAria": "保存プリセットの削除 {label}",
+      "confirmDeleteAria": "削除を確認する {label}",
+      "cancelDeleteAria": "削除する {label}",
+      "presets": {
+        "flat": "フラット",
+        "bass-boost": "バスブースト",
+        "treble-boost": "トレブルブースト",
+        "vocal": "ボーカル",
+        "rock": "ログイン",
+        "jazz": "ジャズ",
+        "electronic": "電子制御",
+        "podcast": "ポッドキャスト"
+      }
+    },
+    "bar": {
+      "searchPlaceholder": "検索ステーション...(ラジオフランス)または#jazz)",
+      "checkingStationsOne": "1駅..",
+      "checkingStationsMany": " {count} ステーションをチェックする..",
+      "filterAll": "すべて",
+      "filterFavorites": "お気に入り",
+      "pressPlayToStart": "プレスプレイを開始",
+      "filterUnreachable": "到達不能",
+      "recheckAll": "再確認してください",
+      "emptyUnreachable": "到達不能な場所はこのフィルターに一致しません.",
+      "emptyFavorites": "お気に入りのステーションがこのフィルターにマッチしません.",
+      "emptySearchPrefix": "ステーションマッチなし",
+      "checkingStreamAvailability": "ストリームの可用性をチェック.."
+    },
+    "settings": {
+      "barFill": "棒の盛り土",
+      "barTrail": "バートレイル",
+      "barGlow": "バーグロー",
+      "barColors": "棒色",
+      "spectrumColors": "スペクトル色",
+      "look": "お問い合わせ",
+      "none": "なし",
+      "waveStyle": "波様式",
+      "waveSmoothing": "波のスムース",
+      "spectrumOpacity": "スペクトラムの不透明度",
+      "spectrumHeight": "スペクトルの高さ",
+      "barLayout": "バーレイアウト",
+      "opacity": "オパシティ",
+      "density": "コンテンツ",
+      "webglUnavailableFallback": "ブラウザではWebGL2のブラウザは利用できません.",
+      "barStyle": "バースタイル",
+      "trail": "トレイル",
+      "glow": "グロウ",
+      "colors": "カラー",
+      "visualizerHeight": "視覚装置の高さ"
+    },
+    "visualizer": {
+      "line": "ライン",
+      "ribbon": "リボン",
+      "solid": "ソリッド",
+      "glass": "ガラス",
+      "none": "なし",
+      "peaks": "ピーク",
+      "cascade": "カスケード",
+      "off": "オフ",
+      "soft": "ソフト",
+      "theme": "テーマ",
+      "prism": "プリズム",
+      "compact": "コンパクト",
+      "normal": "ノーマル",
+      "wide": "ワイド",
+      "fullBackground": "完全な背景",
+      "inlineStrip": "インラインストリップ"
+    },
+    "genres": {
+      "ambient": "アクセス",
+      "classical": "クラシック",
+      "community": "コミュニティ",
+      "custom": "カスタム",
+      "eclectic": "エレクトリック",
+      "electronic": "電子制御",
+      "jazz": "ジャズ",
+      "news": "ニュース&トーク",
+      "public": "パブリックラジオ"
+    },
+    "bpm": {
+      "label": "BPMについて",
+      "paused": "未使用時パユース",
+      "silent": "今ストリームでクリアなビートはありません",
+      "stable": "Tempo {bpm} は 1 分あたりのビート",
+      "estimating": "およそのテンポ {bpm} は1分あたりのビートを打ちます",
+      "listening": "ストリームでビートを聴く"
+    },
+    "presetLabels": {
+      "webgl": {
+        "netrunner-grid": {
+          "label": "ネットランナーグリッド",
+          "description": "3D サイバー アベニュー — 両方の側面のネオン タワーのスクロール グリッド"
+        },
+        "starry-horizon": {
+          "label": "星空 horizon",
+          "description": "低地平線にゴールド・トゥ・テアルEQのスカイライン - 星の夜は穏やかな水に映し出しました"
+        },
+        "radial-spectrum": {
+          "label": "放射スペクトル",
+          "description": "スクリーンを詰める大きい円の検光子"
+        },
+        "waveform-path": {
+          "label": "波形パス",
+          "description": "リンカートレイルによるオシロスコープストローク"
+        },
+        "liquid-merge": {
+          "label": "液体マージ",
+          "description": "スクリーンを渡ると同時に伸び、会い、そしてマージする遅い漂流色のblobs"
+        },
+        "spectrum-bars": {
+          "label": "スペクトラムバー",
+          "description": "古典的なフル幅 EQ 列"
+        },
+        "mirror-bars": {
+          "label": "ミラーバー",
+          "description": "中心からの対称スペクトルのコラム"
+        },
+        "neon-constellation": {
+          "label": "ネオンの星座",
+          "description": "頂点と音楽と形態をリンクする球面ネオンメッシュ"
+        }
+      },
+      "bar": {
+        "idling-bars": {
+          "label": "周波数バー",
+          "description": "充填とトレイルオプションを備えた古典的なスペクトルバー"
+        },
+        "wave": {
+          "description": "頻度波ラインかリボン",
+          "label": "ウェーブ"
+        },
+        "dots": {
+          "label": "ドット",
+          "description": "反応粒子の点"
+        },
+        "thread-weave": {
+          "label": "糸の織り方",
+          "description": "交差する流れる糸"
+        },
+        "drift-mist": {
+          "label": "ドリフトミスト",
+          "description": "レイヤードミストバンド"
+        },
+        "arc": {
+          "label": "ログイン",
+          "description": "放射アークリング"
+        },
+        "scope": {
+          "label": "オシロスコープ",
+          "description": "ライブ波形トレース"
+        },
+        "mirror": {
+          "label": "ミラー",
+          "description": "対称反射"
+        }
+      },
+      "spectrum": {
+        "radial-prism": "放射性プリズム",
+        "octave-classic": "Octaveバー",
+        "mirror-rainbow": "ミラーレインボー",
+        "led-orangered": "LEDスペクトル",
+        "graph-steel": "波グラフ",
+        "dual-steel-prism": "デュアルチャネル"
+      }
+    }
+  }
+}

@@ -1,10 +1,13 @@
 'use client';
 
+import { PROFILE_EN } from '$i18n-source/profile.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { updateBioAction } from '@lib/actions/profile.actions';
 import { useSession } from 'next-auth/react';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useIdlingLocale } from '../../components/locale/IdlingLocaleProvider';
 import { UserDecorationWrapper } from '../../components/decoration/UserDecorationWrapper';
 import {
   SubscriptionBadgesList,
@@ -27,19 +30,35 @@ interface DecorationOption {
   iconId: SiteIconId;
 }
 
-const decorationOptions: DecorationOption[] = [
-  { value: '', label: 'None', iconId: 'ban' },
-  { value: 'enterprise-crown', label: 'Enterprise Crown', iconId: 'crown' },
-  { value: 'premium-galaxy', label: 'Premium Galaxy', iconId: 'orbit' },
-  { value: 'pro-plasma', label: 'Pro Plasma', iconId: 'zap' },
-  { value: 'active-glow', label: 'Active Glow', iconId: 'sparkles' },
-  { value: 'trial-pulse', label: 'Trial Pulse', iconId: 'refresh' },
-];
+const DECORATION_ICON_BY_VALUE: Record<string, SiteIconId> = {
+  '': 'ban',
+  'enterprise-crown': 'crown',
+  'premium-galaxy': 'orbit',
+  'pro-plasma': 'zap',
+  'active-glow': 'sparkles',
+  'trial-pulse': 'refresh',
+};
 
 export function ProfilePageClient({
   userProfile,
   isOwnProfile: serverIsOwnProfile
 }: ProfilePageClientProps) {
+  const { ll } = useIdlingLocale();
+  const profileCopy = useMemo(
+    () => resolveCatalogFromLl(PROFILE_EN, ll.profile as Record<string, unknown>),
+    [ll]
+  );
+  const pageUi = profileCopy.pageUi;
+  const decorationOptions: DecorationOption[] = useMemo(
+    () =>
+      pageUi.decorationOptions.map((option) => ({
+        value: option.value,
+        label: option.label,
+        iconId: DECORATION_ICON_BY_VALUE[option.value] ?? 'ban',
+      })),
+    [pageUi.decorationOptions]
+  );
+
   const [currentProfile, setCurrentProfile] = useState(userProfile);
   const [isPending, startTransition] = useTransition();
   const [hasAdminAccess, setHasAdminAccess] = useState(false);
@@ -108,10 +127,10 @@ export function ProfilePageClient({
     <div className="profile-admin-controls">
       <div className="profile-admin-controls__title">
         <SiteIcon id="theater" className="profile-admin-controls__title-icon" sizeRem={1} />
-        Username Decoration Testing
+        {pageUi.adminDecorationTitle}
       </div>
       <p className="profile-admin-controls__description">
-        Test different username decorations on your profile page
+        {pageUi.adminDecorationDescription}
       </p>
       <div className="profile-admin-controls__decoration-grid">
         {decorationOptions.map((option) => (
@@ -131,7 +150,7 @@ export function ProfilePageClient({
       </div>
       <div className="profile-admin-controls__note">
         <SiteIcon id="lightbulb" className="profile-admin-controls__note-icon" sizeRem={0.875} />
-        This is a testing feature only visible to admins on their own profile
+        {pageUi.adminDecorationNote}
       </div>
     </div>
   );
@@ -143,7 +162,7 @@ export function ProfilePageClient({
       forceDecoration={selectedDecoration || undefined}
     >
       <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'bold' }}>
-        {userProfile.username || userProfile.name || 'Demo User'}
+        {userProfile.username || userProfile.name || pageUi.demoUserFallback}
       </span>
     </UserDecorationWrapper>
   );
@@ -162,7 +181,7 @@ export function ProfilePageClient({
       {isOwnProfile && hasAdminAccess && (
         <div className="profile-admin-panel">
           <div className="profile-admin-preview">
-            <h4>Preview:</h4>
+            <h4>{pageUi.previewLabel}</h4>
             {demoUsername}
           </div>
           <InteractiveTooltip
@@ -172,10 +191,10 @@ export function ProfilePageClient({
           >
             <button
               className="profile-admin-toggle"
-              title="Username Decoration Testing (Admin Only)"
+              title={pageUi.testDecorationsTitle}
             >
               <SiteIcon id="palette" className="profile-admin-toggle__icon" sizeRem={0.875} />
-              Test Username Decorations
+              {pageUi.testDecorationsButton}
             </button>
           </InteractiveTooltip>
         </div>
@@ -187,8 +206,8 @@ export function ProfilePageClient({
           userId={userProfile.id}
           variant="default"
           maxDisplay={8}
-          title="Subscriptions"
-          emptyMessage="Free tier user"
+          title={pageUi.subscriptionsTitle}
+          emptyMessage={pageUi.freeTierMessage}
         />
       </div>
 

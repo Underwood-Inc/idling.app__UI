@@ -7,6 +7,7 @@ import FadeIn from '../components/fade-in/FadeIn';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
+import { ToolsCopyProvider, useToolsCopy } from '../tools/ToolsCopyContext';
 import { ConversionDisplay } from './components/ConversionDisplay';
 import { ConversionHistory } from './components/ConversionHistory';
 import { SvgConverterInterface } from './components/SvgConverterInterface';
@@ -26,8 +27,10 @@ export interface ConversionResult {
   timestamp: Date;
 }
 
-export default function SvgConverter() {
+function SvgConverterPageContent() {
   const { data: session } = useSession();
+  const { svgConverter } = useToolsCopy();
+  const page = svgConverter.page;
 
   // Core state
   const [currentResult, setCurrentResult] = useState<ConversionResult | null>(
@@ -78,13 +81,9 @@ export default function SvgConverter() {
             <div className={styles.converter__header}>
               <h1 className={styles.converter__title}>
                 <SiteIcon id="palette" sizeRem={1.25} />
-                SVG to PNG Converter
+                {page.title}
               </h1>
-              <p className={styles.converter__description}>
-                Transform your SVG vector graphics into high-quality PNG images
-                with custom sizing, quality settings, and batch processing
-                capabilities.
-              </p>
+              <p className={styles.converter__description}>{page.description}</p>
             </div>
 
             <div className={styles.converter__main}>
@@ -113,14 +112,14 @@ export default function SvgConverter() {
                   <div className={styles.error__content}>
                     <h3>
                       <SiteIcon id="alertTriangle" sizeRem={1.125} />
-                      Conversion Failed
+                      {page.conversionFailed}
                     </h3>
                     <p>{error}</p>
                     <button
                       onClick={() => setError('')}
                       className={styles.error__dismiss}
                     >
-                      Dismiss
+                      {page.dismiss}
                     </button>
                   </div>
                 </div>
@@ -135,57 +134,42 @@ export default function SvgConverter() {
           <div className={styles.sidebar__section}>
             <h3 className={styles.sidebar__title}>
               <SiteIcon id="sparkles" sizeRem={1.125} />
-              Features
+              {page.featuresTitle}
             </h3>
             <ul className={styles.feature__list}>
-              <li>
-                <SiteIcon id="target" sizeRem={1} />
-                High-quality PNG output
-              </li>
-              <li>
-                <SiteIcon id="settings" sizeRem={1} />
-                Custom scaling & dimensions
-              </li>
-              <li>
-                <SiteIcon id="lock" sizeRem={1} />
-                Security validation
-              </li>
-              <li>
-                <SiteIcon id="barChart" sizeRem={1} />
-                Batch processing
-              </li>
-              <li>
-                <SiteIcon id="palette" sizeRem={1} />
-                Background customization
-              </li>
-              <li>
-                <SiteIcon id="clock" sizeRem={1} />
-                Real-time progress
-              </li>
+              {page.features.map((feature, index) => {
+                const featureIcons = ['target', 'settings', 'lock', 'barChart', 'palette', 'clock'] as const;
+                return (
+                  <li key={feature}>
+                    <SiteIcon id={featureIcons[index] ?? 'target'} sizeRem={1} />
+                    {feature}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
           <div className={styles.sidebar__section}>
             <h3 className={styles.sidebar__title}>
               <SiteIcon id="clipboard" sizeRem={1.125} />
-              Supported
+              {page.supportedTitle}
             </h3>
             <div className={styles.format__grid}>
               <div className={styles.format__item}>
-                <span className={styles.format__label}>Input:</span>
-                <span className={styles.format__value}>SVG</span>
+                <span className={styles.format__label}>{page.formats.inputLabel}</span>
+                <span className={styles.format__value}>{page.formats.inputValue}</span>
               </div>
               <div className={styles.format__item}>
-                <span className={styles.format__label}>Output:</span>
-                <span className={styles.format__value}>PNG</span>
+                <span className={styles.format__label}>{page.formats.outputLabel}</span>
+                <span className={styles.format__value}>{page.formats.outputValue}</span>
               </div>
               <div className={styles.format__item}>
-                <span className={styles.format__label}>Max Size:</span>
-                <span className={styles.format__value}>10MB</span>
+                <span className={styles.format__label}>{page.formats.maxSizeLabel}</span>
+                <span className={styles.format__value}>{page.formats.maxSizeValue}</span>
               </div>
               <div className={styles.format__item}>
-                <span className={styles.format__label}>Batch:</span>
-                <span className={styles.format__value}>10 files</span>
+                <span className={styles.format__label}>{page.formats.batchLabel}</span>
+                <span className={styles.format__value}>{page.formats.batchValue}</span>
               </div>
             </div>
           </div>
@@ -204,13 +188,12 @@ export default function SvgConverter() {
           <div className={styles.sidebar__section}>
             <h3 className={styles.sidebar__title}>
               <SiteIcon id="lightbulb" sizeRem={1.125} />
-              Tips
+              {page.tipsTitle}
             </h3>
             <ul className={styles.tips__list}>
-              <li>Remove script tags for security</li>
-              <li>Use simple SVGs for faster conversion</li>
-              <li>Higher quality = larger file size</li>
-              <li>Try 2x scale for retina displays</li>
+              {page.tips.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
             </ul>
           </div>
 
@@ -218,12 +201,12 @@ export default function SvgConverter() {
             <div className={styles.sidebar__section}>
               <h3 className={styles.sidebar__title}>
                 <SiteIcon id="user" sizeRem={1.125} />
-                Signed In
+                {page.signedInTitle}
               </h3>
               <p className={styles.user__info}>
                 Welcome back, {session.user.name || session.user.email}!
                 <br />
-                <small>No conversion limits for registered users</small>
+                <small>{page.signedInNoLimits}</small>
               </p>
             </div>
           )}
@@ -231,5 +214,13 @@ export default function SvgConverter() {
       </PageAside>
       </div>
     </PageContainer>
+  );
+}
+
+export default function SvgConverter() {
+  return (
+    <ToolsCopyProvider>
+      <SvgConverterPageContent />
+    </ToolsCopyProvider>
   );
 }

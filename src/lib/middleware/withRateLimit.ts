@@ -67,8 +67,7 @@ export function withRateLimit(handler: ApiHandler, options: { skipRateLimit?: bo
       VERSION = '/api/version',
       LINK_PREVIEW = '/api/link-preview',
       TEST_HEALTH = '/api/test/health',
-      NOTIFICATIONS_POLL = '/api/notifications/poll',
-      BUDDHA_API = 'https://buddha-api.com/api/random'
+      NOTIFICATIONS_POLL = '/api/notifications/poll'
     }
 
     const exemptPaths = Object.values(RateLimitExemptPaths);

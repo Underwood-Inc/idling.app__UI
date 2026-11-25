@@ -1,3 +1,12 @@
+import type { TranslationFunctions } from '$i18n/i18n-types';
+import enCatalog from '$i18n/locales/en.json';
+import {
+  resolveOutboundLinkLabel,
+  resolveProductMarketingAudienceLine,
+  resolveProductMarketingHook,
+  resolveProductMarketingStatusLabel,
+} from '@molecules/i18n/idlingProductMarketingI18n';
+import { idlingProductI18nKey } from '@molecules/i18n/idlingProductI18nKey';
 import { isExternalLink } from '@lib/routes';
 import {
   PROJECT_SHOWCASE_PROJECTS,
@@ -78,34 +87,57 @@ export function listHomeMarketingTiles(): HomeMarketingTile[] {
   return [...featuredTiles, ...chipTiles];
 }
 
-const HOME_LINK_FIELDS: Array<{
-  key: keyof ProjectShowcaseProjectLinks;
-  label: string;
-}> = [
-  { key: 'live', label: 'Open' },
-  { key: 'builtByBit', label: 'Get it' },
-  { key: 'modsHub', label: 'Mods Hub' },
-  { key: 'modrinth', label: 'Modrinth' },
-  { key: 'demo', label: 'Tour' },
+const HOME_LINK_FIELD_KEYS: Array<keyof ProjectShowcaseProjectLinks> = [
+  'live',
+  'builtByBit',
+  'modsHub',
+  'modrinth',
+  'demo',
 ];
 
+function primaryHomeLinkLabel(
+  fieldKey: keyof ProjectShowcaseProjectLinks,
+  href: string,
+  ll?: TranslationFunctions
+): string {
+  const external = isExternalLink(href);
+  if (ll) {
+    if (fieldKey === 'demo' && !external) {
+      return ll.home.homeLinks.tour();
+    }
+    if (fieldKey === 'live' && external) {
+      return ll.home.homeLinks.open();
+    }
+    const homeLinks = ll.home.homeLinks as Record<string, () => string>;
+    const fn = homeLinks[fieldKey];
+    if (typeof fn === 'function') {
+      return String(fn());
+    }
+  }
+
+  const enLinks = enCatalog.home.homeLinks as Record<string, string>;
+  if (fieldKey === 'demo' && !external) {
+    return enLinks.tour;
+  }
+  if (fieldKey === 'live' && external) {
+    return enLinks.open;
+  }
+  return enLinks[fieldKey] ?? fieldKey;
+}
+
 export function getHomeProductPrimaryLink(
-  project: ProjectShowcaseProject
+  project: ProjectShowcaseProject,
+  ll?: TranslationFunctions
 ): ProductMarketingPrimaryLink | null {
-  for (const field of HOME_LINK_FIELDS) {
-    const href = project.links[field.key];
+  for (const fieldKey of HOME_LINK_FIELD_KEYS) {
+    const href = project.links[fieldKey];
 
     if (!href) {
       continue;
     }
 
     const external = isExternalLink(href);
-    const label =
-      field.key === 'demo' && !external
-        ? 'Tour'
-        : field.key === 'live' && external
-          ? 'Open'
-          : field.label;
+    const label = primaryHomeLinkLabel(fieldKey, href, ll);
 
     return { href, label, external };
   }
@@ -136,65 +168,29 @@ export function listHomeFilmstripProjects(): ProjectShowcaseProject[] {
 
 export const DASHBOARD_COPY: ProductMarketingDashboardCopy = {
   eyebrow: 'idling.app',
-  title: 'Maps. Mods. Tools. Radio.',
-  line: 'Games, mods, stream tools, and community — each product below has a tour or a live app when you are ready.',
+  title: enCatalog.home.masthead.title,
+  line: enCatalog.home.masthead.line,
   primaryCta: 'Products',
   primaryHref: '#products',
   secondaryCta: '',
   secondaryHref: '#products',
 };
 
-export const PRODUCT_AUDIENCE_LINES: Record<string, string> = {
-  overlane:
-    'Live telemetry, searchable archive, dashboard charts, and hybrid hot/cold storage for millions of observations — ETS2 and ATS on your PC, no cloud account.',
-  mappy:
-    'Offline maps for open-world games and tabletop campaigns — explore, mark, and measure without signing in.',
-  'mods-hub': 'Download and browse Minecraft mods from one place built for players.',
-  compressy: 'Compress stacks of blocks in Minecraft so storage and builds stay manageable.',
-  'obs-animation-suite': 'Control OBS from the browser with smooth scene switches and animated sources.',
-  offerings: 'Daily kit lottery on your Minecraft server.',
-  rituals: 'Light-the-fire magic and rituals datapack.',
-  shirecraft: 'Whitelist survival on Shirecraft.',
-  'trials-of-the-wild': 'Hardcore survival modpack with hundreds of mods.',
-  alloys: 'Ten fantasy metals to find and forge.',
-  tally: 'Thousands of advancements to chase in survival.',
-};
-
-export const PRODUCT_MARKETING_HOOKS: Record<string, string> = {
-  overlane: 'ETS2 & ATS telemetry.',
-  mappy: 'Offline maps.',
-  compressy: 'Stack blocks×32.',
-  offerings: 'Daily server lottery.',
-  rituals: 'Light-the-fire magic.',
-  'trials-of-the-wild': '~250-mod survival.',
-  alloys: '10 fantasy metals.',
-  tally: '10k+ advancements.',
-  shirecraft: 'Whitelist survival.',
-  'obs-animation-suite': '60 FPS stream scenes.',
-  'mods-hub': 'Host & ship mods.',
-  'auth-service': 'Sign in with a code.',
-  'card-generator': 'Social cards fast.',
-  'svg-converter': 'SVG → PNG.',
-  'url-shortener': 'Short links + stats.',
-  'access-hub': 'Roles & permissions.',
-  'shared-components': 'React + Svelte kit.',
-  'api-framework': 'Typed API client.',
-  'streamkit-api': 'OBS scene sync.',
-  'search-query-parser': 'Smart search syntax.',
-};
-
-const OUTBOUND_FIELDS: Array<{
-  key: keyof ProjectShowcaseProjectLinks;
-  label: string;
-  preferPrimary?: boolean;
-}> = [
-  { key: 'live', label: 'Live app', preferPrimary: true },
-  { key: 'builtByBit', label: 'BuiltByBit' },
-  { key: 'modsHub', label: 'Mods Hub' },
-  { key: 'modrinth', label: 'Modrinth' },
-  { key: 'demo', label: 'Product tour' },
-  { key: 'github', label: 'GitHub' },
+const OUTBOUND_FIELD_KEYS: Array<keyof ProjectShowcaseProjectLinks> = [
+  'live',
+  'builtByBit',
+  'modsHub',
+  'modrinth',
+  'demo',
+  'github',
 ];
+
+function readEnglishCatalogString(
+  bucket: Record<string, string>,
+  projectId: string
+): string | undefined {
+  return bucket[idlingProductI18nKey(projectId)];
+}
 
 export function listProductMarketingIds(): string[] {
   return PROJECT_SHOWCASE_PROJECTS.map((project) => project.id);
@@ -214,16 +210,33 @@ export function listFeaturedProductProjects(): ProjectShowcaseProject[] {
   });
 }
 
-export function productMarketingHook(project: ProjectShowcaseProject): string {
+export function productMarketingHook(
+  project: ProjectShowcaseProject,
+  ll?: TranslationFunctions
+): string {
+  if (ll) {
+    return resolveProductMarketingHook(project, ll);
+  }
   return (
-    PRODUCT_MARKETING_HOOKS[project.id] ?? project.features[0]?.split(' ').slice(0, 4).join(' ') ?? project.title
+    readEnglishCatalogString(enCatalog.home.hooks as Record<string, string>, project.id) ??
+    project.features[0]?.split(' ').slice(0, 4).join(' ') ??
+    project.title
   );
 }
 
 /** One visitor-facing sentence for hub tiles and cards. */
-export function productMarketingAudienceLine(project: ProjectShowcaseProject): string {
-  const audience = PRODUCT_AUDIENCE_LINES[project.id];
+export function productMarketingAudienceLine(
+  project: ProjectShowcaseProject,
+  ll?: TranslationFunctions
+): string {
+  if (ll) {
+    return resolveProductMarketingAudienceLine(project, ll);
+  }
 
+  const audience = readEnglishCatalogString(
+    enCatalog.home.audience as Record<string, string>,
+    project.id
+  );
   if (audience) {
     return audience;
   }
@@ -254,49 +267,60 @@ export function productMarketingSummary(project: ProjectShowcaseProject): string
   return `${summary.slice(0, 237)}…`;
 }
 
-export function productMarketingTagline(project: ProjectShowcaseProject): string {
-  return productMarketingHook(project);
+export function productMarketingTagline(
+  project: ProjectShowcaseProject,
+  ll?: TranslationFunctions
+): string {
+  return productMarketingHook(project, ll);
 }
 
 export function productMarketingStatusLabel(
-  status: ProjectShowcaseProject['status']
+  status: ProjectShowcaseProject['status'],
+  ll?: TranslationFunctions
 ): string | null {
+  if (ll) {
+    return resolveProductMarketingStatusLabel(status, ll);
+  }
+
   if (!status) {
     return null;
   }
 
   if (status === 'WIP') {
-    return 'In progress';
+    return enCatalog.home.status.wip;
   }
 
   return status;
 }
 
 export function getProductMarketingPrimaryLink(
-  project: ProjectShowcaseProject
+  project: ProjectShowcaseProject,
+  ll?: TranslationFunctions
 ): ProductMarketingPrimaryLink | null {
-  const outbound = listProductMarketingLinks(project.links);
+  const outbound = listProductMarketingLinks(project.links, ll);
 
   return outbound[0] ?? null;
 }
 
 export function listProductMarketingLinks(
-  links: ProjectShowcaseProjectLinks
+  links: ProjectShowcaseProjectLinks,
+  ll?: TranslationFunctions
 ): ProductMarketingLink[] {
-  return OUTBOUND_FIELDS.flatMap((field) => {
-    const href = links[field.key];
+  return OUTBOUND_FIELD_KEYS.flatMap((fieldKey) => {
+    const href = links[fieldKey];
 
     if (!href) {
       return [];
     }
 
     const external = isExternalLink(href);
-    const label =
-      field.key === 'demo' && !external
-        ? 'In-depth tour'
-        : field.key === 'live' && external
-          ? 'Launch live app'
-          : field.label;
+    const label = ll
+      ? resolveOutboundLinkLabel({ fieldKey, href, external }, ll)
+      : fieldKey === 'demo' && !external
+        ? enCatalog.home.outboundVariants.inDepthTour
+        : fieldKey === 'live' && external
+          ? enCatalog.home.outboundVariants.launchLiveApp
+          : ((enCatalog.home.outboundLinks as Record<string, string>)[fieldKey] ?? fieldKey);
 
     return [{ href, label, external }];
   });

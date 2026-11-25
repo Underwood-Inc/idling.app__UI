@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
+import { useRadioCopy } from './useRadioCopy';
 import styles from './RadioPlayerVolumeFader.module.css';
 
 export interface RadioPlayerVolumeFaderProps {
@@ -36,6 +37,7 @@ function ratioToVolume(ratio: number, range: VolumeRange): number {
 }
 
 export function RadioPlayerVolumeFader({ volume, onChange }: RadioPlayerVolumeFaderProps) {
+  const { aria } = useRadioCopy();
   const trackRef = useRef<HTMLDivElement>(null);
   const range = VOLUME_RANGE;
   const ratio = volumeToRatio(volume, range);
@@ -131,7 +133,7 @@ export function RadioPlayerVolumeFader({ volume, onChange }: RadioPlayerVolumeFa
         data-fill-tone={fillTone}
         role="slider"
         tabIndex={0}
-        aria-label="Volume"
+        aria-label={aria.volume}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={pct}

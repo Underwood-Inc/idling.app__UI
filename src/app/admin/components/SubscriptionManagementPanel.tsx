@@ -5,6 +5,7 @@ import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useAdminCopy } from '../AdminCopyContext';
 import { AssignSubscriptionModal } from './modals/AssignSubscriptionModal';
 import { EditPlanModal } from './modals/EditPlanModal';
 import { EditSubscriptionModal } from './modals/EditSubscriptionModal';
@@ -109,6 +110,7 @@ export default function SubscriptionManagementPanel() {
   // STATE MANAGEMENT
   // ================================
 
+  const copy = useAdminCopy().subscription;
   const { openOverlay, closeOverlay } = useOverlay();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [loading, setLoading] = useState(true);
@@ -300,7 +302,7 @@ export default function SubscriptionManagementPanel() {
   // ================================
 
   const formatPrice = (cents?: number) => {
-    if (!cents || cents === 0) return 'Free';
+    if (!cents || cents === 0) return copy.plans.free;
     return `$${(cents / 100).toFixed(2)}`;
   };
 
@@ -314,12 +316,12 @@ export default function SubscriptionManagementPanel() {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      active: { label: 'Active', className: 'status-badge--success' },
-      trialing: { label: 'Trial', className: 'status-badge--info' },
-      cancelled: { label: 'Cancelled', className: 'status-badge--warning' },
-      expired: { label: 'Expired', className: 'status-badge--danger' },
-      suspended: { label: 'Suspended', className: 'status-badge--danger' },
-      pending: { label: 'Pending', className: 'status-badge--secondary' }
+      active: { label: copy.statusLabels.active, className: 'status-badge--success' },
+      trialing: { label: copy.statusLabels.trialing, className: 'status-badge--info' },
+      cancelled: { label: copy.statusLabels.cancelled, className: 'status-badge--warning' },
+      expired: { label: copy.statusLabels.expired, className: 'status-badge--danger' },
+      suspended: { label: copy.statusLabels.suspended, className: 'status-badge--danger' },
+      pending: { label: copy.statusLabels.pending, className: 'status-badge--secondary' }
     };
 
     const config = statusMap[status as keyof typeof statusMap] || {
@@ -337,7 +339,7 @@ export default function SubscriptionManagementPanel() {
 
   const handleCreatePlan = () => {
     // TODO: Implement create plan modal
-    alert('Create Plan functionality coming soon!');
+    alert(copy.plans.createComingSoon);
   };
 
   const handleEditPlan = (plan: SubscriptionPlan) => {
@@ -596,55 +598,55 @@ export default function SubscriptionManagementPanel() {
   // ================================
 
   const renderOverview = () => {
-    if (!subscriptionStats) return <div>Loading stats...</div>;
+    if (!subscriptionStats) return <div>{copy.overview.loadingStats}</div>;
 
     return (
       <div className="subscription-overview">
         <div className="stats-grid">
           <div className="stat-card">
-            <SectionTitle iconId="clipboard">Total Plans</SectionTitle>
+            <SectionTitle iconId="clipboard">{copy.overview.totalPlans}</SectionTitle>
             <div className="stat-value">{subscriptionStats.total_plans}</div>
             <div className="stat-subtitle">
-              {subscriptionStats.active_plans} active
+              {subscriptionStats.active_plans} {copy.overview.activePlansSuffix}
             </div>
           </div>
 
           <div className="stat-card">
-            <SectionTitle iconId="users">Total Subscriptions</SectionTitle>
+            <SectionTitle iconId="users">{copy.overview.totalSubscriptions}</SectionTitle>
             <div className="stat-value">
               {subscriptionStats.total_subscriptions}
             </div>
             <div className="stat-subtitle">
-              {subscriptionStats.active_subscriptions} active
+              {subscriptionStats.active_subscriptions} {copy.overview.activeSuffix}
             </div>
           </div>
 
           <div className="stat-card">
-            <SectionTitle iconId="rocket">Trial Users</SectionTitle>
+            <SectionTitle iconId="rocket">{copy.overview.trialUsers}</SectionTitle>
             <div className="stat-value">
               {subscriptionStats.trialing_subscriptions}
             </div>
-            <div className="stat-subtitle">Currently trialing</div>
+            <div className="stat-subtitle">{copy.overview.currentlyTrialing}</div>
           </div>
 
           <div className="stat-card">
-            <SectionTitle iconId="coins">Monthly Revenue</SectionTitle>
+            <SectionTitle iconId="coins">{copy.overview.monthlyRevenue}</SectionTitle>
             <div className="stat-value">
               {formatPrice(subscriptionStats.revenue_monthly_cents)}
             </div>
-            <div className="stat-subtitle">Recurring monthly</div>
+            <div className="stat-subtitle">{copy.overview.recurringMonthly}</div>
           </div>
         </div>
 
         <div className="plan-distribution">
-          <SectionTitle iconId="barChart">Plan Distribution</SectionTitle>
+          <SectionTitle iconId="barChart">{copy.overview.planDistribution}</SectionTitle>
           <div className="distribution-list">
             {subscriptionStats.plan_distribution.map((plan) => (
               <div key={plan.plan_name} className="distribution-item">
                 <div className="distribution-info">
                   <span className="plan-name">{plan.plan_display_name}</span>
                   <span className="subscriber-count">
-                    {plan.subscriber_count} subscribers
+                    {plan.subscriber_count} {copy.overview.subscribersSuffix}
                   </span>
                 </div>
                 <div className="distribution-revenue">
@@ -661,9 +663,9 @@ export default function SubscriptionManagementPanel() {
   const renderPlans = () => (
     <div className="subscription-plans">
       <div className="plans-header">
-        <SectionTitle iconId="clipboard">Subscription Plans</SectionTitle>
+        <SectionTitle iconId="clipboard">{copy.plans.title}</SectionTitle>
         <button className="btn btn-primary" onClick={handleCreatePlan}>
-          <IconText iconId="plusCircle">Create New Plan</IconText>
+          <IconText iconId="plusCircle">{copy.plans.createNewPlan}</IconText>
         </button>
       </div>
 
@@ -687,14 +689,14 @@ export default function SubscriptionManagementPanel() {
                     <span className="price">
                       {formatPrice(plan.price_monthly_cents)}
                     </span>
-                    <span className="period">/month</span>
+                    <span className="period">{copy.plans.periodMonth}</span>
                   </div>
                   {plan.price_yearly_cents && (
                     <div className="price-option">
                       <span className="price">
                         {formatPrice(plan.price_yearly_cents)}
                       </span>
-                      <span className="period">/year</span>
+                      <span className="period">{copy.plans.periodYear}</span>
                     </div>
                   )}
                   {plan.price_lifetime_cents && (
@@ -702,12 +704,12 @@ export default function SubscriptionManagementPanel() {
                       <span className="price">
                         {formatPrice(plan.price_lifetime_cents)}
                       </span>
-                      <span className="period">lifetime</span>
+                      <span className="period">{copy.plans.periodLifetime}</span>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="price-free">Free</div>
+                <div className="price-free">{copy.plans.free}</div>
               )}
             </div>
 
@@ -720,16 +722,16 @@ export default function SubscriptionManagementPanel() {
                 className="btn btn-secondary btn-sm"
                 onClick={() => handleEditPlan(plan)}
               >
-                <IconText iconId="pencil">Edit</IconText>
+                <IconText iconId="pencil">{copy.plans.edit}</IconText>
               </button>
               <button
                 className={`btn btn-sm ${plan.is_active ? 'btn-danger' : 'btn-success'}`}
                 onClick={() => handleTogglePlan(plan)}
               >
                 {plan.is_active ? (
-                  <IconText iconId="ban">Disable</IconText>
+                  <IconText iconId="ban">{copy.plans.disable}</IconText>
                 ) : (
-                  <IconText iconId="check">Enable</IconText>
+                  <IconText iconId="check">{copy.plans.enable}</IconText>
                 )}
               </button>
             </div>
@@ -742,13 +744,13 @@ export default function SubscriptionManagementPanel() {
   const renderSubscriptions = () => (
     <div className="user-subscriptions">
       <div className="subscriptions-header">
-        <SectionTitle iconId="users">User Subscriptions</SectionTitle>
+        <SectionTitle iconId="users">{copy.subscriptions.title}</SectionTitle>
         <div className="subscriptions-actions">
           <button
             className="btn btn-primary"
             onClick={() => setShowAssignModal(true)}
           >
-            <IconText iconId="plusCircle">Assign Subscription</IconText>
+            <IconText iconId="plusCircle">{copy.subscriptions.assignSubscription}</IconText>
           </button>
         </div>
       </div>
@@ -756,7 +758,7 @@ export default function SubscriptionManagementPanel() {
       <div className="subscriptions-filters">
         <input
           type="text"
-          placeholder="Search users or plans..."
+          placeholder={copy.subscriptions.searchPlaceholder}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -767,12 +769,12 @@ export default function SubscriptionManagementPanel() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="all">All Statuses</option>
-          <option value="active">Active</option>
+          <option value="all">{copy.subscriptions.allStatuses}</option>
+          <option value="active">{copy.statusLabels.active}</option>
           <option value="trialing">Trialing</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="expired">Expired</option>
-          <option value="suspended">Suspended</option>
+          <option value="cancelled">{copy.statusLabels.cancelled}</option>
+          <option value="expired">{copy.statusLabels.expired}</option>
+          <option value="suspended">{copy.statusLabels.suspended}</option>
         </select>
 
         <select
@@ -780,7 +782,7 @@ export default function SubscriptionManagementPanel() {
           onChange={(e) => setPlanFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="all">All Plans</option>
+          <option value="all">{copy.subscriptions.allPlans}</option>
           {subscriptionPlans.map((plan) => (
             <option key={plan.id} value={plan.name}>
               {plan.display_name}
@@ -793,13 +795,9 @@ export default function SubscriptionManagementPanel() {
         <table className="subscriptions-table">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Plan</th>
-              <th>Status</th>
-              <th>Billing</th>
-              <th>Expires</th>
-              <th>Assigned By</th>
-              <th>Actions</th>
+              {copy.subscriptions.tableHeaders.map((header) => (
+                <th key={header}>{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -835,13 +833,13 @@ export default function SubscriptionManagementPanel() {
                       className="btn btn-sm btn-secondary"
                       onClick={() => handleEditSubscription(subscription)}
                     >
-                      <IconText iconId="pencil">Edit</IconText>
+                      <IconText iconId="pencil">{copy.subscriptions.edit}</IconText>
                     </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleCancelSubscription(subscription)}
                     >
-                      <IconText iconId="ban">Cancel</IconText>
+                      <IconText iconId="ban">{copy.subscriptions.cancel}</IconText>
                     </button>
                   </div>
                 </td>
@@ -858,7 +856,7 @@ export default function SubscriptionManagementPanel() {
             disabled={currentPage === 1}
             className="btn btn-secondary btn-sm"
           >
-            ← Previous
+            {copy.subscriptions.previous}
           </button>
 
           <span className="pagination-info">
@@ -873,7 +871,7 @@ export default function SubscriptionManagementPanel() {
             disabled={currentPage === totalPages}
             className="btn btn-secondary btn-sm"
           >
-            Next →
+            {copy.subscriptions.next}
           </button>
         </div>
       )}
@@ -889,7 +887,7 @@ export default function SubscriptionManagementPanel() {
       <div className="subscription-management-panel">
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Loading subscription data...</p>
+          <p>{copy.loadingData}</p>
         </div>
       </div>
     );
@@ -902,13 +900,13 @@ export default function SubscriptionManagementPanel() {
           <div className="error-icon">
             <SiteIcon id="alertTriangle" sizeRem={2} />
           </div>
-          <h3>Subscription System Not Available</h3>
-          <p>The subscription system is not configured or available.</p>
+          <h3>{copy.systemNotAvailableTitle}</h3>
+          <p>{copy.systemNotAvailableBody}</p>
           <button
             className="btn btn-primary"
             onClick={() => window.location.reload()}
           >
-            <IconText iconId="refresh">Retry</IconText>
+            <IconText iconId="refresh">{copy.retry}</IconText>
           </button>
         </div>
       </div>
@@ -920,12 +918,9 @@ export default function SubscriptionManagementPanel() {
       <div className="panel-header">
         <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
           <SiteIcon id="creditCard" sizeRem={1.25} />
-          Subscription Management
+          {copy.panelTitle}
         </h2>
-        <p>
-          Manage subscription plans, user subscriptions, and quota system
-          integration
-        </p>
+        <p>{copy.panelDescription}</p>
       </div>
 
       {error && (
@@ -945,19 +940,19 @@ export default function SubscriptionManagementPanel() {
           className={`tab-button ${activeTab === 'overview' ? 'tab-button--active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          <IconText iconId="barChart">Overview</IconText>
+          <IconText iconId="barChart">{copy.tabs.overview}</IconText>
         </button>
         <button
           className={`tab-button ${activeTab === 'plans' ? 'tab-button--active' : ''}`}
           onClick={() => setActiveTab('plans')}
         >
-          <IconText iconId="clipboard">Plans</IconText>
+          <IconText iconId="clipboard">{copy.tabs.plans}</IconText>
         </button>
         <button
           className={`tab-button ${activeTab === 'subscriptions' ? 'tab-button--active' : ''}`}
           onClick={() => setActiveTab('subscriptions')}
         >
-          <IconText iconId="users">Subscriptions</IconText>
+          <IconText iconId="users">{copy.tabs.subscriptions}</IconText>
         </button>
       </div>
 

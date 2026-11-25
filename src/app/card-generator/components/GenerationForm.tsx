@@ -1,12 +1,16 @@
 'use client';
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
 import { useAspectRatios } from '../hooks/useFormOptions';
 import type { GenerationOptions } from '../types/generation';
 import { AdvancedControls } from './AdvancedControls';
+import { useToolsCopy } from '../../tools/ToolsCopyContext';
+import { COMMON_EN } from '$i18n-source/common.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
+import { useIdlingLocale } from '../../components/locale/IdlingLocaleProvider';
 import formStyles from './FormElements.module.css';
 
 export interface AspectRatioOption {
@@ -96,6 +100,14 @@ export function GenerationForm({
   isProUser,
   isReadOnly = false
 }: GenerationFormProps) {
+  const { cardGenerator } = useToolsCopy();
+  const g = cardGenerator.generationForm;
+  const { ll } = useIdlingLocale();
+  const common = useMemo(
+    () => resolveCatalogFromLl(COMMON_EN, ll.common as Record<string, unknown>),
+    [ll]
+  );
+
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [editingSeed, setEditingSeed] = useState<'main' | 'avatar' | null>(
     null
@@ -150,14 +162,14 @@ export function GenerationForm({
       {/* Form Header */}
       <div className={formStyles.form__header}>
         <div className={formStyles.form__title__container}>
-          <h3 className={formStyles.form__title}>Configuration</h3>
+          <h3 className={formStyles.form__title}>{g.configuration}</h3>
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
               className={formStyles.form__collapse__button}
               title={isCollapsed ? 'Expand form' : 'Collapse form'}
             >
-              <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
+              <span>{isCollapsed ? common.actions.expand : common.actions.collapse}</span>
               <svg
                 className={`${formStyles.form__collapse__chevron} ${
                   isCollapsed
@@ -195,11 +207,8 @@ export function GenerationForm({
               <SiteIcon id="lock" sizeRem={1.25} />
             </span>
             <div className={formStyles.readonly__text}>
-              <strong>Viewing Loaded Generation</strong>
-              <p>
-                This configuration is read-only. Create a new generation to make
-                changes.
-              </p>
+              <strong>{g.viewingLoadedGeneration}</strong>
+              <p>{g.readOnlyBanner}</p>
             </div>
           </div>
         )}
@@ -208,7 +217,7 @@ export function GenerationForm({
         <div className={formStyles.form__section}>
           <h4 className={formStyles.form__section__title}>
             <SiteIcon id="zap" sizeRem={1.125} />
-            Free Configuration
+            {g.freeConfiguration}
           </h4>
 
           {/* Seeds Section */}
@@ -218,7 +227,7 @@ export function GenerationForm({
                 <label className={formStyles.form__label}>
                   <span className={formStyles.label__text}>
                     <SiteIcon id="dices" sizeRem={1} />
-                    Main Seed
+                    {g.labels.mainSeed}
                   </span>
                   <div className={formStyles.seed__display__container}>
                     {editingSeed === 'main' ? (
@@ -228,19 +237,19 @@ export function GenerationForm({
                           value={tempSeed}
                           onChange={(e) => setTempSeed(e.target.value)}
                           className={formStyles.seed__input}
-                          placeholder="Enter custom seed..."
+                          placeholder={g.placeholders.customSeed}
                         />
                         <button
                           onClick={handleSeedSave}
                           className={formStyles.seed__save}
-                          title="Save seed"
+                          title={g.seedActions.save}
                         >
                           <SiteIcon id="check" sizeRem={0.875} />
                         </button>
                         <button
                           onClick={handleSeedCancel}
                           className={formStyles.seed__cancel}
-                          title="Cancel edit"
+                          title={g.seedActions.cancelEdit}
                         >
                           <SiteIcon id="close" sizeRem={0.875} />
                         </button>
@@ -252,12 +261,12 @@ export function GenerationForm({
                           value={currentSeed}
                           readOnly
                           className={formStyles.seed__display__input}
-                          placeholder="Auto-generated seed"
+                          placeholder={g.placeholders.autoSeed}
                         />
                         <button
                           onClick={() => handleSeedEdit('main')}
                           className={formStyles.seed__edit__btn}
-                          title="Edit seed"
+                          title={g.seedActions.editMain}
                           disabled={isReadOnly}
                         >
                           <SiteIcon id="pencil" sizeRem={0.875} />
@@ -272,7 +281,7 @@ export function GenerationForm({
                 <label className={formStyles.form__label}>
                   <span className={formStyles.label__text}>
                     <SiteIcon id="wand" sizeRem={1} />
-                    Avatar Seed
+                    {g.labels.avatarSeed}
                   </span>
                   <div className={formStyles.seed__display__container}>
                     {editingSeed === 'avatar' ? (
@@ -282,19 +291,19 @@ export function GenerationForm({
                           value={tempSeed}
                           onChange={(e) => setTempSeed(e.target.value)}
                           className={formStyles.seed__input}
-                          placeholder="Leave empty to use main seed"
+                          placeholder={g.placeholders.avatarSeedUsesMain}
                         />
                         <button
                           onClick={handleSeedSave}
                           className={formStyles.seed__save}
-                          title="Save seed"
+                          title={g.seedActions.save}
                         >
                           <SiteIcon id="check" sizeRem={0.875} />
                         </button>
                         <button
                           onClick={handleSeedCancel}
                           className={formStyles.seed__cancel}
-                          title="Cancel edit"
+                          title={g.seedActions.cancelEdit}
                         >
                           <SiteIcon id="close" sizeRem={0.875} />
                         </button>
@@ -306,12 +315,12 @@ export function GenerationForm({
                           value={avatarSeed}
                           readOnly
                           className={formStyles.seed__display__input}
-                          placeholder="Custom avatar seed (leave empty for random)"
+                          placeholder={g.placeholders.avatarSeed}
                         />
                         <button
                           onClick={() => handleSeedEdit('avatar')}
                           className={formStyles.seed__edit__btn}
-                          title="Edit avatar seed"
+                          title={g.seedActions.editAvatar}
                           disabled={isReadOnly}
                         >
                           <SiteIcon id="pencil" sizeRem={0.875} />
@@ -329,14 +338,14 @@ export function GenerationForm({
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>
                 <SiteIcon id="user" sizeRem={1} />
-                Author
+                {g.labels.author}
               </span>
               <input
                 type="text"
                 value={customAuthor}
                 onChange={(e) => setCustomAuthor(e.target.value)}
                 className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                placeholder="Quote author (leave empty for random)"
+                placeholder={g.placeholders.quoteAuthor}
                 disabled={isReadOnly}
               />
             </label>
@@ -344,13 +353,13 @@ export function GenerationForm({
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>
                 <SiteIcon id="messages" sizeRem={1} />
-                Quote
+                {g.labels.quote}
               </span>
               <textarea
                 value={customQuote}
                 onChange={(e) => setCustomQuote(e.target.value)}
                 className={`${formStyles.form__textarea} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                placeholder="Enter custom quote (leave empty for random quote)"
+                placeholder={g.placeholders.customQuote}
                 rows={3}
                 disabled={isReadOnly}
               />
@@ -362,7 +371,7 @@ export function GenerationForm({
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>
                 <SiteIcon id="layout" sizeRem={1} />
-                Aspect Ratio
+                {g.labels.aspectRatio}
               </span>
               <select
                 value={selectedRatio.key}
@@ -377,7 +386,7 @@ export function GenerationForm({
                 disabled={isReadOnly || aspectRatioLoading}
               >
                 {aspectRatioLoading ? (
-                  <option value="">Loading aspect ratios...</option>
+                  <option value="">{g.loadingAspectRatios}</option>
                 ) : (
                   effectiveAspectRatios.map((ratio) => (
                     <option key={ratio.key} value={ratio.key}>
@@ -394,14 +403,14 @@ export function GenerationForm({
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>
                 <SiteIcon id="layout" sizeRem={1} />
-                Width
+                {g.labels.width}
               </span>
               <input
                 type="number"
                 value={customWidth}
                 onChange={(e) => setCustomWidth(e.target.value)}
                 className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                placeholder="Auto"
+                placeholder={g.placeholders.auto}
                 min="400"
                 max="2000"
                 disabled={isReadOnly}
@@ -410,14 +419,14 @@ export function GenerationForm({
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>
                 <SiteIcon id="layout" sizeRem={1} />
-                Height
+                {g.labels.height}
               </span>
               <input
                 type="number"
                 value={customHeight}
                 onChange={(e) => setCustomHeight(e.target.value)}
                 className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                placeholder="Auto"
+                placeholder={g.placeholders.auto}
                 min="400"
                 max="2000"
                 disabled={isReadOnly}
@@ -426,14 +435,14 @@ export function GenerationForm({
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>
                 <SiteIcon id="hash" sizeRem={1} />
-                Shape Count
+                {g.labels.shapeCount}
               </span>
               <input
                 type="number"
                 value={shapeCount}
                 onChange={(e) => setShapeCount(e.target.value)}
                 className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                placeholder="8"
+                placeholder={g.placeholders.shapeCountDefault}
                 min="0"
                 max="20"
                 disabled={isReadOnly}
@@ -447,14 +456,14 @@ export function GenerationForm({
           <div className={formStyles.form__pro__header}>
             <h4 className={formStyles.form__section__title}>
               <SiteIcon id="zap" sizeRem={1.125} />
-              Pro Configuration Options
-              <span className={formStyles.pro__badge}>PRO</span>
+              {g.proConfigurationOptions}
+              <span className={formStyles.pro__badge}>{g.proBadge}</span>
             </h4>
             <button
               onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
               className={formStyles.form__toggle__button}
             >
-              <span>{isAdvancedOpen ? 'Hide Details' : 'Show Details'}</span>
+              <span>{isAdvancedOpen ? g.hideDetails : g.showDetails}</span>
               <svg
                 className={`${formStyles.form__toggle__chevron} ${
                   isAdvancedOpen
@@ -506,7 +515,7 @@ export function GenerationForm({
           >
             <>
               <SiteIcon id="dices" sizeRem={1} />
-              Randomize All
+              {g.randomizeAll}
             </>
           </button>
 
@@ -533,7 +542,7 @@ export function GenerationForm({
             ) : (
               <>
                 <SiteIcon id="zap" sizeRem={1} />
-                Generate Image
+                {g.generateImage}
               </>
             )}
           </button>

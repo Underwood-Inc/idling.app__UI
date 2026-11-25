@@ -12,6 +12,7 @@ import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsDashboardResponse } from '../../api/analytics/dashboard/route';
+import { useAdminCopy } from '../AdminCopyContext';
 import './AnalyticsDashboard.css';
 
 interface MetricIconProps {
@@ -65,6 +66,7 @@ export default function AnalyticsDashboard({
   dateRange = '30d',
   onDateRangeChange
 }: AnalyticsDashboardProps) {
+  const analytics = useAdminCopy().analytics;
   const [analyticsData, setAnalyticsData] =
     useState<AnalyticsDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -124,18 +126,18 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="barChart" />
             <div className="metric-content">
-              <h3>Total Sessions</h3>
+              <h3>{analytics.metrics.totalSessions}</h3>
               <div className="metric-value">
                 {overview.totalSessions.toLocaleString()}
               </div>
-              <div className="metric-change">+12.5% from last period</div>
+              <div className="metric-change">{analytics.metrics.metricChangeSample}</div>
             </div>
           </div>
 
           <div className="metric-card">
             <MetricIcon id="users" />
             <div className="metric-content">
-              <h3>Unique Users</h3>
+              <h3>{analytics.metrics.uniqueUsers}</h3>
               <div className="metric-value">
                 {overview.uniqueUsers.toLocaleString()}
               </div>
@@ -146,7 +148,7 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="fileText" />
             <div className="metric-content">
-              <h3>Page Views</h3>
+              <h3>{analytics.metrics.pageViews}</h3>
               <div className="metric-value">
                 {overview.totalPageViews.toLocaleString()}
               </div>
@@ -157,7 +159,7 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="mousePointer" />
             <div className="metric-content">
-              <h3>Total Clicks</h3>
+              <h3>{analytics.metrics.totalClicks}</h3>
               <div className="metric-value">
                 {overview.totalClicks.toLocaleString()}
               </div>
@@ -168,7 +170,7 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="clock" />
             <div className="metric-content">
-              <h3>Avg Session Duration</h3>
+              <h3>{analytics.metrics.avgSessionDuration}</h3>
               <div className="metric-value">
                 {Math.round(overview.avgSessionDuration)}s
               </div>
@@ -179,7 +181,7 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="trendingUp" />
             <div className="metric-content">
-              <h3>Bounce Rate</h3>
+              <h3>{analytics.metrics.bounceRate}</h3>
               <div className="metric-value">
                 {overview.bounceRate.toFixed(1)}%
               </div>
@@ -190,7 +192,7 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="lock" />
             <div className="metric-content">
-              <h3>VPN Usage</h3>
+              <h3>{analytics.metrics.vpnUsage}</h3>
               <div className="metric-value">
                 {overview.vpnPercentage.toFixed(1)}%
               </div>
@@ -201,7 +203,7 @@ export default function AnalyticsDashboard({
           <div className="metric-card">
             <MetricIcon id="coins" />
             <div className="metric-content">
-              <h3>Conversion Rate</h3>
+              <h3>{analytics.metrics.conversionRate}</h3>
               <div className="metric-value">
                 {overview.conversionRate.toFixed(2)}%
               </div>
@@ -212,7 +214,7 @@ export default function AnalyticsDashboard({
 
         {/* Time Series Chart */}
         <div className="chart-container">
-          <HeadingIcon id="trendingUp">Traffic Trends</HeadingIcon>
+          <HeadingIcon id="trendingUp">{analytics.sections.trafficTrends}</HeadingIcon>
           <div className="chart-placeholder">
             <div className="chart-info">
               <p>
@@ -633,7 +635,7 @@ export default function AnalyticsDashboard({
       <div className="analytics-dashboard">
         <div className="analytics-loading">
           <div className="loading-spinner"></div>
-          <p>Loading analytics data...</p>
+          <p>{analytics.loading}</p>
         </div>
       </div>
     );
@@ -646,10 +648,10 @@ export default function AnalyticsDashboard({
           <div className="error-icon">
             <SiteIcon id="alertTriangle" sizeRem={2} />
           </div>
-          <h3>Analytics Error</h3>
+          <h3>{analytics.errorTitle}</h3>
           <p>{error}</p>
           <button onClick={fetchAnalyticsData} className="retry-button">
-            <TabLabel id="refresh">Retry</TabLabel>
+            <TabLabel id="refresh">{analytics.retry}</TabLabel>
           </button>
         </div>
       </div>
@@ -662,23 +664,23 @@ export default function AnalyticsDashboard({
       <div className="analytics-header">
         <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
           <SiteIcon id="barChart" sizeRem={1.25} />
-          Analytics Dashboard
+          {analytics.title}
         </h2>
         <div className="header-controls">
           <div className="date-range-selector">
-            <label>Date Range:</label>
+            <label>{analytics.dateRangeLabel}</label>
             <select
               value={dateRange}
               onChange={(e) => onDateRangeChange?.(e.target.value as any)}
             >
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="90d">Last 90 Days</option>
-              <option value="1y">Last Year</option>
+              <option value="7d">{analytics.dateRanges['7d']}</option>
+              <option value="30d">{analytics.dateRanges['30d']}</option>
+              <option value="90d">{analytics.dateRanges['90d']}</option>
+              <option value="1y">{analytics.dateRanges['1y']}</option>
             </select>
           </div>
           <button onClick={fetchAnalyticsData} className="refresh-button">
-            <TabLabel id="refresh">Refresh</TabLabel>
+            <TabLabel id="refresh">{analytics.refresh}</TabLabel>
           </button>
         </div>
       </div>
@@ -689,31 +691,31 @@ export default function AnalyticsDashboard({
           className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          <TabLabel id="barChart">Overview</TabLabel>
+          <TabLabel id="barChart">{analytics.tabs.overview}</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'geography' ? 'active' : ''}`}
           onClick={() => setActiveTab('geography')}
         >
-          <TabLabel id="globe">Geography</TabLabel>
+          <TabLabel id="globe">{analytics.tabs.geography}</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'devices' ? 'active' : ''}`}
           onClick={() => setActiveTab('devices')}
         >
-          <TabLabel id="smartphone">Devices</TabLabel>
+          <TabLabel id="smartphone">{analytics.tabs.devices}</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'heatmap' ? 'active' : ''}`}
           onClick={() => setActiveTab('heatmap')}
         >
-          <TabLabel id="flame">Heatmap</TabLabel>
+          <TabLabel id="flame">{analytics.tabs.heatmap}</TabLabel>
         </button>
         <button
           className={`tab-button ${activeTab === 'subscriptions' ? 'active' : ''}`}
           onClick={() => setActiveTab('subscriptions')}
         >
-          <TabLabel id="coins">Subscriptions</TabLabel>
+          <TabLabel id="coins">{analytics.tabs.subscriptions}</TabLabel>
         </button>
       </div>
 

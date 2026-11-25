@@ -2,8 +2,11 @@
 
 import { enhanceMermaidDiagrams } from '@lib/mermaid/mermaidViewer';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { PORTFOLIO_EN } from '$i18n-source/portfolio.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { ECOSYSTEM_TABS } from '@molecules/lucide/siteIconCatalog';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import '../../../css/mermaid.css';
 import { Card } from '../card/Card';
 import styles from './EcosystemDiagram.module.css';
@@ -30,6 +33,14 @@ type DiagramTab = 'overview' | 'dataflow' | 'packages';
  * 3. Package Dependencies - How NPM packages interconnect
  */
 export function EcosystemDiagram() {
+  const { ll } = useIdlingLocale();
+  const portfolio = resolveCatalogFromLl(PORTFOLIO_EN, ll.portfolio as Record<string, unknown>);
+  const ecosystem = portfolio.ecosystem;
+  const tabLabels = useMemo(
+    () => Object.fromEntries(ecosystem.tabs.map((tab) => [tab.id, tab.label])),
+    [ecosystem.tabs]
+  );
+
   const diagramRef = useRef<HTMLDivElement>(null);
   const scriptLoadedRef = useRef(false);
   const [activeTab, setActiveTab] = useState<DiagramTab>('overview');
@@ -296,11 +307,9 @@ graph TB
       <div className={styles.diagram__header}>
         <h3 className={styles.diagram__title}>
           <SiteIcon id="construction" className={styles.diagram__titleIcon} sizeRem={1} />
-          Ecosystem Architecture
+          {ecosystem.title}
         </h3>
-        <p className={styles.diagram__subtitle}>
-          How 38+ projects connect — pick a lens below
-        </p>
+        <p className={styles.diagram__subtitle}>{ecosystem.subtitle}</p>
       </div>
 
       <div className={styles.tabs}>
@@ -311,7 +320,7 @@ graph TB
             onClick={() => setActiveTab(tab.id)}
           >
             <SiteIcon id={tab.iconId} className={styles.tab__icon} sizeRem={1} />
-            {tab.label}
+            {tabLabels[tab.id] ?? tab.label}
           </button>
         ))}
       </div>
@@ -326,24 +335,13 @@ graph TB
 
       <div className={styles.diagram__footer}>
         {activeTab === 'overview' && (
-          <p className={styles.footer__text}>
-            <strong>System overview:</strong> 7 web/desktop apps (including Mappy), 6 Cloudflare
-            Workers APIs, 6 Minecraft projects via Mods API, and storage across PostgreSQL, KV, R2, and
-            IndexedDB.
-          </p>
+          <p className={styles.footer__text}>{ecosystem.footer.overview}</p>
         )}
         {activeTab === 'dataflow' && (
-          <p className={styles.footer__text}>
-            <strong>Data flow:</strong> Visitors, players, streamers, and map explorers each reach
-            their app surface. Web and mods use APIs; Mappy stays offline-first with local
-            IndexedDB — no account required.
-          </p>
+          <p className={styles.footer__text}>{ecosystem.footer.dataflow}</p>
         )}
         {activeTab === 'packages' && (
-          <p className={styles.footer__text}>
-            <strong>Package ecosystem:</strong> 23 NPM packages — core framework, UI, utilities,
-            hooks, and testing helpers — shared across React, Svelte, and Cloudflare surfaces.
-          </p>
+          <p className={styles.footer__text}>{ecosystem.footer.packages}</p>
         )}
       </div>
     </Card>

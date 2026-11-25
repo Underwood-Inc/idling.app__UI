@@ -1,0 +1,2470 @@
+{
+  "locale": {
+    "pickerLabel": "Lingua",
+    "pickerAria": "Scegli la lingua di visualizzazione"
+  },
+  "messageTicker": {
+    "separator": "—",
+    "loading": "Caricamento..",
+    "empty": "Fai un bel respiro.",
+    "openQuoteAria": "Citazione completa aperta",
+    "modalTitle": "Quote",
+    "closeModalAria": "Chiudi preventivo"
+  },
+  "nav": {
+    "externalLinkAria": "Collegamento esterno",
+    "groups": {
+      "TOOLS": "Strumenti",
+      "EXTERNAL": "Esterno"
+    },
+    "routes": {
+      "ROOT": "Home",
+      "CARD_GENERATOR": "Generatore di carta",
+      "SVG_CONVERTER": "SVG a PNG",
+      "GALAXY": "Galaxy",
+      "MAPPY": "mappy",
+      "COINS": "Monete",
+      "GAME": "Gioco",
+      "SIGNIN": "Accedi",
+      "CALLBACK": "Callback",
+      "ADMIN": "Amministrazioni",
+      "STRIXUN_STREAM_SUITE": "Strixun Stream Suite",
+      "STREAM_SUITE": "Stream Suite",
+      "MODS_HUB": "Mods Hub",
+      "AUTH_SERVICE": "Auth Service",
+      "URL_SHORTENER": "URL Shorter",
+      "ACCESS_HUB": "Hub di accesso",
+      "STREAM_SUITE_DETAIL": "Informazioni su Stream Suite",
+      "MODS_HUB_DETAIL": "Mods Hub Dettagli",
+      "AUTH_SERVICE_DETAIL": "Dettagli del servizio",
+      "URL_SHORTENER_DETAIL": "Dettagli sull'URL",
+      "ACCESS_HUB_DETAIL": "Dettagli del mozzo di accesso"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "loginWithProviderPrefix": "Accedi con",
+      "signOut": "Firma"
+    },
+    "signInNav": "Accedi",
+    "signInPage": {
+      "headline": "Benvenuti a Idling App",
+      "subtitle": "Scegli il tuo metodo di accesso preferito per continuare"
+    },
+    "callback": {
+      "oauthConflict": {
+        "option1Button": "Accedi con un account diverso",
+        "option1Title": "Opzione 1: Accedi con il tuo account esistente",
+        "option1Description": "Se ti ricordi l'altro account, accedi con questo."
+      },
+      "signInDifferentAccount": "Accedi con un account diverso",
+      "authErrorTitle": "Errore di autenticazione",
+      "completingSignIn": "Completo segnale...",
+      "completingSignInWithProvider": "Accedi con",
+      "accountAlreadyLinkedTitle": "Account già collegato",
+      "waitMessage": "Si prega di aspettare mentre finiamo di configurare il tuo account.",
+      "redirectingShortly": "Reindirizzarti a breve...",
+      "tryAgain": "Prova ancora",
+      "goHome": "Vai a casa",
+      "errors": {
+        "oauthSignin": "C'è stato un errore con il processo di accesso OAuth.",
+        "oauthCallback": "C'è stato un errore durante il callback OAuth.",
+        "oauthCreateAccount": "Non poteva creare account OAuth.",
+        "emailCreateAccount": "Non è possibile creare account e-mail.",
+        "callback": "C'è stato un errore nel gestore del callback.",
+        "emailSignin": "Controlla la tua email per il link di accesso.",
+        "credentialsSignin": "Credenziali non valide fornite.",
+        "sessionRequired": "Iscriviti per accedere a questa pagina.",
+        "unexpected": "Si è verificato un errore di autenticazione inaspettato."
+      }
+    },
+    "oauthConflict": {
+      "title": "Account già collegato",
+      "whatWouldYouLike": "Cosa vorresti fare?",
+      "option1Title": "Opzione 1: Accedi con un account diverso",
+      "option1DescriptionSignin": "Iscriviti e accedi con un account diverso che non ha collegato questo account provider.",
+      "option1ButtonSignin": "Accedi e accedi con un account diverso",
+      "option3Button": "Supporto di contatto",
+      "goHome": "Vai a casa",
+      "option2Title": "Opzione 2: Unlink e ricollega questo account",
+      "option2Description": "Possiamo aiutarti a sbloccare questo account provider dall'altro utente e collegarlo al tuo account corrente.",
+      "option2Button": "Unlink e relink account",
+      "option3Title": "Opzione 3: Supporto di contatto",
+      "option3Description": "Se avete bisogno di aiuto per risolvere questo problema, il nostro team di supporto può aiutarvi."
+    },
+    "unlink": {
+      "aboutTitle": "Informazioni su Account Linking Conflicts",
+      "aboutBody": "Quando si tenta di accedere con un provider OAuth (come Google o Twitch) che è già collegato a un altro account, dobbiamo risolvere questo conflitto.",
+      "howItWorksTitle": "Come funziona:",
+      "howItWorksSteps": {
+        "0": "Troveremo l'account che attualmente ha questo account provider collegato",
+        "1": "Lo sbloccheremo da quel conto",
+        "2": "Puoi quindi collegarlo al tuo account corrente",
+        "3": "Questo processo è sicuro e non cancella alcun dato"
+      },
+      "importantNotes": {
+        "0": "Questo sarà unlink solo il provider OAuth, non eliminare nessun account utente",
+        "1": "I dati del tuo account e lo stato di abbonamento saranno conservati",
+        "2": "Dovrai accedere con l'altro account per completare il processo",
+        "3": "Se non hai accesso all'altro account, contatta il supporto"
+      },
+      "cancel": "Annulla",
+      "needHelp": "Ti serve aiuto?",
+      "title": "Unlink Account Utente",
+      "subtitle": "Risolvere account che collega i conflitti",
+      "importantNotesTitle": "Note importanti:"
+    }
+  },
+  "search": {
+    "findUsersPlaceholder": "Trova gli utenti..."
+  },
+  "mobile": {
+    "brandTitle": "Idling.app",
+    "closeMenuAria": "Chiudi menu mobile",
+    "menuAria": "Menu di navigazione mobile"
+  },
+  "footer": {
+    "docs": "Docs",
+    "discord": "Discordia",
+    "discordAria": "Iscriviti al nostro server Discord"
+  },
+  "home": {
+    "masthead": {
+      "title": "Mappe. Mods. Strumenti. Radio.",
+      "line": "Giochi, mod, strumenti di streaming e comunità — ogni prodotto qui sotto ha un tour o un'app live quando sei pronto.",
+      "ctaSeeLineup": "Vedi la formazione"
+    },
+    "minecraftBand": {
+      "title": "Altri progetti Minecraft",
+      "line": "Plugin, datapack e il nostro server whitelist — stessa linea di Modrinth e BuiltByBit."
+    },
+    "hubEyebrow": {
+      "windowsProprietary": "App di Windows · proprietario"
+    },
+    "status": {
+      "wip": "In corso"
+    },
+    "homeLinks": {
+      "open": "Apri",
+      "getIt": "Prendilo",
+      "modsHub": "Mods Hub",
+      "modrinth": "Modrinto",
+      "tour": "Tour"
+    },
+    "outboundLinks": {
+      "live": "Live app",
+      "builtByBit": "BuiltByBit",
+      "modsHub": "Mods Hub",
+      "modrinth": "Modrinto",
+      "demo": "Tour del prodotto",
+      "github": "GitHub"
+    },
+    "outboundVariants": {
+      "inDepthTour": "Tour approfondito",
+      "launchLiveApp": "Avviare l'applicazione live"
+    },
+    "minecraftMore": {
+      "productTour": "Tour del prodotto",
+      "seeTour": "Vedi il tour",
+      "modrinthPage": "Pagina della moda",
+      "builtByBitListing": "Costruito da Elenco dei bit",
+      "onIdlingApp": "Su idling.app"
+    },
+    "hooks": {
+      "overlane": "Telemetria ETS2 & ATS.",
+      "mappy": "Mappe offline.",
+      "compressy": "Blocchi di blocco×32.",
+      "offerings": "Lotteria del server giornaliero.",
+      "rituals": "La magia del fuoco.",
+      "trials_of_the_wild": "- 250-mod sopravvivenza.",
+      "alloys": "10 metalli fantasy.",
+      "tally": "10k+ avanzamenti.",
+      "shirecraft": "La sopravvivenza della Whitelist.",
+      "obs_animation_suite": "60 scene di flusso FPS.",
+      "mods_hub": "Mod Host & ship.",
+      "auth_service": "Accedi con un codice.",
+      "card_generator": "Carte sociali veloci.",
+      "svg_converter": "SVG → PNG.",
+      "url_shortener": "Collegamenti brevi + statistiche.",
+      "access_hub": "Roles e autorizzazioni.",
+      "shared_components": "Kit React + Svelte.",
+      "api_framework": "Tipo client API.",
+      "streamkit_api": "Sincronismo della scena OBS.",
+      "search_query_parser": "Sintassi di ricerca intelligente."
+    },
+    "audience": {
+      "overlane": "Telemetria live, archivio ricercabile, grafici di cruscotto e storage ibrido caldo / freddo per milioni di osservazioni — ETS2 e ATS sul vostro PC, nessun account cloud.",
+      "mappy": "Mappe offline per i giochi open-world e le campagne da tavolo — esplorare, segnare e misurare senza firma.",
+      "mods_hub": "Scaricare e navigare mod Minecraft da un posto costruito per i giocatori.",
+      "compressy": "Comprime pile di blocchi in Minecraft così lo stoccaggio e costruisce rimanere gestibile.",
+      "obs_animation_suite": "Controlla OBS dal browser con interruttori di scena fluidi e sorgenti animate.",
+      "offerings": "Lotteria del kit giornaliero sul tuo server Minecraft.",
+      "rituals": "Datapack di magia e rituali leggeri.",
+      "shirecraft": "Sopravvivenza a Shirecraft.",
+      "trials_of_the_wild": "Modpack di sopravvivenza Hardcore con centinaia di mod.",
+      "alloys": "Dieci metalli fantasy per trovare e forgiare.",
+      "tally": "Migliaia di progressi per inseguire nella sopravvivenza."
+    },
+    "hub": {
+      "overlane": {
+        "headline": "Telemetria, sovrapposizioni e un archivio di unità per ETS2 & ATS.",
+        "pitch": "Un'applicazione Windows accanto a Euro Truck Simulator 2 e American Truck Simulator: console di telemetria dal vivo, archivio mile-by-mile, grafici di cruscotto e rollup, e pannelli overlay OBS-ready. Lo storage ibrido caldo/fred sul vostro PC (Memory Lane) è costruito per mantenere milioni di osservazioni di guida ricercabili e la console reattiva — rivista di sessione inclusa, nessun account cloud.",
+        "learnMoreLabel": "Panoramica dei prodotti",
+        "visualAlt": "Icona dell'app Overlane — telemetria e sovrapposizioni di camioning",
+        "highlights": {
+          "overlane__0__telemetry_console": {
+            "title": "Consolle di telemetria",
+            "body": "Velocità dal vivo, carburante, marcia, contachilometri e contratto attivo in una console dockable — gli stessi campi i tuoi URL overlay espongono a OBS."
+          },
+          "overlane__1__drive_archive": {
+            "title": "Archivio di unità",
+            "body": "Registra sessioni facoltative in una timeline ricercabile. Piegare istantanee simili, aprire l'ispettore su qualsiasi miglio, e mantenere le multe e le consegne visibili."
+          },
+          "overlane__2__dashboard_charts": {
+            "title": "Dashboard e grafici",
+            "body": "Salva layout rollup, archivio grafico si estende nel tempo, e saltare da un picco su un grafico nel momento dell'archivio che lo ha causato."
+          },
+          "overlane__3__hot_cold_storage": {
+            "title": "Deposito caldo/freddo",
+            "body": "Memoria Lane mantiene i fatti recenti in un registro caldo, mentre le osservazioni più vecchie tier ai file di colonna fredda e un indice locale — costruito per rimanere reattivo in milioni di righe su una macchina."
+          },
+          "overlane__4__stream_overlays": {
+            "title": "Sovrapposizioni di flusso",
+            "body": "Copiare gli URL di navigazione localhost per velocità, racconti, pannelli di lavoro e il resto del catalogo — le metriche rimangono in sintonia con la console."
+          }
+        }
+      },
+      "mappy": {
+        "headline": "Mappe che funzionano offline.",
+        "pitch": "Offline-first mappa spazio di lavoro per i giochi open-world, le campagne homebrew e regni personalizzati. Esplora i pacchetti di mappe ufficiali, i marcatori di goccia, il progresso della traccia, la ricerca tra gli strati e le distanze di misura — app desktop senza login e senza telemetria.",
+        "learnMoreLabel": "Visita wiki del giocatore",
+        "visualAlt": "mappy — vivente carta di tela immagine workspace screenshot",
+        "highlights": {
+          "mappy__0__offline_map_workspace": {
+            "title": "Mappa offline workspace",
+            "body": "Pan, zoom, strato e traccia i progressi sulle mappe che mantieni come pacchetti statici — non le piastrelle dal vivo dai nostri server."
+          },
+          "mappy__1__marker_maker_tile_studio": {
+            "title": "Marker Maker & Tile Studio",
+            "body": "Autori marcatori, media annotazioni, e piastrelle personalizzate in-app, quindi esportare pacchetti è possibile condividere o archiviare con la vostra campagna."
+          },
+          "mappy__2__unified_search": {
+            "title": "Ricerca unificata",
+            "body": "Cerca marcatori, regioni e note da una barra invece di cacciare attraverso file sparsi o wiki."
+          },
+          "mappy__3__measure_progress": {
+            "title": "Misura e progresso",
+            "body": "Regolatori e strumenti di percorso per percorsi di pianificazione; tracciare il completamento tra i pacchetti ufficiali o i vostri regni."
+          }
+        }
+      },
+      "mods_hub": {
+        "headline": "Le tue mod, una casa.",
+        "pitch": "Hosting mod open-source con versione semantica, sintassi di ricerca avanzata e storage R2-backed. Caricare con drag-and-drop, spedire collegamenti di download diretto, e facoltativamente crittografare pacchetti lato client — un'interfaccia utente a tema oro costruito per i giocatori e gli autori, non cartelle FTP.",
+        "learnMoreLabel": "Piattaforma profonda immersione",
+        "visualAlt": "Mods Hub — mod piattaforma di hosting",
+        "highlights": {
+          "mods-hub__0__authoring_workflow": {
+            "title": "Gestione del flusso di lavoro",
+            "body": "Creare progetti, caricare versioni con drag-and-drop e modificare metadati senza toccare percorsi di archiviazione raw."
+          },
+          "mods-hub__1__semantic_versions": {
+            "title": "Versioni semantiche",
+            "body": "Ship semver rilascia con la storia del changelog in modo che i giocatori sappiano esattamente cosa è cambiato tra le costruzioni."
+          },
+          "mods-hub__2__search_syntax": {
+            "title": "Ricerca sintassi",
+            "body": "Filtra con domande a misura d'uomo come categoria:tools tag:ottimizzazione aggiornato:>7d — non solo una parola chiave scatola."
+          },
+          "mods-hub__3__downloads_encryption": {
+            "title": "Download e crittografia",
+            "body": "I collegamenti CDN diretti funzionano in launcher e browser; crittografia lato client opzionale quando si desidera pacchetti privati in R2."
+          }
+        }
+      },
+      "offerings": {
+        "headline": "Daily kit lotteria per i server di carta.",
+        "pitch": "Premi giornalieri premium per Paper e Spigot: tier di bottino ponderato, striature, pietre miliari, successi e un hub di amministrazione completo nel gioco. Powers kit giornalieri su Shirecraft — configurare tabelle, autorizzazioni e ganci LuckPerms senza modificare YAML a mano.",
+        "learnMoreLabel": "Elenco e dettagli",
+        "visualAlt": "Offerte — Daily Weighted Kit Lottery (opere ufficiali del prodotto)",
+        "highlights": {
+          "offerings__0__weighted_lottery": {
+            "title": "Lotteria ponderata",
+            "body": "Rotola i kit giornalieri da tavoli di bottino tiered così i premi comuni rimangono comuni e i jackpot rimangono rari."
+          },
+          "offerings__1__streaks_milestones": {
+            "title": "Streaks & milestones",
+            "body": "Traccia le striature del giocatore, gli sblocchi della pietra miliare, e i risultati così regolari si sentono ricompensati durante settimane, non uno-off."
+          },
+          "offerings__2__in_game_admin": {
+            "title": "In-game admin",
+            "body": "Le tabelle di sintonizzazione, i rotoli di anteprima e le configurazioni di errore del server — non solo da file di console o piatti."
+          },
+          "offerings__3__luckperms_ready": {
+            "title": "LuckPerms pronto",
+            "body": "Permesso-consapevole ricompense così gradi, donatori, e le regole di bypass del personale rimangono esplicite e verificabili."
+          }
+        }
+      },
+      "obs_animation_suite": {
+        "headline": "Animate le vostre scene di flusso.",
+        "pitch": "Controlla OBS da una app web progressiva Svelte 5: transizioni di sorgente animata, smart source swapping con memoria di layout, preset di un clic, e un ciclista di testo con effetti di scrittura e glitch. Controllo WebSocket in tempo reale con latenza sub-50m a 60 FPS.",
+        "learnMoreLabel": "Tour di Stream Suite",
+        "visualAlt": "OBS Animation Suite — opere d'arte di controllo del flusso",
+        "highlights": {
+          "obs-animation-suite__0__source_transitions": {
+            "title": "Transizioni di origine",
+            "body": "Fade, slide, zoom e pop tra le sorgenti OBS a 60 FPS senza scene di modifica manuale per ogni cambiamento di layout."
+          },
+          "obs-animation-suite__1__smart_swapping": {
+            "title": "Smart swapping",
+            "body": "Sette stili di swap ricordano posizione e dimensione così segmenti ricorrenti (camera, BRB, avvisi) scattare immediatamente."
+          },
+          "obs-animation-suite__2__layout_presets": {
+            "title": "Impostazioni del layout",
+            "body": "Salvare i layout di scena completo come preset e richiamarli dal pannello web durante il flusso — un clic invece di una caccia manuale in OBS."
+          },
+          "obs-animation-suite__3__text_cycler": {
+            "title": "Ciclo di testo",
+            "body": "Ruota i titoli e i terzi inferiori con gli effetti di macchina da scrivere, glitch e scramble guidati dallo stesso pannello di controllo."
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "site": {
+      "titleTemplate": "% | Idling.app",
+      "description": "Il vostro parco giochi digitale per creatività ed espressione",
+      "keywords": {
+        "0": "creatività",
+        "1": "espressione",
+        "2": "digitale",
+        "3": "parco giochi"
+      },
+      "authorName": "Idling.app Team",
+      "creator": "Idling.app",
+      "publisher": "Idling.app",
+      "openGraphTitle": "Idling.app",
+      "defaultTitle": "Idling.app",
+      "openGraphDescription": "Il vostro parco giochi digitale per creatività ed espressione",
+      "siteName": "Idling.app",
+      "twitterTitle": "Idling.app",
+      "twitterDescription": "Il vostro parco giochi digitale per creatività ed espressione",
+      "twitterCreator": "@idlingapp"
+    },
+    "pages": {
+      "portfolioTitle": "Catalogo e ecosistema",
+      "portfolioDescription": "Catalogo completo idling.app: su Strixun, diagrammi ecosistemici, progetti filtrabili, attività e statistiche dal vivo.",
+      "adminTitle": "Admin Dashboard - Idling.app",
+      "adminDescription": "Quadro amministrativo per la gestione degli utenti, dei contenuti e delle emoji",
+      "signInHeadline": "Benvenuti a Idling App",
+      "signInSubtitle": "Scegli il tuo metodo di accesso preferito per continuare",
+      "subscriptionTitle": "Abbonamento | Idling.app",
+      "subscriptionDescription": "Scegliere un piano e aggiornare l'abbonamento idling.app."
+    }
+  },
+  "common": {
+    "actions": {
+      "tryAgain": "Prova ancora",
+      "goHome": "Vai a casa",
+      "returnHome": "Torna a casa",
+      "close": "Chiudi",
+      "dismiss": "Oggetto",
+      "retry": "Retry",
+      "back": "Indietro",
+      "signIn": "Accedi",
+      "signOut": "Firma",
+      "expand": "Espansione",
+      "collapse": "Colpo",
+      "next": "Il prossimo →",
+      "previous": "← Precedente",
+      "load": "Carico",
+      "save": "Salva",
+      "saving": "Salvare...",
+      "cancel": "Annulla",
+      "loading": "Caricamento...",
+      "backHome": "← Torna a casa"
+    },
+    "backButton": {
+      "titleWithPage": "Torna alla pagina precedente (pagina {page})",
+      "titleGoBack": "Torna indietro",
+      "defaultLabel": "← Indietro"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "code": "404 - Articolo",
+      "title": "Pagina non trovata",
+      "message": "La pagina che stai cercando non esiste o è stata spostata. Forse il mago l'ha teletrasportato altrove?",
+      "returnHome": "Torna a casa"
+    },
+    "profileNotFound": {
+      "message": "Scusa, non abbiamo trovato il profilo utente che stai cercando. Questo potrebbe accadere se:",
+      "reasons": {
+        "0": "Il nome utente non esiste",
+        "1": "L'utente ha cancellato il proprio account",
+        "2": "L'URL del profilo è errato",
+        "3": "Il profilo dell'utente è impostato su privato"
+      },
+      "userNotFoundAria": "Utente non trovato",
+      "title": "Utente non trovato",
+      "helpSearchLabel": "Ricerca",
+      "helpSearchDescription": "Utilizzare la ricerca sopra per trovare gli utenti per nome o e-mail",
+      "helpProductsLabel": "Prodotti",
+      "helpProductsDescription": "Sfoglia la home lineup per applicazioni e mod",
+      "goHome": "Vai a casa",
+      "searchTitle": "Ricerca per utenti",
+      "searchDescription": "Prova a cercare l'utente che stai cercando:",
+      "searchPlaceholder": "Cerca utenti per nome o e-mail...",
+      "helpTitle": "Aiuto"
+    },
+    "routeError": {
+      "title": "Oops! Qualcosa non va",
+      "fallbackMessage": "Un errore inaspettato si è verificato durante il caricamento di questa pagina.",
+      "errorIdLabel": "ID errore:",
+      "tryAgain": "Prova ancora"
+    },
+    "globalError": {
+      "errorIdLabel": "ID errore:",
+      "tryAgain": "Prova ancora",
+      "goHome": "Vai a casa",
+      "title": "Errore critico",
+      "criticalMessage": "Si è verificato un errore critico durante il caricamento dell'applicazione.",
+      "unknownError": "Errore sconosciuto"
+    }
+  },
+  "catalog": {
+    "showcase": {
+      "overlane": {
+        "title": "Overlane",
+        "features": {
+          "0": "Console telemetria live",
+          "1": "Ricerca archivio e ispettore",
+          "2": "Carte dashboard & rollup",
+          "3": "Deposito locale caldo/freddo",
+          "4": "Pannelli a sovrapposizione OBS"
+        },
+        "description": "Console di telemetria, archivio di unità ricercabile, grafici di cruscotto e overlay di flusso per ETS2 e ATS. Le scale di archiviazione locali hot/fred ibride a milioni di osservazioni; un'app di Windows accanto al gioco — sorgenti del browser OBS, diario di sessione, nessun account cloud.",
+        "type": "Windows Desktop App"
+      },
+      "mappy": {
+        "features": {
+          "0": "Mappe Offline-First",
+          "1": "Marker Maker & Tile Studio",
+          "2": "Pacchetti Mappa Ufficiale",
+          "3": "Nessuna registrazione richiesta"
+        },
+        "title": "mappy",
+        "description": "Piattaforma di mappa interattiva Offline-first per giochi open-world, campagne homebrew e regni personalizzati. Marker corpus, monitoraggio del progresso, ricerca unificata, strumenti di misura e l'autore — solo file statici, nessun backend di applicazione.",
+        "type": "App per desktop"
+      },
+      "compressy": {
+        "title": "Compressione",
+        "description": "Compressione del blocco infinito per Minecraft 26.2+ come plugin per Paper. Comprime 9 blocchi in 1, fino a 32 livelli, con utensili fantasia e numeri romani. Le costruzioni Legacy Fabric rimangono su Modrinth.",
+        "type": "Plugin di carta · Tessuto legacy",
+        "features": {
+          "0": "Compressione infinita",
+          "1": "Funziona con tutti i blocchi",
+          "2": "Fino a 32 livelli",
+          "3": "Automazione amichevole"
+        }
+      },
+      "offerings": {
+        "features": {
+          "0": "Lotteria giornaliera ponderata",
+          "1": "Punti e risultati",
+          "2": "In-Game Admin Hub",
+          "3": "LuckPerms Integrazione"
+        },
+        "title": "Offerte",
+        "description": "Kit giornaliero Premium lotteria per Paper/Spigot — tier ponderati, tavoli di bottino, striature, pietre miliari, successi, e pieno in-game admin. Poteri premi giornalieri su Shirecraft.",
+        "type": "Plugin di carta (BuiltByBit)"
+      },
+      "rituals": {
+        "title": "Rituti",
+        "description": "Mystical Minecraft datapack con magia rituale, totems e sistema di sacrificio antincendio. 8 rituali unici, 6 livelli totem, texture e animazioni personalizzate.",
+        "type": "Datapack",
+        "features": {
+          "0": "8 Rituzioni uniche",
+          "1": "6 Totem Tire",
+          "2": "Sistema di sacrificio antincendio",
+          "3": "Texture e animazioni personalizzate"
+        }
+      },
+      "trials_of_the_wild": {
+        "title": "Trial of the Wild",
+        "description": "Modpack di sopravvivenza Hardcore con ~250 mod di esplorazione, magia, combattimento e overhaul del mondo. Include Rituals per la magia totem e la compressione per l'archiviazione di blocco massiccio.",
+        "type": "Modpack",
+        "features": {
+          "0": "Prestazioni ottimizzate",
+          "1": "Qualità della vita",
+          "2": "Nuovi contenuti e meccanica",
+          "3": "Aggiornamenti regolari"
+        }
+      },
+      "alloys": {
+        "features": {
+          "0": "10 metalli fantasia",
+          "1": "Additivo a Vanilla",
+          "2": "Strumenti completi & Armor",
+          "3": "Plugin di carta opzionale"
+        },
+        "title": "Leghe",
+        "description": "Dieci metalli fantasy per Minecraft 26.2+ — gocce di minerale bonus, strumenti completi e armature, additivo alla vaniglia. Datapack, pacchetto risorse compagno e plugin di carta opzionale.",
+        "type": "Datapack + Pacchetto risorse"
+      },
+      "tally": {
+        "title": "Tally",
+        "description": "Pacchetto di avanzamento di completamento di sopravvivenza con 10.255 pagine su sei schede, tenere livelli, XP e premi articolo, e live policy toggles per i proprietari di server.",
+        "type": "Datapack",
+        "features": {
+          "0": "10,255 Pagine di avanzamento",
+          "1": "Sei schede di completamento",
+          "2": "Politica di Reward Live",
+          "3": "Tally Keeper Voice"
+        }
+      },
+      "shirecraft": {
+        "features": {
+          "0": "Sopravvivenza bianca",
+          "1": "Terre & Nazioni",
+          "2": "Plugin personalizzati",
+          "3": "mc.idling.app:25567"
+        },
+        "title": "Artigianato",
+        "description": "Server di sopravvivenza Whitelist Paper 26.2 con plugin personalizzati, datapack e pacchetti di risorse. Terre, offerte, Tally, Compressy e comunità-driven città.",
+        "type": "Server Minecraft"
+      },
+      "obs_animation_suite": {
+        "title": "Suite di animazione OBS",
+        "description": "Pannello di controllo Frontend per OBS con 60 transizioni di sorgente animata FPS, ciclismo di testo e controllo WebSocket. Costruito con Svelte 5. Powers streamkit.idling.app.",
+        "type": "App Frontend (Svelte)",
+        "features": {
+          "0": "60 FPS Animazioni",
+          "1": "WebSocket Control",
+          "2": "Dipendenze zero",
+          "3": "App Web progressiva"
+        }
+      },
+      "mods_hub": {
+        "features": {
+          "0": "Versione semantica",
+          "1": "Ricerca avanzata",
+          "2": "Stoccaggio cloud",
+          "3": "Download diretti"
+        },
+        "title": "Mods Hub",
+        "description": "Piattaforma di hosting mod con React 19 frontend e Mods API backend. Versione semantica, ricerca avanzata, archiviazione cloud R2 e crittografia lato client.",
+        "type": "App Full-Stack (React + API)"
+      },
+      "auth_service": {
+        "title": "Auth Service",
+        "description": "Backend API per l'autenticazione senza password multi-tenant. Email OTP, JWT tokens, OpenAPI 3.1.0 spec. Singolo accesso attraverso i domini *.idling.app. Cloudflare Worker.",
+        "type": "Backend API (Cloudflare)",
+        "features": {
+          "0": "OTP senza password",
+          "1": "Multitenant",
+          "2": "Spettacolo OpenAPI",
+          "3": "Sicurezza zero-trust"
+        }
+      },
+      "card_generator": {
+        "description": "App Frontend per la creazione di splendide schede di social media. Disposizioni potenziate dall'IA, avatar personalizzati, temi mistici. Modalità guidata e avanzate. Costruito con React 19.",
+        "type": "App Frontend (React)",
+        "features": {
+          "0": "AI-Powered Layout",
+          "1": "Avatar personalizzati",
+          "2": "Procedura guidata e avanzata",
+          "3": "Gestione Quota"
+        },
+        "title": "Generatore di carte mistico"
+      },
+      "svg_converter": {
+        "title": "Convertitore SVG a PNG",
+        "description": "App Frontend per la conversione SVG a PNG di alta qualità. dimensionamento personalizzato, elaborazione batch, personalizzazione di sfondo. La sicurezza è valida. Costruito con React 19.",
+        "type": "App Frontend (React)",
+        "features": {
+          "0": "Uscita ad alta qualità",
+          "1": "Elaborazione batch",
+          "2": "Dimensionamento personalizzato",
+          "3": "Sicurezza validata"
+        }
+      },
+      "url_shortener": {
+        "title": "URL Shorter",
+        "description": "Shorter URL completo con React frontend e Cloudflare Worker backend. Fare clic su analisi, tracciamento geografico, codici personalizzati, scadenza automatica.",
+        "type": "App Full-Stack (React + Cloudflare)",
+        "features": {
+          "0": "Codici URL personalizzati",
+          "1": "Fare clic su Analytics",
+          "2": "Tracciamento geografico",
+          "3": "Scadenza automatica"
+        }
+      },
+      "access_hub": {
+        "title": "Hub di accesso",
+        "description": "API backend per RBAC centralizzato. Permessi granulari, percorsi di audit completi, gestione delle quote, auto-provisione. Servizio diagnostico. Cloudflare Worker.",
+        "type": "Backend API (Cloudflare)",
+        "features": {
+          "0": "Sistema RBAC",
+          "1": "Audit Trails",
+          "2": "Gestione Quota",
+          "3": "Auto-provisione"
+        }
+      },
+      "shared_components": {
+        "title": "Libreria dei componenti condivisa",
+        "description": "Libreria universale dei componenti con varianti React e Svelte. Include Tooltip, DataTable, CodeBlock, MultiFileViewer, StatusFlair e altro ancora. Documentazione su Storybook.",
+        "type": "Pacchetto universale (NPM)",
+        "features": {
+          "0": "Reazione & Svelte",
+          "1": "Storybook Docs",
+          "2": "15+ Componenti",
+          "3": "Supporto di TypeScript"
+        }
+      },
+      "api_framework": {
+        "title": "API Framework",
+        "description": "Pacchetto universale per il framework API di livello enterprise. Funziona in Cloudflare Lavoratori e browser. Client di tipo sicuro, deduplica richiesta, interruttore di circuito, crittografia E2E. Pacchetto NPM.",
+        "type": "Pacchetto universale (NPM)",
+        "features": {
+          "0": "Client di tipo sicuro",
+          "1": "Richiesta di deduplica",
+          "2": "Interruttore di circuito",
+          "3": "Crittografia E2E"
+        }
+      },
+      "streamkit_api": {
+        "features": {
+          "0": "Tracciamento di attività scenica",
+          "1": "Configurazione",
+          "2": "Deposito di KV",
+          "3": "Aggiornamenti in tempo reale"
+        },
+        "title": "API di Streamkit",
+        "description": "Backend API per OBS Animation Suite. Monitoraggio dell'attività delle scene, sincronizzazione del layout, archiviazione di configurazione tramite KV. Powers streamkit.idling.app backend. Cloudflare Worker.",
+        "type": "Backend API (Cloudflare)"
+      },
+      "search_query_parser": {
+        "title": "Ricerca Query Parser",
+        "description": "Pacchetto universale per la ricerca avanzata parsing query. Sintassi umana: frasi citate, logica AND/OR, corrispondenza jolly. Reagire e Svelte componenti. Pacchetto NPM.",
+        "type": "Pacchetto universale (NPM)",
+        "features": {
+          "0": "Sintassi umana-amichevole",
+          "1": "E/o logica",
+          "2": "Supporto per Wildcard",
+          "3": "Reazione & Svelte"
+        }
+      }
+    }
+  },
+  "suite": {
+    "landing": {
+      "hero": {
+        "title": "Strixun Stream Suite",
+        "tagline": "Strumenti di streaming professionali e servizi web",
+        "description": "Un ecosistema completo di applicazioni open source con autenticazione single sign-on. Accedi una volta su qualsiasi dominio *.idling.app e sei autenticato ovunque.",
+        "descriptionEmphasis": "MIT in licenza. 100% Open Source. Privacy-cusato.",
+        "viewOnGitHub": "Vista su GitHub"
+      },
+      "status": {
+        "live": "dal vivo",
+        "beta": "beta",
+        "planned": "previsto",
+        "development": "sviluppo"
+      },
+      "footer": {
+        "title": "Pronto per iniziare?",
+        "description": "Tutte le applicazioni sono open source e gratuite da usare. Mettici su GitHub, unisciti alla nostra community e aiuta a plasmare il futuro degli strumenti di streaming.",
+        "starOnGitHub": "Stella su GitHub"
+      },
+      "productActions": {
+        "launchApp": "Avviare App →",
+        "learnMore": "Per saperne di più"
+      }
+    },
+    "products": {
+      "stream_suite": {
+        "name": "Stream Suite",
+        "tagline": "Pannello di controllo professionale OBS Studio",
+        "description": "Trasformare il flusso di lavoro in streaming con visibilità della sorgente animata, tamponamento sorgente a fuote burroso e preset di layout istantanei. Controlla tutto da una bella interfaccia web con comunicazione WebSocket in tempo reale. Costruito come app Progressive Web con Svelte 5 per prestazioni autonome.",
+        "keyFeatures": {
+          "0": "Transizioni di sorgente animate con 4 tipi di effetto (fade, slide, zoom, pop)",
+          "1": "Smart source swapping con 7 stili e memoria di posizione",
+          "2": "Preimpostazioni di layout con un clic per la riconfigurazione istantanea della scena",
+          "3": "Ciclore di testo con effetti di macchina da scrivere, glitch e scramble",
+          "4": "Pannello di controllo Web con comunicazione WebSocket in tempo reale"
+        },
+        "highlights": {
+          "0": {
+            "label": "Prestazioni",
+            "value": "60 FPS"
+          },
+          "1": {
+            "label": "Lattice",
+            "value": "<50ms"
+          },
+          "2": {
+            "label": "Animazioni",
+            "value": "17+"
+          }
+        }
+      },
+      "mods_hub": {
+        "name": "Mods Hub",
+        "tagline": "Piattaforma di Hosting Mod moderna",
+        "keyFeatures": {
+          "0": "Operazioni CRUD complete con upload drag-and-drop",
+          "1": "Versione semantica con changelog automatizzati",
+          "2": "Ricerca avanzata: \"categoria:tools tag:ottimizzazione aggiornata:>7d\"",
+          "3": "Link di download diretti che funzionano ovunque",
+          "4": "Storage cloud R2 con crittografia client opzionale"
+        },
+        "highlights": {
+          "0": {
+            "label": "Velocità di carico",
+            "value": "Istanza istantanea"
+          },
+          "1": {
+            "label": "Ricerca",
+            "value": "In tempo reale"
+          },
+          "2": {
+            "label": "Stoccaggio",
+            "value": "Illimitata"
+          }
+        },
+        "description": "Il futuro della distribuzione mod con funzioni CurseForge-grade ma open-source. Versione completa semantica, ricerca avanzata con sintassi umana e archiviazione cloud R2 con crittografia opzionale. Bella UI a tema oro che rende la gestione mod un piacere, non un lavoro."
+      },
+      "auth_service": {
+        "name": "Auth Service",
+        "tagline": "OTP multistrato Autenticazione",
+        "description": "L'autenticazione senza password ha fatto bene. OTP basato su e-mail con gettoni JWT, chiavi API multi-tenant, e un cruscotto sviluppatore che rende l'integrazione banale. OpenAPI 3.1.0 spec con Swagger UI significa che puoi iniziare a codificare in pochi minuti. Singolo sign-on attraverso tutti i domini *.idling.app - login una volta, autenticato ovunque.",
+        "highlights": {
+          "0": {
+            "label": "Sicurezza",
+            "value": "Zero-trust"
+          },
+          "1": {
+            "label": "Impostazione Tempo",
+            "value": "<5 min"
+          },
+          "2": {
+            "label": "Tempo",
+            "value": "99,9%"
+          }
+        },
+        "keyFeatures": {
+          "0": "OTP senza password via e-mail - nessun rischio di archiviazione password",
+          "1": "JWT gettoni con HttpSolo cookie per la massima sicurezza",
+          "2": "Sistema chiave API multi-tenant con autorizzazioni granulari",
+          "3": "Dashboard di analisi in tempo reale costruito con Svelte 5",
+          "4": "Complete OpenAPI 3.1.0 spec con interattivo Swagger UI"
+        }
+      },
+      "url_shortener": {
+        "keyFeatures": {
+          "0": "Codici URL personalizzati per link memorabili e di marca",
+          "1": "Analisi di clic in tempo reale con monitoraggio geografico",
+          "2": "Spedizione automatica e pulizia per collegamenti temporanei",
+          "3": "Interfaccia web standalone con integrazione SSO",
+          "4": "Accesso diretto API per l'automazione e le integrazioni"
+        },
+        "highlights": {
+          "0": {
+            "label": "Velocità",
+            "value": "<10ms"
+          },
+          "1": {
+            "label": "Analisi",
+            "value": "In tempo reale"
+          },
+          "2": {
+            "label": "Tempo",
+            "value": "99,99%"
+          }
+        },
+        "name": "URL Shorter",
+        "tagline": "Collegamenti brevi con Analytics",
+        "description": "L'URL Lightning-fast accorciamento alimentato da Cloudflare Workers. Crea collegamenti brevi personalizzati, traccia ogni clic con dati geografici e informazioni di referrer e gestisci tutto da un'interfaccia web pulita. La scadenza automatica mantiene freschi i link e l'analisi ti dice esattamente cosa sta funzionando."
+      },
+      "access_hub": {
+        "keyFeatures": {
+          "0": "Controllo accessi basato sul ruolo (RBAC) con ruoli personalizzati",
+          "1": "Autorizzazioni granulari fino a singoli endpoint",
+          "2": "Sentiero di audit completo per la conformità e la sicurezza",
+          "3": "Gestione Quota per utente o ruolo",
+          "4": "Auto-provisione per l'utente senza soluzione di continuità"
+        },
+        "highlights": {
+          "0": {
+            "label": "Roles",
+            "value": "Illimitata"
+          },
+          "1": {
+            "label": "Audit",
+            "value": "Completa"
+          },
+          "2": {
+            "label": "Impostazione",
+            "value": "Istanza istantanea"
+          }
+        },
+        "name": "Hub di accesso",
+        "tagline": "Access Control Dashboard",
+        "description": "Controllo di accesso centralizzato per tutti i tuoi servizi. autorizzazioni basate sul ruolo con controllo granulare, percorsi di audit completi per la conformità e la gestione delle quote per prevenire abusi. Il design di servizio-agnostico significa che funziona con tutto nella suite - un sistema per regolarli tutti."
+      }
+    },
+    "details": {
+      "stream_suite": {
+        "hero": {
+          "title": "Stream Suite",
+          "tagline": "Pannello di controllo professionale OBS Studio",
+          "mascotAlt": "Red Panda Sviluppatore",
+          "ctaLaunch": "Avviare Stream Suite →",
+          "ctaViewSource": "Visualizza sorgente"
+        },
+        "overview": {
+          "title": "Cos'è Stream Suite?",
+          "description": "Stream Suite è un pannello di controllo OBS Studio completo che porta animazioni e automazione professionali al flusso di lavoro in streaming. Costruito con Svelte 5 e progettato come un Progressive Web App, fornisce il controllo senza interruzioni sulle scene OBS con animazioni belle e personalizzabili."
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Animazioni di origine",
+              "description": "Animare la visibilità sorgente con effetti fade, slide, zoom e pop. 60 prestazioni FPS con latenza sub-50m tramite WebSocket. No OBS lag - tutte le animazioni sono liscio burroso."
+            },
+            "1": {
+              "description": "Posizione animata e transizioni di dimensioni tra le fonti. 7 diversi stili di animazione con memoria di posizione per scambi perfetti ogni volta.",
+              "title": "Fonte Swaps"
+            },
+            "2": {
+              "title": "Preimpostazioni di layout",
+              "description": "Salva e applica interi layout della scena con supporto di animazione multi-source. Passare tra streaming, registrazione e configurazioni personalizzate istantaneamente."
+            },
+            "3": {
+              "title": "Ciclo di testo",
+              "description": "Effetti di testo dinamici con transizioni tra cui dissolvenza, diapositiva, macchina da scrivere, glitch, onda e scramble. Perfetto per avvisi e sovrapposizioni."
+            },
+            "4": {
+              "title": "App Web progressiva",
+              "description": "Installare come PWA per l'accesso offline e l'esperienza di app nativa. Sistema di archiviazione multistrato (IndexedDB + localStorage + Recovery)."
+            },
+            "5": {
+              "title": "Pannello di controllo unificato",
+              "description": "Un dock web-based per controllare tutto. Comunicazione WebSocket in tempo reale con OBS Studio per aggiornamenti istantanei."
+            }
+          },
+          "title": "Caratteristiche chiave"
+        },
+        "a11y": {
+          "scrollForMore": "Scorrere per più contenuti"
+        },
+        "builtWith": {
+          "title": "Costruito con"
+        }
+      },
+      "mods_hub": {
+        "hero": {
+          "title": "Mods Hub",
+          "tagline": "Piattaforma di Hosting Mod moderna",
+          "mascotAlt": "Panda rosso con regalo",
+          "statusBeta": "Beta — ancora in fase di sviluppo attivo",
+          "ctaLaunch": "Avviare Mods Hub →",
+          "ctaViewSource": "Visualizza sorgente"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Mod Upload & Management",
+              "description": "Carica, aggiorna e gestisci le tue mod con l'interfaccia drag-and-drop. Operazioni CRUD complete con interfaccia utente intuitiva."
+            },
+            "1": {
+              "title": "Versione semantica",
+              "description": "Controllo versione completa con supporto di versione semantica. Tracciare modifiche, pubblicare aggiornamenti e mantenere i changelog."
+            },
+            "2": {
+              "title": "Ricerca avanzata",
+              "description": "Ricerca potente con @strixun/search-query-parser categorie di supporto, tag, frasi citate, logica AND/OR, e wildcard prefisso."
+            },
+            "3": {
+              "title": "Link di download diretti",
+              "description": "Condividere link di download diretti in qualsiasi applicazione. Nessun reindirizzamento, nessuna attesa - download istantanei per gli utenti."
+            },
+            "4": {
+              "title": "Bella UI d'oro",
+              "description": "Splendida interfaccia reattiva a tema oro costruita con componenti in stile. Moderno, accessibile, e un piacere da usare."
+            },
+            "5": {
+              "title": "R2 Cloud Storage con crittografia",
+              "description": "Cloudflare R2 storage con crittografia lato client opzionale, compressione predefinita e collegamenti di download diretti."
+            }
+          },
+          "title": "Caratteristiche chiave"
+        },
+        "overview": {
+          "title": "Cos'è Mods Hub?",
+          "description": "Una moderna piattaforma di hosting mod simile a Modrinth/CurseForge, costruita con React 19 e Cloudflare Workers. Bella UI a tema oro con versione completa semantica, ricerca avanzata con parser query umano-friendly e archiviazione cloud R2 con crittografia lato client."
+        },
+        "extraSections": {
+          "0": {
+            "title": "Architettura di stato a tre strati",
+            "description": "Mods Hub utilizza un sofisticato modello di stato a tre strati per prestazioni ottimali e esperienza di sviluppo:",
+            "features": {
+              "0": {
+                "title": "Layer dei segni",
+                "description": "@preact/signals-react per lo stato dell'interfaccia utente - campi di forma, occhiali e filtri con reattività automatica."
+              },
+              "1": {
+                "title": "Zustand Layer",
+                "description": "Gestione globale dello stato del cliente per auth, stato dell'interfaccia utente e notifiche con zero caldaia."
+              },
+              "2": {
+                "title": "TanStack Query Layer",
+                "description": "Gestione dello stato del server con caching automatico, refetching di sfondo e aggiornamenti ottimistici."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Costruito con"
+        },
+        "a11y": {
+          "scrollForMore": "Scorrere per più contenuti"
+        }
+      },
+      "auth_service": {
+        "hero": {
+          "title": "Auth Service",
+          "tagline": "OTP multistrato Autenticazione",
+          "mascotAlt": "Red Panda Thumbs Up",
+          "ctaLaunch": "Avviare Auth Service →",
+          "ctaViewSource": "Visualizza sorgente"
+        },
+        "overview": {
+          "title": "Cos'è Auth Service?",
+          "description": "Un servizio di autenticazione OTP multi-tenant costruito su Cloudflare Workers con autenticazione senza password tramite Resend API. Caratteristiche includono cruscotto sviluppatore costruito con Svelte 5, gestione chiave API multi-tenant, specifiche OpenAPI 3.1.0 con Swagger UI e registrazione audit. Singolo accesso su tutti i domini *.idling.app con i cookie HttpOnly."
+        },
+        "keyFeatures": {
+          "title": "Caratteristiche chiave",
+          "features": {
+            "0": {
+              "title": "OTP senza password",
+              "description": "Autenticazione di password basata su un'email con nessuna password di archiviazione. Sicuro, facile da usare, e riduce la superficie di attacco."
+            },
+            "1": {
+              "title": "Gestione dei token JWT",
+              "description": "Token JWT standard di settore con HttpSolo cookie per la massima sicurezza. Gestione automatica del rinfresco e della scadenza."
+            },
+            "2": {
+              "title": "Gestione delle chiavi API",
+              "description": "Sistema chiave API multi-tenant con autorizzazioni granulari. Crea, ruota e revoca le chiavi API dal cruscotto dello sviluppatore."
+            },
+            "3": {
+              "title": "Dashboard di analisi",
+              "description": "Costruito con Svelte 5, monitorare gli eventi di autenticazione, monitorare l'utilizzo e analizzare i modelli con analisi in tempo reale."
+            },
+            "4": {
+              "title": "OpenAPI 3.1.0 Spettacolo",
+              "description": "Specifica OpenAPI completa con integrazione Swagger UI. Documentazione API interattiva per una facile integrazione."
+            },
+            "5": {
+              "title": "Segnale singolo",
+              "description": "SSO attraverso tutti i domini *.idling.app con i cookie HttpOnly. Accedi una volta su qualsiasi servizio, autenticato ovunque."
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Costruito con"
+        },
+        "a11y": {
+          "scrollForMore": "Scorrere per più contenuti"
+        },
+        "extraSections": {
+          "0": {
+            "features": {
+              "0": {
+                "description": "Componenti di autenticazione Drop-in per React, Svelte e JavaScript vaniglia. Non è necessario alcun lavoro UI.",
+                "title": "Componenti UI incorporabili"
+              },
+              "1": {
+                "title": "Docs completi",
+                "description": "300+ pagine di documentazione in PANDA CORE che coprono guide di integrazione, riferimenti API e best practice di sicurezza."
+              },
+              "2": {
+                "title": "Copertura di prova completa",
+                "description": "E2E test di integrazione con Playwright, test di unità con Vitest e flussi di lavoro CI/CD per la fiducia."
+              }
+            },
+            "title": "Sviluppatore-Prst Design",
+            "description": "Auth Service fornisce agli sviluppatori tutto il necessario per integrare l'autenticazione sicura nelle loro applicazioni:"
+          }
+        }
+      },
+      "access_hub": {
+        "hero": {
+          "title": "Hub di accesso",
+          "tagline": "Access Control Dashboard",
+          "mascotAlt": "Panda rosso confidenziale",
+          "ctaLaunch": "Lancio di accesso Hub →",
+          "ctaViewSource": "Visualizza sorgente"
+        },
+        "overview": {
+          "title": "Cos'è Access Hub?",
+          "description": "Un'interfaccia utente minima per il sistema di controllo accessi Strixun implementato su Cloudflare Pages. Visualizza tutti i ruoli e le autorizzazioni disponibili con un'interfaccia semplice e pulita. Backend API gestisce RBAC (controllo dell'accesso basato sul ruolo), gestione delle autorizzazioni, applicazione delle quote e auto-provisione - tutti i servizi-agnostici e distribuiti su Cloudflare Workers."
+        },
+        "keyFeatures": {
+          "title": "Caratteristiche chiave",
+          "features": {
+            "0": {
+              "title": "Controllo di accesso basato sul ruolo",
+              "description": "Definire e gestire ruoli con autorizzazioni granulari. Assegnare agli utenti ruoli per la gestione dell'accesso scalabile attraverso i servizi."
+            },
+            "1": {
+              "title": "Gestione delle autorizzazioni",
+              "description": "Visualizza tutte le autorizzazioni disponibili e le loro assegnazioni. Controllo raffinato su ciò che gli utenti possono e non possono fare."
+            },
+            "2": {
+              "title": "Audizione di accesso utente",
+              "description": "Traccia chi ha accesso a cosa e quando. Sentiero di audit completo per la conformità e il monitoraggio della sicurezza."
+            },
+            "3": {
+              "title": "Service-Agnostic Design",
+              "description": "Funziona con qualsiasi servizio nell'ecosistema SSS. Controllo di accesso unificato in tutte le applicazioni e API."
+            },
+            "4": {
+              "title": "Gestione Quota",
+              "description": "Monitorare e gestire quote di utilizzo per utente o ruolo. Prevenire l'abuso e garantire una corretta allocazione delle risorse."
+            },
+            "5": {
+              "title": "Semplice, UI pulito",
+              "description": "Interfaccia intuitiva che esce dalla tua strada. Integrazione API diretta con Access Service backend."
+            }
+          }
+        },
+        "extraSections": {
+          "0": {
+            "title": "Modello di architettura",
+            "description": "Access Hub segue lo stesso modello di Mods Hub:",
+            "features": {
+              "0": {
+                "title": "Frontend @ access.idling.app",
+                "description": "React 18 frontend distribuito su Cloudflare Pages con build automatiche tramite GitHub Actions."
+              },
+              "1": {
+                "title": "Backend @ access-api.idling.app",
+                "description": "Cloudflare Worker API gestisce tutte le logiche di controllo degli accessi, archiviazione e applicazione delle autorizzazioni."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Costruito con"
+        },
+        "a11y": {
+          "scrollForMore": "Scorrere per più contenuti"
+        }
+      },
+      "url_shortener": {
+        "hero": {
+          "title": "URL Shorter",
+          "tagline": "Collegamenti brevi con Analytics",
+          "mascotAlt": "Panda rosso con occhiali da sole",
+          "ctaLaunch": "URL del lancio Pantalone →",
+          "ctaViewSource": "Visualizza sorgente"
+        },
+        "overview": {
+          "title": "Cos'è l'URL Shortener?",
+          "description": "Un servizio di abbreviazione URL basato su Cloudflare Worker con autenticazione OTP tramite il componente Strixun OTP condiviso, fare clic su monitoraggio di analisi (IP, agente utente, referrer, dati geografici), e l'interfaccia web React standalone. Utilizza Cloudflare KV per cercare URL sotto-millisecondi e la scadenza automatica basata su TTL con risposte API crittografate."
+        },
+        "keyFeatures": {
+          "title": "Caratteristiche chiave",
+          "features": {
+            "0": {
+              "title": "Crea & Gestisci URL brevi",
+              "description": "Generare collegamenti brevi con codici personalizzati o slug auto-generati. Operazioni CRUD complete per la gestione della raccolta URL."
+            },
+            "1": {
+              "title": "Fare clic su Analytics",
+              "description": "Traccia click, referrers e dati geografici. Analisi in tempo reale memorizzate in Cloudflare KV per informazioni istantanee."
+            },
+            "2": {
+              "title": "Codici URL personalizzati",
+              "description": "Scegli i tuoi codici brevi per link memorabili e di marca. La validazione automatica impedisce collisioni."
+            },
+            "3": {
+              "title": "Scadenza automatica",
+              "description": "Impostare le date di scadenza per i collegamenti temporanei. La pulizia automatica mantiene la raccolta URL fresca e rilevante."
+            },
+            "4": {
+              "title": "Interfaccia web standalone",
+              "description": "Bella interfaccia web basata su React con il marchio SSS. Gestisci tutti i tuoi collegamenti brevi da un posto."
+            },
+            "5": {
+              "title": "Autenticazione OTP",
+              "description": "Integrato con Auth Service per l'autenticazione sicura e senza password. SSO con tutte le applicazioni SSS."
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Costruito con"
+        },
+        "a11y": {
+          "scrollForMore": "Scorrere per più contenuti"
+        }
+      }
+    }
+  },
+  "portfolio": {
+    "showcase": {
+      "eyebrow": "Portafoglio open source",
+      "title": "Progetti in evidenza",
+      "subtitle": "Una fetta curata del monorepo — applicazioni web, mappe desktop, mod Minecraft, API senza server e pacchetti condivisi.",
+      "featuredLabel": "in evidenza",
+      "totalProjectsSuffix": "progetti totali",
+      "showingPrefix": "Mostrare",
+      "filterNavAria": "Filtra i progetti per categoria"
+    },
+    "categories": {
+      "0": {
+        "label": "Tutti",
+        "id": "Tutti"
+      },
+      "1": {
+        "id": "Minecraft",
+        "label": "Minecraft"
+      },
+      "2": {
+        "id": "Strumenti web",
+        "label": "Strumenti web"
+      },
+      "3": {
+        "id": "Sociale",
+        "label": "Sociale"
+      },
+      "4": {
+        "id": "Streaming",
+        "label": "Streaming"
+      },
+      "5": {
+        "id": "Gioco",
+        "label": "Gioco"
+      },
+      "6": {
+        "id": "Infrastrutture",
+        "label": "Infrastrutture"
+      }
+    },
+    "about": {
+      "highlights": {
+        "0": {
+          "value": "38+",
+          "label": "Progetti open source"
+        },
+        "1": {
+          "value": "7",
+          "label": "Applicazioni web"
+        },
+        "2": {
+          "value": "1",
+          "label": "App mappa Desktop"
+        },
+        "3": {
+          "value": "6",
+          "label": "API senza server"
+        },
+        "4": {
+          "value": "23",
+          "label": "Pacchetti NPM"
+        },
+        "5": {
+          "value": "7",
+          "label": "Progetti di Minecraft"
+        }
+      },
+      "sections": {
+        "0": {
+          "id": "minecraft",
+          "highlights": {
+            "0": "Compressione — compressione del blocco infinito (BuiltByBit + legacy Modrinth)",
+            "1": "Offerte — premio giornaliero kit lotteria plugin",
+            "2": "Rituals — mystical magic datapack",
+            "3": "Prova del Wild — modpack di sopravvivenza hardcore",
+            "4": "Leghe — dieci fantasy metal datapack",
+            "5": "Tally — 10.000+ pacchetto di completamento dell'avanzamento",
+            "6": "Shirecraft — server di sopravvivenza whitelist",
+            "7": "Migliaia di download su Mods Hub e Modrinth"
+          },
+          "links": {
+            "0": {
+              "href": "#",
+              "label": "Mods Hub"
+            }
+          },
+          "title": "Progetti Minecraft"
+        },
+        "1": {
+          "id": "web-tools",
+          "title": "Applicazioni e strumenti web",
+          "highlights": {
+            "0": "Generatore di carte — React 19 frontend",
+            "1": "Convertitore SVG — React 19 frontend",
+            "2": "URL Shortener - React + Cloudflare Worker",
+            "3": "Piattaforma sociale — Next.js 15 + PostgreSQL",
+            "4": "Funzioni TypeScript, SSR e in tempo reale durante tutto"
+          }
+        },
+        "2": {
+          "id": "mappy",
+          "title": "mappy — mappe interattive",
+          "links": {
+            "0": {
+              "label": "Scarica (breve.army/mappy)",
+              "href": "#"
+            },
+            "1": {
+              "href": "#",
+              "label": "Wiki del giocatore"
+            }
+          },
+          "highlights": {
+            "0": "Piattaforma offline-first mappa per i giochi open-world e le campagne homebrew",
+            "1": "Carta vivente tela, marcatori, monitoraggio dei progressi, ricerca unificata, strumenti di misura",
+            "2": "Marker Maker, Tile Studio e Pacchetti Mappa ufficiali",
+            "3": "Desktop app — nessun login, nessuna sincronizzazione cloud, nessuna telemetria"
+          }
+        },
+        "3": {
+          "id": "streaming",
+          "title": "Streaming Ecosystem",
+          "highlights": {
+            "0": "OBS Animation Suite — Svelte 5, 60 FPS, 17+ effetti, PWA",
+            "1": "Streamkit API — monitoraggio della scena, sincronizzazione di configurazione, archiviazione KV",
+            "2": "Controllo WebSocket, preset di layout, dipendenze zero"
+          },
+          "links": {
+            "0": {
+              "href": "#",
+              "label": "streamkit.idling.app"
+            }
+          }
+        },
+        "4": {
+          "id": "infrastrutture",
+          "title": "Infrastrutture e API",
+          "highlights": {
+            "0": "6 Cloudflare Workers API — Auth, Access, Mods, Cliente, Gioco, Streamkit",
+            "1": "23 pacchetti NPM — componenti condivisi, framework API, auth store, parser di ricerca e altro ancora",
+            "2": "Monorepo con 38+ progetti su GitHub"
+          },
+          "links": {
+            "0": {
+              "href": "#",
+              "label": "Strixun Stream Suite"
+            }
+          }
+        }
+      },
+      "eyebrow": "Portfolio e ecosistema",
+      "title": "Ciao! Sono Strixun",
+      "tagline": "Applicazioni web di produzione dello sviluppatore di piattaforma completa, mod Minecraft, strumenti di streaming e servizi cloud.",
+      "introAfterLink": "è la base di casa per tutto quanto sotto — open source, documentato, e costruito per spedire.",
+      "statsAria": "Portfolio evidenzia"
+    },
+    "ecosystem": {
+      "title": "Ecosystem Architettura",
+      "subtitle": "Come si connettono 38+ progetti — scegli una lente qui sotto",
+      "tabs": {
+        "0": {
+          "id": "panoramica",
+          "label": "Panoramica del sistema"
+        },
+        "1": {
+          "id": "flusso di dati",
+          "label": "Flusso di dati"
+        },
+        "2": {
+          "id": "pacchetti",
+          "label": "Pacchetto Ecosistema"
+        }
+      },
+      "footer": {
+        "overview": "Panoramica del sistema: 7 applicazioni web/desktop (tra cui Mappy), 6 API Cloudflare Workers, 6 progetti Minecraft via Mods API e storage su PostgreSQL, KV, R2, e IndexedDB.",
+        "dataflow": "Flusso di dati: visitatori, giocatori, streamer e esploratori di mappe raggiungono ogni superficie dell'app. Web e mod utilizzano API; Mappy rimane offline-first con local IndexedDB — nessun account richiesto.",
+        "packages": "Ecosistema dei pacchetti: 23 pacchetti NPM — core framework, UI, utility, ganci e helper di test — condivisi tra superfici React, Svelte e Cloudflare."
+      }
+    },
+    "stats": {
+      "quickLinksTitle": "Collegamenti rapidi",
+      "metrics": {
+        "modrinthProjects": "Progetti Modrinth",
+        "modDownloads": "Download Mod",
+        "modrinthFollowers": "Seguitori di moda",
+        "githubStars": "GitHub Stars"
+      },
+      "modrinthMetricsTitle": "Metrics Modrinth",
+      "technologyStackTitle": "Tecnologia Stack",
+      "quickLinks": {
+        "0": {
+          "href": "/card-generatore",
+          "label": "Generatore di carta"
+        },
+        "1": {
+          "href": "/svg-converter",
+          "label": "Convertitore di SVG"
+        },
+        "2": {
+          "href": "#",
+          "label": "Suite OBS"
+        },
+        "3": {
+          "href": "#",
+          "label": "Mods Hub"
+        },
+        "4": {
+          "href": "#",
+          "label": "mappy"
+        },
+        "5": {
+          "href": "#",
+          "label": "Auth Service"
+        },
+        "6": {
+          "href": "#",
+          "label": "Documentazione"
+        },
+        "7": {
+          "href": "#",
+          "label": "Sistema di progettazione"
+        },
+        "8": {
+          "href": "#",
+          "label": "URL Shorter"
+        },
+        "9": {
+          "href": "#",
+          "label": "Hub di accesso"
+        },
+        "10": {
+          "href": "/strixun-stream-suite",
+          "label": "Stream Suite"
+        },
+        "11": {
+          "href": "#",
+          "label": "Monorepo (38+)"
+        },
+        "12": {
+          "href": "# __UI",
+          "label": "idling.app Rischio"
+        },
+        "13": {
+          "href": "#",
+          "label": "Discordia"
+        }
+      },
+      "privacyNote": "Le cifre provengono da Modrinth e riguardano solo i progetti Minecraft elencati. Costruito da Le metriche di acquisto e aggiornamento di bit non sono pubbliche. Non tracciamo download, attività o utenti sulle nostre altre applicazioni - per design, per privacy - quindi non ci sono metriche pubbliche per quei progetti.",
+      "techCategories": {
+        "0": {
+          "title": "Fronte",
+          "badges": {
+            "0": "Reazione 19",
+            "1": "Il prossimo",
+            "2": "Svelte 5",
+            "3": "Tipologia",
+            "4": "Tre"
+          }
+        },
+        "1": {
+          "title": "Indietro",
+          "badges": {
+            "0": "Lavoratori Cloudflare",
+            "1": "Node.js",
+            "2": "WebSocket",
+            "3": "Vai",
+            "4": "Python"
+          }
+        },
+        "2": {
+          "title": "Database",
+          "badges": {
+            "0": "PostgreSQL",
+            "1": "Deposito di KV",
+            "2": "R2 Cloud"
+          }
+        }
+      }
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "tabs": {
+        "analytics": {
+          "label": "Analisi",
+          "description": "Analisi globale delle app e monitoraggio dei comportamenti degli utenti"
+        },
+        "users": {
+          "label": "Gestione utente",
+          "description": "Gestisci account utente, ruoli e autorizzazioni"
+        },
+        "emojis": {
+          "label": "Approvazione di Emoji",
+          "description": "Approva o rifiuta le presentazioni emoji personalizzate"
+        },
+        "alerts": {
+          "description": "Gestione degli avvisi e delle notifiche di sistema",
+          "label": "Avvisi personalizzati"
+        },
+        "quotas": {
+          "label": "Quota degli ospiti",
+          "description": "Configurare le quote e i limiti degli utenti ospiti"
+        },
+        "subscriptions": {
+          "label": "Abbonamenti",
+          "description": "Gestire piani di abbonamento e abbonamenti utente"
+        },
+        "permissions": {
+          "label": "Permissioni",
+          "description": "Configurare le autorizzazioni di sistema e il controllo degli accessi"
+        }
+      }
+    },
+    "subscription": {
+      "loadingData": "Caricamento dei dati di abbonamento...",
+      "systemNotAvailableTitle": "Sistema di abbonamento Non disponibile",
+      "systemNotAvailableBody": "Il sistema di abbonamento non è configurato o disponibile.",
+      "retry": "Retry",
+      "tabs": {
+        "overview": "Panoramica",
+        "plans": "Piani",
+        "subscriptions": "Abbonamenti"
+      },
+      "panelTitle": "Gestione dell'abbonamento",
+      "panelDescription": "Gestire piani di abbonamento, abbonamenti utente e integrazione del sistema di quote",
+      "overview": {
+        "activeSuffix": "attivo",
+        "trialUsers": "Utenti di prova",
+        "currentlyTrialing": "Attualmente la prova",
+        "monthlyRevenue": "Entrate mensili",
+        "recurringMonthly": "Ricorso mensile",
+        "totalPlans": "Piani totali",
+        "activePlansSuffix": "attivo",
+        "totalSubscriptions": "Totale Abbonamenti",
+        "planDistribution": "Distribuzione dei piani",
+        "subscribersSuffix": "abbonati",
+        "loadingStats": "Caricamento statistiche..."
+      },
+      "plans": {
+        "title": "Piani di abbonamento",
+        "createNewPlan": "Crea nuovo piano",
+        "createComingSoon": "Crea funzionalità Plan in arrivo!",
+        "edit": "Modifica",
+        "enable": "Abilitare",
+        "disable": "Disattivare",
+        "free": "Gratis",
+        "periodMonth": "/ mese",
+        "periodYear": "/ anno",
+        "periodLifetime": "vita"
+      },
+      "subscriptions": {
+        "searchPlaceholder": "Cerca utenti o piani...",
+        "allStatuses": "Tutti gli stati",
+        "allPlans": "Tutti i piani",
+        "tableHeaders": {
+          "0": "Utente",
+          "1": "Piano",
+          "2": "Stato",
+          "3": "Billing",
+          "4": "Scadenze",
+          "5": "Assegnato da",
+          "6": "Azioni"
+        },
+        "edit": "Modifica",
+        "cancel": "Annulla",
+        "previous": "← Precedente",
+        "next": "Il prossimo →",
+        "title": "Abbonamenti utente",
+        "assignSubscription": "Assegna Abbonamento"
+      },
+      "statusLabels": {
+        "active": "Attivo",
+        "trialing": "Trial",
+        "cancelled": "Annullamento",
+        "expired": "Scadenza",
+        "suspended": "Sospeso",
+        "pending": "Finanziamenti"
+      }
+    },
+    "userManagement": {
+      "loadingUsers": "Caricamento utenti...",
+      "loadingMoreUsers": "Caricamento di più utenti...",
+      "retry": "Retry",
+      "viewDetails": "Visualizza dettagli",
+      "assignRole": "Assegna a Role",
+      "manageSubscription": "Gestire l'abbonamento",
+      "manageQuota": "Gestire Quota",
+      "unknownUser": "Utente sconosciuto",
+      "panelTitle": "Gestione utente",
+      "panelDescription": "Gestione account utente, ruoli, abbonamenti e autorizzazioni",
+      "filters": "Filtri",
+      "exportAll": "Esporta tutto",
+      "searchPlaceholder": "Cerca utenti per nome, e-mail o ID..."
+    },
+    "customAlerts": {
+      "panelTitle": "Gestione degli avvisi personalizzati",
+      "panelDescription": "Creare, modificare e gestire avvisi personalizzati per diversi gruppi di utenti",
+      "createAlert": "Creare Avviso",
+      "updateAlert": "Avviso di aggiornamento",
+      "cancel": "Annulla",
+      "retry": "Retry",
+      "signInAgain": "Firma di nuovo",
+      "createNewAlert": "Crea un nuovo allarme",
+      "createFirstAlert": "Crea il primo avviso",
+      "emptyTitle": "Ancora nessun allarme personalizzato",
+      "emptyBody": "Crea il tuo primo avviso personalizzato per iniziare a coinvolgere i tuoi utenti!",
+      "editAlert": "Modifica Avviso",
+      "signIn": "Accedi",
+      "goHome": "Vai a casa",
+      "errorLoadingTitle": "Avvisi di caricamento di errore",
+      "authRequiredTitle": "Autenticazione richiesta",
+      "authRequiredBody": "È necessario accedere per accedere al pannello di amministrazione.",
+      "adminAccessTitle": "Accesso all'amministratore richiesto",
+      "adminAccessBody": "Non hai il permesso di accedere a questa funzione di amministratore.",
+      "targetAudiences": {
+        "all": "Tutti gli utenti",
+        "authenticated": "Utenti autenticati",
+        "subscribers": "Abbonati",
+        "admins": "Amministratori",
+        "role_based": "Role-Based",
+        "specific_users": "Utenti specifici"
+      },
+      "active": "Attivo",
+      "published": "Pubblicato"
+    },
+    "analytics": {
+      "dateRangeLabel": "Data Range:",
+      "dateRanges": {
+        "7d": "Ultimi 7 giorni",
+        "30d": "Ultimi 30 giorni",
+        "90d": "Ultimi 90 giorni",
+        "1y": "Anno"
+      },
+      "title": "Dashboard di analisi",
+      "loading": "Caricamento dati di analisi...",
+      "errorTitle": "Errore di analisi",
+      "retry": "Retry",
+      "refresh": "Rifiuti",
+      "tabs": {
+        "overview": "Panoramica",
+        "geography": "Geografia",
+        "devices": "Apparecchi",
+        "heatmap": "Calore",
+        "subscriptions": "Abbonamenti"
+      },
+      "metrics": {
+        "totalSessions": "Sessioni totali",
+        "uniqueUsers": "Utenti unici",
+        "pageViews": "Visite di pagina",
+        "totalClicks": "Totale clic",
+        "avgSessionDuration": "Durata della sessione",
+        "bounceRate": "Tasso di rimbalzo",
+        "vpnUsage": "Utilizzo VPN",
+        "conversionRate": "Tasso di conversione",
+        "metricChangeSample": "+12,5% dall'ultimo periodo"
+      },
+      "sections": {
+        "trafficTrends": "Tendenze del traffico",
+        "topCountries": "Paesi Bassi",
+        "topCities": "Città",
+        "vpnProxyUsage": "Utilizzo di VPN e proxy",
+        "vpnSessions": "Sessioni VPN",
+        "proxySessions": "Sessioni proxy",
+        "torSessions": "Sessioni Tor",
+        "vpnPercentage": "Percentuale VPN",
+        "topVpnProviders": "I migliori provider VPN",
+        "deviceTypes": "Tipi di dispositivo",
+        "browsers": "Cercatori",
+        "revenueImpact": "Impatto delle entrate",
+        "totalAttributedRevenue": "Entrate totali attribuite",
+        "averageRevenuePerUser": "Entrate medie per utente",
+        "operatingSystems": "Sistemi operativi",
+        "topPagesByClicks": "Pagine Top di Clicks",
+        "clickPatterns": "Fare clic sui modelli",
+        "planPerformance": "Prestazioni",
+        "conversionFunnel": "Conversione Funnel"
+      },
+      "chart": {
+        "sessionsLabel": "Sessioni:",
+        "pageviewsLabel": "Visite:",
+        "clicksLabel": "Clics:"
+      },
+      "subscriptionMetrics": {
+        "views": "Visite:",
+        "conversions": "Conversioni:",
+        "conversionRate": "Tasso di conversione:"
+      }
+    },
+    "emojis": {
+      "title": "Gestione emoji",
+      "selectAll": "Seleziona tutto",
+      "empty": "Nessuna emoji trovata per il filtro corrente.",
+      "noImage": "Nessuna immagine",
+      "byPrefix": "Da:",
+      "categoryPrefix": "Categoria:",
+      "statusLabel": "Stato:",
+      "statusOptions": {
+        "all": "Tutti gli stati",
+        "pending": "Finanziamenti",
+        "approved": "Approvazione",
+        "rejected": "Rifiuti"
+      },
+      "createdPrefix": "Creato:",
+      "descriptionPrefix": "Descrizione:",
+      "approve": "Approvo",
+      "reject": "Rifiuti",
+      "delete": "Cancella",
+      "searchPlaceholder": "Cerca emoji, utenti o categorie...",
+      "search": "Ricerca",
+      "selectedCount": "selezionato",
+      "bulkApprove": "Approvo Bulk",
+      "loading": "Caricamento emoji...",
+      "previous": "Precedente",
+      "next": "Il prossimo",
+      "pageOf": "Pagina",
+      "rejectModalTitle": "Reject Emoji",
+      "rejectReasonLabel": "Motivo di rifiuto:",
+      "rejectReasonPlaceholder": "Si prega di fornire un motivo per rifiutare questa emoji...",
+      "cancel": "Annulla",
+      "rejectEmoji": "Reject Emoji",
+      "deleteConfirm": "Sei sicuro di voler eliminare definitivamente questa emoji?"
+    },
+    "permissions": {
+      "subtitle": "Gestione completa dei permessi e dei ruoli con sicurezza di livello aziendale",
+      "createPermission": "Creare nuove autorizzazioni",
+      "createRole": "Crea nuovo ruolo",
+      "tabs": {
+        "permissions": "Permissioni",
+        "roles": "Roles",
+        "audit": "Sentiero Audit"
+      },
+      "loading": "Caricamento",
+      "auditTitle": "Sentiero Audit",
+      "auditComingSoon": "Registrazione completa di audit in arrivo...",
+      "noResultsTitle": "No",
+      "noResultsFiltered": "Prova a regolare i criteri di ricerca o i filtri.",
+      "noResultsEmptyPermission": "Crea il tuo primo permesso per iniziare.",
+      "noResultsEmptyRole": "Crea il tuo primo ruolo per iniziare.",
+      "searchPlaceholder": "Ricerca",
+      "title": "Sistema di gestione delle autorizzazioni"
+    },
+    "guestQuotas": {
+      "title": "Global Guest Quota Management",
+      "loading": "Caricamento di quote ospiti globali...",
+      "addNewQuota": "Aggiungi nuovo preventivo",
+      "createTitle": "Creare Global Guest Quota",
+      "currentQuotasTitle": "Quota degli ospiti globali attuali",
+      "emptyList": "Nessuna quota ospite globale configurata. Gli utenti ospiti utilizzeranno i default del sistema.",
+      "howItWorksBullets": {
+        "0": "Priorità: Le quote globali si applicano agli utenti anonimi quando non esistono override specifiche dell'utente",
+        "1": "Feature-Level: Impostare quote diverse per diversi servizi / caratteristiche per evitare impatti indesiderati",
+        "2": "IP-Based: Le quotazioni sono tracciate dall'indirizzo IP e dall'impronta digitale della macchina facoltativa",
+        "3": "Periodo di reset: Scegliere cicli di ripristino oraria, giornaliera, settimanale o mensile",
+        "4": "Unlimited: Controllare \"Unlimited\" per rimuovere completamente le restrizioni delle quote"
+      },
+      "unlimitedPlaceholder": "Inserisci 0 per illimitato",
+      "descriptionPlaceholder": "Descrizione opzionale per questa quota",
+      "unlimitedPlaceholderShort": "Inserisci 0 per illimitato",
+      "descriptionPlaceholderShort": "Descrizione opzionale",
+      "howItWorksTitle": "Come funziona il Global Guest Quotas:"
+    }
+  },
+  "settings": {
+    "categories": {
+      "behavior": {
+        "title": "Comportamento",
+        "description": "Controllare come il sito si comporta e risponde"
+      },
+      "accessibility": {
+        "title": "Accessibilità",
+        "description": "Rendere il sito più facile da usare per tutti"
+      },
+      "background": {
+        "title": "Effetti di sfondo",
+        "description": "Personalizza lo sfondo dello spazio animato"
+      },
+      "appearance": {
+        "title": "Aspetto",
+        "description": "Personalizza come il sito sembra e si sente"
+      },
+      "privacy": {
+        "title": "Privacy & Profilo",
+        "description": "Controlla la visibilità e i dati del tuo profilo"
+      }
+    },
+    "page": {
+      "title": "Impostazioni impostazioni",
+      "description": "Personalizza la tua esperienza e preferenze",
+      "loading": "Impostazioni di caricamento..."
+    },
+    "account": {
+      "signedInAsPrefix": "Firmato come",
+      "syncNote": "Impostazioni sincronizzare tra i dispositivi",
+      "notSignedIn": "Non firmato",
+      "localOnlyNote": "Impostazioni salvate localmente solo"
+    },
+    "appearance": {
+      "fontFamily": {
+        "cardTitle": "Font Family",
+        "code": {
+          "label": "Codice",
+          "description": "Codice Fira - Perfetto per la codifica"
+        },
+        "reading": {
+          "label": "Lettura",
+          "description": "Font di sistema - Facile sugli occhi"
+        }
+      },
+      "displayDensity": {
+        "compact": {
+          "label": "Compatto",
+          "description": "Meno spaziatura, più contenuto"
+        },
+        "cardTitle": "Densità di visualizzazione",
+        "cozy": {
+          "label": "Cozy",
+          "description": "Più spaziatura, più facile da leggere"
+        }
+      }
+    },
+    "behavior": {
+      "pageNavigation": {
+        "cardTitle": "Navigazione",
+        "traditional": {
+          "label": "Tradizionale",
+          "description": "Numeri di pagina con successivo/precedente"
+        },
+        "infiniteScroll": {
+          "label": "Scroll infinito",
+          "description": "Contenuto di carico automatico come scorrere"
+        }
+      },
+      "emojiPanel": {
+        "cardTitle": "Pannello Emoji",
+        "closeAfterSelect": {
+          "label": "Chiudi Dopo Seleziona",
+          "description": "Il pannello si chiude dopo aver scelto una emoji"
+        },
+        "stayOpen": {
+          "label": "Resta aperto",
+          "description": "Scegliere più emoji prima di chiudere"
+        }
+      }
+    },
+    "accessibility": {
+      "focusIndicators": {
+        "cardTitle": "Indicatori di messa a fuoco",
+        "disabled": {
+          "label": "Disabili",
+          "description": "Design visivo pulito senza contorni di messa a fuoco"
+        },
+        "enabled": {
+          "label": "Abilitato",
+          "description": "Mostra i contorni di messa a fuoco per la navigazione della tastiera"
+        }
+      }
+    },
+    "background": {
+      "movementDirection": {
+        "cardTitle": "Direzione del movimento",
+        "static": {
+          "label": "Statistiche",
+          "description": "Nessun movimento"
+        },
+        "left": {
+          "description": "Drift sinistra",
+          "label": "Sinistra"
+        },
+        "right": {
+          "label": "Giusto",
+          "description": "Diritto derivato"
+        },
+        "up": {
+          "label": "Su",
+          "description": "Drift up"
+        },
+        "forward": {
+          "label": "Avanti",
+          "description": "Volare avanti"
+        },
+        "backward": {
+          "label": "Indietro",
+          "description": "Tirare indietro"
+        },
+        "down": {
+          "label": "Giù",
+          "description": "Giù a secco"
+        }
+      },
+      "movementSpeed": {
+        "normal": {
+          "label": "Normale",
+          "description": "Velocità standard"
+        },
+        "fast": {
+          "label": "Veloce",
+          "description": "Alta velocità"
+        },
+        "cardTitle": "Velocità di movimento",
+        "slow": {
+          "label": "Piano",
+          "description": "Ritmo rilassato"
+        }
+      },
+      "audioReactivity": {
+        "cardTitle": "Background Audio Reattività",
+        "hint": "Quanto fortemente lo sfondo della galassia risponde alla riproduzione radio. 0% mantiene lo sfondo statico; il 100% è piena reattività.",
+        "rangeLabel": "Intensità di reattività",
+        "tickOff": "Fuori",
+        "tickFull": "Pieno"
+      },
+      "animationLayers": {
+        "cardTitle": "Livelli di animazione",
+        "enabledCountSuffix": "di 5 abilitati",
+        "stars": "Stelle",
+        "particles": "Particelle",
+        "nebula": "Nebulosa",
+        "planets": "Pianeti",
+        "aurora": "Aurora"
+      }
+    },
+    "privacy": {
+      "profileVisibility": {
+        "cardTitle": "Visibilità del profilo",
+        "public": {
+          "label": "Pubblico",
+          "description": "Profilo visibile a tutti"
+        },
+        "private": {
+          "label": "Privato",
+          "description": "Profilo nascosto agli altri"
+        }
+      }
+    },
+    "common": {
+      "on": "Su",
+      "off": "Fuori",
+      "enabled": "Abilitato",
+      "disabled": "Disabili"
+    }
+  },
+  "tools": {
+    "cardGenerator": {
+      "welcome": {
+        "loadPreviousDescription": "Recuperare una generazione esistente",
+        "initializing": "Inizializzare le energie mistiche...",
+        "generationIdLabel": "Generazione ID:",
+        "loadPlaceholder": "Incolla il tuo ID di generazione qui...",
+        "load": "Carico",
+        "title": "Entra nel regno della creazione mistica",
+        "intro": "Le energie antiche attendono il vostro comando. Scegli il tuo percorso sacro per tessere incantate carte di social media benedette con geometria mistica e profonda saggezza.",
+        "createNew": "Crea nuovo",
+        "createNewDescription": "Generare una carta mistica fresca",
+        "loadPrevious": "Caricamento precedente",
+        "generationIdHint": "Gli ID di Generazione sembrano:",
+        "quotaReached": "Quota giornaliera raggiunta!",
+        "upgradeCta": "Aggiornamento a Pro per generazioni illimitate"
+      },
+      "wizard": {
+        "wizardTitle": "Generatore di carta guidata",
+        "steps": {
+          "platformSelection": "Selezione della piattaforma",
+          "basicConfiguration": "Configurazione di base",
+          "proConfiguration": "Configurazione Pro",
+          "confirmAndGenerate": "Conferma e Generazione"
+        },
+        "stepDescriptions": {
+          "platform": "Selezionare il rapporto piattaforma e aspetto per la scheda",
+          "basic": "Configurare gli elementi principali della scheda",
+          "pro": "Impostazioni avanzate con funzioni Pro",
+          "confirm": "Rivedere la configurazione e generare la scheda"
+        },
+        "labels": {
+          "mainSeed": "Principale seme",
+          "avatarSeed": "Avatar Seed",
+          "author": "Autore",
+          "quote": "Quote",
+          "customWidth": "Larghezza personalizzata",
+          "customHeight": "Altezza personalizzata",
+          "shapeCount": "Contatore di forma"
+        },
+        "choosePlatformTitle": "Scegli la tua piattaforma",
+        "choosePlatformBody": "Selezionare la piattaforma in cui condividere la carta. Ogni piattaforma ha dimensioni ottimizzate per il miglior impatto visivo.",
+        "loadingAspectRatios": "Caricamento dei rapporti...",
+        "placeholders": {
+          "random": "Lasciare vuoto per casuale",
+          "randomQuote": "Lascia vuoto per citazione ispirativa casuale",
+          "auto": "Auto"
+        },
+        "hints": {
+          "pattern": "Controlla il modello di progettazione generale",
+          "avatar": "Controlla il design avatar",
+          "author": "La persona che ha detto la citazione",
+          "quote": "Il messaggio ispiratore per la tua carta"
+        },
+        "reviewTitle": "Recensione & Generate",
+        "cancel": "Annulla",
+        "previous": "← Precedente",
+        "next": "Il prossimo →",
+        "generateCard": "Scheda di generazione",
+        "generating": "Generando...",
+        "dailyQuotaExceeded": "Quota giornaliera esclusa",
+        "upgradeForUnlimited": "Aggiornamento a Pro per generazioni illimitate e funzionalità avanzate!",
+        "basicEmptyNote": "Lascia i campi vuoti per una generazione casuale.",
+        "goToStepPrefix": "Vai a",
+        "proStep": {
+          "subscriptionNote": "Questo passaggio contiene funzionalità avanzate disponibili solo agli abbonati Pro. Modalità guidata con configurazione di base è completamente gratuito!",
+          "upgradeTitle": "Aggiornamento a Pro",
+          "upgradeBody": "Questo passaggio contiene funzionalità avanzate disponibili solo agli abbonati Pro. Modalità guidata con configurazione di base è completamente gratuito!",
+          "proFeatureSuffix": "(Pro caratteristica)",
+          "widthHint": "Larghezza personalizzata in pixel",
+          "heightHint": "Altezza personalizzata in pixel",
+          "shapeCountHint": "Numero di forme di sfondo",
+          "shapeCountPlaceholder": "8"
+        },
+        "confirmStep": {
+          "body": "Rivedere la configurazione e generare la scheda mistica.",
+          "sections": {
+            "platform": "Piattaforma",
+            "content": "Contenuto",
+            "seeds": "Semi di semi",
+            "proSettings": "Impostazioni Pro"
+          },
+          "labels": {
+            "format": "Formato:",
+            "dimensions": "Dimensioni:",
+            "author": "Autore:",
+            "quote": "Citazione:",
+            "main": "Principale:",
+            "avatar": "Avatar:",
+            "width": "Width:",
+            "height": "Altezza:",
+            "shapes": "Forme:"
+          },
+          "randomValue": "Random"
+        }
+      },
+      "generationForm": {
+        "configuration": "Configurazione",
+        "viewingLoadedGeneration": "Visualizzazione della generazione caricata",
+        "readOnlyBanner": "Questa configurazione è di sola lettura. Creare una nuova generazione per fare cambiamenti.",
+        "freeConfiguration": "Configurazione gratuita",
+        "proConfigurationOptions": "Opzioni di configurazione Pro",
+        "proBadge": "PROPOSTE",
+        "hideDetails": "Nascondi dettagli",
+        "showDetails": "Mostra dettagli",
+        "labels": {
+          "mainSeed": "Principale seme",
+          "avatarSeed": "Avatar Seed",
+          "author": "Autore",
+          "quote": "Quote",
+          "aspectRatio": "Aspect Ratio",
+          "width": "Larghezza",
+          "height": "Altezza",
+          "shapeCount": "Contatore di forma"
+        },
+        "placeholders": {
+          "customSeed": "Inserisci seme personalizzato...",
+          "autoSeed": "Sementi autogenerati",
+          "avatarSeed": "Seme avatar personalizzato (lascia vuota per casuale)",
+          "quoteAuthor": "Autore citazione (lasciare vuoto per casuale)",
+          "customQuote": "Inserisci il preventivo personalizzato (lascia vuoto per un preventivo casuale)",
+          "auto": "Auto",
+          "shapeCountDefault": "8",
+          "avatarSeedUsesMain": "Lasciare vuoto per usare il seme principale"
+        },
+        "randomizeAll": "Randomize Tutti",
+        "generateImage": "Immagine generata",
+        "generating": "Generando...",
+        "readOnlyGeneration": "Read-Only Generation",
+        "loadingAspectRatios": "Caricamento dei rapporti...",
+        "seedActions": {
+          "save": "Salva il seme",
+          "cancelEdit": "Annulla modifica",
+          "editMain": "Modifica seme",
+          "editAvatar": "Modificare il seme avatar"
+        }
+      },
+      "advancedControls": {
+        "sections": {
+          "patternMagic": "Modello magico",
+          "watermarkControls": "Controlli di filigrana",
+          "avatarPositioning": "Posizionamento Avatar",
+          "textLayout": "Telaio di testo",
+          "visualEffects": "Effetti visivi"
+        },
+        "labels": {
+          "avatarX": "Avatar X",
+          "avatarY": "Avatar Y",
+          "avatarSize": "Dimensione Avatar",
+          "textMaxWidth": "Testo Larghezza massima",
+          "textStartY": "Inizio testo Y",
+          "textPadding": "Imbottitura del testo",
+          "fontSize": "Dimensione del carattere",
+          "lineHeight": "Altezza della linea",
+          "borderOpacity": "OpacitÃ di confine",
+          "borderColor": "Colore di confine",
+          "patternSeed": "Modello Seed",
+          "glassBackground": "Effetto di sfondo di vetro",
+          "enableWatermark": "Abilitare la filigrana personalizzata",
+          "watermarkText": "Testo della filigrana",
+          "position": "Posizione",
+          "rotationDegrees": "Rotazione (gradi)",
+          "size": "Dimensione",
+          "opacityPercent": "Possibilità (%)"
+        },
+        "paywallTitle": "Sblocca la magia avanzata",
+        "paywallBody": "Ottieni un controllo preciso sul posizionamento dell'avatar, il layout del testo, lo stile visivo e altro ancora con l'abbonamento Pro.",
+        "upgradeLink": "Aggiornamento a Pro",
+        "overlayTitle": "Sblocca la magia avanzata",
+        "overlayBody": "Ottieni un controllo preciso su ogni aspetto delle tue carte mistiche!",
+        "upgradeButton": "Ascend a Archmage",
+        "placeholders": {
+          "auto": "Auto",
+          "textPadding": "30",
+          "lineHeight": "1.4",
+          "borderOpacity": "0,7",
+          "patternSeed": "Autogenerata",
+          "watermarkText": "#",
+          "rotation": "- 25",
+          "watermarkSize": "16",
+          "watermarkOpacity": "15"
+        },
+        "watermarkPositions": {
+          "top-right": "Top destro",
+          "bottom-left": "In basso a sinistra",
+          "bottom-right": "In basso a destra",
+          "center": "Centro",
+          "repeated": "Modello ripetuto",
+          "top-left": "A sinistra"
+        }
+      }
+    },
+    "svgConverter": {
+      "page": {
+        "title": "Convertitore SVG a PNG",
+        "description": "Trasforma la tua grafica vettoriale SVG in immagini PNG di alta qualità con dimensionamento personalizzato, impostazioni di qualità e capacità di elaborazione batch.",
+        "conversionFailed": "Conversione non riuscita",
+        "dismiss": "Oggetto",
+        "featuresTitle": "Caratteristiche",
+        "features": {
+          "0": "Uscita PNG di alta qualità",
+          "1": "Ridimensionamento e dimensioni personalizzate",
+          "2": "Validazione della sicurezza",
+          "3": "Elaborazione batch",
+          "4": "Personalizzazione dello sfondo",
+          "5": "Progressi in tempo reale"
+        },
+        "supportedTitle": "Supportato",
+        "formats": {
+          "inputLabel": "Input:",
+          "inputValue": "SVG",
+          "outputLabel": "Uscita:",
+          "outputValue": "PNG",
+          "maxSizeLabel": "Dimensione massima:",
+          "maxSizeValue": "10MB",
+          "batchLabel": "Batch:",
+          "batchValue": "10 file"
+        },
+        "tipsTitle": "Consigli",
+        "tips": {
+          "0": "Rimuovere i tag script per la sicurezza",
+          "1": "Utilizzare SVG semplici per una conversione più rapida",
+          "2": "Qualità superiore = dimensione del file più grande",
+          "3": "Prova scala 2x per display retina"
+        },
+        "signedInTitle": "Firmato",
+        "signedInNoLimits": "Nessun limite di conversione per gli utenti registrati"
+      },
+      "interface": {
+        "title": "Convertire SVG in PNG",
+        "subtitle": "Caricare un file SVG o incollare il codice SVG per iniziare",
+        "uploadFile": "Carica file",
+        "pasteCode": "Codice Paste",
+        "uploadPromptStrong": "Clicca per caricare",
+        "uploadPromptRest": "o trascina e goccia",
+        "uploadHint": "Solo file SVG, max 10MB",
+        "svgCodeLabel": "Codice SVG:",
+        "svgCodePlaceholder": "Incollare il codice SVG qui...",
+        "svgTagsHint": "Assicurarsi che il vostro SVG include le etichette di apertura e chiusura corrette",
+        "conversionOptionsTitle": "Opzioni di conversione",
+        "filenameLabel": "Nome del file:",
+        "qualityLabel": "Qualità",
+        "scaleLabel": "Scala",
+        "backgroundLabel": "Sfondo:",
+        "backgroundOptions": {
+          "0": "Trasparente",
+          "1": "Bianco",
+          "2": "Nero",
+          "3": "Grigio chiaro"
+        },
+        "errors": {
+          "readFailed": "Non leggere il file",
+          "dropSvg": "Si prega di rilasciare un file SVG",
+          "provideContent": "Si prega di fornire contenuti SVG",
+          "selectSvg": "Selezionare un file SVG",
+          "fileTooLarge": "La dimensione del file deve essere inferiore a 10MB"
+        },
+        "convertToPng": "Convertire in PNG",
+        "converting": "Convertire...",
+        "initializing": "Inizializzazione..."
+      }
+    }
+  },
+  "profile": {
+    "metadata": {
+      "notFoundDescription": "Il profilo utente richiesto non è stato trovato.",
+      "privateTitle": "Profilo privato | Idling.app",
+      "privateDescription": "Questo utente ha impostato il proprio profilo in privato.",
+      "publicTitleSuffix": "- Profilo utente | Idling.app",
+      "publicOpenGraphTitleSuffix": "- Profilo",
+      "invalidUrlTitle": "URL del profilo Invalid | Idling.app",
+      "invalidUrlDescription": "Gli URL del profilo devono utilizzare solo gli ID del database.",
+      "notFoundTitle": "Utente non trovato | Idling.app",
+      "publicFallbackDescription": "Profilo {name}, statistiche di attività e contributi su Idling.app.",
+      "publicFallbackOpenGraphDescription": "Visualizza il profilo e l'attività di {name}su Idling.app.",
+      "productNotFoundTitle": "Prodotto"
+    },
+    "private": {
+      "title": "Profilo privato",
+      "message": "Questo utente ha impostato il proprio profilo in privato. Solo loro possono visualizzare le loro informazioni sul profilo."
+    },
+    "notFound": {
+      "message": "Scusa, non abbiamo trovato il profilo utente che stai cercando. Questo potrebbe accadere se:",
+      "reasons": {
+        "0": "Il nome utente non esiste",
+        "1": "L'utente ha cancellato il proprio account",
+        "2": "L'URL del profilo è errato",
+        "3": "Il profilo dell'utente è impostato su privato"
+      },
+      "iconAria": "Utente non trovato",
+      "title": "Utente non trovato",
+      "goHome": "Vai a casa",
+      "searchTitle": "Ricerca per utenti",
+      "searchDescription": "Prova a cercare l'utente che stai cercando:",
+      "searchPlaceholder": "Cerca utenti per nome o e-mail...",
+      "helpTitle": "Aiuto",
+      "helpSearchLabel": "Ricerca",
+      "helpSearchDescription": "Utilizzare la ricerca sopra per trovare gli utenti per nome o e-mail",
+      "helpProductsLabel": "Prodotti",
+      "helpProductsDescription": "Sfoglia la home lineup per applicazioni e mod"
+    },
+    "pageUi": {
+      "testDecorationsTitle": "Test di decorazione nome utente (solo amministratore)",
+      "subscriptionsTitle": "Abbonamenti",
+      "freeTierMessage": "Utente libero",
+      "decorationOptions": {
+        "0": {
+          "value": "",
+          "label": "Nessuno"
+        },
+        "1": {
+          "value": "impresa-corona",
+          "label": "Enterprise Crown"
+        },
+        "2": {
+          "value": "premium-galaxy",
+          "label": "Galaxy Premium"
+        },
+        "3": {
+          "value": "pro-plasma",
+          "label": "Pro Plasma"
+        },
+        "4": {
+          "value": "attivo-glow",
+          "label": "Glow attivo"
+        },
+        "5": {
+          "value": "processo-pulse",
+          "label": "Pulsante di prova"
+        }
+      },
+      "adminDecorationDescription": "Prova diverse decorazioni per il nome utente nella pagina del tuo profilo",
+      "adminDecorationNote": "Questa è una funzione di test visibile solo agli amministratori sul proprio profilo",
+      "previewLabel": "Anteprima:",
+      "demoUserFallback": "Demo utente",
+      "testDecorationsButton": "Test Decorazioni nome utente",
+      "adminDecorationTitle": "Test di decorazione nome utente"
+    }
+  },
+  "subscription": {
+    "page": {
+      "title": "Abbonamento",
+      "subtitle": "Scegli il tuo piano",
+      "subtitleQuota": "Aggiornamento per continuare a generare emoji",
+      "loading": "Opzioni di abbonamento di caricamento...",
+      "loadingData": "Caricamento dei dati di abbonamento...",
+      "errorHeading": "Errore",
+      "noDataHeading": "Nessun dato disponibile",
+      "noDataBody": "I dati di abbonamento non possono essere caricati.",
+      "returnHome": "Torna a casa",
+      "quotaBannerTitle": "Limite giornaliero raggiunto",
+      "advancedOptions": "Opzioni avanzate:",
+      "yes": "Sì",
+      "no": "No",
+      "subscribeNow": "Iscriviti ora",
+      "backToGenerator": "← Torna a Emoji Generator",
+      "quotaBannerBody": "Hai raggiunto il limite di generazione quotidiana. Aggiornamento a Pro per continuare a generare emoji con generazioni quotidiane illimitate.",
+      "whatYouGet": "Che cosa si ottiene:",
+      "dailyLimitLabel": "Limite giornaliero:",
+      "currentLimitsTitle": "I tuoi limiti attuali (Piano libero):",
+      "dailyGenerations": "Generazioni giornaliere:",
+      "fetchFailed": "Non caricare i dati di abbonamento"
+    },
+    "metadata": {
+      "title": "Abbonamento | Idling.app",
+      "description": "Scegliere un piano e aggiornare l'abbonamento idling.app."
+    }
+  },
+  "radio": {
+    "aria": {
+      "player": "Radio player",
+      "chooseStation": "Scegli una stazione",
+      "searchStations": "Stazioni di ricerca per nome, descrizione o genere",
+      "clearSearch": "Cancella la ricerca della stazione",
+      "filterByGenre": "Filtra per genere",
+      "stations": "Stazioni",
+      "playerSettings": "Impostazioni del giocatore",
+      "fullscreenVisualizerStyle": "Stile di visualizzazione a schermo intero",
+      "fullscreenVisualizerStyles": "Stile di visualizzazione a schermo intero",
+      "waveLineStyle": "Stile linea d'onda",
+      "oscilloscopeSmoothing": "Oscilloscopio onda lisciante",
+      "barFillStyle": "Stile di riempimento bar",
+      "barTrailStyle": "Bar stile trail",
+      "barGlow": "Bar bagliore",
+      "visualizerColors": "Colori di visualizzazione",
+      "spectrumVisualizerColors": "Spettro colori di visualizzazione",
+      "fullscreenSpectrumOpacity": "Opacità a spettro a schermo intero",
+      "play": "Gioca",
+      "pause": "Pausa",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "volume": "Volume",
+      "fullscreenVisualizerHeight": "Altezza visiva a schermo intero",
+      "barVisualizerLook": "Bar visualizer look",
+      "barVisualizerStyles": "Bar stili di visualizzazione",
+      "controlBarVisualizerLayout": "Sistema di visualizzazione barra di controllo",
+      "controlBarVisualizerOpacity": "Barra di controllo opacità visiva",
+      "barSpacing": "Bar spaziatura",
+      "stationTransport": "Trasporti di stazione",
+      "previousStation": "Stazione precedente",
+      "nextStation": "Prossima stazione",
+      "dragToWidenText": "Trascinare per ampliare la stazione e tracciare il testo. Fare doppio clic per resettare.",
+      "volumeScrollHint": "Volume — Pergamena per regolare",
+      "enterFullscreen": "Inserisci schermo intero",
+      "exitFullscreen": "Uscita a schermo intero",
+      "openFullscreenVisualizer": "Visualizzatore a schermo intero aperto",
+      "exitFullscreenVisualizer": "Visualizzatore a schermo intero",
+      "equalizer": "Equalizzatore",
+      "equalizerPresets": "Preimpostazioni di equalizzazione",
+      "customEqualizerPresets": "Preimpostazioni di equalizzazione personalizzate",
+      "equalizerBands": "Bande di equalizzazione",
+      "fullTrackTitle": "Titolo completo",
+      "dragToResizePanel": "Trascinare per ridimensionare il pannello. Fare doppio clic per ripristinare l'altezza.",
+      "recheckStationPrefix": "Ricontrollare",
+      "changeStationPrefix": "Cambio di stazione — ora su",
+      "nowOnSuffix": "",
+      "trackTitleTrigger": "Ora giocando: {track}. Clicca per mostrare il titolo completo.",
+      "checkingStreamTitle": "Controllo del flusso",
+      "changeStationTitle": "Cambio stazione",
+      "playerSettingsTitle": "Impostazioni del giocatore",
+      "searchWebForTrack": "Cerca nel web per {query}",
+      "findTrackTitle": "Trova \"{query}\"",
+      "addFavorite": "Aggiungi {stationName} ai preferiti",
+      "removeFavorite": "Rimuovi {stationName} dai preferiti"
+    },
+    "equalizer": {
+      "reset": "Ripristino",
+      "resetAriaPrefix": "Ripristina l'equalizzatore a",
+      "title": "Equalizzatore",
+      "load": "Carico",
+      "save": "Salva",
+      "delete": "Cancella",
+      "confirm": "Conferma",
+      "cancel": "Annulla",
+      "matchExact": "Queste impostazioni dello slider corrispondono esattamente a {label} . Selezionare quella preimpostazione invece di duplicarla manualmente.",
+      "matchNear": "Queste impostazioni del cursore sono vicine a {label}. Considera di selezionare quella preimpostazione.",
+      "deleteConfirm": "Eliminare preimpostazione salvata \"{label}\"? Questo non può essere annullato.",
+      "customSlotDefault": "Personalizzato {slot}",
+      "loadPresetAria": "Caricamento {label}",
+      "emptySlotAria": "Fessura preimpostata personalizzata {slot} è vuota",
+      "slotEmptyTitle": "Slot {slot} è vuoto",
+      "nameSlotAria": "Nome per slot preset personalizzato {slot}",
+      "saveToAria": "Salvare l'EQ corrente in {label}",
+      "deletePresetAria": "Eliminare la preimpostazione salvata {label}",
+      "confirmDeleteAria": "Conferma di eliminare {label}",
+      "cancelDeleteAria": "Cancellare la cancellazione per {label}",
+      "presets": {
+        "flat": "Appartamento",
+        "bass-boost": "Basso aumento",
+        "treble-boost": "Spinta Treble",
+        "vocal": "Votazione",
+        "rock": "Rock",
+        "jazz": "Jazz",
+        "electronic": "Elettronica elettronica",
+        "podcast": "Podcast"
+      }
+    },
+    "bar": {
+      "pressPlayToStart": "Premi il gioco per iniziare",
+      "searchPlaceholder": "Stazioni di ricerca... (\"Radio France\" o #jazz)",
+      "checkingStationsOne": "Checking 1 stazione..",
+      "checkingStationsMany": "Controllo {count} stazioni..",
+      "filterAll": "Tutti",
+      "filterFavorites": "Preferiti",
+      "filterUnreachable": "Non raggiungibile",
+      "recheckAll": "Ricontrolla tutti",
+      "emptyUnreachable": "Nessuna stazione irraggiungibile corrisponde a questo filtro.",
+      "emptyFavorites": "Nessuna stazione preferita corrisponde a questo filtro.",
+      "emptySearchPrefix": "Nessuna corrispondenza delle stazioni",
+      "checkingStreamAvailability": "Controllare la disponibilità del flusso.."
+    },
+    "settings": {
+      "look": "Guarda",
+      "none": "Nessuno",
+      "waveStyle": "Stile d'onda",
+      "waveSmoothing": "Levigatura d'onda",
+      "barFill": "Riempimento bar",
+      "barTrail": "Sentiero del bar",
+      "barGlow": "Bar bagliore",
+      "barColors": "Colori bar",
+      "spectrumColors": "Colori spettacolari",
+      "spectrumOpacity": "Opacità dello spettro",
+      "spectrumHeight": "Altezza dello spettro",
+      "barLayout": "Disposizione della barra",
+      "opacity": "Possibilità",
+      "density": "Densità",
+      "barStyle": "Stile bar",
+      "trail": "Sentiero",
+      "glow": "Glow",
+      "colors": "Colori",
+      "visualizerHeight": "Altezza del visualizzatore",
+      "webglUnavailableFallback": "Gli visualizzatori WebGL2 non sono disponibili in questo browser."
+    },
+    "visualizer": {
+      "line": "Linea",
+      "ribbon": "Nastro",
+      "solid": "Solido",
+      "glass": "Vetro",
+      "none": "Nessuno",
+      "peaks": "Vette",
+      "cascade": "Cascata",
+      "off": "Fuori",
+      "soft": "Morbido",
+      "theme": "Tema",
+      "prism": "Prisma",
+      "compact": "Compatto",
+      "normal": "Normale",
+      "wide": "Va bene",
+      "fullBackground": "Sfondo pieno",
+      "inlineStrip": "Striscia in linea"
+    },
+    "genres": {
+      "ambient": "Ambiente",
+      "classical": "Classico",
+      "community": "Comunità",
+      "custom": "Personale",
+      "eclectic": "Eclettico",
+      "electronic": "Elettronica elettronica",
+      "jazz": "Jazz",
+      "news": "News & talk",
+      "public": "Radio pubblica"
+    },
+    "bpm": {
+      "label": "BPM",
+      "paused": "Tempo non disponibile in pausa",
+      "silent": "Nessun battito chiaro nel flusso in questo momento",
+      "stable": "Tempo {bpm} beats al minuto",
+      "estimating": "Tempo approssimativo {bpm} battiti al minuto",
+      "listening": "Ascoltare per i battiti nel flusso"
+    },
+    "presetLabels": {
+      "webgl": {
+        "spectrum-bars": {
+          "label": "Barre di spettro",
+          "description": "Classica colonna EQ a larghezza intera"
+        },
+        "mirror-bars": {
+          "label": "Barre a specchio",
+          "description": "Colonne dello spettro simmetrico dal centro"
+        },
+        "radial-spectrum": {
+          "label": "Spettro radiale",
+          "description": "Grande analizzatore circolare che riempie lo schermo"
+        },
+        "netrunner-grid": {
+          "label": "Rete di strumenti",
+          "description": "3D cyber avenue — torri neon su entrambi i lati su una griglia di scorrimento"
+        },
+        "starry-horizon": {
+          "label": "Orizzonte stellato",
+          "description": "Oro-to-teal EQ skyline su un orizzonte basso — notte stellata specchiata in acqua calma"
+        },
+        "neon-constellation": {
+          "label": "Costellazione di Neon",
+          "description": "Mesh neon sferica i cui vertici e collegamenti morfidono con la musica"
+        },
+        "waveform-path": {
+          "label": "Sentiero della forma d'onda",
+          "description": "Corsa di oscilloscopio con sentiero fosforo"
+        },
+        "liquid-merge": {
+          "label": "Fusione liquida",
+          "description": "Lentamente alla deriva colori blobs che si allungano, si incontrano e si uniscono mentre attraversano lo schermo"
+        }
+      },
+      "bar": {
+        "idling-bars": {
+          "label": "Barre di frequenza",
+          "description": "Barre a spettro classico con opzioni di riempimento e trail"
+        },
+        "scope": {
+          "label": "Oscilloscopio",
+          "description": "Traccia di forma d'onda viva"
+        },
+        "mirror": {
+          "label": "Specchio",
+          "description": "Riflessione simmetrica"
+        },
+        "wave": {
+          "label": "Onda",
+          "description": "Frequenza linea d'onda o nastro"
+        },
+        "dots": {
+          "label": "Punti",
+          "description": "Dot di particelle reattive"
+        },
+        "thread-weave": {
+          "label": "Telaio filettato",
+          "description": "Filetti di flusso interlacciati"
+        },
+        "drift-mist": {
+          "label": "La nebbia secca",
+          "description": "Bande di nebbia a strati"
+        },
+        "arc": {
+          "label": "Arc",
+          "description": "Anello ad arco radiale"
+        }
+      },
+      "spectrum": {
+        "radial-prism": "Prisma radiale",
+        "octave-classic": "Barre di Octave",
+        "mirror-rainbow": "Specchio arcobaleno",
+        "led-orangered": "Spettro LED",
+        "graph-steel": "Grafico d'onda",
+        "dual-steel-prism": "Canale doppio"
+      }
+    }
+  }
+}

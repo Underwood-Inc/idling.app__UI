@@ -1,0 +1,2470 @@
+{
+  "locale": {
+    "pickerLabel": "* 이름",
+    "pickerAria": "본문 바로가기"
+  },
+  "messageTicker": {
+    "separator": "—",
+    "loading": "로드 중 ..",
+    "empty": "마음의 숨을 가져다.",
+    "openQuoteAria": "연락처",
+    "modalTitle": "제품 정보",
+    "closeModalAria": "닫기 견적"
+  },
+  "nav": {
+    "externalLinkAria": "외부 링크",
+    "groups": {
+      "TOOLS": "제품정보",
+      "EXTERNAL": "기타 제품"
+    },
+    "routes": {
+      "ROOT": "(주)",
+      "CARD_GENERATOR": "카드 생성기",
+      "SVG_CONVERTER": "SVG로 PNG",
+      "GALAXY": "팟캐스트",
+      "MAPPY": "지도py",
+      "COINS": "가격 대비 가치",
+      "GAME": "이름 *",
+      "SIGNIN": "이름 *",
+      "CALLBACK": "콜백",
+      "ADMIN": "계정 관리",
+      "STRIXUN_STREAM_SUITE": "Strixun 스트림 스위트",
+      "STREAM_SUITE": "스트림 스위트",
+      "MODS_HUB": "모드 허브",
+      "AUTH_SERVICE": "Auth 서비스",
+      "URL_SHORTENER": "URL 단축",
+      "ACCESS_HUB": "액세스 허브",
+      "STREAM_SUITE_DETAIL": "Stream Suite 세부 정보",
+      "MODS_HUB_DETAIL": "Mods 허브 세부 사항",
+      "AUTH_SERVICE_DETAIL": "Auth 서비스 세부사항",
+      "URL_SHORTENER_DETAIL": "URL Shortener 세부사항",
+      "ACCESS_HUB_DETAIL": "액세스 허브 세부 사항"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "loginWithProviderPrefix": "이름 *",
+      "signOut": "이름 *"
+    },
+    "signInNav": "이름 *",
+    "signInPage": {
+      "headline": "Idling 앱에 오신 것을 환영합니다",
+      "subtitle": "당신의 선호한 sign-in 방법을 선택하십시오"
+    },
+    "oauthConflict": {
+      "option3Button": "연락처",
+      "goHome": "이동 홈",
+      "title": "계정 Already 링크",
+      "whatWouldYouLike": "무엇을 할까?",
+      "option1Title": "Option 1: 다른 계정으로 로그인",
+      "option1DescriptionSignin": "이 공급자 계정이 연결되지 않는 다른 계정과 로그인하십시오.",
+      "option1ButtonSignin": "다른 계정과 로그인",
+      "option2Title": "옵션 2: Unlink 및 relink 이 계정",
+      "option2Description": "우리는 당신이 다른 사용자에서이 공급자 계정을 링크하고 현재의 계정에 연결 할 수 있습니다.",
+      "option2Button": "링크 및 링크 계정",
+      "option3Title": "Option 3: 연락처 지원",
+      "option3Description": "이 문제를 해결하는 데 도움이 필요한 경우, 우리의 지원 팀은 당신을 도울 수 있습니다."
+    },
+    "callback": {
+      "accountAlreadyLinkedTitle": "계정 Already 링크",
+      "oauthConflict": {
+        "option1Title": "Option 1: 기존 계정으로 로그인",
+        "option1Description": "다른 계정을 기억하면 대신에 로그인하십시오.",
+        "option1Button": "다른 계정으로 로그인"
+      },
+      "signInDifferentAccount": "다른 계정으로 로그인",
+      "authErrorTitle": "인증 오류",
+      "completingSignIn": "로그인 완료 ...",
+      "completingSignInWithProvider": "로그인",
+      "waitMessage": "계정을 설정하는 동안 기다려 주십시오.",
+      "redirectingShortly": "곧 당신을 간직 ...",
+      "tryAgain": "다시 시도",
+      "goHome": "이동 홈",
+      "errors": {
+        "oauthSignin": "OAuth Sign-in 프로세스에 오류가 있었습니다.",
+        "credentialsSignin": "잘못된 자격.",
+        "sessionRequired": "이 페이지를 액세스하려면 로그인하십시오.",
+        "unexpected": "예기치 않은 인증 오류가 발생했습니다.",
+        "oauthCallback": "OAuth 콜백에는 오류가 있었습니다.",
+        "oauthCreateAccount": "OAuth 계정을 만들 수 없습니다.",
+        "emailCreateAccount": "이메일 계정을 만들 수 없습니다.",
+        "callback": "콜백 핸들러에 오류가 있었습니다.",
+        "emailSignin": "로그인 링크를 위한 이메일 확인."
+      }
+    },
+    "unlink": {
+      "title": "Unlink OAuth 계정",
+      "subtitle": "분쟁 해결",
+      "howItWorksSteps": {
+        "0": "현재 이 공급자 계정이 연결된 계정을 찾을 수 있습니다",
+        "1": "계정으로 로그인",
+        "2": "현재 계정에 연결할 수 있습니다",
+        "3": "이 과정은 안전하고 삭제되지 않습니다"
+      },
+      "importantNotesTitle": "중요 노트:",
+      "importantNotes": {
+        "0": "이것은 OAuth 공급자만, 어떤 사용자 계정을 삭제하지 않을 것입니다",
+        "1": "계정 데이터 및 구독 상태는 보존됩니다",
+        "2": "다른 계정과 로그인해야 합니다",
+        "3": "다른 계정에 액세스하지 않는 경우, 연락처 지원"
+      },
+      "cancel": "이름 *",
+      "needHelp": "도움이 필요하십니까?",
+      "aboutTitle": "계정 연결 Conflicts",
+      "aboutBody": "OAuth 공급자 (Google 또는 Twitch와 같은)에 로그인하려고하면 이미 다른 계정과 연결되므로이 충돌을 해결해야합니다.",
+      "howItWorksTitle": "이 작품 :"
+    }
+  },
+  "search": {
+    "findUsersPlaceholder": "사용자 정의."
+  },
+  "mobile": {
+    "brandTitle": "다운로드",
+    "closeMenuAria": "모바일 메뉴 닫기",
+    "menuAria": "모바일 탐색 메뉴"
+  },
+  "footer": {
+    "docs": "사이트맵",
+    "discord": "공지사항",
+    "discordAria": "Discord 서버 가입"
+  },
+  "home": {
+    "masthead": {
+      "title": "지도. 다운로드 도구. 라디오.",
+      "line": "게임, 모드, 스트림 도구 및 커뮤니티 - 아래의 각 제품은 당신이 준비 할 때 투어 또는 라이브 응용 프로그램을 가지고.",
+      "ctaSeeLineup": "공지사항"
+    },
+    "minecraftBand": {
+      "title": "Minecraft 프로젝트",
+      "line": "플러그인, 데이터팩, 그리고 우리의 화이트리스트 서버 — Modrinth와 BuiltByBit와 같은 라인업."
+    },
+    "hubEyebrow": {
+      "windowsProprietary": "Windows 앱 · 독점"
+    },
+    "status": {
+      "wip": "진행 중"
+    },
+    "homeLinks": {
+      "open": "기타",
+      "getIt": "시작하기",
+      "modsHub": "모드 허브",
+      "modrinth": "모린스",
+      "tour": "여행 정보"
+    },
+    "outboundLinks": {
+      "live": "라이브 앱",
+      "builtByBit": "내장ByBit",
+      "modsHub": "모드 허브",
+      "modrinth": "모린스",
+      "demo": "제품 투어",
+      "github": "프로젝트"
+    },
+    "outboundVariants": {
+      "inDepthTour": "오시는 길",
+      "launchLiveApp": "실시간 앱"
+    },
+    "minecraftMore": {
+      "productTour": "제품 투어",
+      "seeTour": "오시는 길",
+      "modrinthPage": "Modrinth 페이지",
+      "builtByBitListing": "내장By 비트 목록",
+      "onIdlingApp": "Idling.app에"
+    },
+    "hooks": {
+      "overlane": "ETS2 및 ATS 원격 측정.",
+      "mappy": "Offline 지도.",
+      "compressy": "스택 블록 × 32.",
+      "offerings": "매일 서버 lottery.",
+      "rituals": "빛의 불꽃 마법.",
+      "trials_of_the_wild": "~250 단위 생존.",
+      "alloys": "10 판타지 금속.",
+      "tally": "10k+ 전진.",
+      "shirecraft": "Whitelist 생존.",
+      "obs_animation_suite": "60 FPS 스트림 장면.",
+      "mods_hub": "호스트 및 배 mods.",
+      "auth_service": "코드에 로그인.",
+      "card_generator": "소셜 카드 빠른.",
+      "svg_converter": "SVG → PNG.",
+      "url_shortener": "짧은 링크 + 통계.",
+      "access_hub": "역할 및 권한.",
+      "shared_components": "React + Svelte 키트.",
+      "api_framework": "Typed API 클라이언트.",
+      "streamkit_api": "OBS 장면 동기화.",
+      "search_query_parser": "스마트 검색 문법."
+    },
+    "audience": {
+      "overlane": "실시간 원격 측정, 검색 가능한 아카이브, 대시보드 차트 및 수백만 개의 관측을위한 하이브리드 핫 / 콜드 스토리지 - PC의 ETS2 및 ATS, 클라우드 계정이 없습니다.",
+      "mappy": "개방형 게임 및 탁상 캠페인을위한 오프라인지도 - 탐색, 표 및 표시없이 측정.",
+      "mods_hub": "플레이어를 위해 내장 된 한 곳에서 Minecraft 모드를 다운로드하고 검색하십시오.",
+      "compressy": "Minecraft의 블록을 압축하여 저장하고 관리할 수 있습니다.",
+      "obs_animation_suite": "브라우저에서 OBS를 원활한 장면 스위치와 애니메이션 소스로 제어합니다.",
+      "offerings": "Minecraft 서버에서 매일 키트 복권.",
+      "rituals": "빛의 불꽃 마법과 의식 datapack.",
+      "shirecraft": "Shirecraft의 화이트리스트 생존.",
+      "trials_of_the_wild": "수백 개의 모드를 가진 하드 코어 생존 modpack.",
+      "alloys": "Ten fantasy metals to find 과 forge.",
+      "tally": "생존을 추구하는 수천."
+    },
+    "hub": {
+      "overlane": {
+        "headline": "원격 측정, 오버레이 및 ETS2 및 ATS에 대한 드라이브 아카이브.",
+        "pitch": "Euro Truck Simulator 2 및 American Truck Simulator 외에도 하나의 Windows 앱 : 실시간 원격 측정 콘솔, 검색 가능한 마일 별 아카이브, 대시 보드 차트 및 롤업 및 OBS-ready 오버레이 패널. PC(Memory Lane)의 Hybrid hot/cold Storage는 수백만 개의 주행 관측을 검색할 수 있으며 콘솔 응답 - 세션 저널에는 클라우드 계정이 없습니다.",
+        "learnMoreLabel": "제품 개요",
+        "visualAlt": "Overlane 앱 아이콘 - 트럭 원격 측정 및 오버레이",
+        "highlights": {
+          "overlane__0__telemetry_console": {
+            "title": "Telemetry 콘솔",
+            "body": "라이브 속도, 연료, 기어, 거리계 및 도크 콘솔의 활성 계약 - OBS에 노출되는 동일한 필드."
+          },
+          "overlane__1__drive_archive": {
+            "title": "운전 아카이브",
+            "body": "선택된 세션을 검색할 수 있는 타임라인으로 기록합니다. Fold similar snapshots, 어떤 마일에 검사기를 열고 표시하고 미세하고 배송을 유지합니다."
+          },
+          "overlane__2__dashboard_charts": {
+            "title": "Dashboard 및 차트",
+            "body": "롤업 레이아웃을 저장, 차트 아카이브는 시간이 지남에 걸쳐 걸쳐 스포크에서 이동 차트로 돌아 오는 아카이브 순간으로."
+          },
+          "overlane__3__hot_cold_storage": {
+            "title": "뜨겁고/찬 저장",
+            "body": "기억하기 레인은 이전의 관측 계층을 찬 열 파일과 로컬 인덱스로 유지하면서 뜨거운 ledger에서 최근의 사실을 유지 - 한 기계에 수백만의 행에 응답하도록 내장."
+          },
+          "overlane__4__stream_overlays": {
+            "title": "스트림 오버레이",
+            "body": "Speed, telltales, job panel 및 카탈로그의 나머지에 대한 Localhost 브라우저 리소스 URL을 복사합니다. - 콘솔과 동기화에 미터가 있습니다."
+          }
+        }
+      },
+      "mappy": {
+        "headline": "오프라인으로 작동하는지도.",
+        "pitch": "오픈 월드 게임, homebrew 캠페인 및 사용자 정의 영역을위한 오프라인 첫 번째지도 작업 공간. 공식지도 팩을 탐험, 드롭 마커, 트랙 진행, 레이어에서 검색, 그리고 거리 측정 - 로그인없이 데스크탑 앱 및 원격 측정.",
+        "learnMoreLabel": "플레이어 위키 투어",
+        "visualAlt": "mappy — 살아있는 화포 지도 workspace 스크린 샷",
+        "highlights": {
+          "mappy__0__offline_map_workspace": {
+            "title": "Offline 지도 작업 공간",
+            "body": "Pan, 급상승, 층 및 정적 팩으로 유지되는지도의 진행 상황을 추적 - 우리 서버에서 타일을 살 수 없습니다."
+          },
+          "mappy__1__marker_maker_tile_studio": {
+            "title": "Marker Maker & 타일 스튜디오",
+            "body": "저자 마커, 미디어 annotations 및 사용자 정의 타일 인앱, 그 다음 당신이 공유 또는 귀하의 캠페인으로 아카이브 할 수 있습니다."
+          },
+          "mappy__2__unified_search": {
+            "title": "자주 묻는 질문",
+            "body": "검색 마커, 지역, 그리고 사기를 통해 사냥 대신 한 바에서 노트 파일 또는 위키."
+          },
+          "mappy__3__measure_progress": {
+            "title": "측정 및 진행",
+            "body": "계획 경로에 대한 규칙 및 경로 도구; 공식 팩 또는 자신의 영역에서 완료 추적."
+          }
+        }
+      },
+      "mods_hub": {
+        "headline": "당신의 형태, 한 가정.",
+        "pitch": "Semantic versioning, 고급 검색 구문 및 R2-backed 저장과 함께 오픈 소스 모드 호스팅. 드래그 앤 드롭으로 업로드, 직접 다운로드 링크 발송, 옵션으로 암호화 패키지 클라이언트 측 - 플레이어 및 저자에 내장 된 골드 테마 UI, FTP 폴더가 아닙니다.",
+        "learnMoreLabel": "플랫폼 딥 다이빙",
+        "visualAlt": "Mods Hub - 모드 호스팅 플랫폼 아트",
+        "highlights": {
+          "mods-hub__0__authoring_workflow": {
+            "title": "Authoring 작업 흐름",
+            "body": "프로젝트 생성, 드래그 앤 드롭으로 업로드 된 버전, 그리고 메타 데이터를 편집하여 원료 저장 경로 만 터치."
+          },
+          "mods-hub__1__semantic_versions": {
+            "title": "Semantic 버전",
+            "body": "변경 로그 역사와 함께 배 semver 출시 그래서 플레이어는 빌드 사이에 정확히 무슨 변경 알고."
+          },
+          "mods-hub__2__search_syntax": {
+            "title": "검색 syntax",
+            "body": "Filter with human-friendly queries like category:tools tag:optimization update:>7d — 그냥 키워드 상자."
+          },
+          "mods-hub__3__downloads_encryption": {
+            "title": "다운로드 및 암호화",
+            "body": "직접 CDN 링크는 발사기 및 브라우저에서 작동합니다. R2에서 개인 패키지를 원할 때 옵션 클라이언트 측 암호화."
+          }
+        }
+      },
+      "offerings": {
+        "headline": "용지 서버에 대한 일일 키트 복권.",
+        "pitch": "Paper and Spigot의 프리미엄 일일 보상: 무게를 다룬 loot tiers, streaks, 이정표, 업적 및 전체 게임 관리자 허브. Shirecraft의 일일 키트 - 테이블, 권한을 구성하고 YAML을 손으로 편집하지 않고 LuckPerms 후크.",
+        "learnMoreLabel": "목록 & 세부사항",
+        "visualAlt": "오퍼링 - 일일 무게 키트 복권 (공식 제품 작품)",
+        "highlights": {
+          "offerings__0__weighted_lottery": {
+            "title": "공급 업체",
+            "body": "Tiered loot 테이블에서 매일 키트를 롤 그래서 일반적인 보상은 공통적이고 잭팟은 드문 유지."
+          },
+          "offerings__1__streaks_milestones": {
+            "title": "Streaks & 이정표",
+            "body": "트랙 플레이어 streaks, 이정표 잠금 해제, 그리고 성과 그래서 일반은 일주일에 걸쳐 보상 느낌, 아니 one-offs."
+          },
+          "offerings__2__in_game_admin": {
+            "title": "게임 관리자",
+            "body": "Tune 테이블, 미리보기 롤, 서버에서 misconfigurations를 수정 - 콘솔 또는 플랫 파일에서만."
+          },
+          "offerings__3__luckperms_ready": {
+            "title": "LuckPerms 준비",
+            "body": "Permission-aware 보상은 해당 등급, 기부자 계층 및 직원 우회 규칙이 명시되고 감사 할 수 있습니다."
+          }
+        }
+      },
+      "obs_animation_suite": {
+        "headline": "당신의 스트림 장면.",
+        "pitch": "Svelte 5 프로그레시브 웹 앱에서 OBS를 제어하십시오 : 애니메이션 소스 전환, 레이아웃 메모리, 원 클릭 사전 설정, 및 유형 작가와 글리트 효과와 텍스트 사이클러. 60 FPS에서 sub-50ms 대기 시간으로 실시간 WebSocket 제어.",
+        "learnMoreLabel": "Stream Suite 투어",
+        "visualAlt": "OBS Animation Suite - 스트림 컨트롤 아트",
+        "highlights": {
+          "obs-animation-suite__0__source_transitions": {
+            "title": "소스 전환",
+            "body": "Fade, 슬라이드, 줌, 모든 레이아웃 변경에 대한 손 편집 장면없이 60 FPS에서 OBS 소스 사이 팝업."
+          },
+          "obs-animation-suite__1__smart_swapping": {
+            "title": "스마트 스왑",
+            "body": "7 개의 스왑 스타일은 위치와 크기를 기억하므로 세그먼트 (카메라, BRB, 경고)를 다시 즉시 스냅."
+          },
+          "obs-animation-suite__2__layout_presets": {
+            "title": "배치 presets",
+            "body": "사전 설정으로 전체 장면 레이아웃을 저장하고 스트림 동안 웹 패널에서 호출 — OBS에서 수동 사냥 대신 클릭."
+          },
+          "obs-animation-suite__3__text_cycler": {
+            "title": "텍스트 사이클러",
+            "body": "같은 제어판에서 구동되는 Typewriter, glitch 및 scramble 효과와 함께 타이틀과 저소음을 회전합니다."
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "site": {
+      "defaultTitle": "다운로드",
+      "titleTemplate": "%s | 아이들링.app",
+      "description": "창의력과 표현의 디지털 놀이터",
+      "keywords": {
+        "0": "회사연혁",
+        "1": "이름 *",
+        "2": "제품정보",
+        "3": "뚱 베어"
+      },
+      "authorName": "다운로드 회사연혁",
+      "creator": "다운로드",
+      "publisher": "다운로드",
+      "openGraphTitle": "다운로드",
+      "openGraphDescription": "창의력과 표현의 디지털 놀이터",
+      "siteName": "다운로드",
+      "twitterTitle": "다운로드",
+      "twitterDescription": "창의력과 표현의 디지털 놀이터",
+      "twitterCreator": "@idlingapp의"
+    },
+    "pages": {
+      "signInSubtitle": "당신의 선호한 sign-in 방법을 선택하십시오",
+      "portfolioTitle": "카탈로그 및 생태계",
+      "portfolioDescription": "Full idling.app 카탈로그 : Strixun, 생태계 다이어그램, 필터링 프로젝트, 활동 및 라이브 통계에 대해.",
+      "adminTitle": "관리자 대시보드 - Idling.app",
+      "adminDescription": "사용자, 콘텐츠 및 이모티콘 관리를위한 관리 대시보드",
+      "signInHeadline": "Idling 앱에 오신 것을 환영합니다",
+      "subscriptionTitle": "구독 | 아이들링.app",
+      "subscriptionDescription": "Idling.app 구독을 계획하고 업그레이드하십시오."
+    }
+  },
+  "common": {
+    "actions": {
+      "tryAgain": "다시 시도",
+      "goHome": "이동 홈",
+      "returnHome": "반환 홈",
+      "close": "이름 *",
+      "dismiss": "뚱 베어",
+      "save": "제품 정보",
+      "saving": "저장...",
+      "cancel": "이름 *",
+      "loading": "로드 중 ...",
+      "retry": "이름 *",
+      "back": "이름 *",
+      "signIn": "이름 *",
+      "signOut": "이름 *",
+      "expand": "지원하다",
+      "collapse": "뚱 베어",
+      "next": "다음 →",
+      "previous": "← 이전",
+      "load": "로드 중 ..",
+      "backHome": "← 집"
+    },
+    "backButton": {
+      "defaultLabel": "← 뒤로",
+      "titleWithPage": "이전 페이지로 돌아가기 (페이지 {page})",
+      "titleGoBack": "바로가기"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "code": "404명",
+      "title": "사이트 맵",
+      "message": "당신이 찾고있는 페이지는 존재하지 않거나 이동되었습니다. 아마도 마법사가 다른 곳에 텔레포트?",
+      "returnHome": "반환 홈"
+    },
+    "routeError": {
+      "title": "인기 있는 뭔가 잘못되었습니다",
+      "fallbackMessage": "이 페이지를 로딩하면서 예상치 못한 오류가 발생했습니다.",
+      "errorIdLabel": "오류 ID:",
+      "tryAgain": "다시 시도"
+    },
+    "globalError": {
+      "title": "중요 오류",
+      "criticalMessage": "중요한 오류가 발생했습니다.",
+      "unknownError": "잘못된 오류",
+      "errorIdLabel": "오류 ID:",
+      "tryAgain": "다시 시도",
+      "goHome": "이동 홈"
+    },
+    "profileNotFound": {
+      "userNotFoundAria": "사용자 없음",
+      "title": "사용자 찾을 수 없음",
+      "goHome": "이동 홈",
+      "searchTitle": "사용자 검색",
+      "searchDescription": "찾고있는 사용자를위한 검색 시도 :",
+      "searchPlaceholder": "사용자 이름 또는 이메일에 의해 검색...",
+      "helpTitle": "지원하다",
+      "message": "죄송합니다. 사용자 프로필을 찾을 수 없습니다. 이것은 경우에 일어날 수 있었습니다:",
+      "reasons": {
+        "0": "사용자 이름은 존재하지 않습니다",
+        "1": "사용자는 계정 삭제",
+        "2": "프로필 URL은 잘못된",
+        "3": "사용자의 프로필은 개인 설정"
+      },
+      "helpSearchLabel": "제품정보",
+      "helpSearchDescription": "위의 검색을 사용하여 사용자 이름 또는 이메일",
+      "helpProductsLabel": "제품 정보",
+      "helpProductsDescription": "앱과 모드에 대한 홈 라인업 검색"
+    }
+  },
+  "catalog": {
+    "showcase": {
+      "overlane": {
+        "title": "채용정보",
+        "features": {
+          "0": "실시간 원격 측정 콘솔",
+          "1": "아카이브 검색 및 검사기",
+          "2": "Dashboard 차트 및 롤업",
+          "3": "핫 / 콜드 로컬 스토리지",
+          "4": "OBS-ready 오버레이 패널"
+        },
+        "description": "원격 측정 콘솔, 검색 가능한 드라이브 아카이브, 대쉬보드 차트, 및 스트림 오버레이 ETS2 및 ATS. 하이브리드 핫 / 콜드 로컬 스토리지는 수백만 개의 관측 규모; 게임 외에 하나의 Windows 앱 - OBS 브라우저 소스, 세션 저널, 클라우드 계정 없음.",
+        "type": "Windows 데스크탑 앱"
+      },
+      "mappy": {
+        "features": {
+          "0": "Offline-First 지도",
+          "1": "Marker Maker & 타일 스튜디오",
+          "2": "공식 맵 팩",
+          "3": "자주 묻는 질문"
+        },
+        "title": "지도py",
+        "description": "Open-world 게임, homebrew 캠페인 및 사용자 정의 영역을위한 오프라인 최초의 대화형지도 플랫폼. Marker corpus, 진행 추적, 통합 검색, 측정 도구 및 권한 - 정적 파일 만, 응용 프로그램 백엔드 없음.",
+        "type": "데스크탑 앱"
+      },
+      "compressy": {
+        "title": "한국어",
+        "description": "Minecraft 26.2+를 용지 플러그인으로 무한 블록 압축. 9 블록을 1, 최대 32 계층으로 압축하여 멋진 도구 팁과 roman numerals가 있습니다. Legacy Fabric은 Modrinth에 남아 있습니다.",
+        "type": "종이 플러그인 · Legacy Fabric",
+        "features": {
+          "0": "무한 압축",
+          "1": "모든 블록으로 작업",
+          "2": "최대 32개의 층",
+          "3": "자동화 친절한"
+        }
+      },
+      "rituals": {
+        "type": "데이터팩",
+        "features": {
+          "0": "8개의 유일한 Rituals",
+          "1": "6개의 토템 층",
+          "2": "화재 희생 시스템",
+          "3": "사용자 정의 텍스트 & 애니메이션"
+        },
+        "title": "관련 기사",
+        "description": "의식 마법, 토템, 화재 희생 시스템을 가진 신비한 Minecraft 데이터 팩. 8개의 유일한 의식, 6개의 totem 층, 주문 짜임새 및 생기."
+      },
+      "offerings": {
+        "features": {
+          "0": "일일 복권",
+          "1": "전략 및 업적",
+          "2": "In-Game 관리자 허브",
+          "3": "LuckPerms 통합"
+        },
+        "title": "제품정보",
+        "description": "Paper/Spigot - Weighted tiers, loot table, streaks, 이정표, 업적 및 전체 게임 관리자를위한 프리미엄 일일 키트 복권. Shirecraft의 일일 보상.",
+        "type": "종이 플러그인 (BuiltByBit)"
+      },
+      "trials_of_the_wild": {
+        "title": "야생의 시험",
+        "description": "~250 탐험, 마법, 전투 및 세계 오버하울 모드를 가진 하드 코어 생존 modpack. 다량 구획 저장을 위한 totem 마술과 Compressy를 위한 Rituals를 포함합니다.",
+        "type": "모드팩",
+        "features": {
+          "0": "성능 최적화",
+          "1": "삶의 질",
+          "2": "새로운 내용 및 메커니즘",
+          "3": "자주 묻는 질문"
+        }
+      },
+      "alloys": {
+        "features": {
+          "0": "10 판타지 금속",
+          "1": "Vanilla에 첨가제",
+          "2": "전체 도구 및 갑옷",
+          "3": "옵션 종이 플러그인"
+        },
+        "title": "회사 소개",
+        "description": "Minecraft 26.2+ 용 10 개의 판타지 금속 - 보너스 또는 방울, 전체 도구 및 팔러, 바닐라 첨가제. Datapack, 동반자 자원 팩 및 선택적인 종이 플러그인.",
+        "type": "Datapack + 리소스 팩"
+      },
+      "tally": {
+        "title": "사이트맵",
+        "description": "생존 완료 사전 팩 10,255 6 탭의 페이지, 보유 계층, XP 및 항목 보상, 및 서버 소유자를위한 라이브 정책 견인.",
+        "type": "데이터팩",
+        "features": {
+          "0": "10,255 사전 페이지",
+          "1": "6개의 완료 탭",
+          "2": "실시간 보상 정책",
+          "3": "Tally Keeper 음성"
+        }
+      },
+      "shirecraft": {
+        "title": "정보 수집",
+        "description": "Whitelist Paper 26.2 생존 서버 - 사용자 정의 플러그인, 데이터 팩 및 리소스 팩. 랜드, 오퍼링, 랠리, 컴프레서, 커뮤니티 중심 도시.",
+        "type": "Minecraft 서버",
+        "features": {
+          "0": "Whitelist 생존",
+          "1": "토지 및 국가",
+          "2": "사용자 정의 플러그인",
+          "3": "mc.idling.app : 25567"
+        }
+      },
+      "obs_animation_suite": {
+        "type": "프론트엔드 앱(Svelte)",
+        "features": {
+          "0": "60 FPS 애니메이션",
+          "1": "WebSocket 제어",
+          "2": "0 종점",
+          "3": "웹 앱"
+        },
+        "title": "OBS 애니메이션 스위트",
+        "description": "60 FPS 애니메이션 소스 전환, 텍스트 사이클링, WebSocket 컨트롤을 가진 OBS 전용 컨트롤 패널. Svelte와 내장 5. 전원 streamkit.idling.app."
+      },
+      "auth_service": {
+        "features": {
+          "0": "비밀번호 없는 OTP",
+          "1": "멀티텐트",
+          "2": "OpenAPI 사양",
+          "3": "Zero-trust 보안"
+        },
+        "title": "Auth 서비스",
+        "description": "Multi-tenant passwordless 인증을 위한 Backend API. 이메일 OTP, JWT 토큰, OpenAPI 3.1.0 사양. *.idling.app 도메인의 단일 사인온. Cloudflare 노동자.",
+        "type": "백엔드 API (Cloudflare)"
+      },
+      "card_generator": {
+        "title": "Mystical 카드 발전기",
+        "features": {
+          "0": "AI 전원 레이아웃",
+          "1": "주문 Avatars",
+          "2": "마법사 및 고급 모드",
+          "3": "Quota 관리"
+        },
+        "description": "멋진 소셜 미디어 카드를 만들기위한 프론트엔드 앱. AI 전원 레이아웃, 사용자 정의 아바타, 신비한 테마. 마법사와 고급 모드. React 19에 내장.",
+        "type": "프론트엔드 앱(React)"
+      },
+      "mods_hub": {
+        "title": "모드 허브",
+        "description": "React 19 frontend 및 Mods API 백엔드와 풀스택 모드 호스팅 플랫폼. Semantic versioning, 고급 검색, R2 클라우드 스토리지 및 클라이언트 측 암호화.",
+        "type": "풀스택 앱(React + API)",
+        "features": {
+          "0": "Semantic 버전",
+          "1": "고급 검색",
+          "2": "클라우드 스토리지",
+          "3": "자주 묻는 질문"
+        }
+      },
+      "svg_converter": {
+        "title": "SVG로 PNG 변환기",
+        "description": "고품질의 SVG를 PNG 변환에 대한 프론트엔드 앱. 사용자 정의 sizing, 일괄 처리, 배경 사용자 정의. 보안 유효성. React 19에 내장.",
+        "type": "프론트엔드 앱(React)",
+        "features": {
+          "0": "높은 품질 출력",
+          "1": "일괄 처리",
+          "2": "공급 업체",
+          "3": "보안 검증"
+        }
+      },
+      "url_shortener": {
+        "type": "풀스택 앱 (React + Cloudflare)",
+        "features": {
+          "0": "사용자 정의 URL 코드",
+          "1": "Analytics를 클릭합니다",
+          "2": "Geographic 추적",
+          "3": "자동차 Expiration"
+        },
+        "title": "URL 단축",
+        "description": "React frontend와 Cloudflare Worker 백엔드를 사용한 Full-stack URL 단축기. 분석, 지리적 추적, 사용자 정의 코드, 자동 만료를 클릭합니다."
+      },
+      "access_hub": {
+        "title": "액세스 허브",
+        "description": "중앙화된 RBAC를 위한 Backend API. Granular 권한, 완전한 감사 흔적, 할당량 관리, 자동 감독. 서비스 영역. Cloudflare 노동자.",
+        "type": "백엔드 API (Cloudflare)",
+        "features": {
+          "0": "RBAC 시스템",
+          "1": "감사 트레일",
+          "2": "Quota 관리",
+          "3": "자동 계획"
+        }
+      },
+      "shared_components": {
+        "title": "공유 구성 요소 라이브러리",
+        "description": "React 및 Svelte 변형을 가진 범용 구성 요소 라이브러리. Tooltip, DataTable, CodeBlock, MultiFileViewer, StatusFlair 등을 포함합니다. Storybook 문서.",
+        "type": "범용 패키지 (NPM)",
+        "features": {
+          "0": "반응 & Svelte",
+          "1": "스토리북 Docs",
+          "2": "15+ 성분",
+          "3": "TypeScript 지원"
+        }
+      },
+      "api_framework": {
+        "description": "엔터프라이즈급 API 프레임 워크를 위한 범용 패키지. Cloudflare 노동자와 브라우저에서 작동합니다. 유형 안전한 클라이언트, 요구 deduplication, 차단기, E2E 암호화. NPM 패키지.",
+        "type": "범용 패키지 (NPM)",
+        "features": {
+          "0": "유형 안전 클라이언트",
+          "1": "신청 방법",
+          "2": "회로 차단기",
+          "3": "E2E 암호화"
+        },
+        "title": "API 프레임"
+      },
+      "streamkit_api": {
+        "title": "스트림킷 API",
+        "description": "OBS 애니메이션 스위트용 백엔드 API. Scene activity 추적, 레이아웃 동기화, KV를 통해 구성 저장. powers streamkit.idling.app 백엔드. Cloudflare 노동자.",
+        "type": "백엔드 API (Cloudflare)",
+        "features": {
+          "0": "장면 활동 추적",
+          "1": "Config 동기화",
+          "2": "KV 저장",
+          "3": "실시간 업데이트"
+        }
+      },
+      "search_query_parser": {
+        "type": "범용 패키지 (NPM)",
+        "features": {
+          "0": "인간 친화적인 Syntax",
+          "1": "및/또는 논리",
+          "2": "Wildcard 지원",
+          "3": "반응 & Svelte"
+        },
+        "title": "검색 Query Parser",
+        "description": "고급 검색 쿼리 파싱을위한 범용 패키지. 인간 친화적 인 구문 : 인용 된 구문, AND / OR 논리, 와일드 카드 일치. React 및 Svelte 구성 요소. NPM 패키지."
+      }
+    }
+  },
+  "suite": {
+    "landing": {
+      "status": {
+        "live": "이름 *",
+        "beta": "베타",
+        "planned": "계정 만들기",
+        "development": "제품정보"
+      },
+      "footer": {
+        "title": "시작하기?",
+        "description": "모든 응용 프로그램은 오픈 소스 및 무료 사용. GitHub의 Star us, 커뮤니티에 가입하고 스트리밍 도구의 미래를 형성할 수 있습니다.",
+        "starOnGitHub": "GitHub의 스타"
+      },
+      "productActions": {
+        "launchApp": "앱 시작 →",
+        "learnMore": "더 알아보기"
+      },
+      "hero": {
+        "title": "Strixun 스트림 스위트",
+        "tagline": "전문 스트리밍 도구 및 웹 서비스",
+        "description": "단일 서명에 인증과 함께 오픈 소스 응용 프로그램의 포괄적 인 생태계. *.idling.app 도메인에 한 번 로그인하면 어디서나 인증됩니다.",
+        "descriptionEmphasis": "MIT 라이센스. 100% 오픈 소스. 개인 정보 보호.",
+        "viewOnGitHub": "GitHub에서 보기"
+      }
+    },
+    "products": {
+      "stream_suite": {
+        "name": "스트림 스위트",
+        "keyFeatures": {
+          "0": "애니메이션 소스 전환 4 효과 유형 (파드, 슬라이드, 줌, 팝)",
+          "1": "7개의 작풍 및 위치 기억으로 교환하는 똑똑한 근원",
+          "2": "즉시 장면 재구성을 위한 1 누르기 배치 presets",
+          "3": "Typewriter, glitch 및 scramble 효과와 텍스트 사이클러",
+          "4": "실시간 WebSocket 통신을 가진 웹 기반 제어반"
+        },
+        "highlights": {
+          "0": {
+            "label": "- 연혁",
+            "value": "60 FPS"
+          },
+          "1": {
+            "label": "회사연혁",
+            "value": "<50ms=\"\">"
+          },
+          "2": {
+            "label": "한국어",
+            "value": "17+ ·"
+          }
+        },
+        "tagline": "전문가 OBS 스튜디오 제어반",
+        "description": "Animated source 가시성, 버터무스 소스 스왑 및 즉시 레이아웃 사전 설정으로 스트리밍 워크플로를 변환합니다. 실시간 WebSocket 통신으로 아름다운 웹 인터페이스에서 모든 것을 제어합니다. Svelte 5와 함께 진행하는 웹 앱으로 기본 성능."
+      },
+      "mods_hub": {
+        "name": "모드 허브",
+        "tagline": "Modern Mod 호스팅 플랫폼",
+        "keyFeatures": {
+          "0": "드래그 앤 드롭으로 전체 CRUD 작업",
+          "1": "자동화된 changelogs로 Semantic versioning",
+          "2": "고급 검색: \"category:tools tag:optimization 업데이트:>7d\"",
+          "3": "모든 곳에서 작동하는 직접 다운로드 링크",
+          "4": "R2 클라우드 스토리지 옵션 클라이언트 측 암호화"
+        },
+        "highlights": {
+          "0": {
+            "label": "연결 속도",
+            "value": "이름 *"
+          },
+          "1": {
+            "label": "제품정보",
+            "value": "실시간"
+          },
+          "2": {
+            "label": "제품 정보",
+            "value": "제한 없음"
+          }
+        },
+        "description": "CurseForge-grade 기능으로 mod 배포의 미래는 오픈 소스입니다. Full semantic versioning, 인간 친화적 인 구문과 고급 검색 및 R2 클라우드 스토리지 옵션 암호화. 아름다운 금 테마 UI는 mod 관리가 즐거움, chore가 아닙니다."
+      },
+      "auth_service": {
+        "name": "Auth 서비스",
+        "tagline": "멀티 테넌트 OTP 회사연혁",
+        "description": "비밀번호가 없습니다. JWT 토큰, 멀티텐트 API 키 및 통합 trivial를 만드는 개발자 대시보드와 함께 이메일 기반 OTP. Swagger UI를 가진 OpenAPI 3.1.0 spec는 당신이 분에서 코딩을 시작할 수 있다는 것을 의미합니다. 모든 *.idling.app 도메인을 통해 단일 서명 - 로그인 한 번, 어디서나 인증.",
+        "keyFeatures": {
+          "0": "비밀번호 없는 OTP - 비밀번호 저장 위험 없음",
+          "1": "최대 보안을위한 HttpOnly 쿠키가있는 JWT 토큰",
+          "2": "Granular permissions를 가진 다 강렬한 API 열쇠 체계",
+          "3": "실시간 분석 대시보드 내장 Svelte 5",
+          "4": "대화형 Swagger UI로 OpenAPI 3.1.0 사양 완료"
+        },
+        "highlights": {
+          "0": {
+            "label": "보안",
+            "value": "윤리경영"
+          },
+          "1": {
+            "label": "설치하기 (주)",
+            "value": "<5 분"
+          },
+          "2": {
+            "label": "제품정보",
+            "value": "99.9% 이상"
+          }
+        }
+      },
+      "url_shortener": {
+        "highlights": {
+          "0": {
+            "value": "<10ms=\"\">",
+            "label": "제품 정보"
+          },
+          "1": {
+            "label": "웹 사이트",
+            "value": "실시간"
+          },
+          "2": {
+            "label": "제품정보",
+            "value": "99.99 백만"
+          }
+        },
+        "keyFeatures": {
+          "0": "기억에 남는, 상표 친절한 연결을 위한 주문 URL 부호",
+          "1": "Real-time click analytics with 지리적 추적",
+          "2": "임시 링크에 대한 자동 만료 및 정리",
+          "3": "SSO 통합을 가진 독립 웹 공용영역",
+          "4": "자동화 및 통합을위한 직접 API 액세스"
+        },
+        "name": "URL 단축",
+        "tagline": "Analytics의 짧은 링크",
+        "description": "Lightning-fast URL 단축은 Cloudflare 노동자에 의해 구동됩니다. 사용자 정의 브랜드 짧은 링크 만들기, 지리적 데이터와 참조 정보와 모든 클릭을 추적, 깨끗한 웹 인터페이스에서 모든 관리. 자동적인 expiration는 당신의 연결을 신선한 유지하고, 분석은 당신이 정확하게 무슨 일을 말합니다."
+      },
+      "access_hub": {
+        "keyFeatures": {
+          "0": "역할 기반 액세스 제어 (RBAC) 사용자 정의 역할",
+          "1": "개인의 종점에 대한 권한",
+          "2": "준수 및 보안에 대한 감사 트레일",
+          "3": "사용자 또는 역할 당 할당량 관리",
+          "4": "원활한 사용자 onboarding에 대한 자동 보호"
+        },
+        "highlights": {
+          "0": {
+            "label": "제품정보",
+            "value": "제한 없음"
+          },
+          "1": {
+            "label": "회사연혁",
+            "value": "지원하다"
+          },
+          "2": {
+            "label": "설치하기",
+            "value": "이름 *"
+          }
+        },
+        "name": "액세스 허브",
+        "tagline": "접근 제한 Dashboard",
+        "description": "모든 서비스에 대한 중앙 액세스 제어. granular control을 통한 역할 기반 권한, 준법에 대한 감사의 흔적 및 학대를 방지하기 위해 할당량 관리. Service-agnostic 디자인은 스위트 룸에서 모든 것을 작동한다는 것을 의미합니다 - 그들 모두를 지배하는 1개의 체계."
+      }
+    },
+    "details": {
+      "stream_suite": {
+        "hero": {
+          "title": "스트림 스위트",
+          "tagline": "전문가 OBS 스튜디오 제어반",
+          "mascotAlt": "Red Panda 개발자",
+          "ctaLaunch": "시작 스트림 스위트 →",
+          "ctaViewSource": "이름 *"
+        },
+        "overview": {
+          "title": "Stream Suite 란 무엇입니까?",
+          "description": "Stream Suite는 포괄적인 OBS Studio 제어판으로, 전문 애니메이션 및 자동화를 스트리밍 워크플로우에 제공합니다. Svelte 5로 제작되었으며 프로그레시브 웹 앱으로 설계되었으며, 아름다운 사용자 정의 애니메이션과 OBS 장면을 완벽하게 제어할 수 있습니다."
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "소스 애니메이션",
+              "description": "Fade, 슬라이드, 줌 및 팝 효과와 같은 소스 가시성. 웹소켓을 통해 하위 50ms 대기 시간이있는 60 FPS 성능. OBS 래그 없음 - 모든 애니메이션은 부드러운 버터입니다."
+            },
+            "1": {
+              "title": "소스 스왑",
+              "description": "애니메이션 위치와 크기 전환 소스 사이. 완벽한 스왑을 위한 위치 기억을 가진 7개의 다른 생기 작풍 매번."
+            },
+            "2": {
+              "title": "배치 Presets",
+              "description": "멀티 리소스 애니메이션 지원으로 전체 장면 레이아웃을 저장하고 적용합니다. 스트리밍, 녹음 및 사용자 정의 설정 사이 전환."
+            },
+            "3": {
+              "title": "텍스트 사이클러",
+              "description": "페이드, 슬라이드, 디테일러, 글래치, 파, 스크램블을 포함한 전환과 동적 텍스트 효과. 경고 및 오버레이에 대한 완벽한."
+            },
+            "4": {
+              "title": "웹 앱",
+              "description": "오프라인 액세스 및 기본 앱 경험을위한 PWA 설치. 다중층 스토리지 시스템 (IndexedDB + localStorage + Recovery)."
+            },
+            "5": {
+              "title": "통합제어반",
+              "description": "모든 것을 제어하는 웹 기반 도킹. 즉시 업데이트를위한 OBS Studio와 실시간 WebSocket 통신."
+            }
+          },
+          "title": "핵심 특징"
+        },
+        "builtWith": {
+          "title": "내장과"
+        },
+        "a11y": {
+          "scrollForMore": "더 많은 콘텐츠를 보려면 스크롤"
+        }
+      },
+      "mods_hub": {
+        "hero": {
+          "title": "모드 허브",
+          "tagline": "Modern Mod 호스팅 플랫폼",
+          "mascotAlt": "Red Panda 선물",
+          "statusBeta": "Beta — 여전히 활성 개발",
+          "ctaLaunch": "Mods 허브 출시 →",
+          "ctaViewSource": "이름 *"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Mod 업로드 및 관리",
+              "description": "업로드, 업데이트 및 드래그 앤 드롭 인터페이스로 모드를 관리합니다. 직관적인 UI로 전체 CRUD 작업."
+            },
+            "1": {
+              "title": "Semantic 버전",
+              "description": "Semantic versioning 지원을 가진 가득 차있는 버전 통제. 변경, 게시 업데이트 및 변경 로그 유지."
+            },
+            "2": {
+              "title": "고급 검색",
+              "description": "@strixun/search-query-parser 지원 카테고리와 강력한 검색, 태그, 인용 된 구문, AND/OR 논리 및 와일드 카드 접두사 일치."
+            },
+            "3": {
+              "title": "자주 묻는 질문",
+              "description": "모든 응용 프로그램에 직접 다운로드 링크 공유. 리디렉션 없음, 대기 없음 - 사용자를위한 즉각적인 다운로드."
+            },
+            "4": {
+              "title": "아름다운 금 UI",
+              "description": "스타일링된 구성 요소로 구성된 멋진 골드 테마의 반응형 인터페이스. 현대, 접근 가능, 그리고 사용의 즐거움."
+            },
+            "5": {
+              "title": "R2 클라우드 스토리지 암호화",
+              "description": "선택적 클라이언트 측 암호화, 기본 압축 및 직접 다운로드 링크가있는 Cloudflare R2 저장."
+            }
+          },
+          "title": "핵심 특징"
+        },
+        "overview": {
+          "title": "Mods Hub는 무엇입니까?",
+          "description": "Modrinth/CurseForge와 유사한 현대 mod hosting 플랫폼, React 19 및 Cloudflare Workers와 내장. 완벽한 semantic versioning을 가진 아름다운 금 주제 UI, 인간 친절한 질문 파서로 진보된 수색, 그리고 클라이언트 측 암호화를 가진 R2 구름 저장."
+        },
+        "extraSections": {
+          "0": {
+            "title": "3층 주건축",
+            "description": "Mods Hub는 최적의 성능과 개발자 경험을 위해 정교한 3층 모델을 사용합니다",
+            "features": {
+              "0": {
+                "title": "신호 층",
+                "description": "@preact/signals-react for UI state - 형태 필드, toggles, 자동 반응성 필터."
+              },
+              "1": {
+                "title": "Zustand 층",
+                "description": "Auth, UI state 및 Zero Boilerplate와의 알림을위한 글로벌 클라이언트 상태 관리."
+              },
+              "2": {
+                "title": "TanStack 쿼리 레이어",
+                "description": "자동 캐싱, 배경 정제, 최적화된 업데이트와 서버 상태 관리."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "내장과"
+        },
+        "a11y": {
+          "scrollForMore": "더 많은 콘텐츠를 보려면 스크롤"
+        }
+      },
+      "auth_service": {
+        "hero": {
+          "title": "Auth 서비스",
+          "tagline": "멀티 테넌트 OTP 회사연혁",
+          "mascotAlt": "Red Panda Thumbs 올라",
+          "ctaLaunch": "Auth 서비스 시작 →",
+          "ctaViewSource": "이름 *"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "비밀번호 없는 OTP",
+              "description": "비밀번호 저장 없이 한 번의 비밀번호 인증 안전하고 사용자 친화적이며 공격 표면을 줄입니다."
+            },
+            "1": {
+              "title": "JWT 토큰 관리",
+              "description": "HttpOnly 쿠키를 사용하여 업계 표준 JWT 토큰. 자동 새로 고침 및 만료 처리."
+            },
+            "2": {
+              "title": "API 키 관리",
+              "description": "과립상 허가를 가진 다 엄격한 API 열쇠 체계. 개발자 대시보드에서 API 키 생성, 회전 및 revoke."
+            },
+            "3": {
+              "title": "Analytics 대시보드",
+              "description": "Svelte 5, 트랙 인증 이벤트, 모니터 사용 및 실시간 분석 패턴 분석."
+            },
+            "4": {
+              "title": "OpenAPI 3.1.0 사양",
+              "description": "Swagger UI 통합을 가진 OpenAPI 사양을 완료합니다. 간편한 통합을 위한 Interactive API 문서."
+            },
+            "5": {
+              "title": "단일 로그인",
+              "description": "전체 SSO *.idling.app 도메인 HttpOnly 쿠키. 모든 서비스에서 한 번 로그인, 어디서나 인증."
+            }
+          },
+          "title": "핵심 특징"
+        },
+        "overview": {
+          "title": "Auth 서비스는 무엇입니까?",
+          "description": "Resend API를 통해 Cloudflare Workers에 내장 된 다중 표준 OTP 인증 서비스. 특징은 Svelte 5, 멀티텐트 API 키 관리, OpenAPI 3.1.0 사양과 Swagger UI 및 감사 로깅을 내장 개발자 대시보드를 포함합니다. HttpOnly 쿠키를 사용하여 모든 *.idling.app 도메인을 단일 서명합니다."
+        },
+        "builtWith": {
+          "title": "내장과"
+        },
+        "a11y": {
+          "scrollForMore": "더 많은 콘텐츠를 보려면 스크롤"
+        },
+        "extraSections": {
+          "0": {
+            "title": "Developer-First 디자인",
+            "description": "Auth Service는 모든 개발자가 보안 인증을 응용 프로그램에 통합해야합니다",
+            "features": {
+              "0": {
+                "title": "Embeddable UI 구성 요소",
+                "description": "React, Svelte, vanilla JavaScript를 위한 Drop-in 인증 구성. UI가 필요 없습니다."
+              },
+              "1": {
+                "title": "종합 Docs",
+                "description": "통합 가이드, API 참조 및 보안 모범 사례를 포함하는 PANDA CORE 문서의 300+ 페이지."
+              },
+              "2": {
+                "title": "공급 능력",
+                "description": "E2E 통합 테스트 with Playwright, Unit 테스트 with Vitest, 그리고 CI/CD 워크플로우를 신뢰합니다."
+              }
+            }
+          }
+        }
+      },
+      "access_hub": {
+        "hero": {
+          "title": "액세스 허브",
+          "tagline": "접근 제한 Dashboard",
+          "mascotAlt": "레드 팬더 Confident",
+          "ctaLaunch": "액세스 허브 →",
+          "ctaViewSource": "이름 *"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "역할 기반 액세스 제어",
+              "description": "Granular 권한을 가진 역할을 정의하고 관리합니다. 서비스 전반에 걸쳐 확장 가능한 액세스 관리에 대한 역할을 할당합니다."
+            },
+            "1": {
+              "title": "권한 관리",
+              "description": "모든 권한과 그 할당을 볼 수 있습니다. 어떤 사용자가 할 수 있고 할 수 없는지 정밀한 곡물 통제."
+            },
+            "2": {
+              "title": "사용자 액세스 감사",
+              "description": "어떤 일에 액세스 할 수있는 트랙. 준수 및 보안 모니터링을위한 완벽한 감사 트레일."
+            },
+            "3": {
+              "title": "서비스-Agnostic 디자인",
+              "description": "SSS 생태계의 모든 서비스와 함께 작동합니다. 모든 응용 프로그램 및 API에 대한 통합 액세스 제어."
+            },
+            "4": {
+              "title": "Quota 관리",
+              "description": "사용자 또는 역할 당 사용 quotas를 모니터링하고 관리합니다. 학대를 방지하고 공정한 자원 할당을 보장합니다."
+            },
+            "5": {
+              "title": "단순하고 깨끗한 UI",
+              "description": "직관적 인 인터페이스는 당신의 방법입니다. Access Service 백엔드와 직접 API 통합."
+            }
+          },
+          "title": "핵심 특징"
+        },
+        "overview": {
+          "title": "액세스 허브는 무엇입니까?",
+          "description": "Strixun Access Control System의 최소 프론트엔드 UI는 Cloudflare 페이지에 배포되었습니다. 깨끗하고 간단한 인터페이스로 모든 가능한 역할 및 권한보기. 백엔드 API는 RBAC(ROle-based access control), 권한 관리, 할당량 시행 및 자동 감독 - 모든 서비스 제공 및 Cloudflare Workers에 배포합니다."
+        },
+        "extraSections": {
+          "0": {
+            "title": "건축 패턴",
+            "description": "Access Hub는 Mods Hub와 동일한 검증된 패턴을 따릅니다",
+            "features": {
+              "0": {
+                "title": "프론트엔드 @ access.idling.app",
+                "description": "React 18 frontend는 GitHub Actions를 통해 자동 빌드로 Cloudflare 페이지에 배포했습니다."
+              },
+              "1": {
+                "title": "Backend @ 액세스 api.idling.app",
+                "description": "Cloudflare Worker API는 모든 액세스 제어 논리, 저장 및 권한 시행을 처리합니다."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "내장과"
+        },
+        "a11y": {
+          "scrollForMore": "더 많은 콘텐츠를 보려면 스크롤"
+        }
+      },
+      "url_shortener": {
+        "hero": {
+          "title": "URL 단축",
+          "tagline": "Analytics의 짧은 링크",
+          "mascotAlt": "Red Panda와 선글라스",
+          "ctaLaunch": "URL을 실행 공급 업체",
+          "ctaViewSource": "이름 *"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "단축 URL 생성 및 관리",
+              "description": "사용자 정의 코드 또는 자동 생성 슬러그와 짧은 링크 생성. URL 수집 관리를위한 전체 CRUD 작업."
+            },
+            "1": {
+              "title": "Analytics를 클릭합니다",
+              "description": "Clicks, referrers 및 지리적 데이터를 추적합니다. 즉시 통찰력을 위해 Cloudflare KV에 저장된 실시간 분석."
+            },
+            "2": {
+              "title": "사용자 정의 URL 코드",
+              "description": "기억에 남는, 상표 친절한 연결을 위한 당신의 자신의 짧은 부호를 선택하십시오. 자동 검증은 충돌을 방지합니다."
+            },
+            "3": {
+              "title": "자동 Expiration",
+              "description": "임시 링크에 대한 만료 날짜를 설정합니다. 자동 세척은 신선한 URL 수집을 유지합니다."
+            },
+            "4": {
+              "title": "독립 웹 공용영역",
+              "description": "SSS 상표를 가진 아름다운 반응 근거한 웹 공용영역. 한 곳에서 모든 짧은 링크 관리."
+            },
+            "5": {
+              "title": "OTP 인증",
+              "description": "보안, 암호 인증을위한 Auth 서비스 통합. 모든 SSS 응용 프로그램에 SSO."
+            }
+          },
+          "title": "핵심 특징"
+        },
+        "overview": {
+          "title": "URL Shortener는 무엇입니까?",
+          "description": "공유된 Strixun OTP 컴포넌트를 통해 OTP 인증과 함께 제공되는 Cloudflare Worker 기반 URL 단축 서비스로 분석 추적(IP, 사용자 에이전트, 참조자, 지리적 데이터) 및 독립 React 웹 인터페이스를 클릭합니다. sub-millisecond URL 조회 및 암호화된 API 응답을 가진 자동적인 TTL 근거한 만료를 위한 Cloudflare KV를 사용하십시오."
+        },
+        "builtWith": {
+          "title": "내장과"
+        },
+        "a11y": {
+          "scrollForMore": "더 많은 콘텐츠를 보려면 스크롤"
+        }
+      }
+    }
+  },
+  "portfolio": {
+    "showcase": {
+      "featuredLabel": "이름 *",
+      "totalProjectsSuffix": "전체 프로젝트",
+      "showingPrefix": "기타",
+      "filterNavAria": "필터 프로젝트 by Category",
+      "eyebrow": "공지사항",
+      "title": "관련 프로젝트",
+      "subtitle": "Monorepo — 웹 앱, 데스크탑 맵, Minecraft mods, serverless APIs 및 공유 패키지의 큐레이터."
+    },
+    "categories": {
+      "0": {
+        "id": "모든 것",
+        "label": "모든 것"
+      },
+      "1": {
+        "id": "다운로드",
+        "label": "다운로드"
+      },
+      "2": {
+        "id": "웹 도구",
+        "label": "웹 도구"
+      },
+      "3": {
+        "id": "- 연혁",
+        "label": "- 연혁"
+      },
+      "4": {
+        "id": "관련 동영상",
+        "label": "관련 동영상"
+      },
+      "5": {
+        "id": "주요 특징",
+        "label": "주요 특징"
+      },
+      "6": {
+        "id": "제품정보",
+        "label": "제품정보"
+      }
+    },
+    "about": {
+      "introAfterLink": "아래 모든 것에 대한 홈베이스 - 오픈 소스, 문서화, 배에 내장.",
+      "statsAria": "포트폴리오 하이라이트",
+      "highlights": {
+        "0": {
+          "value": "38세 이상",
+          "label": "Open-source 프로젝트"
+        },
+        "1": {
+          "value": "7 월",
+          "label": "웹 신청"
+        },
+        "2": {
+          "value": "1명",
+          "label": "데스크톱 맵 앱"
+        },
+        "3": {
+          "value": "6개",
+          "label": "서버리스 API"
+        },
+        "4": {
+          "value": "23 ·",
+          "label": "NPM 패키지"
+        },
+        "5": {
+          "value": "7 월",
+          "label": "Minecraft 프로젝트"
+        }
+      },
+      "sections": {
+        "0": {
+          "id": "관련 상품",
+          "links": {
+            "0": {
+              "label": "모드 허브",
+              "href": "₢ 킹"
+            }
+          },
+          "title": "Minecraft 프로젝트",
+          "highlights": {
+            "0": "Compressy — 무한한 구획 압축 (BuiltByBit + 유산 Modrinth)",
+            "1": "제공 - 프리미엄 일일 키트 복권 플러그인",
+            "2": "Rituals — 신비한 마술 datapack",
+            "3": "야생의 시험 — 하드 코어 생존 modpack",
+            "4": "합금 - 10 개의 판타지 금속 datapack",
+            "5": "Tally - 10,000 + 사전 완료 팩",
+            "6": "Shirecraft - 화이트리스트 생존 서버",
+            "7": "다운로드의 수천 Mods Hub 및 Modrinth"
+          }
+        },
+        "1": {
+          "id": "웹툴",
+          "title": "웹 응용 프로그램 및 도구",
+          "highlights": {
+            "0": "카드 생성기 — React 19 frontend",
+            "1": "SVG 변환기 — React 19 프론트엔드",
+            "2": "URL 단축키 — React + Cloudflare Worker",
+            "3": "소셜 플랫폼 — Next.js 15 + PostgreSQL",
+            "4": "TypeScript, SSR 및 실시간 기능"
+          }
+        },
+        "2": {
+          "id": "지도py",
+          "title": "mappy — 대화형 지도",
+          "links": {
+            "0": {
+              "label": "다운로드 (short.army/mappy)",
+              "href": "₢ 킹"
+            },
+            "1": {
+              "href": "₢ 킹",
+              "label": "플레이어 wiki"
+            }
+          },
+          "highlights": {
+            "0": "Open-world 게임 및 homebrew 캠페인을 위한 Offline-first 지도 플랫폼",
+            "1": "생활지도 캔버스, 마커, 진행 추적, 통합 검색, 측정 도구",
+            "2": "Marker Maker, 타일 스튜디오 및 공식 맵 팩",
+            "3": "데스크탑 앱 - 로그인 없음, 클라우드 동기화 없음, 원격 측정 없음"
+          }
+        },
+        "3": {
+          "id": "관련 동영상",
+          "title": "에코시스템",
+          "highlights": {
+            "0": "OBS 애니메이션 스위트 - Svelte 5, 60 FPS, 17 + 효과, PWA",
+            "1": "Streamkit API - 현장 추적, 구성 동기화, KV 저장",
+            "2": "WebSocket 제어, 레이아웃 사전 설정, 0 의존성"
+          },
+          "links": {
+            "0": {
+              "href": "₢ 킹",
+              "label": "스트림킷.idling.app"
+            }
+          }
+        },
+        "4": {
+          "links": {
+            "0": {
+              "href": "₢ 킹",
+              "label": "Strixun 스트림 스위트"
+            }
+          },
+          "id": "- 연혁",
+          "title": "인프라 및 API",
+          "highlights": {
+            "0": "6 Cloudflare Workers APIs - Auth, 액세스, 모드, 고객, 게임, Streamkit",
+            "1": "23 NPM 패키지 - 공유 구성 요소, API 프레임 워크, 오스 스토어, 검색 파서, 그리고 더",
+            "2": "GitHub의 38+ 프로젝트와 Monorepo"
+          }
+        }
+      },
+      "eyebrow": "포트폴리오 & 생태계",
+      "title": "안녕하세요! 나는 Strixun입니다",
+      "tagline": "Full-stack 개발자 건물 생산 웹 애플리케이션, Minecraft mods, 스트리밍 도구 및 클라우드 서비스."
+    },
+    "ecosystem": {
+      "tabs": {
+        "0": {
+          "label": "시스템 개요",
+          "id": "관련 기사"
+        },
+        "1": {
+          "id": "데이터 흐름",
+          "label": "데이터 흐름"
+        },
+        "2": {
+          "id": "제품정보",
+          "label": "패키지 생태계"
+        }
+      },
+      "title": "Ecosystem 건축",
+      "subtitle": "38+ 프로젝트 연결 방법 — 아래 렌즈를 선택",
+      "footer": {
+        "overview": "시스템 개요: 7개의 웹/데스크탑 앱 (Mappy 포함), 6개의 Cloudflare Workers API, 6개의 Minecraft 프로젝트는 PostgreSQL, KV, R2 및 IndexedDB를 통해 API 및 스토리지를 통해 제공합니다.",
+        "dataflow": "데이터 흐름 : 방문자, 플레이어, 스트리머 및지도 탐험가 각각 앱 표면에 도달합니다. 웹 및 mods는 API를 사용합니다. Mappy는 로컬 IndexedDB로 오프라인 상태로 유지됩니다.",
+        "packages": "패키지 생태계 : 23 NPM 패키지 - 핵심 프레임 워크, UI, 유틸리티, 후크 및 테스트 도우미 - React, Svelte 및 Cloudflare 표면에서 공유."
+      }
+    },
+    "stats": {
+      "quickLinksTitle": "빠른 링크",
+      "metrics": {
+        "modrinthProjects": "Modrinth 프로젝트",
+        "modDownloads": "Mod 다운로드",
+        "modrinthFollowers": "Modrinth 추종자",
+        "githubStars": "GitHub 스타"
+      },
+      "quickLinks": {
+        "0": {
+          "href": "/card 발전기",
+          "label": "카드 생성기"
+        },
+        "1": {
+          "href": "/svg 변환기",
+          "label": "SVG 변환기"
+        },
+        "2": {
+          "href": "₢ 킹",
+          "label": "OBS 스위트"
+        },
+        "3": {
+          "href": "₢ 킹",
+          "label": "모드 허브"
+        },
+        "4": {
+          "href": "₢ 킹",
+          "label": "지도py"
+        },
+        "5": {
+          "href": "₢ 킹",
+          "label": "Auth 서비스"
+        },
+        "6": {
+          "href": "₢ 킹",
+          "label": "회사연혁"
+        },
+        "7": {
+          "href": "₢ 킹",
+          "label": "설계시스템"
+        },
+        "8": {
+          "href": "₢ 킹",
+          "label": "URL 단축"
+        },
+        "9": {
+          "href": "₢ 킹",
+          "label": "액세스 허브"
+        },
+        "10": {
+          "href": "/strixun 스트림 스위트",
+          "label": "스트림 스위트"
+        },
+        "11": {
+          "href": "₢ 킹",
+          "label": "모노레포 (38+)"
+        },
+        "12": {
+          "href": "₢ 킹 __UI",
+          "label": "다운로드 로그아웃"
+        },
+        "13": {
+          "href": "₢ 킹",
+          "label": "공지사항"
+        }
+      },
+      "techCategories": {
+        "0": {
+          "title": "회사연혁",
+          "badges": {
+            "0": "반응 19",
+            "1": "다음.js 15",
+            "2": "스벨트 5",
+            "3": "유형Script",
+            "4": "사이트맵"
+          }
+        },
+        "1": {
+          "title": "이름 *",
+          "badges": {
+            "0": "Cloudflare 노동자",
+            "1": "노드.js",
+            "2": "웹소켓",
+            "3": "이름 *",
+            "4": "프로젝트"
+          }
+        },
+        "2": {
+          "title": "관련 기사",
+          "badges": {
+            "0": "프로젝트",
+            "1": "KV 저장",
+            "2": "R2 클라우드"
+          }
+        }
+      },
+      "modrinthMetricsTitle": "Modrinth 미터",
+      "technologyStackTitle": "기술 스택",
+      "privacyNote": "그림은 Modrinth 및 Cover에 나열된 Minecraft 프로젝트 만 있습니다. 내장By Bit 구매 및 업데이트 메트릭은 공개되지 않습니다. 우리는 다운로드, 활동, 또는 다른 응용 프로그램에 대한 사용자를 추적하지 않습니다 - 디자인, 개인 정보 보호를위한 - 그래서 그 프로젝트에 대한 공공 미터가 없습니다."
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "관리자 대시보드",
+      "tabs": {
+        "analytics": {
+          "label": "웹 사이트",
+          "description": "글로벌 앱 분석 및 사용자 행동 추적"
+        },
+        "subscriptions": {
+          "label": "이름 *",
+          "description": "구독 계획 및 사용자 구독 관리"
+        },
+        "permissions": {
+          "label": "제출",
+          "description": "시스템 권한 및 액세스 제어 구성"
+        },
+        "alerts": {
+          "label": "주문 경고",
+          "description": "시스템 경고 및 알림 관리"
+        },
+        "users": {
+          "label": "사용자 관리",
+          "description": "사용자 계정 관리, 역할 및 권한"
+        },
+        "emojis": {
+          "label": "Emoji 승인",
+          "description": "사용자 정의 이모티콘 제출"
+        },
+        "quotas": {
+          "label": "숙박 약관",
+          "description": "게스트 사용자 할당 및 제한 구성"
+        }
+      }
+    },
+    "subscription": {
+      "tabs": {
+        "plans": "계획",
+        "subscriptions": "이름 *",
+        "overview": "제품정보"
+      },
+      "overview": {
+        "totalPlans": "총 계획",
+        "activePlansSuffix": "이름 *",
+        "totalSubscriptions": "총 구독",
+        "planDistribution": "계획 배포",
+        "subscribersSuffix": "이름 *",
+        "loadingStats": "로딩...",
+        "activeSuffix": "이름 *",
+        "trialUsers": "시험 사용자",
+        "currentlyTrialing": "현재 평가",
+        "monthlyRevenue": "월간 수익",
+        "recurringMonthly": "매달 반복"
+      },
+      "panelTitle": "구독 관리",
+      "panelDescription": "구독 계획, 사용자 구독 및 할당 시스템 통합 관리",
+      "loadingData": "로드 구독 데이터 ...",
+      "systemNotAvailableTitle": "구독 시스템 사용 불가",
+      "systemNotAvailableBody": "구독 시스템은 구성 또는 사용할 수 없습니다.",
+      "retry": "이름 *",
+      "plans": {
+        "title": "구독 계획",
+        "createNewPlan": "새 계획 만들기",
+        "periodMonth": "/월",
+        "periodYear": "/년",
+        "periodLifetime": "이름 *",
+        "createComingSoon": "곧 계획 기능 만들기!",
+        "edit": "제품정보",
+        "enable": "이름 *",
+        "disable": "기타 제품",
+        "free": "무료 다운로드"
+      },
+      "subscriptions": {
+        "title": "사용자 구독",
+        "assignSubscription": "회사연혁",
+        "searchPlaceholder": "사용자 또는 계획 찾기 ...",
+        "allStatuses": "모든 상태",
+        "allPlans": "모든 계획",
+        "tableHeaders": {
+          "0": "사용자 이름",
+          "1": "(주)",
+          "2": "주요연혁",
+          "3": "계정 관리",
+          "4": "패스워드",
+          "5": "계정 관리",
+          "6": "팟캐스트"
+        },
+        "edit": "제품정보",
+        "cancel": "이름 *",
+        "previous": "← 이전",
+        "next": "다음 →"
+      },
+      "statusLabels": {
+        "trialing": "- 연혁",
+        "cancelled": "이름 *",
+        "expired": "구매하기",
+        "suspended": "한국어",
+        "pending": "뚱 베어",
+        "active": "지원하다"
+      }
+    },
+    "userManagement": {
+      "loadingUsers": "사용자 정의 ...",
+      "loadingMoreUsers": "더 많은 사용자를로드 ...",
+      "retry": "이름 *",
+      "viewDetails": "더 보기",
+      "assignRole": "역할 할당",
+      "panelTitle": "사용자 관리",
+      "panelDescription": "사용자 계정, 역할, 구독 및 권한 관리",
+      "filters": "필터링",
+      "exportAll": "수출 모두",
+      "searchPlaceholder": "사용자 이름, 이메일 또는 ID로 검색 ...",
+      "manageSubscription": "자주 묻는 질문",
+      "manageQuota": "Quota 관리",
+      "unknownUser": "사용자 정의"
+    },
+    "customAlerts": {
+      "createNewAlert": "새로운 Alert 만들기",
+      "createFirstAlert": "첫 번째 경고 생성",
+      "emptyTitle": "사용자 정의 경고 Yet",
+      "emptyBody": "사용자와 함께 참여하기 위해 첫 번째 사용자 정의 경고 생성!",
+      "editAlert": "편집 Alert",
+      "panelTitle": "사용자 정의 Alerts 관리",
+      "panelDescription": "다른 사용자 그룹에 대한 사용자 정의 경고 생성, 편집 및 관리",
+      "signIn": "이름 *",
+      "goHome": "이동 홈",
+      "errorLoadingTitle": "오류 로딩 경고",
+      "authRequiredTitle": "인증 Required",
+      "authRequiredBody": "관리자 패널에 액세스하려면 로그인해야합니다.",
+      "adminAccessTitle": "자주 묻는 질문",
+      "adminAccessBody": "이 관리자 기능에 액세스 할 권한이 없습니다.",
+      "targetAudiences": {
+        "all": "모든 사용자",
+        "authenticated": "인증된 사용자",
+        "subscribers": "회사 소개",
+        "admins": "관리자",
+        "role_based": "역할 기반",
+        "specific_users": "특정 사용자"
+      },
+      "active": "지원하다",
+      "published": "이름 *",
+      "createAlert": "Alert 만들기",
+      "updateAlert": "업데이트 Alert",
+      "cancel": "이름 *",
+      "retry": "이름 *",
+      "signInAgain": "로그인"
+    },
+    "analytics": {
+      "title": "Analytics 대시보드",
+      "loading": "로딩중...",
+      "errorTitle": "Analytics 오류",
+      "retry": "이름 *",
+      "refresh": "지원하다",
+      "dateRangeLabel": "날짜 범위:",
+      "dateRanges": {
+        "7d": "마지막 7 일",
+        "30d": "마지막 30 일",
+        "90d": "마지막 90 일",
+        "1y": "1 년 전"
+      },
+      "tabs": {
+        "overview": "제품정보",
+        "geography": "한국어",
+        "devices": "제품정보",
+        "heatmap": "히트맵",
+        "subscriptions": "이름 *"
+      },
+      "metrics": {
+        "bounceRate": "쾌활한 비율",
+        "vpnUsage": "VPN 사용",
+        "conversionRate": "변환 비율",
+        "metricChangeSample": "마지막 기간에서 +12.5%",
+        "totalSessions": "총 세션",
+        "uniqueUsers": "사용자 이름",
+        "pageViews": "사이트 맵",
+        "totalClicks": "전체 클릭",
+        "avgSessionDuration": "Avg 세션 기간"
+      },
+      "sections": {
+        "trafficTrends": "교통 동향",
+        "topCountries": "상위 국가",
+        "topCities": "주요 시장",
+        "vpnProxyUsage": "VPN 및 프록시 사용",
+        "vpnSessions": "VPN 세션",
+        "proxySessions": "Proxy 세션",
+        "torSessions": "Tor 세션",
+        "vpnPercentage": "VPN 가격",
+        "topVpnProviders": "VPN 공급자",
+        "deviceTypes": "장치 유형",
+        "browsers": "계정 만들기",
+        "operatingSystems": "운영 시스템",
+        "topPagesByClicks": "페이지 선택",
+        "clickPatterns": "본문 바로가기",
+        "planPerformance": "계획 성과",
+        "conversionFunnel": "변환 Funnel",
+        "revenueImpact": "Revenue 충격",
+        "totalAttributedRevenue": "전체 수익",
+        "averageRevenuePerUser": "사용자 당 평균 수익"
+      },
+      "chart": {
+        "sessionsLabel": "세션:",
+        "pageviewsLabel": "페이지 뷰:",
+        "clicksLabel": "다음:"
+      },
+      "subscriptionMetrics": {
+        "views": "태그 :",
+        "conversions": "변환 :",
+        "conversionRate": "변환 비율:"
+      }
+    },
+    "emojis": {
+      "title": "Emoji 관리",
+      "statusLabel": "상태:",
+      "statusOptions": {
+        "all": "모든 상태",
+        "pending": "뚱 베어",
+        "approved": "이름 *",
+        "rejected": "관련 상품"
+      },
+      "searchPlaceholder": "검색 이모티콘, 사용자, 또는 범주...",
+      "search": "제품정보",
+      "selectedCount": "선택하기",
+      "bulkApprove": "대량 Approve",
+      "loading": "로딩...",
+      "createdPrefix": "생성 :",
+      "descriptionPrefix": "묘사:",
+      "approve": "앱로드",
+      "reject": "관련 제품",
+      "delete": "이름 *",
+      "selectAll": "모두 보기",
+      "empty": "현재 필터에 대해 발견 된 이모티콘 없음.",
+      "noImage": "이미지 없음",
+      "byPrefix": "이름:",
+      "categoryPrefix": "유형:",
+      "rejectReasonPlaceholder": "이 이모티콘을 거부하는 이유를 제공하십시오 ...",
+      "cancel": "이름 *",
+      "rejectEmoji": "이모티콘",
+      "deleteConfirm": "이 이모티콘을 영구적으로 삭제하시겠습니까?",
+      "previous": "이름 *",
+      "next": "이름 *",
+      "pageOf": "- 연혁",
+      "rejectModalTitle": "이모티콘",
+      "rejectReasonLabel": "거절을 위한 Reason:"
+    },
+    "permissions": {
+      "title": "권한 관리 시스템",
+      "tabs": {
+        "audit": "공지사항",
+        "permissions": "제출",
+        "roles": "제품정보"
+      },
+      "loading": "제품정보",
+      "auditTitle": "공지사항",
+      "auditComingSoon": "포괄적인 감사 로깅 곧...",
+      "noResultsTitle": "이름 *",
+      "noResultsFiltered": "검색 기준 또는 필터를 조정하십시오.",
+      "noResultsEmptyPermission": "시작하기 위한 첫 번째 권한을 만듭니다.",
+      "noResultsEmptyRole": "첫 번째 역할 만들기 시작.",
+      "searchPlaceholder": "제품정보",
+      "subtitle": "Enterprise-grade 보안을 통한 종합적인 권한 및 역할 관리",
+      "createPermission": "새로운 권한 만들기",
+      "createRole": "새로운 역할 만들기"
+    },
+    "guestQuotas": {
+      "title": "글로벌 게스트 할당",
+      "loading": "글로벌 게스트 인용 ...",
+      "addNewQuota": "새로운 Quota 추가",
+      "createTitle": "글로벌 게스트 할당",
+      "currentQuotasTitle": "현재 글로벌 게스트 할당량",
+      "emptyList": "글로벌 게스트 인용 없음. 게스트 사용자는 시스템 기본값을 사용합니다.",
+      "howItWorksTitle": "글로벌 게스트 할당량은 어떻게 작동합니까",
+      "howItWorksBullets": {
+        "0": "Priority: Global quotas는 사용자가 특정한 override가 존재하지 않을 때 익명 사용자에게 적용됩니다",
+        "1": "Feature-Level: 다른 서비스/features를 위한 다른 quotas를 무인화한 충격을 피하기 위하여 놓으십시오",
+        "2": "IP 기반: Quotas는 IP 주소 및 선택적인 기계 지문에 의해 추적됩니다",
+        "3": "리셋 기간: 시간당, 일일, 주간, 또는 월간 리셋 사이클 선택",
+        "4": "무제한 : 할당량 제한을 완전히 제거하려면 \"Unlimited\"를 확인하십시오"
+      },
+      "unlimitedPlaceholder": "무제한 0 입력",
+      "descriptionPlaceholder": "이 할당량에 대한 옵션 설명",
+      "unlimitedPlaceholderShort": "무제한 0 입력",
+      "descriptionPlaceholderShort": "옵션 설명"
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "계정 설정",
+      "description": "당신의 경험 및 선호도를 사용자 정의",
+      "loading": "로딩..."
+    },
+    "categories": {
+      "appearance": {
+        "title": "이름 *",
+        "description": "사이트 보기와 느낌을 사용자 정의"
+      },
+      "behavior": {
+        "title": "채용 정보",
+        "description": "사이트가 어떻게 행동하고 반응하는지 제어"
+      },
+      "accessibility": {
+        "title": "관련 상품",
+        "description": "사이트가 쉽게 사용할 수 있도록"
+      },
+      "background": {
+        "title": "배경 효과",
+        "description": "애니메이션 공간 배경을 사용자 정의"
+      },
+      "privacy": {
+        "title": "개인정보취급방침",
+        "description": "프로필 가시성 및 데이터를 제어"
+      }
+    },
+    "account": {
+      "signedInAsPrefix": "로그인",
+      "syncNote": "장치에서 설정 동기화",
+      "notSignedIn": "로그인",
+      "localOnlyNote": "로컬로 저장된 설정"
+    },
+    "appearance": {
+      "fontFamily": {
+        "cardTitle": "본문 바로가기",
+        "code": {
+          "label": "이름 *",
+          "description": "Fira Code - 코딩을위한 완벽한"
+        },
+        "reading": {
+          "label": "이름 *",
+          "description": "시스템 글꼴 - 눈에 쉬운"
+        }
+      },
+      "displayDensity": {
+        "cardTitle": "전시 조밀도",
+        "cozy": {
+          "label": "뚱 베어",
+          "description": "더 많은 간격, 읽기 쉬운"
+        },
+        "compact": {
+          "label": "제품정보",
+          "description": "더 적은 간격, 내용 더"
+        }
+      }
+    },
+    "behavior": {
+      "emojiPanel": {
+        "stayOpen": {
+          "label": "오시는 길",
+          "description": "닫기 전에 여러 이모티콘을 선택"
+        },
+        "cardTitle": "Emoji 패널",
+        "closeAfterSelect": {
+          "label": "자주 묻는 질문",
+          "description": "한 이모티콘을 선택 한 후 패널 닫기"
+        }
+      },
+      "pageNavigation": {
+        "cardTitle": "관련 기사",
+        "traditional": {
+          "label": "한국어",
+          "description": "다음/이전의 페이지 번호"
+        },
+        "infiniteScroll": {
+          "label": "무한 스크롤",
+          "description": "자동 로드 콘텐츠로 스크롤"
+        }
+      }
+    },
+    "accessibility": {
+      "focusIndicators": {
+        "cardTitle": "초점 지표",
+        "disabled": {
+          "label": "지원하다",
+          "description": "초점 윤곽 없는 청결한 시각 디자인"
+        },
+        "enabled": {
+          "label": "이름 *",
+          "description": "키보드 내비게이션에 대한 초점 개요"
+        }
+      }
+    },
+    "background": {
+      "movementDirection": {
+        "cardTitle": "운동 방향",
+        "static": {
+          "label": "제품 정보",
+          "description": "운동 없음"
+        },
+        "left": {
+          "description": "드리프트 왼쪽",
+          "label": "왼쪽"
+        },
+        "right": {
+          "label": "제품 정보",
+          "description": "Drift 권리"
+        },
+        "up": {
+          "label": "지원하다",
+          "description": "드리프트 업"
+        },
+        "down": {
+          "label": "맨 위로",
+          "description": "연락처"
+        },
+        "forward": {
+          "label": "제품정보",
+          "description": "비행 전"
+        },
+        "backward": {
+          "label": "맨 위로",
+          "description": "뒤틀기"
+        }
+      },
+      "movementSpeed": {
+        "cardTitle": "운동 속도",
+        "slow": {
+          "label": "이름 *",
+          "description": "휴식 속도"
+        },
+        "normal": {
+          "label": "이름 *",
+          "description": "표준 속도"
+        },
+        "fast": {
+          "label": "빠른 속도",
+          "description": "높은 속도"
+        }
+      },
+      "audioReactivity": {
+        "cardTitle": "배경 오디오 반응성",
+        "hint": "얼마나 강하게 은하 배경은 라디오 재생에 반응합니다. 0%는 정체되는 배경을 지킵니다; 100%는 가득 차있는 반응성입니다.",
+        "rangeLabel": "Reactivity 강도",
+        "tickOff": "이름 *",
+        "tickFull": "한국어"
+      },
+      "animationLayers": {
+        "enabledCountSuffix": "의 5 활성화",
+        "stars": "이름 *",
+        "particles": "제품정보",
+        "nebula": "한국어",
+        "planets": "플래닛",
+        "cardTitle": "애니메이션 레이어",
+        "aurora": "아사쿠사"
+      }
+    },
+    "privacy": {
+      "profileVisibility": {
+        "cardTitle": "프로필 Visibility",
+        "public": {
+          "label": "한국어",
+          "description": "모두가 볼 수 있는 프로필"
+        },
+        "private": {
+          "label": "이름 *",
+          "description": "다른 곳에서 숨겨진 프로필"
+        }
+      }
+    },
+    "common": {
+      "on": "에 의해",
+      "off": "이름 *",
+      "enabled": "이름 *",
+      "disabled": "지원하다"
+    }
+  },
+  "tools": {
+    "cardGenerator": {
+      "welcome": {
+        "loadPreviousDescription": "기존 세대를 검색",
+        "initializing": "Mystical energies를 초기화 ...",
+        "generationIdLabel": "생성 ID:",
+        "loadPlaceholder": "당신의 세대 ID를 붙여 ...",
+        "load": "로드 중 ..",
+        "generationIdHint": "세대 ID는 다음과 같습니다 :",
+        "quotaReached": "매일 할당량 도달!",
+        "upgradeCta": "무제한 세대를 위한 Pro로 업그레이드",
+        "title": "Mystical Creation의 영역",
+        "intro": "고대 에너지는 당신의 명령을 기다리고 있습니다. 여러분의 신성한 경로를 선택하여 소셜 미디어 카드가 신화적인 기하학과 wisdom을 축복했습니다.",
+        "createNew": "새로운 기능",
+        "createNewDescription": "신선한 mystical 카드를 생성",
+        "loadPrevious": "로드 이전"
+      },
+      "wizard": {
+        "wizardTitle": "카드 생성기 마법사",
+        "steps": {
+          "platformSelection": "플랫폼 선택",
+          "basicConfiguration": "기본 설정",
+          "proConfiguration": "Pro 구성",
+          "confirmAndGenerate": "인증 및 인증"
+        },
+        "stepDescriptions": {
+          "platform": "카드를 위한 플랫폼과 종횡비 선택",
+          "basic": "카드의 주요 요소 구성",
+          "pro": "Pro 기능을 가진 Fine-tune 진보된 조정",
+          "confirm": "구성을 검토하고 카드를 생성"
+        },
+        "choosePlatformTitle": "플랫폼 선택",
+        "choosePlatformBody": "카드를 공유 할 수있는 플랫폼을 선택하십시오. 각 플랫폼은 최고의 시각적 충격에 최적화된 치수를 가지고 있습니다.",
+        "loadingAspectRatios": "선적 측면 비율 ...",
+        "labels": {
+          "mainSeed": "주요 씨앗",
+          "avatarSeed": "Avatar 씨앗",
+          "author": "이름 *",
+          "quote": "제품 정보",
+          "customWidth": "주문 폭",
+          "customHeight": "공급 능력",
+          "shapeCount": "모양 조사"
+        },
+        "placeholders": {
+          "random": "자주 묻는 질문",
+          "randomQuote": "무작위 영감 인용에 대 한 빈",
+          "auto": "제품정보"
+        },
+        "cancel": "이름 *",
+        "previous": "← 이전",
+        "next": "다음 →",
+        "generateCard": "생성 카드",
+        "generating": "...",
+        "hints": {
+          "pattern": "전체적인 디자인 패턴 제어",
+          "avatar": "Avatar 디자인을 통제하십시오",
+          "author": "견적을받는 사람",
+          "quote": "카드에 대한 영감 메시지"
+        },
+        "reviewTitle": "리뷰 및 생성",
+        "dailyQuotaExceeded": "매일 할당량 초과",
+        "upgradeForUnlimited": "무제한 세대 및 고급 기능을 위해 Pro로 업그레이드!",
+        "basicEmptyNote": "임의 세대를 위해 필드를 비우십시오.",
+        "goToStepPrefix": "바로가기",
+        "proStep": {
+          "subscriptionNote": "이 단계는 Pro 가입자에게만 제공되는 고급 기능을 포함합니다. 기본 구성을 가진 마법사 모드는 완전 무료입니다!",
+          "upgradeTitle": "Pro로 업그레이드",
+          "upgradeBody": "이 단계는 Pro 가입자에게만 제공되는 고급 기능을 포함합니다. 기본 구성을 가진 마법사 모드는 완전 무료입니다!",
+          "proFeatureSuffix": "(프로 기능)",
+          "widthHint": "픽셀의 사용자 정의 폭",
+          "heightHint": "픽셀의 사용자 정의 높이",
+          "shapeCountHint": "배경 모양의 수",
+          "shapeCountPlaceholder": "8개"
+        },
+        "confirmStep": {
+          "body": "구성을 검토하고 신비한 카드를 생성합니다.",
+          "sections": {
+            "platform": "회사연혁",
+            "content": "이름 *",
+            "seeds": "제품 소개",
+            "proSettings": "Pro 설정"
+          },
+          "labels": {
+            "format": "체재:",
+            "dimensions": "크기:",
+            "author": "저자:",
+            "quote": "유형:",
+            "main": "주요 :",
+            "avatar": "아바타:",
+            "width": "폭:",
+            "height": "고도:",
+            "shapes": "모양:"
+          },
+          "randomValue": "이름 *"
+        }
+      },
+      "generationForm": {
+        "configuration": "제품 설명",
+        "viewingLoadedGeneration": "로드 세대",
+        "readOnlyBanner": "이 구성은 읽기 전용입니다. 새로운 세대를 만들어 변화를 만듭니다.",
+        "freeConfiguration": "무료 구성",
+        "proConfigurationOptions": "Pro 구성 옵션",
+        "proBadge": "지원하다",
+        "hideDetails": "자주 묻는 질문",
+        "showDetails": "연락처",
+        "labels": {
+          "width": "제품 정보",
+          "height": "고도:",
+          "shapeCount": "모양 조사",
+          "mainSeed": "주요 씨앗",
+          "avatarSeed": "Avatar 씨앗",
+          "author": "이름 *",
+          "quote": "제품 정보",
+          "aspectRatio": "종횡비"
+        },
+        "placeholders": {
+          "customSeed": "사용자 정의 씨앗을 입력 ...",
+          "autoSeed": "자동 생성된 종자",
+          "avatarSeed": "사용자 정의 아바타 씨앗 ( 무작위로 비어 있음)",
+          "quoteAuthor": "인용 저자 (수정을 위해 빈)",
+          "customQuote": "사용자 정의 견적을 입력 (자주 묻는 인용에 대 한 빈 필요)",
+          "auto": "제품정보",
+          "shapeCountDefault": "8개",
+          "avatarSeedUsesMain": "자주 묻는 질문"
+        },
+        "randomizeAll": "모든 것",
+        "generateImage": "이미지 생성",
+        "generating": "...",
+        "readOnlyGeneration": "자세히보기",
+        "loadingAspectRatios": "선적 측면 비율 ...",
+        "seedActions": {
+          "save": "묘목을 저장",
+          "cancelEdit": "자주 묻는 질문",
+          "editMain": "관련 기사",
+          "editAvatar": "Avatar 씨앗 편집"
+        }
+      },
+      "advancedControls": {
+        "paywallTitle": "고급 Magic을 잠금 해제",
+        "paywallBody": "Avatar 포지셔닝, 텍스트 레이아웃, 시각적 스타일링 및 Pro 구독을 통해 정확한 제어를 얻을 수 있습니다.",
+        "upgradeLink": "Pro로 업그레이드",
+        "overlayTitle": "고급 Magic을 잠금 해제",
+        "sections": {
+          "patternMagic": "패턴 매직",
+          "watermarkControls": "Watermark 통제",
+          "avatarPositioning": "Avatar 위치",
+          "textLayout": "텍스트 레이아웃",
+          "visualEffects": "시각 효과"
+        },
+        "labels": {
+          "avatarX": "아바타 X",
+          "avatarY": "아바타 Y",
+          "avatarSize": "Avatar 크기",
+          "textMaxWidth": "텍스트 최대 폭",
+          "textStartY": "텍스트 시작 Y",
+          "textPadding": "텍스트 패딩",
+          "fontSize": "이름 *",
+          "lineHeight": "라인 높이",
+          "borderOpacity": "국경 Opacity",
+          "borderColor": "국경 색깔",
+          "patternSeed": "패턴 씨앗",
+          "glassBackground": "유리 배경 효과",
+          "enableWatermark": "Enable 주문 Watermark",
+          "watermarkText": "Watermark 텍스트",
+          "position": "주요 특징",
+          "rotationDegrees": "회전 (도)",
+          "size": "크기 (mm)",
+          "opacityPercent": "불투명 (%)"
+        },
+        "overlayBody": "당신의 신성 카드의 각 측면에 정확한 제어를 얻을!",
+        "upgradeButton": "Ascend로 Archmage",
+        "placeholders": {
+          "auto": "제품정보",
+          "textPadding": "30 분",
+          "lineHeight": "1. 명세",
+          "borderOpacity": "1. 명세",
+          "patternSeed": "자동 생성",
+          "watermarkText": "₢ 킹",
+          "rotation": "-25명",
+          "watermarkSize": "16개",
+          "watermarkOpacity": "15 분"
+        },
+        "watermarkPositions": {
+          "top-left": "왼쪽 상단",
+          "top-right": "맨 위로",
+          "bottom-left": "바닥 왼쪽",
+          "bottom-right": "회사 소개",
+          "center": "- 연혁",
+          "repeated": "반복된 본"
+        }
+      }
+    },
+    "svgConverter": {
+      "page": {
+        "title": "SVG로 PNG 변환기",
+        "features": {
+          "0": "고품질 PNG 산출",
+          "1": "사용자 정의 스케일링 및 치수",
+          "2": "보안 검증",
+          "3": "일괄 처리",
+          "4": "배경 사용자 정의",
+          "5": "실시간 진행"
+        },
+        "description": "SVG 벡터 그래픽을 사용자 정의 sizing, 품질 설정 및 일괄 처리 기능으로 고품질 PNG 이미지로 변환하십시오.",
+        "conversionFailed": "변환 실패",
+        "dismiss": "뚱 베어",
+        "featuresTitle": "제품 설명",
+        "supportedTitle": "지원되는",
+        "formats": {
+          "inputLabel": "입력 :",
+          "inputValue": "사이트맵",
+          "outputLabel": "산출:",
+          "outputValue": "한국어",
+          "maxSizeLabel": "최대 크기:",
+          "maxSizeValue": "10MB 이상",
+          "batchLabel": "배치:",
+          "batchValue": "10 파일"
+        },
+        "tipsTitle": "제품 정보",
+        "signedInNoLimits": "등록된 사용자의 전환 제한 없음",
+        "tips": {
+          "0": "보안용 스크립트 태그 제거",
+          "1": "빠른 변환을 위한 간단한 SVGs 사용",
+          "2": "더 높은 품질 = 더 큰 파일 크기",
+          "3": "Retina 전시를 위한 2x 가늠자를 시험하십시오"
+        },
+        "signedInTitle": "이름 *"
+      },
+      "interface": {
+        "title": "SVG를 PNG로 변환",
+        "subtitle": "SVG 파일을 업로드하거나 SVG 코드를 붙여 넣기 시작",
+        "uploadFile": "파일 업로드",
+        "pasteCode": "Paste 코드",
+        "uploadPromptStrong": "자주 묻는 질문",
+        "uploadPromptRest": "또는 드래그 및 드롭",
+        "uploadHint": "SVG 파일만, 최대 10MB",
+        "svgCodeLabel": "SVG 코드:",
+        "svgCodePlaceholder": "SVG 코드를 붙여 ...",
+        "svgTagsHint": "SVG가 적절한 오프닝 및 마감 태그를 포함합니다",
+        "conversionOptionsTitle": "변환 옵션",
+        "filenameLabel": "파일 이름:",
+        "qualityLabel": "품질 관리",
+        "scaleLabel": "제품정보",
+        "backgroundLabel": "배경:",
+        "backgroundOptions": {
+          "0": "제품정보",
+          "1": "이름 *",
+          "2": "한국어",
+          "3": "빛 회색"
+        },
+        "errors": {
+          "readFailed": "파일을 읽는 실패",
+          "dropSvg": "SVG 파일을 삭제하십시오",
+          "provideContent": "SVG 콘텐츠 제공",
+          "selectSvg": "SVG 파일을 선택하십시오",
+          "fileTooLarge": "파일 크기는 10MB 미만이어야 합니다"
+        },
+        "convertToPng": "PNG로 변환",
+        "converting": "변환 ...",
+        "initializing": "초기화 ..."
+      }
+    }
+  },
+  "profile": {
+    "metadata": {
+      "notFoundDescription": "요청된 사용자 프로파일은 찾을 수 없습니다.",
+      "privateTitle": "개인 프로필 | Idling.app",
+      "privateDescription": "이 사용자는 프로필을 개인에게 설정했습니다.",
+      "publicTitleSuffix": "- 사용자 프로필 | Idling.app",
+      "publicOpenGraphTitleSuffix": "- 프로필",
+      "invalidUrlTitle": "잘못된 프로필 URL | Idling.app",
+      "invalidUrlDescription": "프로필 URL은 데이터베이스 ID 만 사용해야합니다.",
+      "notFoundTitle": "저작권 © Idling.app",
+      "publicFallbackDescription": "보기 {name}프로필, 활동 통계, 그리고 Idling.app에 기여.",
+      "publicFallbackOpenGraphDescription": "보기 {name}프로필 및 활동 Idling.app.",
+      "productNotFoundTitle": "제품정보"
+    },
+    "private": {
+      "title": "개인 프로필",
+      "message": "이 사용자는 프로필을 개인에게 설정했습니다. 그들은 프로필 정보를 볼 수 있습니다."
+    },
+    "notFound": {
+      "iconAria": "사용자 없음",
+      "title": "사용자 찾을 수 없음",
+      "message": "죄송합니다. 사용자 프로필을 찾을 수 없습니다. 이것은 경우에 일어날 수 있었습니다:",
+      "reasons": {
+        "0": "사용자 이름은 존재하지 않습니다",
+        "1": "사용자는 계정 삭제",
+        "2": "프로필 URL은 잘못된",
+        "3": "사용자의 프로필은 개인 설정"
+      },
+      "goHome": "이동 홈",
+      "searchTitle": "사용자 검색",
+      "searchDescription": "찾고있는 사용자를위한 검색 시도 :",
+      "searchPlaceholder": "사용자 이름 또는 이메일에 의해 검색...",
+      "helpTitle": "지원하다",
+      "helpSearchLabel": "제품정보",
+      "helpSearchDescription": "위의 검색을 사용하여 사용자 이름 또는 이메일",
+      "helpProductsLabel": "제품 정보",
+      "helpProductsDescription": "앱과 모드에 대한 홈 라인업 검색"
+    },
+    "pageUi": {
+      "adminDecorationTitle": "Username 훈장 테스트",
+      "testDecorationsTitle": "사용자 이름 장식 테스트 (Admin Only)",
+      "subscriptionsTitle": "이름 *",
+      "freeTierMessage": "무료 계층 사용자",
+      "decorationOptions": {
+        "0": {
+          "value": "",
+          "label": "이름 *"
+        },
+        "1": {
+          "value": "기업 악몽",
+          "label": "기업 크라운"
+        },
+        "2": {
+          "value": "프리미엄 galaxy",
+          "label": "프리미엄 갤럭시"
+        },
+        "3": {
+          "value": "홍보센터",
+          "label": "Pro 플라즈마"
+        },
+        "4": {
+          "value": "활동 glow",
+          "label": "활동 Glow"
+        },
+        "5": {
+          "value": "시험 맥박",
+          "label": "시험 맥박"
+        }
+      },
+      "adminDecorationDescription": "프로필 페이지에서 다른 사용자 이름 장식을 테스트",
+      "adminDecorationNote": "이 테스트 기능은 자체 프로파일에 대한 관리자에서만 볼 수 있습니다",
+      "previewLabel": "미리보기:",
+      "demoUserFallback": "데모 사용자",
+      "testDecorationsButton": "시험 Username 훈장"
+    }
+  },
+  "subscription": {
+    "page": {
+      "title": "이름 *",
+      "subtitle": "당신의 계획을 선택하십시오",
+      "subtitleQuota": "Emojis를 지속적으로 생성하기 위해 업그레이드",
+      "loading": "로딩 옵션...",
+      "loadingData": "로드 구독 데이터 ...",
+      "errorHeading": "계정 정보",
+      "noDataHeading": "데이터 없음",
+      "noDataBody": "구독 데이터가 로드되지 않을 수 있습니다.",
+      "returnHome": "홈으로 돌아가기",
+      "quotaBannerTitle": "매일 제한 도달",
+      "quotaBannerBody": "매일 세대의 한계에 도달했습니다. Pro로 업그레이드하여 무제한 일일 세대로 이모티콘을 계속 생성합니다.",
+      "whatYouGet": "당신이 얻는 무엇:",
+      "dailyLimitLabel": "매일 제한:",
+      "currentLimitsTitle": "현재 제한 (무료 계획):",
+      "dailyGenerations": "매일 발생:",
+      "advancedOptions": "고급 옵션:",
+      "yes": "이름 *",
+      "no": "이름 *",
+      "subscribeNow": "현재 위치",
+      "backToGenerator": "← Emoji Generator로 돌아가기",
+      "fetchFailed": "구독 데이터로드 실패"
+    },
+    "metadata": {
+      "title": "구독 | 아이들링.app",
+      "description": "Idling.app 구독을 계획하고 업그레이드하십시오."
+    }
+  },
+  "radio": {
+    "aria": {
+      "player": "라디오 플레이어",
+      "chooseStation": "역 선택",
+      "searchStations": "이름, 설명, 또는 장르로 역 검색",
+      "clearSearch": "Clear Station 검색",
+      "filterByGenre": "필터 로 장르",
+      "stations": "오시는 길",
+      "playerSettings": "Player 설정",
+      "fullscreenVisualizerStyle": "Fullscreen 비주얼라이저 스타일",
+      "fullscreenVisualizerStyles": "Fullscreen 시각화기 스타일",
+      "waveLineStyle": "파 선 작풍",
+      "oscilloscopeSmoothing": "Oscilloscope 파 스무딩",
+      "barFillStyle": "바 필 스타일",
+      "barSpacing": "바 간격",
+      "stationTransport": "역 수송",
+      "previousStation": "이전 역",
+      "nextStation": "다음 역",
+      "dragToWidenText": "넓은 역 및 트랙 텍스트에 드래그. 더블 클릭을 재설정합니다.",
+      "barTrailStyle": "바 트레일 스타일",
+      "barGlow": "바 놀",
+      "visualizerColors": "Visualizer 색상",
+      "spectrumVisualizerColors": "Spectrum 시각화 색상",
+      "fullscreenSpectrumOpacity": "풀스크린 스펙트럼 opacity",
+      "fullscreenVisualizerHeight": "Fullscreen 비주얼라이저 높이",
+      "barVisualizerLook": "Bar 시각화",
+      "barVisualizerStyles": "바 시각화기 스타일",
+      "controlBarVisualizerLayout": "컨트롤 바 Visualizer 레이아웃",
+      "controlBarVisualizerOpacity": "제어 바 시각화기 opacity",
+      "play": "뚱 베어",
+      "pause": "팟캐스트",
+      "mute": "이름 *",
+      "unmute": "이름 *",
+      "volume": "제품정보",
+      "equalizer": "본부",
+      "equalizerPresets": "Equalizer 전 세트",
+      "customEqualizerPresets": "사용자 정의 동등기 presets",
+      "equalizerBands": "Equalizer 밴드",
+      "fullTrackTitle": "전체 트랙 제목",
+      "volumeScrollHint": "Volume — 스크롤 조정",
+      "enterFullscreen": "본문 바로가기",
+      "exitFullscreen": "풀스크린 닫기",
+      "openFullscreenVisualizer": "풀스크린 시각화기",
+      "exitFullscreenVisualizer": "풀스크린 시각화",
+      "dragToResizePanel": "패널 크기를 조정하십시오. 높이를 재설정하려면 더블 클릭.",
+      "recheckStationPrefix": "재검사",
+      "changeStationPrefix": "역 변경 — 지금",
+      "nowOnSuffix": "",
+      "trackTitleTrigger": "지금 재생: {track}. 전체 제목을 표시하려면 클릭하십시오.",
+      "checkingStreamTitle": "공지사항",
+      "changeStationTitle": "본문 바로가기",
+      "playerSettingsTitle": "Player 설정",
+      "searchWebForTrack": " {query}에 대한 웹 검색",
+      "findTrackTitle": "찾기 “{query}”",
+      "addFavorite": "즐겨찾기에 추가 {stationName} ",
+      "removeFavorite": "즐겨찾기에서 {stationName} 제거"
+    },
+    "equalizer": {
+      "reset": "지원하다",
+      "resetAriaPrefix": "동등기 재설정",
+      "title": "본부",
+      "load": "로드 중 ..",
+      "save": "제품 정보",
+      "delete": "이름 *",
+      "confirm": "이름 *",
+      "cancel": "이름 *",
+      "matchExact": "이 슬라이더 설정 일치 {label} 정확히. 수동으로 duplicating 대신 그 preset를 선택합니다.",
+      "matchNear": "이 슬라이더 설정은 {label}에 가깝습니다. 사전 설정을 선택합니다.",
+      "deleteConfirm": "저장 된 미리 설정 \"{label}\"? 이것은 undone일 수 없습니다.",
+      "customSlotDefault": "주문 {slot}",
+      "loadPresetAria": "짐 {label}",
+      "emptySlotAria": "사용자 정의 미리 설정 슬롯 {slot} 빈",
+      "slotEmptyTitle": "Slot {slot} 는 비어 있습니다",
+      "nameSlotAria": "사용자 정의 프리셋 슬롯의 이름 {slot}",
+      "saveToAria": "현재 EQ를 {label}로 저장",
+      "deletePresetAria": "저장된 사전 설정 삭제 {label}",
+      "confirmDeleteAria": "삭제 확인 {label}",
+      "cancelDeleteAria": " {label}에 대한 삭제 취소",
+      "presets": {
+        "flat": "뚱 베어",
+        "bass-boost": "베이스 부스트",
+        "treble-boost": "연락처",
+        "vocal": "보컬",
+        "rock": "팟캐스트",
+        "jazz": "한국어",
+        "electronic": "제품정보",
+        "podcast": "팟캐스트"
+      }
+    },
+    "bar": {
+      "checkingStationsMany": " {count} 역 확인 ..",
+      "filterAll": "모든 것",
+      "filterFavorites": "이름 *",
+      "filterUnreachable": "기타 제품",
+      "recheckAll": "모든 상품",
+      "pressPlayToStart": "시작하기",
+      "searchPlaceholder": "역 검색 ... (\"라디오 프랑스\"또는 #jazz)",
+      "checkingStationsOne": "체크인 1 역 ..",
+      "emptyUnreachable": "이 필터와 일치하지 않는 역.",
+      "emptyFavorites": "좋아하는 역이 필터 일치하지 않습니다.",
+      "emptySearchPrefix": "역 일치 없음",
+      "checkingStreamAvailability": "스트림 가용성 확인.."
+    },
+    "settings": {
+      "none": "이름 *",
+      "waveStyle": "파 작풍",
+      "waveSmoothing": "연락처",
+      "barFill": "바 필",
+      "barTrail": "바 트레일",
+      "look": "더 보기",
+      "barGlow": "바 놀",
+      "barColors": "바 색상",
+      "spectrumColors": "스펙트럼 색상",
+      "spectrumOpacity": "스펙트럼 opacity",
+      "spectrumHeight": "스펙트럼 높이",
+      "barLayout": "바 레이아웃",
+      "opacity": "오파시티",
+      "density": "제품정보",
+      "barStyle": "바 스타일",
+      "trail": "오시는 길",
+      "glow": "이름 *",
+      "colors": "색상 :",
+      "visualizerHeight": "Visualizer 고도",
+      "webglUnavailableFallback": "WebGL2 시각화기는 이 브라우저에서 사용할 수 없습니다."
+    },
+    "visualizer": {
+      "ribbon": "제품정보",
+      "solid": "사이트맵",
+      "glass": "제품 정보",
+      "none": "이름 *",
+      "peaks": "사이트맵",
+      "line": "제품정보",
+      "compact": "제품정보",
+      "normal": "이름 *",
+      "wide": "제품정보",
+      "fullBackground": "전체 배경",
+      "inlineStrip": "Inline 지구",
+      "cascade": "사이트맵",
+      "off": "이름 *",
+      "soft": "—— 크리스",
+      "theme": "이름 *",
+      "prism": "주요 특징"
+    },
+    "genres": {
+      "electronic": "제품정보",
+      "jazz": "한국어",
+      "news": "뉴스 & 이야기",
+      "public": "공공 라디오",
+      "ambient": "주요 특징",
+      "classical": "한국어",
+      "community": "- 연혁",
+      "custom": "제품 정보",
+      "eclectic": "언어 선택"
+    },
+    "bpm": {
+      "label": "사이트맵",
+      "paused": "일시 중지",
+      "silent": "지금 스트림에서 분명 비트 없음",
+      "stable": "Tempo {bpm} 비트 당 분",
+      "estimating": "대략적인 tempo {bpm} 는 분 당 이깁니다",
+      "listening": "스트림에서 비트 듣기"
+    },
+    "presetLabels": {
+      "webgl": {
+        "netrunner-grid": {
+          "label": "Netrunner 그리드",
+          "description": "3D 사이버 수익 - 스크롤 그리드에 양쪽에 네온 타워"
+        },
+        "starry-horizon": {
+          "label": "스타리 수평",
+          "description": "낮은 수평선에 금전적 EQ 스카이라인 - 평온한 물에 둘러싸인 별 밤"
+        },
+        "spectrum-bars": {
+          "label": "스펙트럼 바",
+          "description": "클래식 전체 폭 EQ 열"
+        },
+        "mirror-bars": {
+          "label": "미러 바",
+          "description": "중심의 스펙트럼 열"
+        },
+        "radial-spectrum": {
+          "label": "광선 스펙트럼",
+          "description": "큰 원형 해석기 채우는 스크린"
+        },
+        "neon-constellation": {
+          "description": "음악과 연결이 가능한 Spherical neon Mesh",
+          "label": "네온 별자리"
+        },
+        "waveform-path": {
+          "label": "Waveform 경로",
+          "description": "Phosphor 길로 Oscilloscope 치기"
+        },
+        "liquid-merge": {
+          "label": "액체 병합",
+          "description": "스트레칭, 만나고, 화면을 교차로로로 병합하는 느린 편향 색깔 blobs"
+        }
+      },
+      "bar": {
+        "idling-bars": {
+          "label": "빈도 막대기",
+          "description": "충전 및 트레일 옵션이있는 고전적인 스펙트럼 바"
+        },
+        "scope": {
+          "label": "Oscilloscope의 특징",
+          "description": "라이브 파형 추적"
+        },
+        "dots": {
+          "description": "Reactive 입자 점",
+          "label": "사이트맵"
+        },
+        "thread-weave": {
+          "label": "실 직물",
+          "description": "Interlaced 흐르는 실"
+        },
+        "drift-mist": {
+          "label": "드리프트 안개",
+          "description": "연락처"
+        },
+        "mirror": {
+          "label": "기타 제품",
+          "description": "Symmetric 반사"
+        },
+        "wave": {
+          "label": "파기방법",
+          "description": "빈도 파 선 또는 리본"
+        },
+        "arc": {
+          "label": "·",
+          "description": "광선 아크 링"
+        }
+      },
+      "spectrum": {
+        "led-orangered": "LED 스펙트럼",
+        "graph-steel": "파 그래프",
+        "dual-steel-prism": "듀얼 채널",
+        "radial-prism": "연락처",
+        "octave-classic": "Octave 막대기",
+        "mirror-rainbow": "미러 무지개"
+      }
+    }
+  }
+}

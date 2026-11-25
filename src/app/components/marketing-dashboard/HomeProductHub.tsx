@@ -1,20 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import type { TranslationFunctions } from '$i18n/i18n-types';
 import { useMemo } from 'react';
 import type { HomeHubLearnMoreLink } from './productMarketing.types';
 import type { HomeHubChapter } from './productMarketing.types';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
+import { resolvePortfolioCategoryLabel } from '@molecules/i18n/idlingShowcaseI18n';
 import { productMarketingStatusLabel } from './productMarketing';
 import { listHomeHubChapters } from './homeHubCatalog';
 import { HomeHubMinecraftBand } from './HomeHubMinecraftBand';
 import { HomeHubTileVisual } from './HomeHubTileVisual';
 import styles from './marketing-dashboard.module.css';
 
-function hubChapterEyebrow(chapter: HomeHubChapter): string {
-  const status = productMarketingStatusLabel(chapter.project.status);
+function hubChapterEyebrow(chapter: HomeHubChapter, ll: TranslationFunctions): string {
+  const status = productMarketingStatusLabel(chapter.project.status, ll);
   const base = chapter.proprietary
-    ? 'Windows app · proprietary'
-    : chapter.project.category;
+    ? ll.home.hubEyebrow.windowsProprietary()
+    : resolvePortfolioCategoryLabel(chapter.project.category, ll);
 
   return status ? `${base} · ${status}` : base;
 }
@@ -43,7 +46,8 @@ function HubLearnMoreLink({ learnMore }: { learnMore: HomeHubLearnMoreLink }) {
 }
 
 export function HomeProductHub() {
-  const chapters = useMemo(() => listHomeHubChapters(), []);
+  const { ll } = useIdlingLocale();
+  const chapters = useMemo(() => listHomeHubChapters(ll), [ll]);
 
   return (
     <div id="products" className={styles.hub__stack} data-testid="home-product-hub">
@@ -55,7 +59,7 @@ export function HomeProductHub() {
             <header className={styles.hub__tileHeader}>
               <HomeHubTileVisual visual={chapter.visual} />
               <div className={styles.hub__tileIntro}>
-                <p className={styles.hub__tileEyebrow}>{hubChapterEyebrow(chapter)}</p>
+                <p className={styles.hub__tileEyebrow}>{hubChapterEyebrow(chapter, ll)}</p>
                 <h2 id={titleId} className={styles.hub__tileHeadline}>
                   {chapter.headline}
                 </h2>

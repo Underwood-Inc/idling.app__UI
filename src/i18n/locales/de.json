@@ -1,0 +1,2470 @@
+{
+  "locale": {
+    "pickerLabel": "Sprache",
+    "pickerAria": "Wählen Sie Anzeigesprache"
+  },
+  "messageTicker": {
+    "separator": "—",
+    "loading": "Beladung..",
+    "empty": "Atmen Sie achtsam ein.",
+    "openQuoteAria": "Offenes vollständiges Angebot",
+    "modalTitle": "Zitat",
+    "closeModalAria": "Close quote"
+  },
+  "nav": {
+    "externalLinkAria": "Externer Link",
+    "groups": {
+      "TOOLS": "Werkzeuge",
+      "EXTERNAL": "Außen"
+    },
+    "routes": {
+      "ROOT": "Zuhause",
+      "CARD_GENERATOR": "Kartengenerator",
+      "SVG_CONVERTER": "SVG zu PNG",
+      "GALAXY": "Galaxis",
+      "MAPPY": "ahorn",
+      "COINS": "Münzen",
+      "GAME": "Spiel",
+      "SIGNIN": "Zeichen",
+      "CALLBACK": "Rückruf",
+      "ADMIN": "Admin",
+      "STRIXUN_STREAM_SUITE": "Strixun Stream Suite",
+      "STREAM_SUITE": "Stream Suite",
+      "MODS_HUB": "Mods Hub",
+      "AUTH_SERVICE": "Authendienst",
+      "URL_SHORTENER": "URL Shortener",
+      "ACCESS_HUB": "Access Hub",
+      "STREAM_SUITE_DETAIL": "Stream Suite Details",
+      "MODS_HUB_DETAIL": "Mods Hub Details",
+      "AUTH_SERVICE_DETAIL": "Details zum Auth Service",
+      "URL_SHORTENER_DETAIL": "URL Shortener Details",
+      "ACCESS_HUB_DETAIL": "Access Hub Details"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "loginWithProviderPrefix": "Login mit",
+      "signOut": "Abzeichen"
+    },
+    "signInNav": "Zeichen",
+    "oauthConflict": {
+      "title": "Konto bereits verknüpft",
+      "whatWouldYouLike": "Was würden Sie gerne tun?",
+      "option1Title": "Option 1: Melden Sie sich mit einem anderen Konto an",
+      "option1DescriptionSignin": "Melden Sie sich an und melden Sie sich mit einem anderen Konto an, mit dem dieses Anbieterkonto nicht verknüpft ist.",
+      "option1ButtonSignin": "Melden Sie sich an & melden Sie sich mit einem anderen Konto an",
+      "option2Title": "Option 2: Unlink und Relink dieses Kontos",
+      "option2Description": "Wir können Ihnen helfen, dieses Anbieterkonto vom anderen Benutzer zu trennen und es mit Ihrem aktuellen Konto zu verknüpfen.",
+      "option2Button": "Unlink und Relink Account",
+      "option3Title": "Option 3: Kontaktunterstützung",
+      "option3Description": "Wenn Sie Hilfe bei der Lösung dieses Problems benötigen, kann Ihnen unser Support-Team helfen.",
+      "option3Button": "Kontaktunterstützung",
+      "goHome": "Geh nach Hause"
+    },
+    "callback": {
+      "accountAlreadyLinkedTitle": "Konto bereits verknüpft",
+      "oauthConflict": {
+        "option1Title": "Option 1: Melden Sie sich mit Ihrem bestehenden Konto an",
+        "option1Description": "Wenn Sie sich an Ihr anderes Konto erinnern, melden Sie sich stattdessen mit diesem an.",
+        "option1Button": "Melden Sie sich mit einem anderen Konto an"
+      },
+      "signInDifferentAccount": "Melden Sie sich mit einem anderen Konto an",
+      "authErrorTitle": "Authentifizierungsfehler",
+      "completingSignIn": "Sign-in abschließen...",
+      "completingSignInWithProvider": "Anmelden mit",
+      "waitMessage": "Bitte warten Sie, bis wir Ihr Konto eingerichtet haben.",
+      "redirectingShortly": "Umleiten Sie in Kürze...",
+      "tryAgain": "Versuchen Sie es erneut",
+      "goHome": "Geh nach Hause",
+      "errors": {
+        "oauthSignin": "Es gab einen Fehler beim OAuth-Anmeldeprozess.",
+        "oauthCallback": "Es gab einen Fehler während des OAuth Callbacks.",
+        "oauthCreateAccount": "Es konnte kein OAuth-Konto erstellt werden.",
+        "unexpected": "Es trat ein unerwarteter Authentifizierungsfehler auf.",
+        "emailCreateAccount": "Es konnte kein E-Mail-Konto erstellt werden.",
+        "callback": "Es gab einen Fehler im Callback-Handler.",
+        "emailSignin": "Überprüfen Sie Ihre E-Mail auf den Anmeldelink.",
+        "credentialsSignin": "Ungültige Referenzen zur Verfügung gestellt.",
+        "sessionRequired": "Bitte melden Sie sich an, um auf diese Seite zuzugreifen."
+      }
+    },
+    "unlink": {
+      "title": "Unlink OAuth Konto",
+      "subtitle": "Beheben von Accounts, die Konflikte verknüpfen",
+      "aboutTitle": "Über Account Linking Conflicts",
+      "aboutBody": "Wenn Sie versuchen, sich bei einem OAuth-Anbieter (wie Google oder Twitch) anzumelden, der bereits mit einem anderen Konto verknüpft ist, müssen wir diesen Konflikt lösen.",
+      "cancel": "Stornierung",
+      "needHelp": "Brauchen Sie Hilfe?",
+      "howItWorksTitle": "Wie das funktioniert:",
+      "howItWorksSteps": {
+        "0": "Wir finden das Konto, das derzeit dieses Anbieterkonto verknüpft hat",
+        "1": "Wir werden es von diesem Konto trennen",
+        "2": "Sie können es dann mit Ihrem aktuellen Konto verknüpfen",
+        "3": "Dieser Vorgang ist sicher und löscht keine Daten"
+      },
+      "importantNotesTitle": "Wichtige Hinweise:",
+      "importantNotes": {
+        "0": "Dadurch wird nur die Verknüpfung des OAuth-Anbieters aufgehoben, keine Benutzerkonten gelöscht",
+        "1": "Ihre Kontodaten und der Abonnementstatus werden beibehalten",
+        "2": "Sie müssen sich mit dem anderen Konto anmelden, um den Prozess abzuschließen",
+        "3": "Wenn Sie keinen Zugriff auf das andere Konto haben, wenden Sie sich an den Support"
+      }
+    },
+    "signInPage": {
+      "headline": "Willkommen bei Idling App",
+      "subtitle": "Wählen Sie Ihre bevorzugte Anmeldemethode, um fortzufahren"
+    }
+  },
+  "search": {
+    "findUsersPlaceholder": "Nutzer finden..."
+  },
+  "mobile": {
+    "brandTitle": "Idling.app",
+    "closeMenuAria": "Mobiles Menü schließen",
+    "menuAria": "Mobiles Navigationsmenü"
+  },
+  "footer": {
+    "docs": "Docs",
+    "discord": "Dissonanz",
+    "discordAria": "Treten Sie unserem Discord Server bei"
+  },
+  "home": {
+    "masthead": {
+      "title": "Karten. Mods. Werkzeuge. Funk.",
+      "line": "Spiele, mods, stream-tools und community - jedes produkt hat eine tour oder eine live-app, wenn sie bereit sind.",
+      "ctaSeeLineup": "Sehen Sie das Lineup"
+    },
+    "minecraftBand": {
+      "title": "Mehr Minecraft Projekte",
+      "line": "Plugins, Datenpakete und unser Whitelist-Server - die gleiche Aufstellung wie Modrinth und BuiltByBit."
+    },
+    "hubEyebrow": {
+      "windowsProprietary": "Windows App · proprietär"
+    },
+    "status": {
+      "wip": "Im Gange"
+    },
+    "homeLinks": {
+      "open": "Offen",
+      "getIt": "Holen Sie sich",
+      "modsHub": "Mods Hub",
+      "modrinth": "Modrinth",
+      "tour": "Tour"
+    },
+    "outboundLinks": {
+      "live": "Live App App App",
+      "builtByBit": "BuiltBybit",
+      "modsHub": "Mods Hub",
+      "modrinth": "Modrinth",
+      "demo": "Produkttour",
+      "github": "GitHub"
+    },
+    "outboundVariants": {
+      "inDepthTour": "Tiefe Tour",
+      "launchLiveApp": "Live App starten"
+    },
+    "minecraftMore": {
+      "productTour": "Produkttour",
+      "seeTour": "Siehe Tour",
+      "modrinthPage": "Modrinthseite",
+      "builtByBitListing": "Builtby Bitauflistung",
+      "onIdlingApp": "Auf idling.app"
+    },
+    "hooks": {
+      "overlane": "ETS2 & ATS Telemetrie.",
+      "mappy": "Offlinekarten.",
+      "compressy": "Stapelblöcke x 32.",
+      "offerings": "Tägliche Server-Lotterie.",
+      "rituals": "Die Magie des Feuers.",
+      "trials_of_the_wild": "~250-mod überleben.",
+      "alloys": "10 fantasy metals.",
+      "tally": "10k+ fortschritte.",
+      "shirecraft": "Whitelist Überleben.",
+      "obs_animation_suite": "60 FPS Stream Szenen.",
+      "mods_hub": "Host & Ship Mods.",
+      "auth_service": "Melden Sie sich mit einem Code an.",
+      "card_generator": "Sozialkarten schnell.",
+      "svg_converter": "SVG → PNG.",
+      "url_shortener": "Kurze Links + Statistiken.",
+      "access_hub": "Rollen & Berechtigungen.",
+      "shared_components": "React + Svelte Kit.",
+      "api_framework": "Typisierter API Client.",
+      "streamkit_api": "OBS Scene Sync.",
+      "search_query_parser": "Smart Search Syntax."
+    },
+    "audience": {
+      "overlane": "Live-Telemetrie, durchsuchbares Archiv, Dashboard-Diagramme und hybrider Heiß/Kalt-Speicher für Millionen von Beobachtungen - ETS2 und ATS auf Ihrem PC, kein Cloud-Konto.",
+      "mappy": "Offline-Karten für Open-World-Spiele und Tabletop-Kampagnen - erkunden, markieren und messen, ohne sich anzumelden.",
+      "mods_hub": "Download und durchsuchen Minecraft Mods von einem Ort für Spieler gebaut.",
+      "compressy": "Komprimieren Sie Stapel von Blöcken in Minecraft, so dass Speicher und Builds überschaubar bleiben.",
+      "obs_animation_suite": "Steuern Sie OBS aus dem Browser mit glatten Szenenschaltern und animierten Quellen.",
+      "offerings": "Tägliche Kit-Lotterie auf Ihrem Minecraft-Server.",
+      "rituals": "Light-the-fire Magie und Rituale Datenpaket.",
+      "shirecraft": "Whitelist Überleben auf Shirecraft.",
+      "trials_of_the_wild": "Hardcore Survival Modpack mit Hunderten von Mods.",
+      "alloys": "Zehn Fantasiemetalle zu finden und zu schmieden.",
+      "tally": "Tausende Fortschritte, um im Überleben zu jagen."
+    },
+    "hub": {
+      "overlane": {
+        "headline": "Telemetrie, Overlays und ein Laufwerksarchiv für ETS2 & ATS.",
+        "pitch": "Eine Windows-App neben Euro Truck Simulator 2 und American Truck Simulator: Live-Telemetriekonsole, durchsuchbares Meilen-für-Meilen-Archiv, Dashboard-Charts und Rollups sowie OBS-fähige Overlay-Panels. Hybrider Heiß-/Kaltspeicher auf Ihrem PC (Memory Lane) ist so konzipiert, dass Millionen von Fahrbeobachtungen durchsuchbar und die Konsole reaktionsfähig sind - Sitzungsjournal enthalten, kein Cloud-Konto.",
+        "learnMoreLabel": "Produktübersicht",
+        "visualAlt": "Overlane-App-Symbol — Trucking-Telemetrie und Overlays",
+        "highlights": {
+          "overlane__0__telemetry_console": {
+            "title": "Telemetriekonsole",
+            "body": "Live-Geschwindigkeit, Kraftstoff, Getriebe, Kilometerzähler und aktiver Vertrag in einer andockbaren Konsole - die gleichen Felder, die Ihre Overlay-URLs OBS aussetzen."
+          },
+          "overlane__1__drive_archive": {
+            "title": "Drive-Archiv",
+            "body": "Notieren Sie optionale Sitzungen in einer durchsuchbaren Zeitleiste. Falten Sie ähnliche Momentaufnahmen, öffnen Sie den Inspektor auf einer beliebigen Meile und halten Sie Geldbußen und Lieferungen sichtbar."
+          },
+          "overlane__2__dashboard_charts": {
+            "title": "Dashboard & Charts",
+            "body": "Speichern Sie Rollup-Layouts, Diagrammarchiv erstreckt sich über die Zeit und springen Sie von einem Spike in einem Diagramm zurück in den Archivmoment, der es verursacht hat."
+          },
+          "overlane__3__hot_cold_storage": {
+            "title": "Warm-/Kaltlagerung",
+            "body": "Speicher Lane hält aktuelle Fakten in einem Hot-Ledger, während ältere Beobachtungen auf kalte Spaltendateien und einen lokalen Index abzielen - gebaut, um in Millionen von Zeilen auf einer Maschine reaktionsfähig zu bleiben."
+          },
+          "overlane__4__stream_overlays": {
+            "title": "Stromüberlagerungen",
+            "body": "Kopieren Sie Localhost-Browser-Source-URLs für Geschwindigkeit, Verräter, Job Panels und den Rest des Katalogs - Metriken bleiben synchron mit der Konsole."
+          }
+        }
+      },
+      "mappy": {
+        "headline": "Karten, die offline funktionieren.",
+        "pitch": "Offline-First Map Workspace für Open-World-Spiele, Homebrew-Kampagnen und benutzerdefinierte Realms. Erkunden Sie offizielle Kartenpakete, lassen Sie Marker fallen, verfolgen Sie den Fortschritt, suchen Sie über Ebenen hinweg und messen Sie Entfernungen - Desktop-App ohne Anmeldung und ohne Telemetrie.",
+        "learnMoreLabel": "Spieler Wiki Tour",
+        "visualAlt": "mappy — live canvas map workspace screenshot",
+        "highlights": {
+          "mappy__0__offline_map_workspace": {
+            "title": "Offline-Kartenarbeitsbereich",
+            "body": "Schwenken, Zoomen, Layer und verfolgen Sie den Fortschritt auf Karten, die Sie als statische Pakete aufbewahren - keine Live-Kacheln von unseren Servern."
+          },
+          "mappy__1__marker_maker_tile_studio": {
+            "title": "Marker Maker und Tile Studio",
+            "body": "Autorenmarker, Medienanmerkungen und benutzerdefinierte Kacheln in der App, dann Exportpakete, die Sie mit Ihrer Kampagne teilen oder archivieren können."
+          },
+          "mappy__2__unified_search": {
+            "title": "Einheitliche Suche",
+            "body": "Suchen Sie Marker, Regionen und Notizen aus einer Bar, anstatt durch verstreute Dateien oder Wikis zu jagen."
+          },
+          "mappy__3__measure_progress": {
+            "title": "Maßnahme und Fortschritt",
+            "body": "Lineale und Pfadwerkzeuge für die Planung von Routen; Track-Abschluss über offizielle Packungen oder Ihre eigenen Reiche."
+          }
+        }
+      },
+      "mods_hub": {
+        "headline": "Deine Mods, ein Zuhause.",
+        "pitch": "Open-Source-Mod-Hosting mit semantischer Versionierung, erweiterter Suchsyntax und R2-gestütztem Speicher. Hochladen mit Drag-and-Drop, direkte Download-Links zum Schiff und optional Client-seitige Pakete verschlüsseln - eine goldbasierte Benutzeroberfläche, die für Spieler und Autoren entwickelt wurde, nicht für FTP-Ordner.",
+        "learnMoreLabel": "Plattform Deep Dive",
+        "visualAlt": "Mods Hub - Mod Hosting Platform Artwork",
+        "highlights": {
+          "mods-hub__0__authoring_workflow": {
+            "title": "Workflow erstellen",
+            "body": "Erstellen Sie Projekte, laden Sie Versionen mit Drag-and-Drop hoch und bearbeiten Sie Metadaten, ohne rohe Speicherpfade zu berühren."
+          },
+          "mods-hub__1__semantic_versions": {
+            "title": "Semantische Versionen",
+            "body": "Ship Semver veröffentlicht mit Changelog-Historie, damit die Spieler genau wissen, was sich zwischen den Builds geändert hat."
+          },
+          "mods-hub__2__search_syntax": {
+            "title": "Suchsyntax",
+            "body": "Filtern Sie mit menschenfreundlichen Abfragen wie category:tools tag:Optimierung aktualisiert:>7d - nicht nur eine Keyword-Box."
+          },
+          "mods-hub__3__downloads_encryption": {
+            "title": "Downloads & Verschlüsselung",
+            "body": "Direkte CDN-Verbindungen funktionieren in Launchern und Browsern; optionale clientseitige Verschlüsselung, wenn Sie private Pakete in R2 wünschen."
+          }
+        }
+      },
+      "offerings": {
+        "headline": "Tägliche Kit-Lotterie für Papierserver.",
+        "pitch": "Tägliche Premium-Belohnungen für Paper und Spigot: gewichtete Beutestufen, Streifen, Meilensteine, Erfolge und ein vollständiger In-Game-Admin-Hub. Powers Daily Kits auf Shirecraft - konfigurieren Sie Tabellen, Berechtigungen und LuckPerms-Hooks, ohne YAML von Hand zu bearbeiten.",
+        "learnMoreLabel": "Auflistung & Details",
+        "visualAlt": "Angebote - Daily Weighted Kit Lotterie (offizielles Produktkunstwerk)",
+        "highlights": {
+          "offerings__0__weighted_lottery": {
+            "title": "Gewichtete Lotterie",
+            "body": "Rollen Sie tägliche Kits von gestuften Beutetischen, so dass gemeinsame Belohnungen üblich bleiben und Jackpots selten bleiben."
+          },
+          "offerings__1__streaks_milestones": {
+            "title": "Streaks & Meilensteine",
+            "body": "Verfolgen Sie Spielerstreifen, Meilensteine und Erfolge, so dass sich die Stammgäste über Wochen hinweg belohnt fühlen, nicht über einmalige Ereignisse."
+          },
+          "offerings__2__in_game_admin": {
+            "title": "Admin im Spiel",
+            "body": "Tune-Tabellen, Vorschaurollen und Beheben von Fehlkonfigurationen vom Server - nicht nur von Konsolen- oder Flat-Dateien."
+          },
+          "offerings__3__luckperms_ready": {
+            "title": "LuckPerms bereit",
+            "body": "Erlaubnisbewusste Belohnungen, so dass Ränge, Spenderstufen und Mitarbeiter-Bypass-Regeln explizit und überprüfbar bleiben."
+          }
+        }
+      },
+      "obs_animation_suite": {
+        "headline": "Animiere deine Stream-Szenen.",
+        "pitch": "Steuern Sie OBS von einer Svelte 5 progressive Web-App: animierte Source-Übergänge, Smart Source-Swaping mit Layout-Speicher, Ein-Klick-Presets und einen Textcycler mit Schreibmaschine und Glitch-Effekten. Echtzeit-WebSocket-Steuerung mit einer Latenz von unter 50 ms bei 60 FPS.",
+        "learnMoreLabel": "Stream Suite Tour",
+        "visualAlt": "OBS Animation Suite — Stream Control Artwork",
+        "highlights": {
+          "obs-animation-suite__0__source_transitions": {
+            "title": "Quellenübergänge",
+            "body": "Fade, Dia, Zoom und Pop zwischen OBS-Quellen bei 60 FPS ohne Handbearbeitungsszenen für jede Layoutänderung."
+          },
+          "obs-animation-suite__1__smart_swapping": {
+            "title": "Smart Swapping",
+            "body": "Sieben Swap-Stile erinnern sich an Position und Größe, so dass wiederkehrende Segmente (Kamera, BRB, Warnungen) sofort zurückschnappen."
+          },
+          "obs-animation-suite__2__layout_presets": {
+            "title": "Layout-Presets",
+            "body": "Speichern Sie vollständige Szenenlayouts als Voreinstellungen und rufen Sie sie während des Streams aus dem Web-Panel ab - mit einem Klick anstelle einer manuellen Jagd in OBS."
+          },
+          "obs-animation-suite__3__text_cycler": {
+            "title": "Textcycler",
+            "body": "Drehen Sie Titel und untere Drittel mit Schreibmaschinen-, Glitch- und Scramble-Effekten, die vom gleichen Bedienfeld aus gesteuert werden."
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "site": {
+      "defaultTitle": "Idling.app",
+      "titleTemplate": "%s | Idling.app",
+      "description": "Ihr digitaler Spielplatz für Kreativität und Ausdruck",
+      "creator": "Idling.app",
+      "publisher": "Idling.app",
+      "openGraphTitle": "Idling.app",
+      "openGraphDescription": "Ihr digitaler Spielplatz für Kreativität und Ausdruck",
+      "siteName": "Idling.app",
+      "keywords": {
+        "0": "kreativität",
+        "1": "ausdruck",
+        "2": "digital",
+        "3": "spielplatz"
+      },
+      "authorName": "Idling.app Team",
+      "twitterTitle": "Idling.app",
+      "twitterDescription": "Ihr digitaler Spielplatz für Kreativität und Ausdruck",
+      "twitterCreator": "@idlingapp"
+    },
+    "pages": {
+      "portfolioTitle": "Katalog & Ökosystem",
+      "portfolioDescription": "Full idling.app Katalog: über Strixun, Ökosystemdiagramme, filterbare Projekte, Aktivitäten und Live-Statistiken.",
+      "adminTitle": "Admin Dashboard - Idling.app",
+      "adminDescription": "Administratives Dashboard zur Verwaltung von Benutzern, Inhalten und Emojis",
+      "signInHeadline": "Willkommen bei Idling App",
+      "signInSubtitle": "Wählen Sie Ihre bevorzugte Anmeldemethode, um fortzufahren",
+      "subscriptionTitle": "Abonnement | Idling.app",
+      "subscriptionDescription": "Wählen Sie einen Plan und aktualisieren Sie Ihr idling.app-Abonnement."
+    }
+  },
+  "common": {
+    "actions": {
+      "saving": "Rettung...",
+      "cancel": "Stornierung",
+      "loading": "Beladung...",
+      "tryAgain": "Versuchen Sie es erneut",
+      "goHome": "Geh nach Hause",
+      "signIn": "Zeichen",
+      "signOut": "Abzeichen",
+      "expand": "Expansion",
+      "collapse": "Kollaps",
+      "next": "Nächste →",
+      "previous": "← Previous",
+      "load": "Belastung",
+      "returnHome": "Rückkehr nach Hause",
+      "close": "Schließen",
+      "dismiss": "Entlassung",
+      "retry": "Versuch",
+      "back": "Rücken",
+      "save": "Sparen",
+      "backHome": "← Zurück zu Hause"
+    },
+    "backButton": {
+      "defaultLabel": "← Zurück",
+      "titleWithPage": "Zurück zur vorherigen Seite (Seite {page})",
+      "titleGoBack": "Gehen Sie zurück"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "code": "404",
+      "title": "Seite nicht gefunden",
+      "message": "Die Seite, die Sie suchen, existiert nicht oder wurde verschoben. Vielleicht teleportiert der Zauberer es woanders?",
+      "returnHome": "Rückkehr nach Hause"
+    },
+    "routeError": {
+      "title": "Ups! Etwas ging schief",
+      "fallbackMessage": "Beim Laden dieser Seite ist ein unerwarteter Fehler aufgetreten.",
+      "errorIdLabel": "Fehler-ID:",
+      "tryAgain": "Versuchen Sie es erneut"
+    },
+    "globalError": {
+      "title": "Kritischer Fehler",
+      "criticalMessage": "Beim Laden der Anwendung trat ein kritischer Fehler auf.",
+      "unknownError": "Unbekannter Fehler",
+      "errorIdLabel": "Fehler-ID:",
+      "tryAgain": "Versuchen Sie es erneut",
+      "goHome": "Geh nach Hause"
+    },
+    "profileNotFound": {
+      "reasons": {
+        "0": "Der Benutzername existiert nicht",
+        "1": "Der Nutzer hat seinen Account gelöscht",
+        "2": "Die Profil-URL ist falsch",
+        "3": "Das Benutzerprofil ist auf privat eingestellt"
+      },
+      "goHome": "Geh nach Hause",
+      "searchTitle": "Suche nach Nutzern",
+      "searchDescription": "Suchen Sie nach dem Benutzer, den Sie suchen:",
+      "searchPlaceholder": "Suchen Sie Benutzer nach Name oder E-Mail...",
+      "helpTitle": "Hilfe",
+      "helpSearchLabel": "Suche",
+      "helpSearchDescription": "Verwenden Sie die obige Suche, um Benutzer nach Name oder E-Mail zu finden",
+      "helpProductsLabel": "Produkte",
+      "helpProductsDescription": "Durchsuchen Sie das Home Lineup für Apps und Mods",
+      "userNotFoundAria": "Benutzer nicht gefunden",
+      "title": "User nicht gefunden",
+      "message": "Leider konnten wir das von Ihnen gesuchte Benutzerprofil nicht finden. Dies könnte passieren, wenn:"
+    }
+  },
+  "catalog": {
+    "showcase": {
+      "overlane": {
+        "title": "Overlane",
+        "description": "Telemetriekonsole, durchsuchbares Laufwerksarchiv, Dashboard-Diagramme und Stream-Overlays für ETS2 und ATS. Der lokale Hybrid-Hot/Cold-Speicher wird auf Millionen von Beobachtungen skaliert; eine Windows-App neben dem Spiel - OBS-Browserquellen, Sitzungsjournal, kein Cloud-Konto.",
+        "type": "Windows Desktop App App",
+        "features": {
+          "0": "Live-Telemetriekonsole",
+          "1": "Archivsuche und Inspektor",
+          "2": "Dashboard Charts & Rollups",
+          "3": "Lokale Warm-/Kaltlagerung",
+          "4": "OBS-fähige Deckplatten"
+        }
+      },
+      "mappy": {
+        "title": "ahorn",
+        "description": "Offline erste interaktive Kartenplattform für Open-World-Spiele, Homebrew-Kampagnen und benutzerdefinierte Realms. Markerkorpus, Fortschrittsverfolgung, einheitliche Suche, Messwerkzeuge und Authoring - nur statische Dateien, kein Anwendungs-Backend.",
+        "type": "Desktop App App",
+        "features": {
+          "0": "Offline-First Maps",
+          "1": "Marker Maker und Tile Studio",
+          "2": "Offizielle Kartenpakete",
+          "3": "Kein Login erforderlich"
+        }
+      },
+      "compressy": {
+        "title": "Kompressiv",
+        "description": "Unendliche Blockkomprimierung für Minecraft 26.2+ als Paper-Plugin. Komprimieren Sie 9 Blöcke in 1, bis zu 32 Ebenen, mit ausgefallenen Tooltips und römischen Ziffern. Legacy Fabric Builds bleiben auf Modrinth.",
+        "type": "Paper Plugin · Legacy Fabrics",
+        "features": {
+          "0": "Unendliche Kompression",
+          "1": "Funktioniert mit allen Blöcken",
+          "2": "Bis zu 32 Tiers",
+          "3": "Automatisierung freundlich"
+        }
+      },
+      "offerings": {
+        "description": "Premium tägliche Kit-Lotterie für Papier / Spigot - gewichtete Stufen, Beutetische, Streifen, Meilensteine, Erfolge und voller In-Game-Admin. Powers tägliche Belohnungen auf Shirecraft.",
+        "type": "Paper Plugin (BuiltByBit)",
+        "features": {
+          "0": "Gewichtete tägliche Lotterie",
+          "1": "Streifen und Erfolge",
+          "2": "In-Game Admin Hub",
+          "3": "LuckPerms Integration"
+        },
+        "title": "Angebote"
+      },
+      "rituals": {
+        "title": "Rituale",
+        "description": "Mystisches Minecraft-Datenpaket mit ritueller Magie, Totems und Feueropfersystem. 8 einzigartige Rituale, 6 Totem-Ebenen, benutzerdefinierte Texturen und Animationen.",
+        "type": "Datenpaket",
+        "features": {
+          "0": "8 einzigartige Rituale",
+          "1": "6 Totemebenen",
+          "2": "Brandopfersystem",
+          "3": "Benutzerdefinierte Texturen & Animationen"
+        }
+      },
+      "trials_of_the_wild": {
+        "type": "Modpack",
+        "features": {
+          "0": "Performance optimiert",
+          "1": "Lebensqualität",
+          "2": "Neue Inhalte & Mechanik",
+          "3": "Regelmäßige Updates"
+        },
+        "title": "Trials Of The Wild",
+        "description": "Hardcore Survival Modpack mit ~ 250 Erkundungs-, Magie-, Kampf- und Weltüberholungs-Mods. Enthält Rituale für Totem-Magie und Compressy für massive Blockspeicherung."
+      },
+      "alloys": {
+        "title": "Legierungen",
+        "description": "Zehn Fantasy-Metalle für Minecraft 26,2+ - Bonus-Erztropfen, volle Toolsets und Rüstung, Zusatz zu Vanille. Datapack, Companion Resource Pack und optionales Paper Plugin.",
+        "type": "Datapack + Resource Pack",
+        "features": {
+          "0": "10 Fantasy Metals",
+          "1": "Additiv zu Vanille",
+          "2": "Vollständige Toolsets und Rüstung",
+          "3": "Optionales Paper Plugin"
+        }
+      },
+      "tally": {
+        "title": "Tally",
+        "description": "Survival Completement-Fortschrittspaket mit 10.255 Seiten auf sechs Registerkarten, Haltestufen, XP- und Artikelbelohnungen und Live-Richtlinien für Serverbesitzer.",
+        "type": "Datenpaket",
+        "features": {
+          "0": "10.255 Advancement Pages",
+          "1": "Sechs Abschluss-Tabs",
+          "2": "Live Rewards Politik",
+          "3": "Tally Keeper Stimme"
+        }
+      },
+      "shirecraft": {
+        "title": "Shirecraft",
+        "description": "Whitelist Paper 26.2 Survival Server mit benutzerdefinierten Plugins, Datenpaketen und Ressourcenpaketen. Ländereien, Angebote, Tally, Compressy und gemeinschaftsgetriebene Städte.",
+        "type": "Minecraft Server",
+        "features": {
+          "0": "Whitelist Überleben",
+          "1": "Länder und Nationen",
+          "2": "Custom Plugins",
+          "3": "mc.idling.app:25567"
+        }
+      },
+      "obs_animation_suite": {
+        "title": "OBS Animation Suite",
+        "description": "Frontend-Bedienfeld für OBS mit 60 FPS animierten Quellübergängen, Text-Cycling und WebSocket-Steuerung. Gebaut mit Svelte 5. Powers streamkit.idling.app.",
+        "type": "Frontend App (Svelte)",
+        "features": {
+          "0": "60 FPS Animationen",
+          "1": "WebSocket Steuerung",
+          "2": "Null Abhängigkeiten",
+          "3": "Progressive Web App App"
+        }
+      },
+      "mods_hub": {
+        "type": "Full-Stack App (React + API)",
+        "features": {
+          "0": "Semantische Versionierung",
+          "1": "Erweiterte Suche",
+          "2": "Cloud Storage",
+          "3": "Direkte Downloads"
+        },
+        "title": "Mods Hub",
+        "description": "Full-Stack Mod Hosting Plattform mit React 19 Frontend und Mods API Backend. Semantische Versionierung, erweiterte Suche, R2-Cloud-Speicher und clientseitige Verschlüsselung."
+      },
+      "auth_service": {
+        "title": "Authendienst",
+        "description": "Backend API für Multi-Tenant-Passwortlose Authentifizierung. E-Mail OTP, JWT-Token, OpenAPI 3.1.0 spec. Single Sign-on über *.idling.app Domains. Cloudflare Worker.",
+        "type": "Backend API (Cloudflare)",
+        "features": {
+          "0": "Passwordless OTP",
+          "1": "Mehrmieter",
+          "2": "OpenAPI Spec",
+          "3": "Zero Trust Sicherheit"
+        }
+      },
+      "card_generator": {
+        "features": {
+          "0": "AI-Powered Layouts",
+          "1": "Custom Avatare",
+          "2": "Wizard & Advanced Modes",
+          "3": "Quotenverwaltung"
+        },
+        "title": "Mystischer Kartengenerator",
+        "description": "Frontend-App zum Erstellen atemberaubender Social-Media-Karten. KI-gestützte Layouts, benutzerdefinierte Avatare, mystische Themen. Wizard und Advanced Modi. Gebaut mit React 19.",
+        "type": "Frontend App (React)"
+      },
+      "svg_converter": {
+        "title": "SVG zu PNG-Konverter",
+        "description": "Frontend App für hochwertige SVG zu PNG Konvertierung. Custom Sizing, Batch Processing, Hintergrundanpassung. Sicherheitsvalidiert. Gebaut mit React 19.",
+        "type": "Frontend App (React)",
+        "features": {
+          "0": "Qualitäts-Output",
+          "1": "Chargenverarbeitung",
+          "2": "Custom Sizing",
+          "3": "Validierte Sicherheit"
+        }
+      },
+      "url_shortener": {
+        "title": "URL Shortener",
+        "description": "Full-Stack URL Shortener mit React Frontend und Cloudflare Worker Backend. Klick-Analyse, geografisches Tracking, benutzerdefinierte Codes, automatischer Ablauf.",
+        "type": "Full-Stack App (React + Cloudflare)",
+        "features": {
+          "0": "Custom URL Codes",
+          "1": "Click Analytics",
+          "2": "Geografisches Tracking",
+          "3": "Auto-Expiration"
+        }
+      },
+      "access_hub": {
+        "type": "Backend API (Cloudflare)",
+        "features": {
+          "0": "RBAC-System",
+          "1": "Prüfpfade",
+          "2": "Quotenverwaltung",
+          "3": "Auto-Provisioning"
+        },
+        "title": "Access Hub",
+        "description": "Backend API für zentralisierte RBAC. Granulare Berechtigungen, vollständige Audit-Trails, Quotenmanagement, Auto-Provisioning. Service-agnostisch. Cloudflare Worker."
+      },
+      "shared_components": {
+        "title": "Gemeinsame Komponentenbibliothek",
+        "description": "Universale Komponentenbibliothek mit React- und Svelte-Varianten. Enthält Tooltip, DataTable, CodeBlock, MultiFileViewer, StatusFlair und mehr. Storybook Dokumentation.",
+        "type": "Universalpaket (NPM)",
+        "features": {
+          "0": "React & Svelte",
+          "1": "Storybook Docs",
+          "2": "15+ Komponenten",
+          "3": "TypeScript Unterstützung"
+        }
+      },
+      "api_framework": {
+        "title": "API Framework",
+        "description": "Universalpaket für ein Enterprise-Grade API Framework. Funktioniert in Cloudflare Workers und Browsern. Typsichere Clients, Anforderungsdeduplizierung, Leistungsschalter, E2E-Verschlüsselung. NPM-Paket.",
+        "type": "Universalpaket (NPM)",
+        "features": {
+          "0": "Typsichere Kunden",
+          "1": "Request Deduplication",
+          "2": "Leistungsschalter",
+          "3": "E2E-Verschlüsselung"
+        }
+      },
+      "streamkit_api": {
+        "title": "Streamkit API",
+        "description": "Backend API für die OBS Animation Suite. Scene Activity Tracking, Layout Sync, Config Storage via KV. Powers streamkit.idling.app Backend. Cloudflare Worker.",
+        "type": "Backend API (Cloudflare)",
+        "features": {
+          "0": "Scene Activity Tracking",
+          "1": "Config Sync",
+          "2": "KV-Speicher",
+          "3": "Echtzeit-Updates"
+        }
+      },
+      "search_query_parser": {
+        "title": "Suchanfrage Parser",
+        "description": "Universalpaket für erweitertes Suchabfrage-Parsing. Mensch-freundliche Syntax: zitierte Phrasen, UND / ODER Logik, Wildcard-Matching. React und Svelte Komponenten. NPM-Paket.",
+        "type": "Universalpaket (NPM)",
+        "features": {
+          "0": "Menschlich freundliche Syntax",
+          "1": "UND/ODER Logik",
+          "2": "Wildcard-Unterstützung",
+          "3": "React & Svelte"
+        }
+      }
+    }
+  },
+  "suite": {
+    "landing": {
+      "hero": {
+        "description": "Ein umfassendes Ökosystem von Open-Source-Anwendungen mit Single Sign-on-Authentifizierung. Melden Sie sich einmal in einer *.idling.app-Domain an und Sie werden überall authentifiziert.",
+        "descriptionEmphasis": "MIT lizenziert. 100% Open Source. Privacy-Focused.",
+        "viewOnGitHub": "Ansicht auf GitHub",
+        "title": "Strixun Stream Suite",
+        "tagline": "Professionelle Streaming Tools & Web Services"
+      },
+      "footer": {
+        "title": "Bereit für den Start?",
+        "description": "Alle Anwendungen sind Open-Source und kostenlos zu verwenden. Starren Sie uns auf GitHub, treten Sie unserer Community bei und gestalten Sie die Zukunft der Streaming-Tools mit.",
+        "starOnGitHub": "Star auf GitHub"
+      },
+      "productActions": {
+        "launchApp": "App starten",
+        "learnMore": "Erfahren Sie mehr"
+      },
+      "status": {
+        "live": "lebend",
+        "beta": "beta",
+        "planned": "geplant",
+        "development": "entwicklung"
+      }
+    },
+    "products": {
+      "stream_suite": {
+        "keyFeatures": {
+          "0": "Animierte Quellübergänge mit 4 Effekttypen (Fade, Dia, Zoom, Pop)",
+          "1": "Smart Source Swapping mit 7 Stilen und Positionsspeicher",
+          "2": "Ein-Klick-Layout-Presets für Instant-Szenen-Rekonfiguration",
+          "3": "Textcycler mit Schreibmaschine, Glitch und Scramble-Effekten",
+          "4": "Webbasiertes Bedienfeld mit Echtzeit-WebSocket-Kommunikation"
+        },
+        "name": "Stream Suite",
+        "tagline": "Professionelles OBS Studio Control Panel",
+        "description": "Verwandeln Sie Ihren Streaming-Workflow mit animierter Source-Sichtbarkeit, buttery-smooth Source-Swap und Instant-Layout-Presets. Steuern Sie alles von einer schönen Weboberfläche mit Echtzeit-WebSocket-Kommunikation. Gebaut als Progressive Web App mit Svelte 5 für native Leistung.",
+        "highlights": {
+          "0": {
+            "label": "Leistung",
+            "value": "60 FPS"
+          },
+          "1": {
+            "label": "Latenz",
+            "value": "<50ms"
+          },
+          "2": {
+            "label": "Animationen",
+            "value": "17+"
+          }
+        }
+      },
+      "mods_hub": {
+        "name": "Mods Hub",
+        "tagline": "Moderne Mod Hosting Plattform",
+        "description": "Die Zukunft der Mod-Distribution mit CurseForge-Grade-Funktionen, aber Open-Source. Vollständige semantische Versionierung, erweiterte Suche mit menschlicher Syntax und R2-Cloud-Speicher mit optionaler Verschlüsselung. Schöne Gold-Themen-Benutzeroberfläche, die Mod-Management zu einem Vergnügen macht, keine lästige Pflicht.",
+        "keyFeatures": {
+          "0": "Vollständige CRUD-Operationen mit Drag-and-Drop-Uploads",
+          "1": "Semantische Versionierung mit automatisierten Changelogs",
+          "2": "Erweiterte Suche: \"category:tools tag:optimization updated:>7d\"",
+          "3": "Direkte Download Links, die überall funktionieren",
+          "4": "R2-Cloud-Speicher mit optionaler clientseitiger Verschlüsselung"
+        },
+        "highlights": {
+          "0": {
+            "label": "Ladegeschwindigkeit",
+            "value": "Momentan"
+          },
+          "1": {
+            "label": "Suche",
+            "value": "Echtzeit"
+          },
+          "2": {
+            "label": "Lagerung",
+            "value": "Unbegrenzt"
+          }
+        }
+      },
+      "auth_service": {
+        "highlights": {
+          "0": {
+            "label": "Sicherheit",
+            "value": "Zero Trust"
+          },
+          "1": {
+            "label": "Einrichtung Uhrzeit",
+            "value": "<5 min"
+          },
+          "2": {
+            "label": "Uptime",
+            "value": "99,9 %"
+          }
+        },
+        "keyFeatures": {
+          "0": "Passwortloses OTP per E-Mail - keine Passwortspeicherungsrisiken",
+          "1": "JWT-Token mit HttpOnly-Cookies für maximale Sicherheit",
+          "2": "Multi-Tenant API Key System mit granularen Berechtigungen",
+          "3": "Echtzeit-Analyse-Dashboard mit Svelte 5",
+          "4": "Komplette OpenAPI 3.1.0 spec mit interaktiver Swagger UI"
+        },
+        "name": "Authendienst",
+        "tagline": "Mehrmieter OTP Authentifizierung",
+        "description": "Passwortlose Authentifizierung richtig gemacht. E-Mail-basiertes OTP mit JWT-Token, Multi-Tenant-API-Schlüsseln und einem Entwickler-Dashboard, das die Integration trivial macht. OpenAPI 3.1.0 spec mit Swagger UI bedeutet, dass Sie in wenigen Minuten mit der Codierung beginnen können. Single Sign-on für alle *.idling.app Domains - einmal anmelden, überall authentifiziert."
+      },
+      "url_shortener": {
+        "name": "URL Shortener",
+        "keyFeatures": {
+          "0": "Benutzerdefinierte URL-Codes für unvergessliche, markenfreundliche Links",
+          "1": "Echtzeit-Click-Analyse mit geografischem Tracking",
+          "2": "Automatischer Ablauf und Bereinigung für temporäre Links",
+          "3": "Standalone Web Interface mit SSO Integration",
+          "4": "Direkter API-Zugriff für Automatisierung und Integrationen"
+        },
+        "highlights": {
+          "0": {
+            "label": "Drehzahl",
+            "value": "<10ms"
+          },
+          "1": {
+            "label": "Analytik",
+            "value": "Echtzeit"
+          },
+          "2": {
+            "label": "Uptime",
+            "value": "99,99 %"
+          }
+        },
+        "tagline": "Kurze Links zu Analytics",
+        "description": "Blitzschnelle URL-Verkürzung durch Cloudflare Workers. Erstellen Sie benutzerdefinierte Marken-Kurzlinks, verfolgen Sie jeden Klick mit geografischen Daten und Referrer-Informationen und verwalten Sie alles über eine saubere Weboberfläche. Automatischer Ablauf hält Ihre Links frisch, und die Analysen sagen Ihnen genau, was funktioniert."
+      },
+      "access_hub": {
+        "name": "Access Hub",
+        "tagline": "Access Control Dashboard",
+        "keyFeatures": {
+          "0": "Rollenbasierte Zugriffskontrolle (RBAC) mit benutzerdefinierten Rollen",
+          "1": "Granulare Berechtigungen bis hinunter zu einzelnen Endpunkten",
+          "2": "Vollständiger Audit-Trail für Compliance und Sicherheit",
+          "3": "Quotenmanagement pro Nutzer oder Rolle",
+          "4": "Auto-Provisioning für nahtloses User Onboarding"
+        },
+        "highlights": {
+          "0": {
+            "label": "Rollen",
+            "value": "Unbegrenzt"
+          },
+          "1": {
+            "label": "Audit",
+            "value": "Vollständig"
+          },
+          "2": {
+            "label": "Einrichtung",
+            "value": "Momentan"
+          }
+        },
+        "description": "Zentralisierte Zugriffskontrolle für alle Ihre Dienste. Rollenbasierte Berechtigungen mit granularer Kontrolle, vollständige Audit-Trails für Compliance und Quotenmanagement zur Verhinderung von Missbrauch. Service-agnostisches Design bedeutet, dass es mit allem in der Suite funktioniert - ein System, um sie alle zu beherrschen."
+      }
+    },
+    "details": {
+      "mods_hub": {
+        "hero": {
+          "tagline": "Moderne Mod Hosting Plattform",
+          "mascotAlt": "Red Panda mit Geschenk",
+          "statusBeta": "Beta – noch in aktiver Entwicklung",
+          "ctaLaunch": "Starten Sie Mods Hub",
+          "ctaViewSource": "Ansicht Quelle",
+          "title": "Mods Hub"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Mod Upload & Management",
+              "description": "Laden, aktualisieren und verwalten Sie Ihre Mods mit Drag-and-Drop-Schnittstelle. Vollständige CRUD-Operationen mit intuitiver Benutzeroberfläche."
+            },
+            "1": {
+              "title": "Semantische Versionierung",
+              "description": "Vollversionskontrolle mit semantischer Versionierungsunterstützung. Verfolgen Sie Änderungen, veröffentlichen Sie Updates und pflegen Sie Changelogs."
+            },
+            "2": {
+              "title": "Erweiterte Suche",
+              "description": "Leistungsstarke Suche mit @strixun/search-query-parser unterstützt Kategorien, Tags, zitierte Phrasen, AND/OR Logik und Platzhalter-Präfix-Matching."
+            },
+            "3": {
+              "title": "Direct Download Links",
+              "description": "Teilen Sie direkte Download-Links in jeder Anwendung. Keine Weiterleitungen, kein Warten - sofortige Downloads für Benutzer."
+            },
+            "4": {
+              "title": "Schönes Gold UI",
+              "description": "Atemberaubendes Responsive-Interface mit Gold-Themen, das mit gestylten Komponenten gebaut wurde. Modern, zugänglich und ein Vergnügen zu verwenden."
+            },
+            "5": {
+              "title": "R2 Cloud Storage mit Verschlüsselung",
+              "description": "Cloudflare R2-Speicher mit optionaler clientseitiger Verschlüsselung, Standardkomprimierung und direkten Download-Links."
+            }
+          },
+          "title": "Hauptmerkmale"
+        },
+        "overview": {
+          "title": "Was ist Mods Hub?",
+          "description": "Eine moderne Mod-Hosting-Plattform ähnlich wie Modrinth / CurseForge, gebaut mit React 19 und Cloudflare Workers. Schöne Gold-Themen-Benutzeroberfläche mit vollständiger semantischer Versionierung, erweiterter Suche mit menschenfreundlichem Abfrageparser und R2-Cloud-Speicher mit clientseitiger Verschlüsselung."
+        },
+        "extraSections": {
+          "0": {
+            "title": "Dreischichtige Staatsarchitektur",
+            "description": "Mods Hub verwendet ein ausgeklügeltes dreischichtiges Zustandsmodell für optimale Leistung und Entwicklererfahrung:",
+            "features": {
+              "0": {
+                "title": "Signalschicht",
+                "description": "@preact/signals-react for UI state - form fields, toggles, and filters with automatic reactivity."
+              },
+              "1": {
+                "title": "Zustandsschicht",
+                "description": "Globales Client State Management für Auth, UI State und Benachrichtigungen mit Zero Boilerplate."
+              },
+              "2": {
+                "title": "TanStack Query Layer",
+                "description": "Server State Management mit automatischem Caching, Background Refetching und optimistischen Updates."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Gebaut mit"
+        },
+        "a11y": {
+          "scrollForMore": "Scrollen für mehr Content"
+        }
+      },
+      "stream_suite": {
+        "hero": {
+          "title": "Stream Suite",
+          "tagline": "Professionelles OBS Studio Control Panel",
+          "mascotAlt": "Red Panda Entwickler",
+          "ctaLaunch": "Launch Stream Suite",
+          "ctaViewSource": "Ansicht Quelle"
+        },
+        "overview": {
+          "title": "Was ist die Stream Suite?",
+          "description": "Die Stream Suite ist ein umfassendes OBS Studio Bedienfeld, das professionelle Animationen und Automatisierung in Ihren Streaming-Workflow bringt. Gebaut mit Svelte 5 und als Progressive Web App konzipiert, bietet es eine nahtlose Kontrolle über Ihre OBS-Szenen mit schönen, anpassbaren Animationen."
+        },
+        "keyFeatures": {
+          "title": "Hauptmerkmale",
+          "features": {
+            "0": {
+              "title": "Quelle Animationen",
+              "description": "Animieren Sie die Sichtbarkeit der Quelle mit Fade-, Dia-, Zoom- und Pop-Effekten. 60 FPS Leistung mit Sub-50ms Latenz über WebSocket. Keine OBS Verzögerung - alle Animationen sind buttery glatt."
+            },
+            "1": {
+              "title": "Source Swaps",
+              "description": "Animierte Positions- und Größenübergänge zwischen Quellen. 7 verschiedene Animationsstile mit Positionsspeicher für perfekte Swaps jedes Mal."
+            },
+            "2": {
+              "title": "Layout Presets",
+              "description": "Speichern und Anwenden ganzer Szenenlayouts mit Multi-Source-Animationsunterstützung. Wechseln Sie sofort zwischen Streaming, Aufnahme und benutzerdefinierten Setups."
+            },
+            "3": {
+              "title": "Text Cycler",
+              "description": "Dynamische Texteffekte mit Übergängen wie Fade, Dia, Schreibmaschine, Glitch, Wave und Scramble. Perfekt für Alarme und Overlays."
+            },
+            "4": {
+              "title": "Progressive Web App App",
+              "description": "Installieren Sie als PWA für Offline-Zugriff und native App-Erfahrung. Mehrschicht-Speichersystem (IndexedDB + localStorage + Recovery)."
+            },
+            "5": {
+              "title": "Einheitliches Kontrollgremium",
+              "description": "Ein webbasiertes Dock, um alles zu kontrollieren. Echtzeit-WebSocket-Kommunikation mit OBS Studio für sofortige Updates."
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Gebaut mit"
+        },
+        "a11y": {
+          "scrollForMore": "Scrollen für mehr Content"
+        }
+      },
+      "auth_service": {
+        "hero": {
+          "title": "Authendienst",
+          "tagline": "Mehrmieter OTP Authentifizierung",
+          "mascotAlt": "Red Panda Daumen hoch",
+          "ctaLaunch": "Auth Service starten",
+          "ctaViewSource": "Ansicht Quelle"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Passwordless OTP",
+              "description": "E-Mail-basierte Einmal-Passwort-Authentifizierung ohne Passwortspeicherung. Sicher, benutzerfreundlich und reduziert die Angriffsfläche."
+            },
+            "1": {
+              "title": "JWT Token Management",
+              "description": "Industriestandard JWT-Token mit HttpOnly-Cookies für maximale Sicherheit. Automatische Aktualisierung und Ablaufbehandlung."
+            },
+            "2": {
+              "title": "API Key Management",
+              "description": "Multi-Tenant API Key System mit granularen Berechtigungen. Erstellen, Drehen und Entziehen von API-Schlüsseln aus dem Entwickler-Dashboard."
+            },
+            "3": {
+              "title": "Analytics Dashboard",
+              "description": "Gebaut mit Svelte 5, verfolgen Sie Authentifizierungsereignisse, überwachen Sie die Nutzung und analysieren Sie Muster mit Echtzeitanalysen."
+            },
+            "4": {
+              "title": "OpenAPI 3.1.0 Spec",
+              "description": "Komplette OpenAPI-Spezifikation mit Swagger UI-Integration. Interaktive API-Dokumentation zur einfachen Integration."
+            },
+            "5": {
+              "title": "Single Sign-On",
+              "description": "SSO über alle *.idling.app Domains mit HttpOnly Cookies. Melden Sie sich einmal bei jedem Dienst an, überall authentifiziert."
+            }
+          },
+          "title": "Hauptmerkmale"
+        },
+        "extraSections": {
+          "0": {
+            "title": "Entwickler-First Design",
+            "description": "Auth Service bietet alles, was Entwickler brauchen, um sichere Authentifizierung in ihre Anwendungen zu integrieren:",
+            "features": {
+              "0": {
+                "title": "Einbettbare UI-Komponenten",
+                "description": "Drop-in-Authentifizierungskomponenten für React, Svelte und Vanilla JavaScript. Keine UI-Arbeit erforderlich."
+              },
+              "1": {
+                "title": "Umfassende Docs",
+                "description": "Über 300 Seiten Dokumentation in PANDA CORE, die Integrationsleitfäden, API-Referenz und Best Practices für die Sicherheit abdecken."
+              },
+              "2": {
+                "title": "Vollständige Testabdeckung",
+                "description": "E2E-Integrationstests mit Playwright, Unit-Tests mit Vitest und CI/CD-Workflows für Vertrauen."
+              }
+            }
+          }
+        },
+        "overview": {
+          "title": "Was ist Auth Service?",
+          "description": "Ein OTP-Authentifizierungsdienst mit mehreren Mandanten, der auf Cloudflare Workers mit E-Mail-basierter passwortloser Authentifizierung über die Resend-API basiert. Zu den Funktionen gehören das Entwickler-Dashboard, das mit Svelte 5, Multi-Tenant-API-Schlüsselverwaltung, OpenAPI 3.1.0-Spezifikation mit Swagger-Benutzeroberfläche und Audit-Protokollierung erstellt wurde. Single Sign-on für alle *.idling.app Domains mit HttpOnly Cookies."
+        },
+        "builtWith": {
+          "title": "Gebaut mit"
+        },
+        "a11y": {
+          "scrollForMore": "Scrollen für mehr Content"
+        }
+      },
+      "access_hub": {
+        "hero": {
+          "title": "Access Hub",
+          "tagline": "Access Control Dashboard",
+          "mascotAlt": "Red Panda zuversichtlich",
+          "ctaLaunch": "Access Hub starten",
+          "ctaViewSource": "Ansicht Quelle"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Rollenbasierte Zugangskontrolle",
+              "description": "Definieren und verwalten Sie Rollen mit granularen Berechtigungen. Weisen Sie Benutzern Rollen für ein skalierbares Zugriffsmanagement über Dienste hinweg zu."
+            },
+            "1": {
+              "title": "Genehmigungsmanagement",
+              "description": "Alle verfügbaren Berechtigungen und deren Zuordnungen anzeigen. Feine Kontrolle darüber, was Benutzer tun können und was nicht."
+            },
+            "2": {
+              "title": "User Access Auditing",
+              "description": "Verfolgen Sie, wer Zugriff auf was und wann hat. Vollständiger Audit-Trail zur Compliance- und Sicherheitsüberwachung."
+            },
+            "3": {
+              "title": "Service-Agnostisches Design",
+              "description": "Funktioniert mit jedem Dienst im SSS-Ökosystem. Einheitliche Zugriffskontrolle über alle Anwendungen und APIs hinweg."
+            },
+            "4": {
+              "title": "Quotenverwaltung",
+              "description": "Überwachen und Verwalten von Nutzungsquoten pro Benutzer oder Rolle. Missbrauch verhindern und eine faire Ressourcenallokation sicherstellen."
+            },
+            "5": {
+              "title": "Einfache, saubere UI",
+              "description": "Intuitives Interface, das dir aus dem Weg geht. Direkte API-Integration mit Access Service Backend."
+            }
+          },
+          "title": "Hauptmerkmale"
+        },
+        "extraSections": {
+          "0": {
+            "title": "Architekturmuster",
+            "description": "Access Hub folgt dem gleichen bewährten Muster wie Mods Hub:",
+            "features": {
+              "0": {
+                "title": "Frontend @ access.idling.app",
+                "description": "React 18 Frontend auf Cloudflare Pages mit automatischen Builds über GitHub Actions."
+              },
+              "1": {
+                "title": "Backend @ access-api.idling.app",
+                "description": "Cloudflare Worker API übernimmt alle Zugriffskontrolllogiken, Speicher und Berechtigungen."
+              }
+            }
+          }
+        },
+        "builtWith": {
+          "title": "Gebaut mit"
+        },
+        "a11y": {
+          "scrollForMore": "Scrollen für mehr Content"
+        },
+        "overview": {
+          "title": "Was ist Access Hub?",
+          "description": "Eine minimale Frontend-Benutzeroberfläche für das Strixun Access Control System, das auf Cloudflare Pages bereitgestellt wird. Alle verfügbaren Rollen und Berechtigungen mit einer sauberen, einfachen Benutzeroberfläche anzeigen. Die Backend-API übernimmt RBAC (role-based access control), Berechtigungsmanagement, Quotierungsdurchsetzung und Auto-Provisioning - alles service-agnostisch und auf Cloudflare Workers bereitgestellt."
+        }
+      },
+      "url_shortener": {
+        "hero": {
+          "title": "URL Shortener",
+          "tagline": "Kurze Links zu Analytics",
+          "mascotAlt": "Roter Panda mit Sonnenbrille",
+          "ctaLaunch": "Start-URL Shortener",
+          "ctaViewSource": "Ansicht Quelle"
+        },
+        "keyFeatures": {
+          "features": {
+            "0": {
+              "title": "Erstellen und Verwalten von kurzen URLs",
+              "description": "Generieren Sie kurze Links mit benutzerdefinierten Codes oder automatisch generierten Slugs. Vollständige CRUD-Operationen zur Verwaltung Ihrer URL-Sammlung."
+            },
+            "1": {
+              "title": "Click Analytics",
+              "description": "Verfolgen Sie Klicks, Referrer und geografische Daten. Echtzeit-Analysen in Cloudflare KV für sofortige Einblicke gespeichert."
+            },
+            "2": {
+              "title": "Custom URL Codes",
+              "description": "Wählen Sie Ihre eigenen kurzen Codes für unvergessliche, markenfreundliche Links. Die automatische Validierung verhindert Kollisionen."
+            },
+            "3": {
+              "title": "Automatisches Auslaufen",
+              "description": "Legen Sie Ablaufdaten für temporäre Links fest. Die automatische Bereinigung hält Ihre URL-Sammlung frisch und relevant."
+            },
+            "4": {
+              "title": "Standalone Web Interface",
+              "description": "Schönes React-basiertes Webinterface mit SSS Branding. Verwalten Sie alle Ihre kurzen Links von einem Ort aus."
+            },
+            "5": {
+              "title": "OTP-Authentifizierung",
+              "description": "Integriert mit Auth Service für sichere, passwortlose Authentifizierung. SSO mit allen SSS-Anwendungen."
+            }
+          },
+          "title": "Hauptmerkmale"
+        },
+        "builtWith": {
+          "title": "Gebaut mit"
+        },
+        "a11y": {
+          "scrollForMore": "Scrollen für mehr Content"
+        },
+        "overview": {
+          "title": "Was ist URL Shortener?",
+          "description": "Ein Cloudflare Worker-basierter URL-Verkürzungsdienst mit OTP-Authentifizierung über eine freigegebene Strixun OTP-Komponente, Click Analytics Tracking (IP, User Agent, Referrer, geografische Daten) und eine eigenständige React-Weboberfläche. Verwendet Cloudflare KV für Sub-Millisekunden-URL-Lookups und automatischen TTL-basierten Ablauf mit verschlüsselten API-Antworten."
+        }
+      }
+    }
+  },
+  "portfolio": {
+    "showcase": {
+      "featuredLabel": "gekennzeichnet",
+      "totalProjectsSuffix": "gesamtprojekte",
+      "showingPrefix": "Zeigen",
+      "filterNavAria": "Filterprojekte nach Kategorie",
+      "eyebrow": "Open Source Portfolio",
+      "title": "Ausgewählte Projekte",
+      "subtitle": "Ein kuratiertes Stück der Monorepo - Web-Apps, Desktop-Maps, Minecraft-Mods, serverlose APIs und freigegebene Pakete."
+    },
+    "categories": {
+      "0": {
+        "id": "Alle",
+        "label": "Alle"
+      },
+      "1": {
+        "id": "Minecraft",
+        "label": "Minecraft"
+      },
+      "2": {
+        "id": "Web-Tools",
+        "label": "Web-Tools"
+      },
+      "3": {
+        "id": "Sozial",
+        "label": "Sozial"
+      },
+      "4": {
+        "id": "Streaming",
+        "label": "Streaming"
+      },
+      "5": {
+        "label": "Gaming",
+        "id": "Gaming"
+      },
+      "6": {
+        "id": "Infrastruktur",
+        "label": "Infrastruktur"
+      }
+    },
+    "about": {
+      "highlights": {
+        "0": {
+          "value": "38+",
+          "label": "Open Source Projekte"
+        },
+        "1": {
+          "label": "Webanwendungen",
+          "value": "7"
+        },
+        "2": {
+          "value": "1",
+          "label": "Desktop Map App App"
+        },
+        "3": {
+          "value": "6",
+          "label": "Serverlose APIs"
+        },
+        "4": {
+          "value": "23",
+          "label": "NPM-Pakete"
+        },
+        "5": {
+          "value": "7",
+          "label": "Minecraft Projekte"
+        }
+      },
+      "sections": {
+        "0": {
+          "id": "minenfahrzeuge",
+          "links": {
+            "0": {
+              "label": "Mods Hub",
+              "href": "https://mods.idling.app"
+            }
+          },
+          "title": "Minecraft Projekte",
+          "highlights": {
+            "0": "Compressy — unendliche Blockkomprimierung (BuiltByBit + Legacy Modrinth)",
+            "1": "Angebote — Premium Daily Kit Lotterie Plugin",
+            "2": "Rituale — mystisches magisches Datenpaket",
+            "3": "Trials of the Wild - Hardcore Survival Modpack",
+            "4": "Legierungen — Zehn Fantasy-Metall-Datenpaket",
+            "5": "Tally — 10.000+ Advanced Complete Pack",
+            "6": "Shirecraft — Whitelist Survival Server",
+            "7": "Tausende Downloads auf Mods Hub und Modrinth"
+          }
+        },
+        "1": {
+          "id": "web-tools",
+          "title": "Webanwendungen & Tools",
+          "highlights": {
+            "0": "Kartengenerator - React 19 Frontend",
+            "1": "SVG Konverter — React 19 Frontend",
+            "2": "URL Shortener — React + Cloudflare Worker",
+            "3": "Soziale Plattform — Next.js 15 + PostgreSQL",
+            "4": "TypeScript-, SSR- und Echtzeit-Funktionen"
+          }
+        },
+        "2": {
+          "links": {
+            "0": {
+              "label": "Download (short.army/mappy)",
+              "href": "https://short.army/mappy"
+            },
+            "1": {
+              "href": "https://underwood-inc.github.io/mappy/wiki/",
+              "label": "Spielerwiki"
+            }
+          },
+          "id": "ahorn",
+          "title": "mappy — interaktive karten",
+          "highlights": {
+            "0": "Offline-erste Kartenplattform für Open-World-Spiele und Homebrew-Kampagnen",
+            "1": "Living Map Canvas, Marker, Progress Tracking, Unified Search, Messwerkzeuge",
+            "2": "Marker Maker, Tile Studio und offizielle Map Packs",
+            "3": "Desktop-App — kein Login, keine Cloud-Synchronisierung, keine Telemetrie"
+          }
+        },
+        "3": {
+          "id": "streaming",
+          "title": "Streaming-Ökosystem",
+          "highlights": {
+            "0": "OBS Animation Suite — Svelte 5, 60 FPS, 17+ effects, PWA",
+            "1": "Streamkit API — Szenenverfolgung, Konfigurationssynchronisierung, KV-Speicherung",
+            "2": "WebSocket-Steuerung, Layout-Presets, Nullabhängigkeiten"
+          },
+          "links": {
+            "0": {
+              "href": "https://streamkit.idling.app",
+              "label": "streamkit.idling.app"
+            }
+          }
+        },
+        "4": {
+          "links": {
+            "0": {
+              "href": "https://github.com/Underwood-Inc/strixun-stream-suite",
+              "label": "Strixun Stream Suite"
+            }
+          },
+          "id": "infrastruktur",
+          "title": "Infrastruktur & APIs",
+          "highlights": {
+            "0": "6 Cloudflare Workers APIs — Auth, Access, Mods, Customer, Game, Streamkit",
+            "1": "23 NPM-Pakete - freigegebene Komponenten, API-Framework, Auth Store, Suchparser und mehr",
+            "2": "Monorepo mit 38+ Projekten auf GitHub"
+          }
+        }
+      },
+      "introAfterLink": "ist die heimatbasis für alles unten - open source, dokumentiert und gebaut, um zu versenden.",
+      "statsAria": "Portfolio Highlights",
+      "eyebrow": "Portfolio & Ökosystem",
+      "title": "Hi! Ich bin Strixun",
+      "tagline": "Full-Stack-Entwickler erstellen Produktions-Webanwendungen, Minecraft-Mods, Streaming-Tools und Cloud-Dienste."
+    },
+    "ecosystem": {
+      "title": "Ökosystemarchitektur",
+      "subtitle": "Wie 38+ Projekte verbinden - wählen Sie ein Objektiv unten",
+      "tabs": {
+        "0": {
+          "id": "übersicht",
+          "label": "Systemübersicht"
+        },
+        "1": {
+          "id": "datenfluss",
+          "label": "Datenfluss"
+        },
+        "2": {
+          "id": "packungen",
+          "label": "Paket-Ökosystem"
+        }
+      },
+      "footer": {
+        "overview": "Systemübersicht: 7 Web-/Desktop-Apps (einschließlich Mappy), 6 Cloudflare Workers APIs, 6 Minecraft-Projekte über Mods API und Storage über PostgreSQL, KV, R2 und IndexedDB.",
+        "dataflow": "Datenfluss: Besucher, Spieler, Streamer und Kartenforscher erreichen jeweils ihre App-Oberfläche. Web und Mods verwenden APIs; Mappy bleibt offline-first mit lokaler IndexedDB - kein Konto erforderlich.",
+        "packages": "Paket-Ökosystem: 23 NPM-Pakete - Kern-Framework, Benutzeroberfläche, Dienstprogramme, Hooks und Testhelfer -, die auf den Oberflächen von React, Svelte und Cloudflare geteilt werden."
+      }
+    },
+    "stats": {
+      "quickLinksTitle": "Quick Links",
+      "metrics": {
+        "modrinthProjects": "Modrinthprojekte",
+        "modDownloads": "Mod Downloads",
+        "modrinthFollowers": "Modrinthfolger",
+        "githubStars": "GitHub-Sterne"
+      },
+      "quickLinks": {
+        "0": {
+          "href": "/kartengenerator",
+          "label": "Kartengenerator"
+        },
+        "1": {
+          "href": "/svg-wandler",
+          "label": "SVG-Wandler"
+        },
+        "2": {
+          "href": "https://streamkit.idling.app",
+          "label": "OBS Suite"
+        },
+        "3": {
+          "href": "https://mods.idling.app",
+          "label": "Mods Hub"
+        },
+        "4": {
+          "label": "ahorn",
+          "href": "https://short.army/mappy"
+        },
+        "5": {
+          "href": "https://auth.idling.app",
+          "label": "Authendienst"
+        },
+        "6": {
+          "href": "https://docs.idling.app",
+          "label": "Dokumentation"
+        },
+        "7": {
+          "href": "https://design.idling.app",
+          "label": "Entwurfssystem"
+        },
+        "8": {
+          "href": "https://short.army",
+          "label": "URL Shortener"
+        },
+        "9": {
+          "label": "Access Hub",
+          "href": "https://access.idling.app"
+        },
+        "10": {
+          "href": "/strixun-stream-suite",
+          "label": "Stream Suite"
+        },
+        "11": {
+          "href": "https://github.com/Underwood-Inc/strixun-stream-suite",
+          "label": "Monorepo (38+)"
+        },
+        "12": {
+          "href": "https://github.com/Underwood-Inc/idling.app__UI",
+          "label": "idling.app Repo"
+        },
+        "13": {
+          "href": "https://discord.gg/mpThbx67J7",
+          "label": "Dissonanz"
+        }
+      },
+      "privacyNote": "Die Zahlen stammen aus Modrinth und decken nur aufgeführte Minecraft-Projekte ab. Builtby Bit-Kauf- und Update-Metriken sind nicht öffentlich. Wir verfolgen keine downloads, aktivitäten oder nutzer auf unseren anderen anwendungen — nach design, für die privatsphäre — so gibt es keine öffentlichen metriken für diese projekte.",
+      "techCategories": {
+        "0": {
+          "badges": {
+            "0": "Reaktion 19",
+            "1": "Next.js 15",
+            "2": "Svelte 5",
+            "3": "TypeScript",
+            "4": "Drei.js"
+          },
+          "title": "Vorderteil"
+        },
+        "1": {
+          "badges": {
+            "0": "Cloudflare Arbeiter",
+            "1": "Node.js",
+            "2": "WebSocket",
+            "3": "Go",
+            "4": "Python"
+          },
+          "title": "Backend"
+        },
+        "2": {
+          "title": "Datenbank",
+          "badges": {
+            "0": "PostgreSQL",
+            "1": "KV-Speicher",
+            "2": "R2 Cloud"
+          }
+        }
+      },
+      "modrinthMetricsTitle": "Modrinthmetriken",
+      "technologyStackTitle": "Technologie Stack"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "tabs": {
+        "analytics": {
+          "label": "Analytik",
+          "description": "Globale App Analytics und User Behavior Tracking"
+        },
+        "subscriptions": {
+          "label": "Abonnements",
+          "description": "Verwalten Sie Abonnementpläne und Benutzerabonnements"
+        },
+        "permissions": {
+          "label": "Genehmigungen",
+          "description": "Systemberechtigungen und Zugriffskontrolle konfigurieren"
+        },
+        "alerts": {
+          "label": "Custom Alerts",
+          "description": "Verwalten von Systemwarnungen und Benachrichtigungen"
+        },
+        "users": {
+          "label": "Benutzerverwaltung",
+          "description": "Verwalten von Benutzerkonten, Rollen und Berechtigungen"
+        },
+        "emojis": {
+          "label": "Emoji-Zulassung",
+          "description": "Genehmigung oder Ablehnung benutzerdefinierter Emoji-Einreichungen"
+        },
+        "quotas": {
+          "label": "Gästequoten",
+          "description": "Konfigurieren von Gästebenutzerkontingenten und -limits"
+        }
+      }
+    },
+    "subscription": {
+      "panelTitle": "Subscription Management",
+      "panelDescription": "Verwalten Sie Abonnementpläne, Benutzerabonnements und Kontingentsystemintegration",
+      "loadingData": "Abodaten laden...",
+      "systemNotAvailableTitle": "Abonnementsystem nicht verfügbar",
+      "systemNotAvailableBody": "Das Abonnementsystem ist nicht konfiguriert oder verfügbar.",
+      "retry": "Versuch",
+      "tabs": {
+        "overview": "Übersicht",
+        "plans": "Pläne",
+        "subscriptions": "Abonnements"
+      },
+      "overview": {
+        "totalPlans": "Pläne insgesamt",
+        "activePlansSuffix": "aktiv",
+        "totalSubscriptions": "Zeichnungen insgesamt",
+        "activeSuffix": "aktiv",
+        "trialUsers": "Testbenutzer",
+        "currentlyTrialing": "Derzeit erprobt",
+        "monthlyRevenue": "Monatliche Einnahmen",
+        "recurringMonthly": "Monatlich wiederkehrende",
+        "planDistribution": "Verteilung des Plans",
+        "subscribersSuffix": "abonnenten",
+        "loadingStats": "Ladewerte..."
+      },
+      "plans": {
+        "periodMonth": "/ monat",
+        "periodYear": "/jahr",
+        "periodLifetime": "lebensdauer",
+        "createComingSoon": "Erstellen Sie Plan Funktionalität kommt bald!",
+        "edit": "Edit",
+        "enable": "Ermöglicht",
+        "disable": "Deaktivierung",
+        "free": "Frei",
+        "title": "Abonnementpläne",
+        "createNewPlan": "Erstellen Sie einen neuen Plan"
+      },
+      "subscriptions": {
+        "title": "Benutzer-Abonnements",
+        "assignSubscription": "Zuweisen Subscription",
+        "searchPlaceholder": "Suchen Sie Benutzer oder Pläne...",
+        "allStatuses": "Alle Status",
+        "allPlans": "Alle Pläne",
+        "tableHeaders": {
+          "0": "Nutzer",
+          "1": "Plan",
+          "2": "Status",
+          "3": "Abrechnung",
+          "4": "Abläuft",
+          "5": "Zuweisen durch",
+          "6": "Aktionen"
+        },
+        "edit": "Edit",
+        "cancel": "Stornierung",
+        "previous": "← Previous",
+        "next": "Nächste →"
+      },
+      "statusLabels": {
+        "active": "Aktiv",
+        "trialing": "Versuch",
+        "cancelled": "Storniert",
+        "expired": "Abgelaufen",
+        "suspended": "Ausgesetzt",
+        "pending": "Ausstehend"
+      }
+    },
+    "userManagement": {
+      "loadingUsers": "Benutzer laden...",
+      "loadingMoreUsers": "Mehr Nutzer laden...",
+      "retry": "Versuch",
+      "viewDetails": "Details zur Ansicht",
+      "assignRole": "Rolle zuweisen",
+      "panelTitle": "Benutzerverwaltung",
+      "panelDescription": "Verwalten von Benutzerkonten, Rollen, Abonnements und Berechtigungen",
+      "filters": "Filter",
+      "exportAll": "Alle Ausfuhren",
+      "searchPlaceholder": "Suchen Sie Benutzer nach Name, E-Mail oder ID ...",
+      "manageSubscription": "Verwalten des Abonnements",
+      "manageQuota": "Verwaltung der Quoten",
+      "unknownUser": "Unbekannter Benutzer"
+    },
+    "customAlerts": {
+      "createNewAlert": "Erstellen Sie einen neuen Alert",
+      "createFirstAlert": "Erste Warnung erstellen",
+      "emptyTitle": "Noch keine Custom Alerts",
+      "emptyBody": "Erstellen Sie Ihre erste benutzerdefinierte Warnung, um mit Ihren Benutzern in Kontakt zu treten!",
+      "editAlert": "Edit Alert",
+      "createAlert": "Erstellen von Alarm",
+      "updateAlert": "Update Alarm",
+      "cancel": "Stornierung",
+      "retry": "Versuch",
+      "signInAgain": "Melden Sie sich erneut an",
+      "signIn": "Zeichen",
+      "goHome": "Geh nach Hause",
+      "errorLoadingTitle": "Fehlerladealarm",
+      "authRequiredTitle": "Authentifizierung erforderlich",
+      "authRequiredBody": "Sie müssen sich anmelden, um auf das Admin-Panel zuzugreifen.",
+      "targetAudiences": {
+        "admins": "Verwalter",
+        "role_based": "Rollenbasiert",
+        "specific_users": "Spezielle Verwender",
+        "all": "Alle Benutzer",
+        "authenticated": "Authentifizierte Benutzer",
+        "subscribers": "Abonnenten"
+      },
+      "active": "Aktiv",
+      "published": "Veröffentlicht",
+      "adminAccessTitle": "Admin Access erforderlich",
+      "adminAccessBody": "Sie haben keine Berechtigung zum Zugriff auf diese Admin-Funktion.",
+      "panelTitle": "Custom Alert Management",
+      "panelDescription": "Erstellen, Bearbeiten und Verwalten benutzerdefinierter Benachrichtigungen für verschiedene Benutzergruppen"
+    },
+    "analytics": {
+      "title": "Analytics Dashboard",
+      "loading": "Analysedaten laden...",
+      "errorTitle": "Analysefehler",
+      "retry": "Versuch",
+      "refresh": "Erfrischend",
+      "dateRangeLabel": "Datumsbereich:",
+      "dateRanges": {
+        "7d": "Letzte 7 Tage",
+        "30d": "Letzte 30 Tage",
+        "90d": "Letzte 90 Tage",
+        "1y": "Letztes Jahr"
+      },
+      "tabs": {
+        "overview": "Übersicht",
+        "geography": "Geografie",
+        "devices": "Geräte",
+        "heatmap": "Heatmap",
+        "subscriptions": "Abonnements"
+      },
+      "metrics": {
+        "totalSessions": "Sitzungen insgesamt",
+        "uniqueUsers": "Einzigartige Nutzer",
+        "pageViews": "Seitenaufrufe",
+        "totalClicks": "Klicks insgesamt",
+        "avgSessionDuration": "Avg Sitzungsdauer",
+        "bounceRate": "Absprungrate",
+        "vpnUsage": "VPN Nutzung",
+        "conversionRate": "Umrechnungskurs",
+        "metricChangeSample": "+12,5% aus der letzten periode"
+      },
+      "sections": {
+        "trafficTrends": "Verkehrstrends",
+        "torSessions": "Tor-Sitzungen",
+        "vpnPercentage": "VPN Prozentsatz",
+        "topVpnProviders": "Top VPN Anbieter",
+        "deviceTypes": "Gerätetypen",
+        "browsers": "Browser",
+        "topCountries": "Top-Länder",
+        "topCities": "Topstädte",
+        "vpnProxyUsage": "VPN & Proxy Nutzung",
+        "vpnSessions": "VPN Sitzungen",
+        "proxySessions": "Proxy-Sitzungen",
+        "operatingSystems": "Betriebssysteme",
+        "topPagesByClicks": "Top Pages nach Klicks",
+        "clickPatterns": "Klickmuster",
+        "planPerformance": "Planleistung",
+        "conversionFunnel": "Umwandlungstrichter",
+        "revenueImpact": "Einnahmenauswirkungen",
+        "totalAttributedRevenue": "Attributierte Gesamteinnahmen",
+        "averageRevenuePerUser": "Durchschnittlicher Umsatz pro Nutzer"
+      },
+      "chart": {
+        "sessionsLabel": "Sitzungen:",
+        "pageviewsLabel": "Pageviews:",
+        "clicksLabel": "Klicks:"
+      },
+      "subscriptionMetrics": {
+        "views": "Ansichten:",
+        "conversions": "Umrechnungen:",
+        "conversionRate": "Umrechnungskurs:"
+      }
+    },
+    "emojis": {
+      "statusLabel": "Status:",
+      "statusOptions": {
+        "all": "Alle Status",
+        "pending": "Ausstehend",
+        "approved": "Zugelassen",
+        "rejected": "Abgelehnt"
+      },
+      "title": "Emoji-Management",
+      "searchPlaceholder": "Suchen Sie Emojis, Benutzer oder Kategorien ...",
+      "search": "Suche",
+      "selectedCount": "ausgewählt",
+      "bulkApprove": "Massengutgenehmigung",
+      "loading": "Emojis laden...",
+      "createdPrefix": "Erstellt:",
+      "descriptionPrefix": "Beschreibung:",
+      "approve": "Genehmigung",
+      "reject": "Ablehnung",
+      "delete": "Löschung",
+      "previous": "Früher",
+      "next": "Nächster Artikel",
+      "pageOf": "Seite",
+      "rejectModalTitle": "Ablehnung von Emoji",
+      "rejectReasonLabel": "Ablehnungsgrund:",
+      "selectAll": "Alle auswählen",
+      "empty": "Keine Emojis für den aktuellen Filter gefunden.",
+      "noImage": "Kein Bild",
+      "byPrefix": "Durch:",
+      "categoryPrefix": "Kategorie:",
+      "rejectReasonPlaceholder": "Bitte geben Sie einen Grund für die Ablehnung dieses Emoji...",
+      "cancel": "Stornierung",
+      "rejectEmoji": "Ablehnung von Emoji",
+      "deleteConfirm": "Sind Sie sicher, dass Sie dieses Emoji dauerhaft löschen möchten?"
+    },
+    "permissions": {
+      "tabs": {
+        "audit": "Prüfpfad",
+        "permissions": "Genehmigungen",
+        "roles": "Rollen"
+      },
+      "loading": "Beladung",
+      "auditTitle": "Prüfpfad",
+      "auditComingSoon": "Umfassendes Audit Logging kommt bald...",
+      "noResultsTitle": "Nein",
+      "subtitle": "Umfassendes Berechtigungs- und Rollenmanagement mit Enterprise-Grade-Sicherheit",
+      "createPermission": "Erstellen Sie neue Berechtigung",
+      "createRole": "Neue Rolle schaffen",
+      "title": "Genehmigungsmanagementsystem",
+      "noResultsFiltered": "Versuchen Sie, Ihre Suchkriterien oder Filter anzupassen.",
+      "noResultsEmptyPermission": "Erstellen Sie Ihre erste Erlaubnis, um zu beginnen.",
+      "noResultsEmptyRole": "Erstellen Sie Ihre erste Rolle, um zu beginnen.",
+      "searchPlaceholder": "Suche"
+    },
+    "guestQuotas": {
+      "title": "Globales Gästequotenmanagement",
+      "loading": "Globale Gästequoten laden...",
+      "addNewQuota": "Neue Quote hinzufügen",
+      "createTitle": "Globale Gästequote erstellen",
+      "currentQuotasTitle": "Aktuelle globale Gästequoten",
+      "emptyList": "Keine globalen Gästekontingente konfiguriert. Gastbenutzer verwenden Systemstandards.",
+      "howItWorksBullets": {
+        "0": "Priorität: Globale Quoten gelten für anonyme Nutzer, wenn keine benutzerspezifischen Überschreibungen existieren",
+        "1": "Feature-Level: Legen Sie verschiedene Quoten für verschiedene Dienste / Funktionen fest, um unbeabsichtigte Auswirkungen zu vermeiden",
+        "2": "IP-basiert: Quoten werden nach IP-Adresse und optionalem Maschinen-Fingerabdruck verfolgt",
+        "3": "Reset-Zeiträume: Wählen Sie stündliche, tägliche, wöchentliche oder monatliche Reset-Zyklen",
+        "4": "Unbegrenzt: Überprüfen Sie \"Unlimited\", um Quotenbeschränkungen vollständig zu entfernen"
+      },
+      "unlimitedPlaceholder": "Enter 0 für Unlimited",
+      "descriptionPlaceholder": "Fakultative Bezeichnung für dieses Kontingent",
+      "unlimitedPlaceholderShort": "Enter 0 für Unlimited",
+      "descriptionPlaceholderShort": "Fakultative Beschreibung",
+      "howItWorksTitle": "Wie Global Guest Quotas funktionieren:"
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Einstellungen",
+      "description": "Passen Sie Ihre Erfahrungen und Präferenzen an",
+      "loading": "Ladeeinstellungen..."
+    },
+    "categories": {
+      "appearance": {
+        "title": "Aussehen",
+        "description": "Passen Sie an, wie die Website aussieht und sich anfühlt"
+      },
+      "behavior": {
+        "title": "Verhalten",
+        "description": "Kontrollieren Sie, wie sich die Website verhält und reagiert"
+      },
+      "accessibility": {
+        "title": "Zugänglichkeit",
+        "description": "Machen Sie die Website für alle einfacher zu verwenden"
+      },
+      "background": {
+        "title": "Hintergrundeffekte",
+        "description": "Anpassen des animierten Weltraumhintergrunds"
+      },
+      "privacy": {
+        "title": "Datenschutz & Profil",
+        "description": "Kontrollieren Sie Ihre Profilsichtbarkeit und Daten"
+      }
+    },
+    "account": {
+      "notSignedIn": "Nicht unterzeichnet in",
+      "localOnlyNote": "Einstellungen nur lokal gespeichert",
+      "signedInAsPrefix": "Unterzeichnet als",
+      "syncNote": "Einstellungen synchronisieren über Geräte hinweg"
+    },
+    "appearance": {
+      "fontFamily": {
+        "cardTitle": "Schriftfamilie",
+        "code": {
+          "label": "Code",
+          "description": "Fira Code - Perfekt für die Kodierung"
+        },
+        "reading": {
+          "label": "Lesung",
+          "description": "System Fonts - Einfach für die Augen"
+        }
+      },
+      "displayDensity": {
+        "cardTitle": "Anzeigedichte",
+        "cozy": {
+          "label": "Kokosnuss",
+          "description": "Mehr Abstand, leichter zu lesen"
+        },
+        "compact": {
+          "label": "Kompakt",
+          "description": "Weniger Abstand, mehr Content"
+        }
+      }
+    },
+    "behavior": {
+      "pageNavigation": {
+        "cardTitle": "Seite Navigation",
+        "traditional": {
+          "label": "Traditionell",
+          "description": "Seitenzahlen mit next/previous"
+        },
+        "infiniteScroll": {
+          "label": "Unendlicher Scroll",
+          "description": "Automatisches Laden von Inhalten, während Sie scrollen"
+        }
+      },
+      "emojiPanel": {
+        "cardTitle": "Emoji-Ausschuss",
+        "closeAfterSelect": {
+          "label": "Schließen nach Select",
+          "description": "Panel schließt nach Auswahl eines Emojis"
+        },
+        "stayOpen": {
+          "label": "Bleib offen",
+          "description": "Wählen Sie mehrere Emojis vor dem Schließen"
+        }
+      }
+    },
+    "accessibility": {
+      "focusIndicators": {
+        "cardTitle": "Fokusindikatoren",
+        "disabled": {
+          "label": "Behinderte",
+          "description": "Sauberes visuelles Design ohne Fokusumrisse"
+        },
+        "enabled": {
+          "label": "Aktiviert",
+          "description": "Fokusumrisse für die Tastaturnavigation anzeigen"
+        }
+      }
+    },
+    "background": {
+      "movementDirection": {
+        "cardTitle": "Bewegungsrichtung",
+        "static": {
+          "label": "Statisch",
+          "description": "Keine Bewegung"
+        },
+        "forward": {
+          "label": "Vorwärts",
+          "description": "Vorausfliegen"
+        },
+        "backward": {
+          "label": "Rückwärts",
+          "description": "Zurückziehen"
+        },
+        "left": {
+          "label": "Links",
+          "description": "Drift nach links"
+        },
+        "right": {
+          "label": "Rechts",
+          "description": "Drift rechts"
+        },
+        "up": {
+          "label": "Aufwärts",
+          "description": "Auftrieb"
+        },
+        "down": {
+          "label": "Nach unten",
+          "description": "Abtrieb"
+        }
+      },
+      "movementSpeed": {
+        "cardTitle": "Bewegungsgeschwindigkeit",
+        "slow": {
+          "label": "Langsam",
+          "description": "Entspanntes Tempo"
+        },
+        "normal": {
+          "label": "Normal",
+          "description": "Standarddrehzahl"
+        },
+        "fast": {
+          "label": "Schnell",
+          "description": "Hohe Drehzahl"
+        }
+      },
+      "audioReactivity": {
+        "cardTitle": "Hintergrund Audio Reaktivität",
+        "hint": "Wie stark der Galaxienhintergrund auf die Radiowiedergabe reagiert. 0% behält den statischen Hintergrund; 100% ist volle Reaktivität.",
+        "rangeLabel": "Intensität der Reaktivität",
+        "tickOff": "Ausgeschaltet",
+        "tickFull": "Voll"
+      },
+      "animationLayers": {
+        "cardTitle": "Animationsschichten",
+        "enabledCountSuffix": "von 5 aktiviert",
+        "stars": "Sterne",
+        "particles": "Partikel",
+        "nebula": "Nebel",
+        "planets": "Planeten",
+        "aurora": "Aurora"
+      }
+    },
+    "privacy": {
+      "profileVisibility": {
+        "cardTitle": "Profilsichtbarkeit",
+        "public": {
+          "label": "Öffentlich",
+          "description": "Profil für alle sichtbar"
+        },
+        "private": {
+          "label": "Privat",
+          "description": "Profil vor anderen verborgen"
+        }
+      }
+    },
+    "common": {
+      "on": "Am",
+      "off": "Ausgeschaltet",
+      "enabled": "Aktiviert",
+      "disabled": "Behinderte"
+    }
+  },
+  "tools": {
+    "cardGenerator": {
+      "welcome": {
+        "title": "Betritt das Reich der mystischen Schöpfung",
+        "intro": "Uralte Energien warten auf deinen Befehl. Wählen Sie Ihren heiligen Weg, um verzauberte Social-Media-Karten zu weben, die mit mystischer Geometrie und tiefer Weisheit gesegnet sind.",
+        "createNew": "Schaffen Sie Neues",
+        "createNewDescription": "Generieren Sie eine neue mystische Karte",
+        "loadPrevious": "Last früher",
+        "loadPreviousDescription": "Eine bestehende Generation abrufen",
+        "initializing": "Mystische Energien initialisieren...",
+        "generationIdLabel": "Generationskennung:",
+        "loadPlaceholder": "Fügen Sie Ihre Generation ID hier ein ...",
+        "load": "Belastung",
+        "generationIdHint": "Generation IDs sehen aus wie:",
+        "quotaReached": "Tägliche Quote erreicht!",
+        "upgradeCta": "Upgrade auf Pro für unbegrenzte Generationen"
+      },
+      "wizard": {
+        "wizardTitle": "Kartengenerator Wizard",
+        "steps": {
+          "platformSelection": "Plattformauswahl",
+          "basicConfiguration": "Grundkonfiguration",
+          "proConfiguration": "Pro Konfiguration",
+          "confirmAndGenerate": "Bestätigen & Generieren"
+        },
+        "stepDescriptions": {
+          "platform": "Wählen Sie das Plattform- und Seitenverhältnis für Ihre Karte",
+          "basic": "Konfigurieren Sie die Hauptelemente Ihrer Karte",
+          "pro": "Verfeinern Sie erweiterte Einstellungen mit Pro-Funktionen",
+          "confirm": "Überprüfen Sie Ihre Konfiguration und generieren Sie die Karte"
+        },
+        "labels": {
+          "mainSeed": "Hauptsaatgut",
+          "avatarSeed": "Avatar Seed",
+          "author": "Autor",
+          "quote": "Zitat",
+          "customWidth": "Benutzerdefinierte Breite",
+          "customHeight": "Maßgeschneiderte Höhe",
+          "shapeCount": "Formzahl"
+        },
+        "choosePlatformTitle": "Wählen Sie Ihre Plattform",
+        "choosePlatformBody": "Wählen Sie die Plattform, auf der Sie Ihre Karte teilen. Jede Plattform hat optimierte Dimensionen für die beste visuelle Wirkung.",
+        "loadingAspectRatios": "Ladeaspektverhältnisse...",
+        "placeholders": {
+          "random": "Nach dem Zufallsprinzip leer lassen",
+          "randomQuote": "Lassen Sie leer für zufälliges inspirierendes Zitat",
+          "auto": "Auto"
+        },
+        "cancel": "Stornierung",
+        "previous": "← Previous",
+        "next": "Nächste →",
+        "generateCard": "Generierungskarte",
+        "generating": "Erzeugung...",
+        "hints": {
+          "pattern": "Kontrolliert das gesamte Designmuster",
+          "avatar": "Steuert das Avatar-Design",
+          "author": "Die Person, die das Zitat gesagt hat",
+          "quote": "Die inspirierende Botschaft für Ihre Karte"
+        },
+        "reviewTitle": "Review & Generate",
+        "dailyQuotaExceeded": "Tägliche Überschreitung der Quote",
+        "upgradeForUnlimited": "Upgrade auf Pro für unbegrenzte Generationen und erweiterte Funktionen!",
+        "proStep": {
+          "proFeatureSuffix": "(Pro Feature)",
+          "widthHint": "Benutzerdefinierte Breite in Pixeln",
+          "heightHint": "Benutzerdefinierte Höhe in Pixeln",
+          "shapeCountHint": "Anzahl der Hintergrundformen",
+          "shapeCountPlaceholder": "8",
+          "subscriptionNote": "Dieser Schritt enthält erweiterte Funktionen, die nur Pro-Abonnenten zur Verfügung stehen. Wizard-Modus mit Grundkonfiguration ist völlig kostenlos!",
+          "upgradeTitle": "Upgrade auf Pro",
+          "upgradeBody": "Dieser Schritt enthält erweiterte Funktionen, die nur Pro-Abonnenten zur Verfügung stehen. Wizard-Modus mit Grundkonfiguration ist völlig kostenlos!"
+        },
+        "basicEmptyNote": "Lassen Sie Felder für die zufällige Generierung leer.",
+        "goToStepPrefix": "Gehen Sie zu",
+        "confirmStep": {
+          "body": "Überprüfen Sie Ihre Konfiguration und generieren Sie Ihre mystische Karte.",
+          "sections": {
+            "platform": "Plattform",
+            "content": "Inhalt",
+            "seeds": "Samen",
+            "proSettings": "Pro Einstellungen"
+          },
+          "labels": {
+            "format": "Format:",
+            "dimensions": "Abmessungen:",
+            "author": "Autor:",
+            "quote": "Zitat:",
+            "main": "Hauptbestandteil:",
+            "avatar": "Avatar:",
+            "width": "Breite:",
+            "height": "Höhe:",
+            "shapes": "Formen:"
+          },
+          "randomValue": "Zufällig"
+        }
+      },
+      "generationForm": {
+        "freeConfiguration": "Freie Konfiguration",
+        "proConfigurationOptions": "Pro Konfigurationsoptionen",
+        "proBadge": "PROJ",
+        "hideDetails": "Details ausblenden",
+        "showDetails": "Details anzeigen",
+        "configuration": "Konfiguration",
+        "viewingLoadedGeneration": "Anzeige der geladenen Generation",
+        "readOnlyBanner": "Diese Konfiguration ist schreibgeschützt. Schaffen Sie eine neue Generation, um Veränderungen vorzunehmen.",
+        "labels": {
+          "mainSeed": "Hauptsaatgut",
+          "avatarSeed": "Avatar Seed",
+          "author": "Autor",
+          "quote": "Zitat",
+          "aspectRatio": "Aspektverhältnis",
+          "width": "Breite",
+          "height": "Höhe",
+          "shapeCount": "Formzahl"
+        },
+        "randomizeAll": "Randomisierung Alle",
+        "generateImage": "Bild erzeugen",
+        "generating": "Erzeugung...",
+        "readOnlyGeneration": "Read-Only Generation",
+        "placeholders": {
+          "avatarSeed": "Benutzerdefinierte avatar-samen (leave leer für zufällig)",
+          "quoteAuthor": "Zitatautor (leave empty for random)",
+          "customQuote": "Geben Sie benutzerdefiniertes Zitat ein (leave empty for random quote)",
+          "auto": "Auto",
+          "shapeCountDefault": "8",
+          "customSeed": "Geben Sie Custom Seed ein...",
+          "autoSeed": "Eigenerzeugtes Saatgut",
+          "avatarSeedUsesMain": "Leer lassen für Hauptsaatgut"
+        },
+        "loadingAspectRatios": "Ladeaspektverhältnisse...",
+        "seedActions": {
+          "save": "Sparsamen",
+          "cancelEdit": "Cancel edit",
+          "editMain": "Bearbeitetes Saatgut",
+          "editAvatar": "Bearbeiten von Avatar Seed"
+        }
+      },
+      "advancedControls": {
+        "overlayBody": "Erhalten Sie präzise Kontrolle über jeden Aspekt Ihrer mystischen Karten!",
+        "upgradeButton": "Aufstieg zu Archmage",
+        "sections": {
+          "avatarPositioning": "Avatarpositionierung",
+          "textLayout": "Textlayout",
+          "visualEffects": "Visuelle Effekte",
+          "patternMagic": "Mustermagie",
+          "watermarkControls": "Wasserzeichenkontrollen"
+        },
+        "labels": {
+          "avatarX": "Avatar X",
+          "avatarY": "Avatar Y",
+          "avatarSize": "Größe des Avatars",
+          "textMaxWidth": "Text Max Breite",
+          "textStartY": "Text Anfang Y",
+          "textPadding": "Text Padding",
+          "fontSize": "Schriftgröße",
+          "lineHeight": "Streckenhöhe",
+          "watermarkText": "Wasserzeichentext",
+          "position": "Position",
+          "rotationDegrees": "Rotation (Grad)",
+          "size": "Größe",
+          "opacityPercent": "Trübung (%)",
+          "borderOpacity": "Grenzopazität",
+          "borderColor": "Randfarbe",
+          "patternSeed": "Mustersaatgut",
+          "glassBackground": "Glas Hintergrundeffekt",
+          "enableWatermark": "Benutzerdefiniertes Wasserzeichen aktivieren"
+        },
+        "paywallTitle": "Entsperren Sie Advanced Magic",
+        "paywallBody": "Holen sie sich genaue kontrolle über avatar-positionierung, textlayout, visuelles styling und mehr mit pro-abonnement.",
+        "upgradeLink": "Upgrade auf Pro",
+        "overlayTitle": "Entsperren Sie Advanced Magic",
+        "placeholders": {
+          "auto": "Auto",
+          "textPadding": "30",
+          "lineHeight": "1.4",
+          "borderOpacity": "0,70",
+          "patternSeed": "Autogeneriert",
+          "watermarkText": "https://idling.app/card-generator",
+          "rotation": "-25",
+          "watermarkSize": "16",
+          "watermarkOpacity": "15"
+        },
+        "watermarkPositions": {
+          "top-left": "Oben links",
+          "top-right": "Oben rechts",
+          "bottom-left": "Unten links",
+          "bottom-right": "Rechts unten rechts",
+          "center": "Zentrum",
+          "repeated": "Wiederholtes Muster"
+        }
+      }
+    },
+    "svgConverter": {
+      "page": {
+        "title": "SVG zu PNG-Konverter",
+        "features": {
+          "0": "Hochwertiger PNG-Ausgang",
+          "1": "Benutzerdefinierte Skalierung und Dimensionen",
+          "2": "Sicherheitsvalidierung",
+          "3": "Chargenverarbeitung",
+          "4": "Hintergrundanpassung",
+          "5": "Echtzeitfortschritt"
+        },
+        "description": "Verwandeln Sie Ihre SVG-Vektorgrafiken in qualitativ hochwertige PNG-Bilder mit benutzerdefinierter Größe, Qualitätseinstellungen und Batchverarbeitungsfunktionen.",
+        "conversionFailed": "Conversion fehlgeschlagen",
+        "dismiss": "Entlassung",
+        "featuresTitle": "Merkmale",
+        "supportedTitle": "Unterstützt",
+        "formats": {
+          "inputLabel": "Input:",
+          "inputValue": "SVG",
+          "outputLabel": "Output:",
+          "outputValue": "PNG",
+          "maxSizeLabel": "Max Größe:",
+          "maxSizeValue": "10 MB",
+          "batchLabel": "Charge:",
+          "batchValue": "10 dateien"
+        },
+        "tipsTitle": "Tipps",
+        "tips": {
+          "0": "Script-Tags aus Sicherheitsgründen entfernen",
+          "1": "Verwenden Sie einfache SVGs für schnellere Konvertierung",
+          "2": "Höhere Qualität = größere Dateigröße",
+          "3": "Versuchen Sie 2x Skala für Retina-Displays"
+        },
+        "signedInTitle": "Unterzeichnet",
+        "signedInNoLimits": "Keine Conversion Limits für registrierte Nutzer"
+      },
+      "interface": {
+        "title": "Umwandlung von SVG in PNG",
+        "subtitle": "Laden Sie eine SVG-Datei hoch oder fügen Sie SVG-Code ein, um zu beginnen",
+        "uploadFile": "Upload File",
+        "pasteCode": "Pastencode",
+        "uploadPromptStrong": "Klicken Sie zum Upload",
+        "uploadPromptRest": "oder drag & drop",
+        "uploadHint": "Nur SVG-Dateien, max. 10 MB",
+        "svgCodeLabel": "SVG-Code:",
+        "svgCodePlaceholder": "Fügen Sie Ihren SVG-Code hier ein ...",
+        "backgroundLabel": "Hintergrund:",
+        "backgroundOptions": {
+          "0": "Transparent",
+          "1": "Weiß",
+          "2": "Schwarz",
+          "3": "Lichtgrau"
+        },
+        "svgTagsHint": "Stellen Sie sicher, dass Ihr SVG die richtigen Öffnungs- und Schließ-Tags enthält",
+        "conversionOptionsTitle": "Umwandlungsoptionen",
+        "filenameLabel": "Dateiname:",
+        "qualityLabel": "Qualität",
+        "scaleLabel": "Waage",
+        "errors": {
+          "readFailed": "Datei nicht lesen",
+          "dropSvg": "Bitte legen Sie eine SVG-Datei",
+          "provideContent": "Bitte geben Sie SVG-Inhalte an",
+          "selectSvg": "Bitte wählen Sie eine SVG-Datei",
+          "fileTooLarge": "Dateigröße muss kleiner als 10 MB sein"
+        },
+        "convertToPng": "Umrechnen auf PNG",
+        "converting": "Umrechnen...",
+        "initializing": "Initialisierung..."
+      }
+    }
+  },
+  "profile": {
+    "private": {
+      "title": "Privatprofil",
+      "message": "Dieser benutzer hat sein profil auf privat eingestellt. Nur sie können ihre Profilinformationen einsehen."
+    },
+    "metadata": {
+      "invalidUrlTitle": "Ungültiges Profil URL | Idling.app",
+      "invalidUrlDescription": "Profil-URLs dürfen nur Datenbank-IDs verwenden.",
+      "notFoundTitle": "Benutzer nicht gefunden | Idling.app",
+      "notFoundDescription": "Das angeforderte Benutzerprofil konnte nicht gefunden werden.",
+      "privateTitle": "Privatprofil | Idling.app",
+      "privateDescription": "Dieser benutzer hat sein profil auf privat eingestellt.",
+      "publicTitleSuffix": "- Benutzerprofil | Idling.app",
+      "publicOpenGraphTitleSuffix": "- Profil",
+      "publicFallbackDescription": "Zeigen Sie {name}s Profil, Aktivitätsstatistiken und Beiträge auf Idling.app an.",
+      "publicFallbackOpenGraphDescription": "Profil und Aktivität von {name}auf Idling.app anzeigen.",
+      "productNotFoundTitle": "Produkt"
+    },
+    "notFound": {
+      "message": "Leider konnten wir das von Ihnen gesuchte Benutzerprofil nicht finden. Dies könnte passieren, wenn:",
+      "reasons": {
+        "0": "Der Benutzername existiert nicht",
+        "1": "Der Nutzer hat seinen Account gelöscht",
+        "2": "Die Profil-URL ist falsch",
+        "3": "Das Benutzerprofil ist auf privat eingestellt"
+      },
+      "iconAria": "Benutzer nicht gefunden",
+      "title": "User nicht gefunden",
+      "goHome": "Geh nach Hause",
+      "searchTitle": "Suche nach Nutzern",
+      "searchDescription": "Suchen Sie nach dem Benutzer, den Sie suchen:",
+      "searchPlaceholder": "Suchen Sie Benutzer nach Name oder E-Mail...",
+      "helpTitle": "Hilfe",
+      "helpSearchLabel": "Suche",
+      "helpSearchDescription": "Verwenden Sie die obige Suche, um Benutzer nach Name oder E-Mail zu finden",
+      "helpProductsLabel": "Produkte",
+      "helpProductsDescription": "Durchsuchen Sie das Home Lineup für Apps und Mods"
+    },
+    "pageUi": {
+      "adminDecorationTitle": "Benutzername Dekoration Testing",
+      "testDecorationsTitle": "Username Decoration Testing (nur Administrator)",
+      "subscriptionsTitle": "Abonnements",
+      "freeTierMessage": "Free Tier User",
+      "decorationOptions": {
+        "0": {
+          "value": "",
+          "label": "Keine"
+        },
+        "1": {
+          "value": "unternehmenskrone",
+          "label": "Enterprise Crown"
+        },
+        "2": {
+          "value": "premiumgalaxie",
+          "label": "Premium Galaxy"
+        },
+        "3": {
+          "value": "proplasma",
+          "label": "Pro Plasma"
+        },
+        "4": {
+          "value": "aktivglühen",
+          "label": "Aktives Glühen"
+        },
+        "5": {
+          "value": "trialpulse",
+          "label": "Trial Pulse"
+        }
+      },
+      "adminDecorationDescription": "Testen Sie verschiedene Benutzernamendekorationen auf Ihrer Profilseite",
+      "adminDecorationNote": "Dies ist eine Testfunktion, die nur für Administratoren in ihrem eigenen Profil sichtbar ist",
+      "previewLabel": "Vorschau:",
+      "demoUserFallback": "Demo-Benutzer",
+      "testDecorationsButton": "Test Benutzernamen Dekorationen"
+    }
+  },
+  "subscription": {
+    "page": {
+      "errorHeading": "Fehler",
+      "noDataHeading": "Keine Daten verfügbar",
+      "noDataBody": "Abonnementdaten konnten nicht geladen werden.",
+      "returnHome": "Rückkehr nach Hause",
+      "quotaBannerTitle": "Tägliches Limit erreicht",
+      "title": "Zeichnung",
+      "subtitle": "Wählen Sie Ihren Plan",
+      "subtitleQuota": "Upgrade zur weiteren Generierung von Emojis",
+      "loading": "Abooptionen laden...",
+      "loadingData": "Abodaten laden...",
+      "advancedOptions": "Erweiterte Optionen:",
+      "yes": "Ja",
+      "no": "Nein",
+      "subscribeNow": "Jetzt abonnieren",
+      "backToGenerator": "Zurück zu Emoji Generator",
+      "quotaBannerBody": "Du hast deine tägliche Generationsgrenze erreicht. Upgrade auf Pro, um weiterhin Emojis mit unbegrenzten täglichen Generationen zu erzeugen.",
+      "whatYouGet": "Was Sie bekommen:",
+      "dailyLimitLabel": "Tageslimit:",
+      "currentLimitsTitle": "Ihre aktuellen Limits (kostenloser Plan):",
+      "dailyGenerations": "Tägliche Generationen:",
+      "fetchFailed": "Fehler beim Laden von Abonnementdaten"
+    },
+    "metadata": {
+      "title": "Abonnement | Idling.app",
+      "description": "Wählen Sie einen Plan und aktualisieren Sie Ihr idling.app-Abonnement."
+    }
+  },
+  "radio": {
+    "aria": {
+      "searchStations": "Suchstationen nach Name, Beschreibung oder Genre",
+      "clearSearch": "Klare Stationssuche",
+      "filterByGenre": "Filter nach Genre",
+      "stations": "Stationen",
+      "playerSettings": "Spielereinstellungen",
+      "player": "Funkgerät",
+      "chooseStation": "Wählen Sie eine Station",
+      "fullscreenVisualizerStyle": "Vollbild-Visualisierungsstil",
+      "fullscreenVisualizerStyles": "Fullscreen Visualizer Stile",
+      "waveLineStyle": "Wellenlinienstil",
+      "oscilloscopeSmoothing": "Oszilloskopwellenglättung",
+      "barFillStyle": "Barfüllstil",
+      "barTrailStyle": "Bar Trail Stil",
+      "barGlow": "Balkenglühlampe",
+      "visualizerColors": "Visualisierungsfarben",
+      "spectrumVisualizerColors": "Farben der Spektralvisualisierung",
+      "fullscreenSpectrumOpacity": "Vollbild-Spektrumtrübung",
+      "play": "Spiel",
+      "pause": "Pause",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "volume": "Volumen",
+      "fullscreenVisualizerHeight": "Höhe des Vollbildvisualisators",
+      "barVisualizerLook": "Bar Visualizer Look",
+      "barVisualizerStyles": "Bar Visualizer Stile",
+      "controlBarVisualizerLayout": "Steuerleistenvisualisierungslayout",
+      "controlBarVisualizerOpacity": "Trübung des Steuerbalkenvisualisators",
+      "barSpacing": "Balkenabstand",
+      "stationTransport": "Bahnhofsverkehr",
+      "previousStation": "Vorherige Station",
+      "nextStation": "Nächste Station",
+      "dragToWidenText": "Ziehen Sie, um die Station zu erweitern und Text zu verfolgen. Doppelklick zum Zurücksetzen.",
+      "equalizer": "Equalizer",
+      "equalizerPresets": "Equalizer Presets",
+      "customEqualizerPresets": "Custom Equalizer Presets",
+      "equalizerBands": "Ausgleichsbänder",
+      "fullTrackTitle": "Vollständige Titel",
+      "dragToResizePanel": "Ziehen Sie die Größe des Panels. Doppelklicken, um die Höhe zurückzusetzen.",
+      "recheckStationPrefix": "Überprüfung erneut",
+      "changeStationPrefix": "Station wechseln – jetzt",
+      "nowOnSuffix": "",
+      "volumeScrollHint": "Volume — scroll to adjust",
+      "enterFullscreen": "Vollbild betreten",
+      "exitFullscreen": "Vollbildausstieg",
+      "openFullscreenVisualizer": "Offene Vollbild-Visualisierung",
+      "exitFullscreenVisualizer": "Exit Fullscreen Visualizer",
+      "trackTitleTrigger": "Jetzt spielen: {track}. Klicken Sie, um den vollständigen Titel anzuzeigen.",
+      "checkingStreamTitle": "Kontrollstrom",
+      "changeStationTitle": "Wechselstation",
+      "playerSettingsTitle": "Spielereinstellungen",
+      "searchWebForTrack": "Suchen Sie im Internet nach {query}",
+      "findTrackTitle": "Suchen Sie ‚{query}‘",
+      "addFavorite": "Hinzufügen von {stationName} zu Favoriten",
+      "removeFavorite": "Entfernen Sie {stationName} aus Favoriten"
+    },
+    "equalizer": {
+      "reset": "Zurücksetzen",
+      "resetAriaPrefix": "Reset Equalizer nach",
+      "title": "Equalizer",
+      "load": "Belastung",
+      "save": "Sparen",
+      "delete": "Löschung",
+      "confirm": "Bestätigung",
+      "cancel": "Stornierung",
+      "matchExact": "Diese Schiebereglereinstellungen stimmen genau mit {label} überein. Wählen Sie diese Voreinstellung aus, anstatt sie manuell zu duplizieren.",
+      "matchNear": "Diese Slider-Einstellungen sind in der Nähe von {label}. Erwägen Sie, dieses Preset auszuwählen.",
+      "deleteConfirm": "Gespeicherte Voreinstellung \"{label}\" löschen? Das kann nicht rückgängig gemacht werden.",
+      "customSlotDefault": " {slot}",
+      "loadPresetAria": "Last {label}",
+      "emptySlotAria": "Custom Preset Slot {slot} ist leer",
+      "slotEmptyTitle": "Slot {slot} ist leer",
+      "nameSlotAria": "Name des benutzerdefinierten voreingestellten Slots {slot}",
+      "saveToAria": "Speichern Sie den aktuellen EQ nach {label}",
+      "deletePresetAria": "Speichervorgabe löschen {label}",
+      "confirmDeleteAria": "Löschen Sie {label}",
+      "cancelDeleteAria": "Löschen für {label}",
+      "presets": {
+        "flat": "Flach",
+        "bass-boost": "Bass-Boost",
+        "treble-boost": "Treble Boost",
+        "vocal": "Gesang",
+        "rock": "Rock",
+        "jazz": "Jazz",
+        "electronic": "Elektronisch",
+        "podcast": "Podcast"
+      }
+    },
+    "bar": {
+      "pressPlayToStart": "Press Play beginnt",
+      "searchPlaceholder": "Suchstationen... (\"Radio France\" oder #jazz)",
+      "checkingStationsOne": "1 Station überprüfen..",
+      "checkingStationsMany": " {count} -Stationen überprüfen..",
+      "filterAll": "Alle",
+      "filterFavorites": "Favoriten",
+      "filterUnreachable": "Unerreichbar",
+      "recheckAll": "Überprüfen Sie alle",
+      "emptyUnreachable": "Keine unerreichbaren Stationen passen zu diesem Filter.",
+      "emptyFavorites": "Keine Lieblingsstationen passen zu diesem Filter.",
+      "emptySearchPrefix": "Keine Stationen passen zusammen",
+      "checkingStreamAvailability": "Überprüfung der Stream-Verfügbarkeit.."
+    },
+    "settings": {
+      "waveStyle": "Wellenstil",
+      "waveSmoothing": "Wellenglättung",
+      "barFill": "Stangenfüllung",
+      "barTrail": "Bar Trail",
+      "barGlow": "Balkenglühlampe",
+      "look": "Blick",
+      "none": "Keine",
+      "opacity": "Trübung",
+      "density": "Dichte",
+      "barStyle": "Barstil",
+      "trail": "Trail",
+      "glow": "Glühen",
+      "barColors": "Balkenfarben",
+      "spectrumColors": "Spektralfarben",
+      "spectrumOpacity": "Spektrumtrübung",
+      "spectrumHeight": "Spektralhöhe",
+      "barLayout": "Balkenlayout",
+      "colors": "Farben",
+      "visualizerHeight": "Höhe des Visualisators",
+      "webglUnavailableFallback": "WebGL2-Visualisierer sind in diesem Browser nicht verfügbar."
+    },
+    "visualizer": {
+      "solid": "Festkörper",
+      "glass": "Glas",
+      "none": "Keine",
+      "peaks": "Peaks",
+      "cascade": "Kaskade",
+      "line": "Linie",
+      "ribbon": "Bänder",
+      "off": "Ausgeschaltet",
+      "soft": "Weich",
+      "theme": "Thema",
+      "prism": "Prisma",
+      "compact": "Kompakt",
+      "normal": "Normal",
+      "wide": "Breit",
+      "fullBackground": "Vollständiger Hintergrund",
+      "inlineStrip": "Inlinestreifen"
+    },
+    "genres": {
+      "ambient": "Umgebung",
+      "classical": "Klassisch",
+      "community": "Gemeinschaft",
+      "custom": "Zoll",
+      "eclectic": "Eklektisch",
+      "electronic": "Elektronisch",
+      "jazz": "Jazz",
+      "news": "News & Talk",
+      "public": "Öffentliches Radio"
+    },
+    "bpm": {
+      "label": "BPM",
+      "paused": "Tempo nicht verfügbar während pausiert",
+      "silent": "Kein klarer Beat im Stream im Moment",
+      "stable": "Tempo {bpm} Schläge pro Minute",
+      "estimating": "Ungefähres Tempo {bpm} Schläge pro Minute",
+      "listening": "Hören für Beats im Stream"
+    },
+    "presetLabels": {
+      "webgl": {
+        "netrunner-grid": {
+          "label": "Netzbetreiber",
+          "description": "3D-Cyber-Avenue - Neontürme auf beiden Seiten über einem Scrolling-Raster"
+        },
+        "starry-horizon": {
+          "label": "Sternenhorizont",
+          "description": "Gold-zu-Tee-EQ Skyline an einem niedrigen Horizont - Sternennacht in ruhigem Wasser gespiegelt"
+        },
+        "spectrum-bars": {
+          "label": "Spektralstäbe",
+          "description": "Klassische Spalte mit voller Breite EQ"
+        },
+        "waveform-path": {
+          "label": "Wellenformweg",
+          "description": "Oszilloskopstrich mit Leuchtstoffspur"
+        },
+        "liquid-merge": {
+          "label": "Flüssige Mischung",
+          "description": "Langsam driftende Farbblobs, die sich dehnen, treffen und verschmelzen, wenn sie den Bildschirm überqueren"
+        },
+        "neon-constellation": {
+          "label": "Neonkonstellation",
+          "description": "Sphärisches Neonnetz, dessen Eckpunkte und Verbindungen sich mit der Musik morphieren"
+        },
+        "mirror-bars": {
+          "label": "Spiegelstäbe",
+          "description": "Symmetrisches Spektrum Spalten von der Mitte"
+        },
+        "radial-spectrum": {
+          "label": "Radiales Spektrum",
+          "description": "Großer Rundanalysator, der den Bildschirm ausfüllt"
+        }
+      },
+      "bar": {
+        "idling-bars": {
+          "label": "Frequenzbalken",
+          "description": "Klassische Spektralleisten mit Füll- und Trail-Optionen"
+        },
+        "scope": {
+          "label": "Oszilloskop",
+          "description": "Live-Wellenform"
+        },
+        "mirror": {
+          "label": "Spiegel",
+          "description": "Symmetrische Reflexion"
+        },
+        "wave": {
+          "label": "Welle",
+          "description": "Frequenzwellenlinie oder -band"
+        },
+        "dots": {
+          "label": "Punkte",
+          "description": "Reaktive Partikelpunkte"
+        },
+        "thread-weave": {
+          "label": "Fadenbindung",
+          "description": "Verflochtene Fließfäden"
+        },
+        "drift-mist": {
+          "label": "Treibnebel",
+          "description": "Schichtnebelbänder"
+        },
+        "arc": {
+          "label": "Bogen",
+          "description": "Radialbogenring"
+        }
+      },
+      "spectrum": {
+        "radial-prism": "Radialprisma",
+        "octave-classic": "Oktavbarren",
+        "mirror-rainbow": "Spiegelregenbogen",
+        "led-orangered": "LED-Spektrum",
+        "graph-steel": "Wellendiagramm",
+        "dual-steel-prism": "Dual Channel"
+      }
+    }
+  }
+}

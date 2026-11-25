@@ -1,0 +1,40 @@
+import supportedLocales from '$i18n/supported-locales.json';
+
+export type IdlingLocaleId = (typeof supportedLocales.locales)[number]['id'];
+
+export interface IdlingLocaleRow {
+  id: IdlingLocaleId;
+  bcp47: string;
+  label: string;
+  direction: 'ltr' | 'rtl';
+}
+
+export const IDLING_LOCALE_CATALOG: IdlingLocaleRow[] =
+  supportedLocales.locales as IdlingLocaleRow[];
+
+export const IDLING_BASE_LOCALE: IdlingLocaleId =
+  supportedLocales.baseLocale as IdlingLocaleId;
+
+export function isIdlingLocaleId(value: string): value is IdlingLocaleId {
+  return IDLING_LOCALE_CATALOG.some((row) => row.id === value);
+}
+
+export function coerceIdlingLocaleId(tag: string): IdlingLocaleId {
+  const normalized = tag.trim().toLowerCase();
+  if (isIdlingLocaleId(normalized)) {
+    return normalized;
+  }
+  const primary = normalized.split('-')[0] ?? '';
+  if (isIdlingLocaleId(primary)) {
+    return primary;
+  }
+  if (primary === 'zh') {
+    return 'zh';
+  }
+  return IDLING_BASE_LOCALE;
+}
+
+export function localeDirection(locale: IdlingLocaleId): 'ltr' | 'rtl' {
+  const row = IDLING_LOCALE_CATALOG.find((entry) => entry.id === locale);
+  return row?.direction ?? 'ltr';
+}

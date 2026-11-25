@@ -43,6 +43,17 @@ import {
 } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import type { RadioPlayerHandle, RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
 import {
+  formatRadioCheckingStations,
+  formatRadioFavoriteAria,
+  resolveRadioBarPresetDescription,
+  resolveRadioBarPresetLabel,
+  resolveRadioGenreLabel,
+  resolveRadioSpectrumPresetLabel,
+  resolveRadioWebglPresetDescription,
+  resolveRadioWebglPresetLabel,
+} from '@molecules/i18n/idlingRadioI18n';
+import { useRadioCopy } from './useRadioCopy';
+import {
   countStationsByAvailabilityStatus,
   filterRadioStationsByGenre,
   filterRadioStationsBySearch,
@@ -81,6 +92,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import styles from './RadioPlayerBar.module.css';
 import { RadioPlayerBpmDisplay } from './RadioPlayerBpmDisplay';
 import { RadioPlayerEqualizerPanel } from './RadioPlayerEqualizerPanel';
+import { RadioPlayerLocaleSection } from './RadioPlayerLocaleSection';
 import { RadioPlayerPanelResizeHandle } from './RadioPlayerPanelResizeHandle';
 import { RadioPlayerVolumeFader } from './RadioPlayerVolumeFader';
 import { RadioPlayerTrackTitleTip } from './RadioPlayerTrackTitleTip';
@@ -108,13 +120,8 @@ export interface RadioPlayerVolumeStepperProps {
 
 const DENSITY_OPTIONS: BarVisualizerDensity[] = ['compact', 'normal', 'wide'];
 
-const DENSITY_LABELS: Record<BarVisualizerDensity, string> = {
-  compact: 'Compact',
-  normal: 'Normal',
-  wide: 'Wide',
-};
-
 export function RadioPlayerVolumeStepper({ volume, onChange }: RadioPlayerVolumeStepperProps) {
+  const { aria } = useRadioCopy();
   const pct = Math.round(volume * 100);
   const isMuted = volume === 0;
 
@@ -123,8 +130,8 @@ export function RadioPlayerVolumeStepper({ volume, onChange }: RadioPlayerVolume
       <button
         type="button"
         className={`${styles.volume__mute} no-glass`}
-        aria-label={isMuted ? 'Unmute' : 'Mute'}
-        title={isMuted ? 'Unmute' : 'Mute'}
+        aria-label={isMuted ? aria.unmute : aria.mute}
+        title={isMuted ? aria.unmute : aria.mute}
         onClick={() => {
           onChange(isMuted ? 0.85 : 0);
         }}
@@ -140,6 +147,9 @@ export function RadioPlayerVolumeStepper({ volume, onChange }: RadioPlayerVolume
 }
 
 export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
+  const radioCopy = useRadioCopy();
+  const { aria: radioAria, bar: radioBar, settings: radioSettings, visualizer: radioViz } =
+    radioCopy;
   const {
     handle: contextHandle,
     stationDefinitions,
@@ -673,7 +683,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
 
   const subtitle = (() => {
     if (!playback.isPlaying) {
-      return 'Press play to start';
+      return radioBar.pressPlayToStart;
     }
 
     if (
@@ -684,7 +694,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     }
 
     if (activeStation) {
-      return `${getRadioStationGenre(activeStation.genre).label} · ${activeStation.blurb}`;
+      return `${resolveRadioGenreLabel(radioCopy, activeStation.genre)} · ${activeStation.blurb}`;
     }
 
     return null;
@@ -709,7 +719,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       id="idle-radio"
       tabIndex={-1}
       role="region"
-      aria-label="Radio player"
+      aria-label={radioAria.player}
       data-testid="radio-player-bar"
       data-panel-resizing={isControlBarPanelResizing ? 'true' : 'false'}
     >
@@ -719,7 +729,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           className={`${styles.panel} ${styles.panelStations} ${styles.panelResizable}`}
           data-custom-height={panelHeightPx !== null ? 'true' : 'false'}
           style={controlBarPanelStyle}
-          aria-label="Choose a station"
+          aria-label={radioAria.chooseStation}
         >
           <RadioPlayerPanelResizeHandle
             panelHeightPx={panelHeightPx}
@@ -739,8 +749,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 type="search"
                 className={styles.stationSearch__input}
                 value={stationSearchQuery}
-                placeholder='Search stations… ("Radio France" or #jazz)'
-                aria-label="Search stations by name, description, or genre"
+                placeholder={radioBar.searchPlaceholder}
+                aria-label={radioAria.searchStations}
                 onChange={(event) => {
                   setStationSearchQuery(event.target.value);
                 }}
@@ -749,7 +759,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 <button
                   type="button"
                   className={`${styles.stationSearch__clear} no-glass`}
-                  aria-label="Clear station search"
+                  aria-label={radioAria.clearSearch}
                   onClick={() => {
                     setStationSearchQuery('');
                   }}
@@ -760,10 +770,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             </div>
             {pendingStationCount > 0 ? (
               <p className={styles.stationProbeStatus} role="status" aria-live="polite">
-                Checking {pendingStationCount} station{pendingStationCount === 1 ? '' : 's'}…
+                {formatRadioCheckingStations(radioCopy, pendingStationCount)}
               </p>
             ) : null}
-            <div className={styles.genreFilters} role="toolbar" aria-label="Filter by genre">
+            <div className={styles.genreFilters} role="toolbar" aria-label={radioAria.filterByGenre}>
               <button
                 type="button"
                 className={`${styles.genreFilter} no-glass`}
@@ -773,7 +783,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   setShowFavoritesOnly(false);
                 }}
               >
-                <span className={styles.genreFilter__label}>All</span>
+                <span className={styles.genreFilter__label}>{radioBar.filterAll}</span>
                 <span className={styles.genreFilter__badge}>{stationsInPickerMode.length}</span>
               </button>
               {favoriteStationCount > 0 ? (
@@ -792,7 +802,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     sizeRem={0.75}
                     title=""
                   />
-                  <span className={styles.genreFilter__label}>Favorites</span>
+                  <span className={styles.genreFilter__label}>{radioBar.filterFavorites}</span>
                   <span className={styles.genreFilter__badge}>{favoriteStationCount}</span>
                 </button>
               ) : null}
@@ -821,7 +831,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     setShowUnreachableOnly((current) => !current);
                   }}
                 >
-                  <span className={styles.genreFilter__label}>Unreachable</span>
+                  <span className={styles.genreFilter__label}>{radioBar.filterUnreachable}</span>
                   <span className={styles.genreFilter__badge}>{unreachableStationCount}</span>
                 </button>
               ) : null}
@@ -833,22 +843,22 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     retryUnreachableStations();
                   }}
                 >
-                  <span className={styles.genreFilter__label}>Re-check all</span>
+                  <span className={styles.genreFilter__label}>{radioBar.recheckAll}</span>
                 </button>
               ) : null}
             </div>
           </div>
           <div ref={stationListRef} className={styles.stationListScroll}>
-            <div className={styles.stationList} role="group" aria-label="Stations">
+            <div className={styles.stationList} role="group" aria-label={radioAria.stations}>
             {displayedStations.length === 0 ? (
               <p className={styles.stationSearchEmpty}>
                 {showUnreachableOnly
-                  ? 'No unreachable stations match this filter.'
+                  ? radioBar.emptyUnreachable
                   : showFavoritesOnly
-                    ? 'No favorite stations match this filter.'
+                    ? radioBar.emptyFavorites
                     : (
                     <>
-                      No stations match{' '}
+                      {radioBar.emptySearchPrefix}{' '}
                       <span className={styles.stationSearchEmpty__query}>
                         {stationSearchQuery.trim()}
                       </span>
@@ -858,7 +868,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             ) : null}
             {displayedStations.map((station) => {
               const isActiveStation = station.name === playback.stationName;
-              const genreLabel = getRadioStationGenre(station.genre).label;
+              const genreLabel = resolveRadioGenreLabel(radioCopy, station.genre);
               const availability = stationAvailabilityByName[station.name];
               const probeStatus = getRadioStationAvailabilityStatus(
                 stationAvailabilityByName,
@@ -904,7 +914,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                             id="loader"
                             className={styles.stationRow__checkingIcon}
                             sizeRem={0.85}
-                            title="Checking stream"
+                            title={radioAria.checkingStreamTitle}
                           />
                         ) : null}
                       </span>
@@ -912,7 +922,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                         {isUnreachable && availability?.reason ? (
                           availability.reason
                         ) : isChecking ? (
-                          'Checking stream availability…'
+                          radioBar.checkingStreamAvailability
                         ) : (
                           <HumanFriendlySearchHighlight
                             text={station.blurb}
@@ -944,16 +954,16 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     type="button"
                     className={`${styles.stationRow__favorite} no-glass`}
                     aria-pressed={isFavoriteStation}
-                    aria-label={
+                    aria-label={formatRadioFavoriteAria(
+                      radioCopy,
+                      station.name,
                       isFavoriteStation
-                        ? `Remove ${station.name} from favorites`
-                        : `Add ${station.name} to favorites`
-                    }
-                    title={
+                    )}
+                    title={formatRadioFavoriteAria(
+                      radioCopy,
+                      station.name,
                       isFavoriteStation
-                        ? `Remove ${station.name} from favorites`
-                        : `Add ${station.name} to favorites`
-                    }
+                    )}
                     onClick={() => {
                       void toggleFavorite(station.name);
                     }}
@@ -964,8 +974,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     <button
                       type="button"
                       className={`${styles.stationRow__retry} no-glass`}
-                      aria-label={`Re-check ${station.name}`}
-                      title={`Re-check ${station.name}`}
+                      aria-label={`${radioAria.recheckStationPrefix} ${station.name}`}
+                      title={`${radioAria.recheckStationPrefix} ${station.name}`}
                       onClick={() => {
                         retryStationAvailability([station.name]);
                       }}
@@ -989,7 +999,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           className={`${styles.panel} ${styles.panelSettings} ${styles.panelResizable}`}
           data-custom-height={panelHeightPx !== null ? 'true' : 'false'}
           style={controlBarPanelStyle}
-          aria-label="Player settings"
+          aria-label={radioAria.playerSettings}
         >
           <RadioPlayerPanelResizeHandle
             panelHeightPx={panelHeightPx}
@@ -997,12 +1007,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             onResetHeight={resetControlBarPanelHeight}
           />
           <div className={styles.panelBodyScroll}>
+          <RadioPlayerLocaleSection />
           <RadioPlayerEqualizerPanel handle={handle} />
         {isActive ? (
-          <div ref={lookPanelRef} className={styles.settingsSection} aria-label="Fullscreen visualizer style">
-            <h2 className={styles.panelSection__title}>Look</h2>
+          <div ref={lookPanelRef} className={styles.settingsSection} aria-label={radioAria.fullscreenVisualizerStyle}>
+            <h2 className={styles.panelSection__title}>{radioSettings.look}</h2>
             <div className={styles.panelSection}>
-              <div className={styles.optionList} role="listbox" aria-label="Fullscreen visualizer styles">
+              <div className={styles.optionList} role="listbox" aria-label={radioAria.fullscreenVisualizerStyles}>
                 <button
                   type="button"
                   className={`${styles.optionRow} no-glass`}
@@ -1013,7 +1024,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     setSpectrumEnabled(false);
                   }}
                 >
-                  None
+                  {radioSettings.none}
                 </button>
                 {webglPresetsAvailable
                   ? WEBGL_VISUALIZER_PRESETS.map((preset) => (
@@ -1028,19 +1039,19 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       fullscreenSource === 'webgl' &&
                       preset.id === webglPresetId
                     }
-                    title={preset.description}
+                    title={resolveRadioWebglPresetDescription(radioCopy, preset.id, preset.description)}
                     onClick={() => {
                       setWebglPresetId(preset.id);
                     }}
                   >
-                    {preset.label}
+                    {resolveRadioWebglPresetLabel(radioCopy, preset.id, preset.label)}
                   </button>
                 ))
                   : null}
                 {webglVisualizerCapability.isResolved && !webglPresetsAvailable ? (
                   <p className={styles.panelSection__note} role="note">
                     {webglVisualizerCapability.reason ??
-                      'WebGL2 visualizers are not available in this browser.'}
+                      radioSettings.webglUnavailableFallback}
                   </p>
                 ) : null}
                 {listBarVisualizerPresetsForSurface('expanded').map((preset) => (
@@ -1055,7 +1066,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       fullscreenSource === 'bar' &&
                       preset.id === playback.visualizerPrefs.presetId
                     }
-                    title={preset.description}
+                    title={resolveRadioBarPresetDescription(radioCopy, preset.id, preset.description)}
                     onClick={() => {
                       setFullscreenSource('bar');
                       handle.setVisualizerPreferences({
@@ -1070,7 +1081,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       );
                     }}
                   >
-                    {preset.label}
+                    {resolveRadioBarPresetLabel(radioCopy, preset.id, preset.label)}
                   </button>
                 ))}
                 {RADIO_VISUALIZER_PRESETS.map((preset, index) => (
@@ -1089,7 +1100,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       setSpectrumPresetIndex(index);
                     }}
                   >
-                    {preset.label}
+                    {resolveRadioSpectrumPresetLabel(radioCopy, preset.id, preset.label)}
                   </button>
                 ))}
               </div>
@@ -1098,8 +1109,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             fullscreenSource === 'bar' &&
             playback.visualizerPrefs.presetId === 'wave' ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Wave style</h2>
-                <div className={styles.segments} role="group" aria-label="Wave line style">
+                <h2 className={styles.panelSection__title}>{radioSettings.waveStyle}</h2>
+                <div className={styles.segments} role="group" aria-label={radioAria.waveLineStyle}>
                   {(['line', 'ribbon'] as const).map((waveStyle) => (
                     <button
                       key={waveStyle}
@@ -1115,7 +1126,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                         );
                       }}
                     >
-                      {waveStyle === 'line' ? 'Line' : 'Ribbon'}
+                      {waveStyle === 'line' ? radioViz.line : radioViz.ribbon}
                     </button>
                   ))}
                 </div>
@@ -1126,7 +1137,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             playback.visualizerPrefs.enabled &&
             isScopeVisualizerPreset(playback.visualizerPrefs.presetId) ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Wave smoothing</h2>
+                <h2 className={styles.panelSection__title}>{radioSettings.waveSmoothing}</h2>
                 <div className={styles.opacityControl}>
                   <input
                     type="range"
@@ -1135,7 +1146,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     max={SCOPE_SMOOTHING_RANGE.max}
                     step={SCOPE_SMOOTHING_RANGE.step}
                     value={playback.visualizerPrefs.scopeSmoothing}
-                    aria-label="Oscilloscope wave smoothing"
+                    aria-label={radioAria.oscilloscopeSmoothing}
                     aria-valuemin={Math.round(SCOPE_SMOOTHING_RANGE.min * 100)}
                     aria-valuemax={Math.round(SCOPE_SMOOTHING_RANGE.max * 100)}
                     aria-valuenow={Math.round(playback.visualizerPrefs.scopeSmoothing * 100)}
@@ -1161,12 +1172,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             isFrequencyBarsVisualizerPreset(playback.visualizerPrefs.presetId) ? (
               <>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Bar fill</h2>
-                  <div className={styles.segments} role="group" aria-label="Bar fill style">
+                  <h2 className={styles.panelSection__title}>{radioSettings.barFill}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.barFillStyle}>
                     {(
                       [
-                        { value: 'solid', label: 'Solid' },
-                        { value: 'glass', label: 'Glass' },
+                        { value: 'solid', label: radioViz.solid },
+                        { value: 'glass', label: radioViz.glass },
                       ] as const satisfies { value: BarVisualizerBarFill; label: string }[]
                     ).map((option) => (
                       <button
@@ -1189,13 +1200,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   </div>
                 </div>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Trail</h2>
-                  <div className={styles.segments} role="group" aria-label="Bar trail style">
+                  <h2 className={styles.panelSection__title}>{radioSettings.trail}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.barTrailStyle}>
                     {(
                       [
-                        { value: 'none', label: 'None' },
-                        { value: 'peaks', label: 'Peaks' },
-                        { value: 'cascade', label: 'Cascade' },
+                        { value: 'none', label: radioViz.none },
+                        { value: 'peaks', label: radioViz.peaks },
+                        { value: 'cascade', label: radioViz.cascade },
                       ] as const satisfies { value: BarVisualizerBarTrail; label: string }[]
                     ).map((option) => (
                       <button
@@ -1218,12 +1229,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   </div>
                 </div>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Glow</h2>
-                  <div className={styles.segments} role="group" aria-label="Bar glow">
+                  <h2 className={styles.panelSection__title}>{radioSettings.glow}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.barGlow}>
                     {(
                       [
-                        { value: 'off', label: 'Off' },
-                        { value: 'soft', label: 'Soft' },
+                        { value: 'off', label: radioViz.off },
+                        { value: 'soft', label: radioViz.soft },
                       ] as const satisfies { value: BarVisualizerGlow; label: string }[]
                     ).map((option) => (
                       <button
@@ -1246,12 +1257,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   </div>
                 </div>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Colors</h2>
-                  <div className={styles.segments} role="group" aria-label="Visualizer colors">
+                  <h2 className={styles.panelSection__title}>{radioSettings.colors}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.visualizerColors}>
                     {(
                       [
-                        { value: 'theme', label: 'Theme' },
-                        { value: 'prism', label: 'Prism' },
+                        { value: 'theme', label: radioViz.theme },
+                        { value: 'prism', label: radioViz.prism },
                       ] as const satisfies { value: BarVisualizerColorPalette; label: string }[]
                     ).map((option) => (
                       <button
@@ -1277,11 +1288,11 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             ) : null}
             {showSpectrumGradientPicker ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Colors</h2>
+                <h2 className={styles.panelSection__title}>{radioSettings.colors}</h2>
                 <div
                   className={styles.gradientSwatches}
                   role="group"
-                  aria-label="Spectrum visualizer colors"
+                  aria-label={radioAria.spectrumVisualizerColors}
                 >
                   {RADIO_VISUALIZER_GRADIENT_OPTIONS.map((option) => (
                     <button
@@ -1301,7 +1312,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               </div>
             ) : null}
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Opacity</h2>
+              <h2 className={styles.panelSection__title}>{radioSettings.opacity}</h2>
               <div className={styles.opacityControl}>
                 <input
                   type="range"
@@ -1311,7 +1322,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   step={0.05}
                   value={spectrumOpacity}
                   disabled={!spectrumEnabled}
-                  aria-label="Fullscreen spectrum opacity"
+                  aria-label={radioAria.fullscreenSpectrumOpacity}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={spectrumOpacityPct}
@@ -1326,7 +1337,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               </div>
             </div>
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Visualizer height</h2>
+              <h2 className={styles.panelSection__title}>{radioSettings.visualizerHeight}</h2>
               <div className={styles.opacityControl}>
                 <input
                   type="range"
@@ -1342,7 +1353,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       fullscreenSource === 'bar' &&
                       getBarVisualizerFullscreenLayout(playback.visualizerPrefs.presetId) !== 'strip')
                   }
-                  aria-label="Fullscreen visualizer height"
+                  aria-label={radioAria.fullscreenVisualizerHeight}
                   aria-valuemin={Math.round(RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.min * 100)}
                   aria-valuemax={Math.round(RADIO_FULLSCREEN_VISUAL_HEIGHT_RATIO_RANGE.max * 100)}
                   aria-valuenow={spectrumBarHeightPct}
@@ -1358,10 +1369,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             </div>
           </div>
         ) : (
-          <div ref={lookPanelRef} className={styles.settingsSection} aria-label="Bar visualizer look">
+          <div ref={lookPanelRef} className={styles.settingsSection} aria-label={radioAria.barVisualizerLook}>
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Bar style</h2>
-              <div className={styles.optionList} role="group" aria-label="Bar visualizer styles">
+              <h2 className={styles.panelSection__title}>{radioSettings.barStyle}</h2>
+              <div className={styles.optionList} role="group" aria-label={radioAria.barVisualizerStyles}>
                 <button
                   type="button"
                   className={`${styles.optionRow} no-glass`}
@@ -1376,7 +1387,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     );
                   }}
                 >
-                  None
+                  {radioSettings.none}
                 </button>
                 {listBarVisualizerPresetsForSurface('dock').map((preset) => (
                   <button
@@ -1388,7 +1399,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       playback.visualizerPrefs.enabled &&
                       preset.id === playback.visualizerPrefs.dockPresetId
                     }
-                    title={preset.description}
+                    title={resolveRadioBarPresetDescription(radioCopy, preset.id, preset.description)}
                     onClick={() => {
                       handle.setVisualizerPreferences({
                         presetId: preset.id,
@@ -1402,15 +1413,15 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       );
                     }}
                   >
-                    {preset.label}
+                    {resolveRadioBarPresetLabel(radioCopy, preset.id, preset.label)}
                   </button>
                 ))}
               </div>
             </div>
             {playback.visualizerPrefs.enabled && playback.visualizerPrefs.dockPresetId === 'wave' ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Wave style</h2>
-                <div className={styles.segments} role="group" aria-label="Wave line style">
+                <h2 className={styles.panelSection__title}>{radioSettings.waveStyle}</h2>
+                <div className={styles.segments} role="group" aria-label={radioAria.waveLineStyle}>
                   {(['line', 'ribbon'] as const).map((waveStyle) => (
                     <button
                       key={waveStyle}
@@ -1426,7 +1437,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                         );
                       }}
                     >
-                      {waveStyle === 'line' ? 'Line' : 'Ribbon'}
+                      {waveStyle === 'line' ? radioViz.line : radioViz.ribbon}
                     </button>
                   ))}
                 </div>
@@ -1435,7 +1446,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             {playback.visualizerPrefs.enabled &&
             isScopeVisualizerPreset(playback.visualizerPrefs.dockPresetId) ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Wave smoothing</h2>
+                <h2 className={styles.panelSection__title}>{radioSettings.waveSmoothing}</h2>
                 <div className={styles.opacityControl}>
                   <input
                     type="range"
@@ -1444,7 +1455,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     max={SCOPE_SMOOTHING_RANGE.max}
                     step={SCOPE_SMOOTHING_RANGE.step}
                     value={playback.visualizerPrefs.scopeSmoothing}
-                    aria-label="Oscilloscope wave smoothing"
+                    aria-label={radioAria.oscilloscopeSmoothing}
                     aria-valuemin={Math.round(SCOPE_SMOOTHING_RANGE.min * 100)}
                     aria-valuemax={Math.round(SCOPE_SMOOTHING_RANGE.max * 100)}
                     aria-valuenow={Math.round(playback.visualizerPrefs.scopeSmoothing * 100)}
@@ -1468,12 +1479,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             isFrequencyBarsVisualizerPreset(playback.visualizerPrefs.dockPresetId) ? (
               <>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Bar fill</h2>
-                  <div className={styles.segments} role="group" aria-label="Bar fill style">
+                  <h2 className={styles.panelSection__title}>{radioSettings.barFill}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.barFillStyle}>
                     {(
                       [
-                        { value: 'solid', label: 'Solid' },
-                        { value: 'glass', label: 'Glass' },
+                        { value: 'solid', label: radioViz.solid },
+                        { value: 'glass', label: radioViz.glass },
                       ] as const satisfies { value: BarVisualizerBarFill; label: string }[]
                     ).map((option) => (
                       <button
@@ -1496,13 +1507,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   </div>
                 </div>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Trail</h2>
-                  <div className={styles.segments} role="group" aria-label="Bar trail style">
+                  <h2 className={styles.panelSection__title}>{radioSettings.trail}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.barTrailStyle}>
                     {(
                       [
-                        { value: 'none', label: 'None' },
-                        { value: 'peaks', label: 'Peaks' },
-                        { value: 'cascade', label: 'Cascade' },
+                        { value: 'none', label: radioViz.none },
+                        { value: 'peaks', label: radioViz.peaks },
+                        { value: 'cascade', label: radioViz.cascade },
                       ] as const satisfies { value: BarVisualizerBarTrail; label: string }[]
                     ).map((option) => (
                       <button
@@ -1525,12 +1536,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   </div>
                 </div>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Glow</h2>
-                  <div className={styles.segments} role="group" aria-label="Bar glow">
+                  <h2 className={styles.panelSection__title}>{radioSettings.glow}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.barGlow}>
                     {(
                       [
-                        { value: 'off', label: 'Off' },
-                        { value: 'soft', label: 'Soft' },
+                        { value: 'off', label: radioViz.off },
+                        { value: 'soft', label: radioViz.soft },
                       ] as const satisfies { value: BarVisualizerGlow; label: string }[]
                     ).map((option) => (
                       <button
@@ -1553,12 +1564,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   </div>
                 </div>
                 <div className={styles.panelSection}>
-                  <h2 className={styles.panelSection__title}>Colors</h2>
-                  <div className={styles.segments} role="group" aria-label="Visualizer colors">
+                  <h2 className={styles.panelSection__title}>{radioSettings.colors}</h2>
+                  <div className={styles.segments} role="group" aria-label={radioAria.visualizerColors}>
                     {(
                       [
-                        { value: 'theme', label: 'Theme' },
-                        { value: 'prism', label: 'Prism' },
+                        { value: 'theme', label: radioViz.theme },
+                        { value: 'prism', label: radioViz.prism },
                       ] as const satisfies { value: BarVisualizerColorPalette; label: string }[]
                     ).map((option) => (
                       <button
@@ -1584,12 +1595,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             ) : null}
             {playback.visualizerPrefs.enabled ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Bar layout</h2>
-                <div className={styles.segments} role="group" aria-label="Control bar visualizer layout">
+                <h2 className={styles.panelSection__title}>{radioSettings.barLayout}</h2>
+                <div className={styles.segments} role="group" aria-label={radioAria.controlBarVisualizerLayout}>
                   {(
                     [
-                      { value: 'backdrop', label: 'Full background' },
-                      { value: 'inline', label: 'Inline strip' },
+                      { value: 'backdrop', label: radioViz.fullBackground },
+                      { value: 'inline', label: radioViz.inlineStrip },
                     ] as const satisfies { value: BarVisualizerDockLayoutMode; label: string }[]
                   ).map((option) => (
                     <button
@@ -1614,7 +1625,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             ) : null}
             {playback.visualizerPrefs.enabled && dockLayoutMode === 'backdrop' ? (
               <div className={styles.panelSection}>
-                <h2 className={styles.panelSection__title}>Opacity</h2>
+                <h2 className={styles.panelSection__title}>{radioSettings.opacity}</h2>
                 <div className={styles.opacityControl}>
                   <input
                     type="range"
@@ -1623,7 +1634,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     max={DOCK_OPACITY_RANGE.max}
                     step={DOCK_OPACITY_RANGE.step}
                     value={dockVisualizerOpacity}
-                    aria-label="Control bar visualizer opacity"
+                    aria-label={radioAria.controlBarVisualizerOpacity}
                     aria-valuemin={Math.round(DOCK_OPACITY_RANGE.min * 100)}
                     aria-valuemax={Math.round(DOCK_OPACITY_RANGE.max * 100)}
                     aria-valuenow={dockVisualizerOpacityPct}
@@ -1644,8 +1655,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               </div>
             ) : null}
             <div className={styles.panelSection}>
-              <h2 className={styles.panelSection__title}>Density</h2>
-              <div className={styles.segments} role="group" aria-label="Bar spacing">
+              <h2 className={styles.panelSection__title}>{radioSettings.density}</h2>
+              <div className={styles.segments} role="group" aria-label={radioAria.barSpacing}>
                 {DENSITY_OPTIONS.map((density) => (
                   <button
                     key={density}
@@ -1661,7 +1672,11 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                       );
                     }}
                   >
-                    {DENSITY_LABELS[density]}
+                    {density === 'compact'
+                      ? radioViz.compact
+                      : density === 'wide'
+                        ? radioViz.wide
+                        : radioViz.normal}
                   </button>
                 ))}
               </div>
@@ -1688,7 +1703,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             type="button"
             className={`${styles.play} no-glass`}
             data-playing={playback.isPlaying ? 'true' : 'false'}
-            aria-label={playback.isPlaying ? 'Pause' : 'Play'}
+            aria-label={playback.isPlaying ? radioAria.pause : radioAria.play}
             onClick={() => {
               void (async () => {
                 if (handle.isPlaying()) {
@@ -1709,12 +1724,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             />
           </button>
 
-          <div className={styles.transport} aria-label="Station transport">
+          <div className={styles.transport} aria-label={radioAria.stationTransport}>
             <button
               type="button"
               className={`${styles.transportBtn} no-glass`}
-              aria-label="Previous station"
-              title="Previous station"
+              aria-label={radioAria.previousStation}
+              title={radioAria.previousStation}
               disabled={!canSkipStations}
               data-testid="radio-previous-station"
               onClick={() => {
@@ -1726,8 +1741,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             <button
               type="button"
               className={`${styles.transportBtn} no-glass`}
-              aria-label="Next station"
-              title="Next station"
+              aria-label={radioAria.nextStation}
+              title={radioAria.nextStation}
               disabled={!canSkipStations}
               data-testid="radio-next-station"
               onClick={() => {
@@ -1757,16 +1772,16 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   type="button"
                   className={`${styles.metaStationFavorite} no-glass`}
                   aria-pressed={isCurrentStationFavorite}
-                  aria-label={
+                  aria-label={formatRadioFavoriteAria(
+                    radioCopy,
+                    playback.stationName,
                     isCurrentStationFavorite
-                      ? `Remove ${playback.stationName} from favorites`
-                      : `Add ${playback.stationName} to favorites`
-                  }
-                  title={
+                  )}
+                  title={formatRadioFavoriteAria(
+                    radioCopy,
+                    playback.stationName,
                     isCurrentStationFavorite
-                      ? `Remove ${playback.stationName} from favorites`
-                      : `Add ${playback.stationName} to favorites`
-                  }
+                  )}
                   data-testid="radio-favorite-current-station"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -1779,8 +1794,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   type="button"
                   className={`${styles.stationPicker} no-glass`}
                   aria-expanded={activePanel === 'stations'}
-                  aria-label={`Change station — now on ${playback.stationName}`}
-                  title="Change station"
+                  aria-label={`${radioAria.changeStationPrefix} ${playback.stationName}`}
+                  title={radioAria.changeStationTitle}
                   onClick={() => {
                     togglePanel('stations');
                   }}
@@ -1819,7 +1834,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               <div
                 role="separator"
                 aria-orientation="vertical"
-                aria-label="Drag to widen station and track text. Double-click to reset."
+                aria-label={radioAria.dragToWidenText}
                 aria-valuenow={metaWidthPx ?? undefined}
                 className={styles.metaResizeHandle}
                 data-mappy-cursor="ew-resize"
@@ -1858,8 +1873,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             type="button"
             className={`${styles.toolIconBtn} no-glass`}
             aria-pressed={activePanel === 'settings'}
-            aria-label="Player settings"
-            title="Player settings"
+            aria-label={radioAria.playerSettings}
+            title={radioAria.playerSettingsTitle}
             data-testid="radio-settings-trigger"
             onClick={() => {
               togglePanel('settings');
@@ -1877,8 +1892,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               type="button"
               className={`${styles.toolIconBtn} no-glass`}
               aria-pressed={isFullscreen}
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              aria-label={isFullscreen ? radioAria.exitFullscreen : radioAria.enterFullscreen}
+              title={isFullscreen ? radioAria.exitFullscreen : radioAria.enterFullscreen}
               data-testid="radio-pwa-document-fullscreen-trigger"
               onClick={() => {
                 void toggleDocumentFullscreen();
@@ -1891,8 +1906,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               type="button"
               className={`${styles.toolIconBtn} no-glass`}
               aria-pressed={isActive}
-              aria-label={isActive ? 'Exit fullscreen visualizer' : 'Open fullscreen visualizer'}
-              title={isActive ? 'Exit fullscreen visualizer' : 'Open fullscreen visualizer'}
+              aria-label={
+                isActive ? radioAria.exitFullscreenVisualizer : radioAria.openFullscreenVisualizer
+              }
+              title={
+                isActive ? radioAria.exitFullscreenVisualizer : radioAria.openFullscreenVisualizer
+              }
               data-testid="visualizer-mode-trigger"
               onClick={() => {
                 if (isActive) {

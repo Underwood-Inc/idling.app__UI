@@ -87,8 +87,7 @@ export function GlobalLoadingProvider({
           url.includes('/api/radio/now-playing') || // Skip radio metadata polling
           url.includes('api.modrinth.com') || // Skip Modrinth stats on showcase cards
           url.includes('/api/profile/') || // Skip profile data requests (per-post author data)
-          url.includes('/api/decoration') || // Skip decoration/flair requests
-          url.includes('buddha-api.com') // Skip Buddha API requests
+          url.includes('/api/decoration') // Skip decoration/flair requests
         ) {
           return originalFetch(input, init);
         }

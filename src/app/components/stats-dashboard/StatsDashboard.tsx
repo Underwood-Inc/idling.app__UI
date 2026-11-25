@@ -1,5 +1,7 @@
 'use client';
 
+import { PORTFOLIO_EN } from '$i18n-source/portfolio.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import {
   STATS_QUICK_LINKS,
@@ -7,6 +9,7 @@ import {
   type SiteIconId,
 } from '@molecules/lucide/siteIconCatalog';
 import { useEffect, useState } from 'react';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import {
   fetchModrinthShowcaseMetrics,
   formatModrinthCount,
@@ -27,20 +30,28 @@ interface MetricDefinition {
   label: string;
 }
 
-const LOADING_METRICS: MetricDefinition[] = [
-  { iconId: 'package', label: 'Modrinth Projects' },
-  { iconId: 'download', label: 'Mod Downloads' },
-  { iconId: 'users', label: 'Modrinth Followers' },
-];
-
-const METRICS_PRIVACY_NOTE =
-  'Figures are from Modrinth and cover listed Minecraft projects only. BuiltByBit purchase and update metrics are not public. We do not track downloads, activity, or users on our other applications — by design, for privacy — so there are no public metrics for those projects.';
-
 function MetricIcon({ iconId }: { iconId: SiteIconId }) {
   return <SiteIcon id={iconId} className={styles.metric__icon} sizeRem={1.125} />;
 }
 
 export function StatsDashboard() {
+  const { ll } = useIdlingLocale();
+  const portfolio = resolveCatalogFromLl(PORTFOLIO_EN, ll.portfolio as Record<string, unknown>);
+  const statsCopy = portfolio.stats;
+
+  const quickLinkLabelByHref = Object.fromEntries(
+    statsCopy.quickLinks.map((link) => [link.href, link.label])
+  );
+  const techTitleByName = Object.fromEntries(
+    statsCopy.techCategories.map((category) => [category.title, category])
+  );
+
+  const loadingMetrics: MetricDefinition[] = [
+    { iconId: 'package', label: statsCopy.metrics.modrinthProjects },
+    { iconId: 'download', label: statsCopy.metrics.modDownloads },
+    { iconId: 'users', label: statsCopy.metrics.modrinthFollowers },
+  ];
+
   const [stats, setStats] = useState<PortfolioStats>({
     totalProjects: null,
     totalDownloads: null,
@@ -72,10 +83,10 @@ export function StatsDashboard() {
   return (
     <div className={styles.dashboard}>
       <Card width="full" className={styles.card}>
-        <h3 className={styles.card__title}>Modrinth Metrics</h3>
+        <h3 className={styles.card__title}>{statsCopy.modrinthMetricsTitle}</h3>
         <div className={styles.metrics}>
           {isLoading ? (
-            LOADING_METRICS.map((metric) => (
+            loadingMetrics.map((metric) => (
               <div key={metric.label} className={styles.metric}>
                 <MetricIcon iconId={metric.iconId} />
                 <div className={styles.metric__content}>
@@ -91,7 +102,7 @@ export function StatsDashboard() {
                   <MetricIcon iconId="package" />
                   <div className={styles.metric__content}>
                     <span className={styles.metric__value}>{stats.totalProjects}</span>
-                    <span className={styles.metric__label}>Modrinth Projects</span>
+                    <span className={styles.metric__label}>{statsCopy.metrics.modrinthProjects}</span>
                   </div>
                 </div>
               )}
@@ -100,7 +111,7 @@ export function StatsDashboard() {
                   <MetricIcon iconId="download" />
                   <div className={styles.metric__content}>
                     <span className={styles.metric__value}>{stats.totalDownloads}</span>
-                    <span className={styles.metric__label}>Mod Downloads</span>
+                    <span className={styles.metric__label}>{statsCopy.metrics.modDownloads}</span>
                   </div>
                 </div>
               )}
@@ -109,7 +120,7 @@ export function StatsDashboard() {
                   <MetricIcon iconId="users" />
                   <div className={styles.metric__content}>
                     <span className={styles.metric__value}>{stats.totalFollowers}</span>
-                    <span className={styles.metric__label}>Modrinth Followers</span>
+                    <span className={styles.metric__label}>{statsCopy.metrics.modrinthFollowers}</span>
                   </div>
                 </div>
               )}
@@ -118,7 +129,7 @@ export function StatsDashboard() {
                   <MetricIcon iconId="star" />
                   <div className={styles.metric__content}>
                     <span className={styles.metric__value}>{stats.githubStars}</span>
-                    <span className={styles.metric__label}>GitHub Stars</span>
+                    <span className={styles.metric__label}>{statsCopy.metrics.githubStars}</span>
                   </div>
                 </div>
               )}
@@ -127,33 +138,36 @@ export function StatsDashboard() {
         </div>
         <p className={styles.metrics__note}>
           <SiteIcon id="shield" className={styles.metrics__noteIcon} sizeRem={0.875} aria-hidden />
-          <span>{METRICS_PRIVACY_NOTE}</span>
+          <span>{statsCopy.privacyNote}</span>
         </p>
       </Card>
 
       <Card width="full" className={styles.card}>
-        <h3 className={styles.card__title}>Technology Stack</h3>
+        <h3 className={styles.card__title}>{statsCopy.technologyStackTitle}</h3>
         <div className={styles.techStack}>
-          {STATS_TECH_CATEGORIES.map((category) => (
-            <div key={category.title} className={styles.techCategory}>
-              <h4 className={`${styles.techCategory__title} icon-inline`}>
-                <SiteIcon id={category.iconId} className={styles.techCategory__icon} sizeRem={1} />
-                {category.title}
-              </h4>
-              <div className={styles.techBadges}>
-                {category.badges.map((badge) => (
-                  <span key={badge} className={styles.techBadge}>
-                    {badge}
-                  </span>
-                ))}
+          {STATS_TECH_CATEGORIES.map((category) => {
+            const localized = techTitleByName[category.title];
+            return (
+              <div key={category.title} className={styles.techCategory}>
+                <h4 className={`${styles.techCategory__title} icon-inline`}>
+                  <SiteIcon id={category.iconId} className={styles.techCategory__icon} sizeRem={1} />
+                  {localized?.title ?? category.title}
+                </h4>
+                <div className={styles.techBadges}>
+                  {(localized?.badges ?? category.badges).map((badge) => (
+                    <span key={badge} className={styles.techBadge}>
+                      {badge}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
 
       <Card width="full" className={styles.card}>
-        <h3 className={styles.card__title}>Quick Links</h3>
+        <h3 className={styles.card__title}>{statsCopy.quickLinksTitle}</h3>
         <div className={styles.links}>
           {STATS_QUICK_LINKS.map((link) => (
             <a
@@ -164,7 +178,9 @@ export function StatsDashboard() {
               className={`${styles.link} contrast-safe-surface icon-inline`}
             >
               <SiteIcon id={link.iconId} className={styles.link__icon} sizeRem={1} />
-              <span className={styles.link__label}>{link.label}</span>
+              <span className={styles.link__label}>
+                {quickLinkLabelByHref[link.href] ?? link.label}
+              </span>
             </a>
           ))}
         </div>
