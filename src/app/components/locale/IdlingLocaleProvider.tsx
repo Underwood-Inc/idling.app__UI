@@ -29,8 +29,6 @@ import {
 } from '@molecules/quotes/resolveIdlingLocale';
 import { writeIdlingLocaleCookie } from '@molecules/quotes/writeIdlingLocaleCookie';
 
-initIdlingI18n('en');
-
 interface IdlingLocaleContextValue {
   localeId: IdlingLocaleId;
   /** Bumps after async locale apply (radio / copy hooks). */
@@ -45,13 +43,6 @@ const IdlingLocaleContext = createContext<IdlingLocaleContextValue | null>(null)
 
 function isTestRuntime(): boolean {
   return process.env.NODE_ENV === 'test';
-}
-
-function resolveInitialLocale(): IdlingLocaleId {
-  if (typeof window === 'undefined') {
-    return IDLING_BASE_LOCALE;
-  }
-  return resolveIdlingLocale();
 }
 
 function testLocaleContext(): IdlingLocaleContextValue {
@@ -71,8 +62,17 @@ function testLocaleContext(): IdlingLocaleContextValue {
  * — async `loadLocaleAsync('en')` then `initIdlingI18nAsync`, never sync-boot a non-English locale.
  */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
-  const [localeId, setLocaleIdState] = useState<IdlingLocaleId>(resolveInitialLocale);
+  /** Same on server and first client paint — avoids hydration mismatch (stored locale applied in effect). */
+  const [localeId, setLocaleIdState] = useState<IdlingLocaleId>(IDLING_BASE_LOCALE);
   const [localeEpoch, bumpLocale] = useState(0);
+
+  useEffect(() => {
+    initIdlingI18n(IDLING_BASE_LOCALE);
+    const stored = resolveIdlingLocale();
+    if (stored !== IDLING_BASE_LOCALE) {
+      setLocaleIdState(stored);
+    }
+  }, []);
 
   const applyLocale = useCallback(async (id: IdlingLocaleId) => {
     await loadLocaleAsync('en');

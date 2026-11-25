@@ -9,11 +9,15 @@ import {
 } from './idlingQuoteBundleCore';
 import type { IdlingQuoteRecord } from './idlingQuoteTypes';
 
-const shardCache: Partial<Record<IdlingLocaleId, QuoteLocaleShard>> = {};
+import quoteIndex from '../../data/quotes/quote-index.json';
+import enShard from '../../data/quotes/locales/en.json';
 
-let manifest: QuoteIndexManifest | null = null;
-let english: QuoteLocaleShard | null = null;
-let bundleReady: Promise<void> | null = null;
+const manifest = quoteIndex as QuoteIndexManifest;
+const english = enShard as QuoteLocaleShard;
+
+const shardCache: Partial<Record<IdlingLocaleId, QuoteLocaleShard>> = {
+  en: english,
+};
 
 const shardLoaders: Record<
   Exclude<IdlingLocaleId, 'en'>,
@@ -33,56 +37,37 @@ const shardLoaders: Record<
 
 const shardLoadPromises = new Map<IdlingLocaleId, Promise<void>>();
 
-/** Load index + English shard on demand — keeps quote JSON off the critical path. */
+/** English + index are sync-bundled; other locales stay async (see #369). */
 export function ensureQuoteBundleReady(): Promise<void> {
-  if (english && manifest) {
-    return Promise.resolve();
-  }
-  if (bundleReady) {
-    return bundleReady;
-  }
-  bundleReady = Promise.all([
-    import('../../data/quotes/quote-index.json'),
-    import('../../data/quotes/locales/en.json'),
-  ]).then(([indexMod, enMod]) => {
-    manifest = indexMod.default as QuoteIndexManifest;
-    english = enMod.default as QuoteLocaleShard;
-    shardCache.en = english;
-  });
-  return bundleReady;
+  return Promise.resolve();
 }
 
 export function ensureQuoteLocaleShard(locale: IdlingLocaleId): Promise<void> {
-  return ensureQuoteBundleReady().then(() => {
-    if (locale === 'en' || shardCache[locale]) {
-      return;
-    }
-    const existing = shardLoadPromises.get(locale);
-    if (existing) {
-      return existing;
-    }
-    const loader = shardLoaders[locale as Exclude<IdlingLocaleId, 'en'>];
-    if (!loader) {
-      return;
-    }
-    const promise = loader()
-      .then((shard) => {
-        shardCache[locale] = shard;
-      })
-      .finally(() => {
-        shardLoadPromises.delete(locale);
-      });
-    shardLoadPromises.set(locale, promise);
-    return promise;
-  });
+  if (locale === 'en' || shardCache[locale]) {
+    return Promise.resolve();
+  }
+  const existing = shardLoadPromises.get(locale);
+  if (existing) {
+    return existing;
+  }
+  const loader = shardLoaders[locale as Exclude<IdlingLocaleId, 'en'>];
+  if (!loader) {
+    return Promise.resolve();
+  }
+  const promise = loader()
+    .then((shard) => {
+      shardCache[locale] = shard;
+    })
+    .finally(() => {
+      shardLoadPromises.delete(locale);
+    });
+  shardLoadPromises.set(locale, promise);
+  return promise;
 }
 
 export function getRandomQuoteFromBundle(
   localeInput: string
 ): IdlingQuoteRecord | null {
-  if (!manifest || !english) {
-    return null;
-  }
   const locale = coerceIdlingLocaleId(localeInput);
   const shard = resolveQuoteLocaleShard(
     english,
