@@ -67,12 +67,23 @@ export function getLL(): TranslationFunctions {
   return LL!;
 }
 
-/** Mappy site pattern: ensure English is loaded, then activate the target locale. */
+/** Activate target locale sync first (bundled modules), then refresh async chunks when they load. */
 export async function setIdlingLocale(locale: Locales): Promise<void> {
-  await loadLocaleAsync('en');
-  await loadLocaleAsync(locale);
+  loadLocale('en');
+  loadLocale(locale);
   activeLocale = locale;
   LL = i18nObject(locale);
   applyDocumentLocale(locale);
   notifyLocaleChange();
+
+  try {
+    await loadLocaleAsync('en');
+    await loadLocaleAsync(locale);
+    activeLocale = locale;
+    LL = i18nObject(locale);
+    applyDocumentLocale(locale);
+    notifyLocaleChange();
+  } catch {
+    /* sync activation already applied */
+  }
 }

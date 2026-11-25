@@ -2,32 +2,12 @@
 
 import { getRandomQuoteFromBundleServer } from '@molecules/quotes/idlingQuoteBundleRuntime.server';
 import { coerceIdlingLocaleId } from '@molecules/quotes/idlingLocaleCatalog';
-import type { IdlingQuoteRecord } from '@molecules/quotes/idlingQuoteTypes';
+import {
+  idlingQuoteRecordToTickerPayload,
+  type MessageTickerQuotePayload,
+} from '@molecules/quotes/messageTickerQuotePayload';
 
-export interface TickerQuotePayload {
-  line: string;
-  id: string;
-  locale: string;
-  text: string;
-  attribution: string;
-  author: string;
-  sourceTitle: string;
-}
-
-function toPayload(
-  record: IdlingQuoteRecord,
-  separator: string
-): TickerQuotePayload {
-  return {
-    id: record.id,
-    locale: record.locale,
-    text: record.text,
-    attribution: record.attribution,
-    author: record.author,
-    sourceTitle: record.sourceTitle,
-    line: `${record.text}${separator}${record.attribution}`,
-  };
-}
+export type TickerQuotePayload = MessageTickerQuotePayload;
 
 export async function fetchTickerQuote(
   localeInput: string,
@@ -45,5 +25,5 @@ export async function fetchTickerQuote(
     return null;
   }
 
-  return toPayload(record, separator);
+  return idlingQuoteRecordToTickerPayload(record, separator);
 }

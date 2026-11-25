@@ -3,15 +3,20 @@
 import { useOverlay } from '@lib/context/OverlayContext';
 import { formatTickerLine } from '@molecules/quotes/idlingMessageTickerFormat';
 import { buildMessageTickerQuoteOverlayViewModel } from '@molecules/quotes/messageTickerQuoteOverlay';
+import type { MessageTickerQuotePayload } from '@molecules/quotes/messageTickerQuotePayload';
+import { pickMessageTickerQuote } from '@molecules/quotes/messageTickerQuotePayload';
 import type { IdlingQuoteRecord } from '@molecules/quotes/idlingQuoteTypes';
-import { useCallback, useEffect, useState } from 'react';
+import type { TranslationFunctions } from '$i18n/i18n-types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { MessageTicker } from './MessageTicker';
 import { openMessageTickerQuoteOverlay } from './openMessageTickerQuoteOverlay';
-import { fetchTickerQuote, type TickerQuotePayload } from './tickerActions';
 
-function payloadToRecord(payload: TickerQuotePayload, locale: string): IdlingQuoteRecord {
+function payloadToRecord(
+  payload: MessageTickerQuotePayload,
+  locale: string
+): IdlingQuoteRecord {
   return {
     id: payload.id,
     locale,
@@ -24,44 +29,51 @@ function payloadToRecord(payload: TickerQuotePayload, locale: string): IdlingQuo
   };
 }
 
-export default function MessageTickerWithInterval() {
-  const { localeId, ll } = useIdlingLocale();
-  const { openOverlay, closeOverlay } = useOverlay();
-  const [message, setMessage] = useState<string[]>([]);
-  const [activeQuote, setActiveQuote] = useState<TickerQuotePayload | null>(null);
-  const [pending, setPending] = useState(true);
+function tickerLines(
+  payload: MessageTickerQuotePayload | null,
+  ll: TranslationFunctions
+): { quote: MessageTickerQuotePayload | null; lines: string[] } {
+  if (!payload?.text) {
+    return { quote: null, lines: [ll.messageTicker.empty()] };
+  }
+  const record = payloadToRecord(payload, payload.locale);
+  return { quote: payload, lines: [formatTickerLine(record, ll)] };
+}
 
-  const loadQuote = useCallback(() => {
-    setPending(true);
-    fetchTickerQuote(localeId, ll.messageTicker.separator())
-      .then((result) => {
-        if (result?.text) {
-          setActiveQuote(result);
-          const record = payloadToRecord(result, result.locale);
-          setMessage([formatTickerLine(record, ll)]);
-        } else {
-          setActiveQuote(null);
-          setMessage([ll.messageTicker.empty()]);
-        }
-      })
-      .catch(() => {
-        setActiveQuote(null);
-        setMessage([ll.messageTicker.empty()]);
-      })
-      .finally(() => {
-        setPending(false);
-      });
-  }, [localeId, ll]);
+export default function MessageTickerWithInterval() {
+  const { localeId, localeRevision, ll } = useIdlingLocale();
+  const { openOverlay, closeOverlay } = useOverlay();
+  const separator = ll.messageTicker.separator();
+
+  const refreshQuote = useCallback(() => {
+    const payload = pickMessageTickerQuote(localeId, separator);
+    return tickerLines(payload, ll);
+  }, [localeId, ll, separator]);
+
+  const [activeQuote, setActiveQuote] = useState<MessageTickerQuotePayload | null>(() => {
+    const payload = pickMessageTickerQuote(localeId, separator);
+    return payload?.text ? payload : null;
+  });
+  const [message, setMessage] = useState<string[]>(() => tickerLines(
+    pickMessageTickerQuote(localeId, separator),
+    ll
+  ).lines);
+
+  const refreshRef = useRef(refreshQuote);
+  refreshRef.current = refreshQuote;
 
   useEffect(() => {
-    loadQuote();
+    const next = refreshRef.current();
+    setActiveQuote(next.quote);
+    setMessage(next.lines);
+  }, [localeId, localeRevision, separator]);
 
+  useEffect(() => {
     const getRandomInterval = () => {
       const minInterval = 10 * 60 * 1000;
       const maxInterval = 20 * 60 * 1000;
       return (
-        Math.floor(Math.random() * (maxInterval - minInterval + 1)) +
-        minInterval
+        Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval
       );
     };
 
@@ -70,7 +82,9 @@ export default function MessageTickerWithInterval() {
     const setupInterval = () => {
       const randomInterval = getRandomInterval();
       return setTimeout(() => {
-        loadQuote();
+        const next = refreshRef.current();
+        setActiveQuote(next.quote);
+        setMessage(next.lines);
         intervalRef.current = setupInterval();
       }, randomInterval);
     };
@@ -82,7 +96,7 @@ export default function MessageTickerWithInterval() {
         clearTimeout(intervalRef.current);
       }
     };
-  }, [loadQuote]);
+  }, []);
 
   const handleOpenQuote = useCallback(() => {
     if (!activeQuote) {
@@ -103,10 +117,6 @@ export default function MessageTickerWithInterval() {
       },
     });
   }, [activeQuote, closeOverlay, localeId, ll, openOverlay]);
-
-  if (pending && message.length === 0) {
-    return <span>{ll.messageTicker.loading()}</span>;
-  }
 
   if (message.length === 0) {
     return <span>{ll.messageTicker.empty()}</span>;

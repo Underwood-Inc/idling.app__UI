@@ -84,7 +84,7 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
     return true;
   });
   const [localeEpoch, bumpLocale] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const loading = false;
 
   useEffect(() => {
     if (isTestRuntime()) {
@@ -111,17 +111,15 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => subscribeIdlingLocale(() => bumpLocale((n) => n + 1)), []);
 
   const setLocaleId = useCallback((id: IdlingLocaleId) => {
-    setLoading(true);
     try {
       localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, id);
     } catch {
       /* ignore */
     }
     writeIdlingLocaleCookie(id);
-    void setIdlingLocale(id as Locales).finally(() => {
-      setLoading(false);
-      bumpLocale((epoch) => epoch + 1);
-    });
+    initIdlingI18n(id as Locales);
+    bumpLocale((epoch) => epoch + 1);
+    void setIdlingLocale(id as Locales);
   }, []);
 
   const value = useMemo(
