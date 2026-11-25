@@ -1,10 +1,11 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { RADIO_EN } from '$i18n-source/radio.en';
 import { initIdlingI18nAsync, setIdlingLocale } from '$i18n/idling-i18n';
 import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { getLL } from '$i18n/idling-i18n';
 import type { ReactNode } from 'react';
-import { IdlingLocaleProvider } from '../locale/IdlingLocaleProvider';
+import { IDLING_UI_LOCALE_STORAGE_KEY } from '@molecules/quotes/resolveIdlingLocale';
+import { IdlingLocaleProvider, useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { useRadioCopy } from './useRadioCopy';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -26,16 +27,25 @@ describe('useRadioCopy locale switching', () => {
   });
 
   test('when provider locale changes, hook returns updated bar copy', async () => {
-    const { result } = renderHook(() => useRadioCopy(), { wrapper });
+    localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, 'en');
+    const { result } = renderHook(
+      () => ({
+        copy: useRadioCopy(),
+        locale: useIdlingLocale(),
+      }),
+      { wrapper }
+    );
     await waitFor(() => {
-      expect(result.current.bar.pressPlayToStart).toBeTruthy();
+      expect(result.current.copy.bar.pressPlayToStart).toBe(RADIO_EN.bar.pressPlayToStart);
     });
-    const english = result.current.bar.pressPlayToStart;
+    const english = result.current.copy.bar.pressPlayToStart;
 
-    await setIdlingLocale('zh');
+    await act(async () => {
+      result.current.locale.setLocaleId('zh');
+    });
 
     await waitFor(() => {
-      expect(result.current.bar.pressPlayToStart).not.toBe(english);
+      expect(result.current.copy.bar.pressPlayToStart).not.toBe(english);
     });
   });
 });
