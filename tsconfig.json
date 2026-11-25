@@ -84,6 +84,7 @@
   ],
   "exclude": [
     "node_modules",
+    "scripts",
     "vitest.config.ts",
     "vitest.env.ts",
     "vitest.setup.ts",
