@@ -6,12 +6,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DASHBOARD_COPY } from '../../src/app/components/marketing-dashboard/productMarketing.ts';
+import { DASHBOARD_COPY } from '../../src/app/components/marketing-dashboard/productMarketing';
 import enExisting from '../../src/i18n/locales/en.json' with { type: 'json' };
-import { getHomeHubContentEntry } from '../../src/app/components/marketing-dashboard/homeHubContent.ts';
-import { HOME_HUB_STRUCTURE } from '../../src/app/components/marketing-dashboard/homeHubContent.ts';
-import { PROJECT_SHOWCASE_PROJECTS } from '../../src/app/components/project-showcase/projectShowcaseProjects.ts';
-import { STRIXUN_SUITE_PRODUCT_COPY_EN } from '../../src/app/strixun-stream-suite/strixunSuiteProducts.ts';
+import { getHomeHubContentEntry } from '../../src/app/components/marketing-dashboard/homeHubContent';
+import { HOME_HUB_STRUCTURE } from '../../src/app/components/marketing-dashboard/homeHubContent';
+import { PROJECT_SHOWCASE_PROJECTS } from '../../src/app/components/project-showcase/projectShowcaseProjects';
+import { STRIXUN_SUITE_PRODUCT_COPY_EN } from '../../src/app/strixun-stream-suite/strixunSuiteProducts';
 import {
   ADMIN_EN,
   AUTH_EN,
@@ -27,9 +27,9 @@ import {
   TOOLS_SVG_CONVERTER_EN,
   SUBSCRIPTION_EN,
   RADIO_EN,
-} from '../../src/i18n-en-catalog/index.ts';
-import { NAV_GROUPS, NAV_PATH_LABELS, ROUTE_KEYS } from '../../src/lib/routes.ts';
-import { idlingProductI18nKey } from '../../src/molecules/i18n/idlingProductI18nKey.ts';
+} from '../../src/i18n-en-catalog/index';
+import { NAV_GROUPS, NAV_PATH_LABELS, ROUTE_KEYS } from '../../src/lib/routes';
+import { idlingProductI18nKey } from '../../src/molecules/i18n/idlingProductI18nKey';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const EN_PATH = path.join(ROOT, 'src/i18n/locales/en.json');

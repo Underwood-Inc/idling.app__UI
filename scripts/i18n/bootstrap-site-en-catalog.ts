@@ -6,13 +6,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { HOME_HUB_CONTENT } from '../../src/app/components/marketing-dashboard/homeHubContent.ts';
+import { HOME_HUB_CONTENT } from '../../src/app/components/marketing-dashboard/homeHubContent';
 import {
   DASHBOARD_COPY,
   PRODUCT_AUDIENCE_LINES,
   PRODUCT_MARKETING_HOOKS,
-} from '../../src/app/components/marketing-dashboard/productMarketing.ts';
-import { NAV_GROUPS, NAV_PATH_LABELS, ROUTE_KEYS } from '../../src/lib/routes.ts';
+} from '../../src/app/components/marketing-dashboard/productMarketing';
+import { NAV_GROUPS, NAV_PATH_LABELS, ROUTE_KEYS } from '../../src/lib/routes';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const EN_PATH = path.join(ROOT, 'src/i18n/locales/en.json');
