@@ -25,7 +25,7 @@ import {
 } from '@molecules/quotes/idlingLocaleCatalog';
 import {
   IDLING_UI_LOCALE_STORAGE_KEY,
-  resolveIdlingLocale,
+  resolveIdlingLocaleFromStorage,
 } from '@molecules/quotes/resolveIdlingLocale';
 import { writeIdlingLocaleCookie } from '@molecules/quotes/writeIdlingLocaleCookie';
 
@@ -59,74 +59,101 @@ function testLocaleContext(): IdlingLocaleContextValue {
 }
 
 /**
- * Same orchestration as Mappy {@link SiteLocaleContext}: `loadLocaleAsync('en')` →
- * `commitIdlingLocale`, React state for `localeId` + `ll`, no global subscriber bus.
+ * Sync English for first paint. Other UI locales load only on picker change or
+ * deferred localStorage preference (not navigator language on every visit).
  */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   const [localeId, setLocaleIdState] = useState<IdlingLocaleId>(IDLING_BASE_LOCALE);
-  /** Bumped after each successful `commitIdlingLocale` so context re-reads module `getLL()`. */
-  const [llTick, setLlTick] = useState(0);
+  const [llRevision, setLlRevision] = useState(() => {
+    initIdlingI18n(IDLING_BASE_LOCALE);
+    return 0;
+  });
+  const [loading, setLoading] = useState(false);
   const loadSeq = useRef(0);
 
-  useEffect(() => {
-    const stored = resolveIdlingLocale();
-    if (stored !== IDLING_BASE_LOCALE) {
-      setLocaleIdState(stored);
-    }
+  const bumpLl = useCallback(() => {
+    setLlRevision((revision) => revision + 1);
   }, []);
 
-  useEffect(() => {
-    const seq = ++loadSeq.current;
-    const target = localeId;
-
-    void (async () => {
-      try {
-        await loadLocaleAsync('en');
-        if (loadSeq.current !== seq) {
-          return;
-        }
-        await loadLocaleAsync(target as Locales);
-        if (loadSeq.current !== seq) {
-          return;
-        }
-        commitIdlingLocale(target as Locales);
-        setLlTick((tick) => tick + 1);
-        try {
-          writeIdlingLocaleCookie(target);
-          localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, target);
-        } catch {
-          /* ignore */
-        }
-      } catch {
-        if (loadSeq.current !== seq) {
-          return;
-        }
-        initIdlingI18n(IDLING_BASE_LOCALE);
-        setLlTick((tick) => tick + 1);
+  const applyLocaleAsync = useCallback(async (target: IdlingLocaleId, seq: number) => {
+    if (target === IDLING_BASE_LOCALE) {
+      if (loadSeq.current !== seq) {
+        return;
       }
-    })();
+      initIdlingI18n(IDLING_BASE_LOCALE);
+      setLocaleIdState(IDLING_BASE_LOCALE);
+      bumpLl();
+      setLoading(false);
+      try {
+        writeIdlingLocaleCookie(target);
+        localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, target);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
 
+    setLoading(true);
+    try {
+      await loadLocaleAsync(target as Locales);
+      if (loadSeq.current !== seq) {
+        return;
+      }
+      commitIdlingLocale(target as Locales);
+      setLocaleIdState(target);
+      bumpLl();
+      try {
+        writeIdlingLocaleCookie(target);
+        localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, target);
+      } catch {
+        /* ignore */
+      }
+    } catch {
+      if (loadSeq.current !== seq) {
+        return;
+      }
+      initIdlingI18n(IDLING_BASE_LOCALE);
+      setLocaleIdState(IDLING_BASE_LOCALE);
+      bumpLl();
+    } finally {
+      if (loadSeq.current === seq) {
+        setLoading(false);
+      }
+    }
+  }, [bumpLl]);
+
+  useEffect(() => {
+    const stored = resolveIdlingLocaleFromStorage();
+    if (!stored || stored === IDLING_BASE_LOCALE) {
+      return;
+    }
+    const seq = ++loadSeq.current;
+    void applyLocaleAsync(stored, seq);
     return () => {
       loadSeq.current += 1;
     };
-  }, [localeId]);
+  }, [applyLocaleAsync]);
 
-  const setLocaleId = useCallback((id: IdlingLocaleId) => {
-    if (id === localeId) {
-      return;
-    }
-    setLocaleIdState(id);
-  }, [localeId]);
+  const setLocaleId = useCallback(
+    (id: IdlingLocaleId) => {
+      if (id === localeId && !loading) {
+        return;
+      }
+      const seq = ++loadSeq.current;
+      void applyLocaleAsync(id, seq);
+    },
+    [localeId, loading, applyLocaleAsync]
+  );
 
   const value = useMemo(
     () => ({
       localeId,
       ll: getLL(),
-      loading: false,
+      loading,
       setLocaleId,
       catalog: IDLING_LOCALE_CATALOG,
     }),
-    [localeId, llTick, setLocaleId]
+    [localeId, llRevision, loading, setLocaleId]
   );
 
   return (
