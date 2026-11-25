@@ -5,11 +5,12 @@ import {
   getRandomQuoteFromBundle,
 } from './idlingQuoteBundleRuntime';
 
-test('when the quote bundle has not been loaded, sync pick returns null', () => {
-  expect(getRandomQuoteFromBundle('en')).toBeNull();
+test('when English is bundled, sync pick returns a quote without async ensure', () => {
+  const record = getRandomQuoteFromBundle('en');
+  expect(record?.text?.length).toBeGreaterThan(0);
 });
 
-test('when the quote bundle is loaded async, sync pick returns a quote', async () => {
+test('when ensureQuoteBundleReady is called, English pick still works', async () => {
   await ensureQuoteBundleReady();
   const record = getRandomQuoteFromBundle('en');
   expect(record?.text?.length).toBeGreaterThan(0);
