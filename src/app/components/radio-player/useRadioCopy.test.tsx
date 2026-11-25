@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { RADIO_EN } from '$i18n-source/radio.en';
-import { initIdlingI18nAsync, setIdlingLocale } from '$i18n/idling-i18n';
+import { initIdlingI18n, initIdlingI18nAsync, setIdlingLocale } from '$i18n/idling-i18n';
 import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { getLL } from '$i18n/idling-i18n';
 import type { ReactNode } from 'react';
@@ -13,6 +13,12 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 describe('useRadioCopy locale switching', () => {
+  beforeEach(() => {
+    initIdlingI18n('en');
+    localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, 'en');
+    document.documentElement.lang = 'en';
+  });
+
   test('when locale changes to zh, press play copy resolves from ll.radio not English fallback', async () => {
     await initIdlingI18nAsync('en');
     const enCopy = resolveCatalogFromLl(RADIO_EN, getLL().radio as Record<string, unknown>);
@@ -45,6 +51,7 @@ describe('useRadioCopy locale switching', () => {
     });
 
     await waitFor(() => {
+      expect(result.current.locale.localeId).toBe('zh');
       expect(result.current.copy.bar.pressPlayToStart).not.toBe(english);
     });
   });

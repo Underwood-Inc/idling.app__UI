@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -13,10 +14,9 @@ import {
 import type { Locales, TranslationFunctions } from '$i18n/i18n-types';
 import { loadLocaleAsync } from '$i18n/i18n-util.async';
 import {
+  commitIdlingLocale,
   getLL,
   initIdlingI18n,
-  initIdlingI18nAsync,
-  subscribeIdlingLocale,
 } from '$i18n/idling-i18n';
 import {
   IDLING_BASE_LOCALE,
@@ -31,8 +31,6 @@ import { writeIdlingLocaleCookie } from '@molecules/quotes/writeIdlingLocaleCook
 
 interface IdlingLocaleContextValue {
   localeId: IdlingLocaleId;
-  /** Bumps after async locale apply (radio / copy hooks). */
-  localeRevision: number;
   ll: TranslationFunctions;
   loading: boolean;
   setLocaleId: (id: IdlingLocaleId) => void;
@@ -45,12 +43,15 @@ function isTestRuntime(): boolean {
   return process.env.NODE_ENV === 'test';
 }
 
-function testLocaleContext(): IdlingLocaleContextValue {
+function bootEnglish(): TranslationFunctions {
   initIdlingI18n(IDLING_BASE_LOCALE);
+  return getLL();
+}
+
+function testLocaleContext(): IdlingLocaleContextValue {
   return {
     localeId: IDLING_BASE_LOCALE,
-    localeRevision: 0,
-    ll: getLL(),
+    ll: bootEnglish(),
     loading: false,
     setLocaleId: () => {},
     catalog: IDLING_LOCALE_CATALOG,
@@ -58,58 +59,61 @@ function testLocaleContext(): IdlingLocaleContextValue {
 }
 
 /**
- * Mappy site pattern: {@link https://github.com/Underwood-Inc/mappy-internal/blob/main/site/src/context/SiteLocaleContext.tsx SiteLocaleContext}
- * — async `loadLocaleAsync('en')` then `initIdlingI18nAsync`, never sync-boot a non-English locale.
+ * Same orchestration as Mappy {@link SiteLocaleContext}: `loadLocaleAsync('en')` →
+ * `commitIdlingLocale`, React state for `localeId` + `ll`, no global subscriber bus.
  */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
-  /** Same on server and first client paint — avoids hydration mismatch (stored locale applied in effect). */
   const [localeId, setLocaleIdState] = useState<IdlingLocaleId>(IDLING_BASE_LOCALE);
-  const [localeEpoch, bumpLocale] = useState(0);
+  /** Bumped after each successful `commitIdlingLocale` so context re-reads module `getLL()`. */
+  const [llTick, setLlTick] = useState(0);
+  const loadSeq = useRef(0);
 
   useEffect(() => {
-    initIdlingI18n(IDLING_BASE_LOCALE);
     const stored = resolveIdlingLocale();
     if (stored !== IDLING_BASE_LOCALE) {
       setLocaleIdState(stored);
     }
   }, []);
 
-  const applyLocale = useCallback(async (id: IdlingLocaleId) => {
-    await loadLocaleAsync('en');
-    await initIdlingI18nAsync(id as Locales);
-    try {
-      writeIdlingLocaleCookie(id);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
   useEffect(() => {
-    let cancelled = false;
-    void applyLocale(localeId)
-      .then(() => {
-        if (!cancelled) {
-          bumpLocale((n) => n + 1);
-        }
-      })
-      .catch(() => {
-        /* English module init remains usable */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [localeId, applyLocale]);
+    const seq = ++loadSeq.current;
+    const target = localeId;
 
-  useEffect(() => subscribeIdlingLocale(() => bumpLocale((n) => n + 1)), []);
+    void (async () => {
+      try {
+        await loadLocaleAsync('en');
+        if (loadSeq.current !== seq) {
+          return;
+        }
+        await loadLocaleAsync(target as Locales);
+        if (loadSeq.current !== seq) {
+          return;
+        }
+        commitIdlingLocale(target as Locales);
+        setLlTick((tick) => tick + 1);
+        try {
+          writeIdlingLocaleCookie(target);
+          localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, target);
+        } catch {
+          /* ignore */
+        }
+      } catch {
+        if (loadSeq.current !== seq) {
+          return;
+        }
+        initIdlingI18n(IDLING_BASE_LOCALE);
+        setLlTick((tick) => tick + 1);
+      }
+    })();
+
+    return () => {
+      loadSeq.current += 1;
+    };
+  }, [localeId]);
 
   const setLocaleId = useCallback((id: IdlingLocaleId) => {
     if (id === localeId) {
       return;
-    }
-    try {
-      localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, id);
-    } catch {
-      /* ignore */
     }
     setLocaleIdState(id);
   }, [localeId]);
@@ -117,13 +121,12 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       localeId,
-      localeRevision: localeEpoch,
       ll: getLL(),
       loading: false,
       setLocaleId,
       catalog: IDLING_LOCALE_CATALOG,
     }),
-    [localeId, localeEpoch, setLocaleId]
+    [localeId, llTick, setLocaleId]
   );
 
   return (
