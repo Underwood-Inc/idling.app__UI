@@ -23,6 +23,7 @@ import React, {
   useRef,
   useState
 } from 'react';
+import { useAdminCopy } from '../AdminCopyContext';
 import { AlertStatusTooltip } from './AlertStatusTooltip';
 import './CustomAlertsPanel.css';
 
@@ -162,6 +163,7 @@ const areAlertsEqual = (prev: CustomAlert[], next: CustomAlert[]): boolean => {
 // ================================
 
 export default function CustomAlertsPanel() {
+  const copy = useAdminCopy().customAlerts;
   const [alerts, setAlerts] = useState<CustomAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -533,18 +535,9 @@ export default function CustomAlertsPanel() {
   );
 
   const getTargetAudienceLabel = useCallback(
-    (audience: CustomAlert['target_audience']) => {
-      const labels = {
-        all: 'All Users',
-        authenticated: 'Authenticated Users',
-        subscribers: 'Subscribers',
-        admins: 'Administrators',
-        role_based: 'Role-Based',
-        specific_users: 'Specific Users'
-      };
-      return labels[audience];
-    },
-    []
+    (audience: CustomAlert['target_audience']) =>
+      copy.targetAudiences[audience],
+    [copy.targetAudiences]
   );
 
   const formatDate = useCallback((dateString: string) => {
@@ -598,7 +591,7 @@ export default function CustomAlertsPanel() {
             <SiteIcon id="circleX" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
-            Error Loading Alerts
+            {copy.errorLoadingTitle}
           </h3>
           <div
             style={{
@@ -633,13 +626,13 @@ export default function CustomAlertsPanel() {
                 fetchAlerts();
               }}
             >
-              <IconText iconId="refresh">Retry</IconText>
+              <IconText iconId="refresh">{copy.retry}</IconText>
             </button>
             <button
               className="btn btn-secondary"
               onClick={() => (window.location.href = '/api/auth/signin')}
             >
-              <IconText iconId="key">Sign In Again</IconText>
+              <IconText iconId="key">{copy.signInAgain}</IconText>
             </button>
           </div>
         </div>
@@ -660,16 +653,14 @@ export default function CustomAlertsPanel() {
             <SiteIcon id="lockKeyhole" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
-            Authentication Required
+            {copy.authRequiredTitle}
           </h3>
-          <p style={{ marginBottom: '1rem' }}>
-            You need to log in to access the admin panel.
-          </p>
+          <p style={{ marginBottom: '1rem' }}>{copy.authRequiredBody}</p>
           <button
             className="btn btn-primary"
             onClick={() => (window.location.href = '/api/auth/signin')}
           >
-            <IconText iconId="key">Sign In</IconText>
+            <IconText iconId="key">{copy.signIn}</IconText>
           </button>
         </div>
       </div>
@@ -685,16 +676,14 @@ export default function CustomAlertsPanel() {
             <SiteIcon id="ban" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
-            Admin Access Required
+            {copy.adminAccessTitle}
           </h3>
-          <p style={{ marginBottom: '1rem' }}>
-            You don&apos;t have permission to access this admin feature.
-          </p>
+          <p style={{ marginBottom: '1rem' }}>{copy.adminAccessBody}</p>
           <button
             className="btn btn-secondary"
             onClick={() => (window.location.href = '/')}
           >
-            <IconText iconId="home">Go Home</IconText>
+            <IconText iconId="home">{copy.goHome}</IconText>
           </button>
         </div>
       </div>
@@ -705,10 +694,10 @@ export default function CustomAlertsPanel() {
     <div className="custom-alerts-panel">
       <div className="panel-header">
         <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
-          Custom Alerts Management
+          {copy.panelTitle}
           <SiteIcon id="target" sizeRem={1.125} />
         </h2>
-        <p>Create, edit, and manage custom alerts for different user groups</p>
+        <p>{copy.panelDescription}</p>
         {lastRefreshTime && (
           <p
             style={{
@@ -723,7 +712,7 @@ export default function CustomAlertsPanel() {
           className="btn btn-primary"
           onClick={() => setShowCreateModal(true)}
         >
-          <IconText iconId="plusCircle">Create New Alert</IconText>
+          <IconText iconId="plusCircle">{copy.createNewAlert}</IconText>
         </button>
       </div>
 
@@ -814,7 +803,7 @@ export default function CustomAlertsPanel() {
                       isActive={alert.is_active}
                       isPublished={alert.is_published}
                     >
-                      <span>Active</span>
+                      <span>{copy.active}</span>
                     </AlertStatusTooltip>
                   </label>
                   <label className="status-toggle">
@@ -829,7 +818,7 @@ export default function CustomAlertsPanel() {
                       isActive={alert.is_active}
                       isPublished={alert.is_published}
                     >
-                      <span>Published</span>
+                      <span>{copy.published}</span>
                     </AlertStatusTooltip>
                   </label>
                 </div>
@@ -841,17 +830,15 @@ export default function CustomAlertsPanel() {
       {Array.isArray(sortedAlerts) && sortedAlerts.length === 0 && (
         <div className="empty-state">
           <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
-            No Custom Alerts Yet
+            {copy.emptyTitle}
             <SiteIcon id="megaphone" sizeRem={1.125} />
           </h3>
-          <p>
-            Create your first custom alert to start engaging with your users!
-          </p>
+          <p>{copy.emptyBody}</p>
           <button
             className="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
-            <IconText iconId="plusCircle">Create First Alert</IconText>
+            <IconText iconId="plusCircle">{copy.createFirstAlert}</IconText>
           </button>
         </div>
       )}
@@ -861,7 +848,7 @@ export default function CustomAlertsPanel() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>{editingAlert ? 'Edit Alert' : 'Create New Alert'}</h3>
+              <h3>{editingAlert ? copy.editAlert : copy.createNewAlert}</h3>
               <button
                 className="modal-close"
                 onClick={() => {
@@ -965,12 +952,16 @@ export default function CustomAlertsPanel() {
                       handleInputChange('target_audience', e.target.value)
                     }
                   >
-                    <option value="all">All Users</option>
-                    <option value="authenticated">Authenticated Users</option>
-                    <option value="subscribers">Subscribers</option>
-                    <option value="admins">Administrators</option>
-                    <option value="role_based">Role-Based</option>
-                    <option value="specific_users">Specific Users</option>
+                    <option value="all">{copy.targetAudiences.all}</option>
+                    <option value="authenticated">
+                      {copy.targetAudiences.authenticated}
+                    </option>
+                    <option value="subscribers">{copy.targetAudiences.subscribers}</option>
+                    <option value="admins">{copy.targetAudiences.admins}</option>
+                    <option value="role_based">{copy.targetAudiences.role_based}</option>
+                    <option value="specific_users">
+                      {copy.targetAudiences.specific_users}
+                    </option>
                   </select>
                 </div>
 
@@ -1060,7 +1051,7 @@ export default function CustomAlertsPanel() {
                       isActive={formData.is_active}
                       isPublished={formData.is_published}
                     >
-                      <span>Active</span>
+                      <span>{copy.active}</span>
                     </AlertStatusTooltip>
                   </label>
                   <label className="checkbox-label">
@@ -1076,7 +1067,7 @@ export default function CustomAlertsPanel() {
                       isActive={formData.is_active}
                       isPublished={formData.is_published}
                     >
-                      <span>Published</span>
+                      <span>{copy.published}</span>
                     </AlertStatusTooltip>
                   </label>
                 </div>
@@ -1091,10 +1082,10 @@ export default function CustomAlertsPanel() {
                     resetForm();
                   }}
                 >
-                  Cancel
+                  {copy.cancel}
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  {editingAlert ? 'Update Alert' : 'Create Alert'}
+                  {editingAlert ? copy.updateAlert : copy.createAlert}
                 </button>
               </div>
             </form>

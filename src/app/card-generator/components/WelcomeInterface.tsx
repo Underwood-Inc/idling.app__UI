@@ -1,7 +1,12 @@
 'use client';
 
+import { COMMON_EN } from '$i18n-source/common.en';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
+import { useMemo } from 'react';
+import { useIdlingLocale } from '../../components/locale/IdlingLocaleProvider';
 import { InstantLink } from '../../components/ui/InstantLink';
+import { useToolsCopy } from '../../tools/ToolsCopyContext';
 import { QuotaDisplay } from './QuotaDisplay';
 import styles from './WelcomeInterface.module.css';
 
@@ -28,20 +33,24 @@ export function WelcomeInterface({
   onNewGeneration,
   onLoadGeneration
 }: WelcomeInterfaceProps) {
+  const { cardGenerator } = useToolsCopy();
+  const welcome = cardGenerator.welcome;
+  const { ll } = useIdlingLocale();
+  const loadingLabel = useMemo(() => {
+    const common = resolveCatalogFromLl(COMMON_EN, ll.common as Record<string, unknown>);
+    return common.actions.loading;
+  }, [ll]);
+
   return (
     <article className={styles.welcome__container}>
       <div className={styles.welcome__container_fade}>
         <div className={styles.welcome__intro}>
           <h2 className={styles.welcome__title}>
             <SiteIcon id="wand" className={styles.welcome__titleIcon} sizeRem={1.25} />
-            Enter the Realm of Mystical Creation
+            {welcome.title}
             <SiteIcon id="wand" className={styles.welcome__titleIcon} sizeRem={1.25} />
           </h2>
-          <p>
-            Ancient energies await your command. Choose your sacred path to
-            weave enchanted social media cards blessed with mystical geometry
-            and profound wisdom.
-          </p>
+          <p>{welcome.intro}</p>
         </div>
 
         {/* Mobile Quota Display - compact version for welcome interface */}
@@ -67,12 +76,8 @@ export function WelcomeInterface({
               <SiteIcon id="plusCircle" sizeRem={1.5} />
             </div>
             <div className={styles.button__content}>
-              <h3>{hasInitializedQuota ? 'Create New' : 'Loading...'}</h3>
-              <p>
-                {hasInitializedQuota
-                  ? 'Generate a fresh mystical card'
-                  : 'Initializing mystical energies...'}
-              </p>
+              <h3>{hasInitializedQuota ? welcome.createNew : loadingLabel}</h3>
+              <p>{hasInitializedQuota ? welcome.createNewDescription : welcome.initializing}</p>
             </div>
           </button>
 
@@ -85,12 +90,8 @@ export function WelcomeInterface({
               <SiteIcon id="search" sizeRem={1.5} />
             </div>
             <div className={styles.button__content}>
-              <h3>{hasInitializedQuota ? 'Load Previous' : 'Loading...'}</h3>
-              <p>
-                {hasInitializedQuota
-                  ? 'Retrieve an existing generation'
-                  : 'Initializing mystical energies...'}
-              </p>
+              <h3>{hasInitializedQuota ? welcome.loadPrevious : loadingLabel}</h3>
+              <p>{hasInitializedQuota ? welcome.loadPreviousDescription : welcome.initializing}</p>
             </div>
           </button>
         </div>
@@ -99,14 +100,14 @@ export function WelcomeInterface({
           <div className={styles.load__input__group}>
             <label className={styles.load__label}>
               <SiteIcon id="wand" className={styles.load__labelIcon} sizeRem={1} />
-              Generation ID:
+              {welcome.generationIdLabel}
             </label>
             <div className={styles.load__input__container}>
               <input
                 type="text"
                 value={loadGenerationId}
                 onChange={(e) => setLoadGenerationId(e.target.value)}
-                placeholder="Paste your generation ID here..."
+                placeholder={welcome.loadPlaceholder}
                 className={styles.load__input}
               />
               <button
@@ -114,13 +115,13 @@ export function WelcomeInterface({
                 className={styles.load__button}
                 disabled={!loadGenerationId.trim()}
               >
-                Load
+                {welcome.load}
                 <SiteIcon id="wand" className={styles.load__buttonIcon} sizeRem={0.875} />
               </button>
             </div>
             <p className={styles.load__help}>
               <SiteIcon id="lightbulb" className={styles.load__helpIcon} sizeRem={0.875} />
-              Generation IDs look like:{' '}
+              {welcome.generationIdHint}{' '}
               <code>01234567-89ab-cdef-0123-456789abcdef</code>
             </p>
           </div>
@@ -130,10 +131,10 @@ export function WelcomeInterface({
           <div className={styles.quota__notice}>
             <p>
               <SiteIcon id="zap" className={styles.quota__noticeIcon} sizeRem={1} />
-              Daily quota reached!
+              {welcome.quotaReached}
             </p>
             <InstantLink href="/subscription" className={styles.upgrade__link}>
-              Upgrade to Pro for unlimited generations
+              {welcome.upgradeCta}
               <SiteIcon id="rocket" className={styles.upgrade__linkIcon} sizeRem={0.875} />
             </InstantLink>
           </div>

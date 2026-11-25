@@ -2,6 +2,7 @@
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { GenerationOptions } from '../types/generation';
+import { useToolsCopy } from '../../tools/ToolsCopyContext';
 import styles from './AdvancedControls.module.css';
 import formStyles from './FormElements.module.css';
 
@@ -33,6 +34,8 @@ export function AdvancedControls({
   isReadonly = false,
   generationOptions
 }: AdvancedControlsProps) {
+  const { cardGenerator } = useToolsCopy();
+  const ac = cardGenerator.advancedControls;
   const disabled = !isProUser;
 
   const handleChange = (key: keyof GenerationOptions, value: any) => {
@@ -100,15 +103,12 @@ export function AdvancedControls({
         <div className={styles.advanced__paywall__notice}>
           <h4>
             <SiteIcon id="rocket" sizeRem={1.125} />
-            Unlock Advanced Magic
+            {ac.paywallTitle}
           </h4>
-          <p>
-            Get precise control over avatar positioning, text layout, visual
-            styling, and more with Pro subscription.
-          </p>
+          <p>{ac.paywallBody}</p>
           <a href="/subscription" className={styles.advanced__upgrade__link}>
             <>
-              Upgrade to Pro
+              {ac.upgradeLink}
               <SiteIcon id="zap" sizeRem={0.875} />
             </>
           </a>
@@ -120,7 +120,7 @@ export function AdvancedControls({
         <div className={formStyles.form__section}>
           <h5 className={formStyles.form__subsection__title}>
             <SiteIcon id="mapPin" sizeRem={1} />
-            Avatar Positioning
+            {ac.sections.avatarPositioning}
           </h5>
           <div className={formStyles.form__row}>
             <label className={formStyles.form__label}>
@@ -132,7 +132,7 @@ export function AdvancedControls({
                   handleChange('avatarX', parseInt(e.target.value) || undefined)
                 }
                 disabled={disabled}
-                placeholder="Auto"
+                placeholder={ac.placeholders.auto}
                 min="0"
                 max="2000"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -147,7 +147,7 @@ export function AdvancedControls({
                   handleChange('avatarY', parseInt(e.target.value) || undefined)
                 }
                 disabled={disabled}
-                placeholder="Auto"
+                placeholder={ac.placeholders.auto}
                 min="0"
                 max="2000"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -165,7 +165,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="Auto"
+                placeholder={ac.placeholders.auto}
                 min="50"
                 max="500"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -193,7 +193,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="Auto"
+                placeholder={ac.placeholders.auto}
                 min="200"
                 max="1000"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -211,7 +211,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="Auto"
+                placeholder={ac.placeholders.auto}
                 min="50"
                 max="800"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -229,7 +229,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="30"
+                placeholder={ac.placeholders.textPadding}
                 min="10"
                 max="100"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -257,7 +257,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="Auto"
+                placeholder={ac.placeholders.auto}
                 min="12"
                 max="72"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -276,7 +276,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="1.4"
+                placeholder={ac.placeholders.lineHeight}
                 min="1.0"
                 max="3.0"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -295,7 +295,7 @@ export function AdvancedControls({
                   )
                 }
                 disabled={disabled}
-                placeholder="0.7"
+                placeholder={ac.placeholders.borderOpacity}
                 min="0"
                 max="1"
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -331,7 +331,7 @@ export function AdvancedControls({
                   handleChange('patternSeed', e.target.value || undefined)
                 }
                 disabled={disabled}
-                placeholder="Auto-generated"
+                placeholder={ac.placeholders.patternSeed}
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
               />
             </label>
@@ -393,7 +393,7 @@ export function AdvancedControls({
                         )
                       }
                       disabled={disabled}
-                      placeholder="https://idling.app/card-generator"
+                      placeholder={ac.placeholders.watermarkText}
                       className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
                     />
                   </label>
@@ -459,7 +459,7 @@ export function AdvancedControls({
                           )
                         }
                         disabled={disabled}
-                        placeholder="-25"
+                        placeholder={ac.placeholders.rotation}
                         min="-360"
                         max="360"
                         step="5"
@@ -481,7 +481,7 @@ export function AdvancedControls({
                         )
                       }
                       disabled={disabled}
-                      placeholder="16"
+                      placeholder={ac.placeholders.watermarkSize}
                       min="10"
                       max="48"
                       className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -502,7 +502,7 @@ export function AdvancedControls({
                         )
                       }
                       disabled={disabled}
-                      placeholder="15"
+                      placeholder={ac.placeholders.watermarkOpacity}
                       min="5"
                       max="100"
                       className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -520,17 +520,15 @@ export function AdvancedControls({
           <div className={styles.upgrade__content}>
             <h4>
               <SiteIcon id="sparkles" sizeRem={1.125} />
-              Unlock Advanced Magic
+              {ac.overlayTitle}
             </h4>
-            <p>
-              Gain precise control over every aspect of your mystical cards!
-            </p>
+            <p>{ac.overlayBody}</p>
             <button
               className={styles.upgrade__button}
               onClick={() => (window.location.href = '/subscription')}
             >
               <>
-                Ascend to Archmage
+                {ac.upgradeButton}
                 <SiteIcon id="zap" sizeRem={0.875} />
               </>
             </button>

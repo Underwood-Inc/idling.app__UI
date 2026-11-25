@@ -10,12 +10,17 @@ import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { SubscriptionFlairToggle } from '../components/subscription-badges/SubscriptionFlairToggle';
+import type { SettingsEnCopy } from '$i18n-source/settings.en';
+import {
+  SettingsCopyProvider,
+  useSettingsCopy
+} from './SettingsCopyContext';
 import './settings.css';
 
+type SettingsCategoryId = keyof SettingsEnCopy['categories'];
+
 interface SettingsCategory {
-  id: string;
-  title: string;
-  description: string;
+  id: SettingsCategoryId;
   iconId: SiteIconId;
   expanded: boolean;
 }
@@ -32,7 +37,8 @@ function SettingsIcon({
   return <SiteIcon id={id} className={className} sizeRem={sizeRem} />;
 }
 
-export default function SettingsPage() {
+function SettingsPageContent() {
+  const copy = useSettingsCopy();
   const { data: session, status } = useSession();
   const {
     spacingTheme,
@@ -89,44 +95,14 @@ export default function SettingsPage() {
 
   // Category expansion state
   const [categories, setCategories] = useState<SettingsCategory[]>([
-    {
-      id: 'appearance',
-      title: 'Appearance',
-      description: 'Customize how the site looks and feels',
-      iconId: 'palette',
-      expanded: true
-    },
-    {
-      id: 'behavior',
-      title: 'Behavior',
-      description: 'Control how the site behaves and responds',
-      iconId: 'settings',
-      expanded: true
-    },
-    {
-      id: 'accessibility',
-      title: 'Accessibility',
-      description: 'Make the site easier to use for everyone',
-      iconId: 'accessibility',
-      expanded: true
-    },
-    {
-      id: 'background',
-      title: 'Background Effects',
-      description: 'Customize the animated space background',
-      iconId: 'orbit',
-      expanded: true
-    },
-    {
-      id: 'privacy',
-      title: 'Privacy & Profile',
-      description: 'Control your profile visibility and data',
-      iconId: 'lock',
-      expanded: session?.user ? true : false
-    }
+    { id: 'appearance', iconId: 'palette', expanded: true },
+    { id: 'behavior', iconId: 'settings', expanded: true },
+    { id: 'accessibility', iconId: 'accessibility', expanded: true },
+    { id: 'background', iconId: 'orbit', expanded: true },
+    { id: 'privacy', iconId: 'lock', expanded: session?.user ? true : false }
   ]);
 
-  const toggleCategory = (categoryId: string) => {
+  const toggleCategory = (categoryId: SettingsCategoryId) => {
     setCategories((prev) =>
       prev.map((cat) =>
         cat.id === categoryId ? { ...cat, expanded: !cat.expanded } : cat
@@ -139,7 +115,7 @@ export default function SettingsPage() {
       <div className="settings-page">
         <div className="settings-page__loading">
           <div className="loading-spinner"></div>
-          <span>Loading settings...</span>
+          <span>{copy.page.loading}</span>
         </div>
       </div>
     );
@@ -149,10 +125,8 @@ export default function SettingsPage() {
     <div className="settings-page">
       <div className="settings-page__container">
         <div className="settings-page__header">
-          <h1 className="settings-page__title">Settings</h1>
-          <p className="settings-page__description">
-            Customize your experience and preferences
-          </p>
+          <h1 className="settings-page__title">{copy.page.title}</h1>
+          <p className="settings-page__description">{copy.page.description}</p>
         </div>
 
         <div className="settings-page__content">
@@ -168,9 +142,11 @@ export default function SettingsPage() {
               <div className="settings-category__header-content">
                 <SettingsIcon id="palette" className="settings-category__icon" />
                 <div className="settings-category__header-text">
-                  <h2 className="settings-category__title">Appearance</h2>
+                  <h2 className="settings-category__title">
+                    {copy.categories.appearance.title}
+                  </h2>
                   <p className="settings-category__description">
-                    Customize how the site looks and feels
+                    {copy.categories.appearance.description}
                   </p>
                 </div>
               </div>
@@ -187,9 +163,13 @@ export default function SettingsPage() {
                   {/* Font Preference */}
                   <div className="settings-card">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Font Family</h3>
+                      <h3 className="settings-card__title">
+                        {copy.appearance.fontFamily.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
-                        {fontPreference === 'monospace' ? 'Code' : 'Reading'}
+                        {fontPreference === 'monospace'
+                          ? copy.appearance.fontFamily.code.label
+                          : copy.appearance.fontFamily.reading.label}
                       </span>
                     </div>
                     <div className="settings-card__options">
@@ -201,9 +181,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="type" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Code</span>
+                          <span className="settings-option__label">
+                            {copy.appearance.fontFamily.code.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Fira Code - Perfect for coding
+                            {copy.appearance.fontFamily.code.description}
                           </span>
                         </div>
                       </button>
@@ -216,10 +198,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="bookOpen" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Reading
+                            {copy.appearance.fontFamily.reading.label}
                           </span>
                           <span className="settings-option__desc">
-                            System fonts - Easy on the eyes
+                            {copy.appearance.fontFamily.reading.description}
                           </span>
                         </div>
                       </button>
@@ -234,9 +216,13 @@ export default function SettingsPage() {
                   {/* Display Density */}
                   <div className="settings-card">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Display Density</h3>
+                      <h3 className="settings-card__title">
+                        {copy.appearance.displayDensity.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
-                        {spacingTheme === 'cozy' ? 'Cozy' : 'Compact'}
+                        {spacingTheme === 'cozy'
+                          ? copy.appearance.displayDensity.cozy.label
+                          : copy.appearance.displayDensity.compact.label}
                       </span>
                     </div>
                     <div className="settings-card__options">
@@ -248,9 +234,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="bookOpen" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Cozy</span>
+                          <span className="settings-option__label">
+                            {copy.appearance.displayDensity.cozy.label}
+                          </span>
                           <span className="settings-option__desc">
-                            More spacing, easier to read
+                            {copy.appearance.displayDensity.cozy.description}
                           </span>
                         </div>
                       </button>
@@ -263,10 +251,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="barChart" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Compact
+                            {copy.appearance.displayDensity.compact.label}
                           </span>
                           <span className="settings-option__desc">
-                            Less spacing, more content
+                            {copy.appearance.displayDensity.compact.description}
                           </span>
                         </div>
                       </button>
@@ -294,9 +282,11 @@ export default function SettingsPage() {
               <div className="settings-category__header-content">
                 <SettingsIcon id="settings" className="settings-category__icon" />
                 <div className="settings-category__header-text">
-                  <h2 className="settings-category__title">Behavior</h2>
+                  <h2 className="settings-category__title">
+                    {copy.categories.behavior.title}
+                  </h2>
                   <p className="settings-category__description">
-                    Control how the site behaves and responds
+                    {copy.categories.behavior.description}
                   </p>
                 </div>
               </div>
@@ -313,11 +303,13 @@ export default function SettingsPage() {
                   {/* Page Navigation */}
                   <div className="settings-card">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Page Navigation</h3>
+                      <h3 className="settings-card__title">
+                        {copy.behavior.pageNavigation.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
                         {paginationMode === 'traditional'
-                          ? 'Traditional'
-                          : 'Infinite Scroll'}
+                          ? copy.behavior.pageNavigation.traditional.label
+                          : copy.behavior.pageNavigation.infiniteScroll.label}
                       </span>
                     </div>
                     <div className="settings-card__options">
@@ -330,10 +322,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="fileText" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Traditional
+                            {copy.behavior.pageNavigation.traditional.label}
                           </span>
                           <span className="settings-option__desc">
-                            Page numbers with next/previous
+                            {copy.behavior.pageNavigation.traditional.description}
                           </span>
                         </div>
                       </button>
@@ -346,10 +338,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="infinity" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Infinite Scroll
+                            {copy.behavior.pageNavigation.infiniteScroll.label}
                           </span>
                           <span className="settings-option__desc">
-                            Auto-load content as you scroll
+                            {copy.behavior.pageNavigation.infiniteScroll.description}
                           </span>
                         </div>
                       </button>
@@ -364,11 +356,13 @@ export default function SettingsPage() {
                   {/* Emoji Panel Behavior */}
                   <div className="settings-card">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Emoji Panel</h3>
+                      <h3 className="settings-card__title">
+                        {copy.behavior.emojiPanel.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
                         {emojiPanelBehavior === 'close_after_select'
-                          ? 'Close After Select'
-                          : 'Stay Open'}
+                          ? copy.behavior.emojiPanel.closeAfterSelect.label
+                          : copy.behavior.emojiPanel.stayOpen.label}
                       </span>
                     </div>
                     <div className="settings-card__options">
@@ -385,10 +379,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="target" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Close After Select
+                            {copy.behavior.emojiPanel.closeAfterSelect.label}
                           </span>
                           <span className="settings-option__desc">
-                            Panel closes after picking one emoji
+                            {copy.behavior.emojiPanel.closeAfterSelect.description}
                           </span>
                         </div>
                       </button>
@@ -401,10 +395,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="pin" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Stay Open
+                            {copy.behavior.emojiPanel.stayOpen.label}
                           </span>
                           <span className="settings-option__desc">
-                            Pick multiple emojis before closing
+                            {copy.behavior.emojiPanel.stayOpen.description}
                           </span>
                         </div>
                       </button>
@@ -432,9 +426,11 @@ export default function SettingsPage() {
               <div className="settings-category__header-content">
                 <SettingsIcon id="accessibility" className="settings-category__icon" />
                 <div className="settings-category__header-text">
-                  <h2 className="settings-category__title">Accessibility</h2>
+                  <h2 className="settings-category__title">
+                    {copy.categories.accessibility.title}
+                  </h2>
                   <p className="settings-category__description">
-                    Make the site easier to use for everyone
+                    {copy.categories.accessibility.description}
                   </p>
                 </div>
               </div>
@@ -451,11 +447,13 @@ export default function SettingsPage() {
                   {/* Accessibility Focus */}
                   <div className="settings-card">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Focus Indicators</h3>
+                      <h3 className="settings-card__title">
+                        {copy.accessibility.focusIndicators.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
                         {accessibilityFocusMode === 'enabled'
-                          ? 'Enabled'
-                          : 'Disabled'}
+                          ? copy.common.enabled
+                          : copy.common.disabled}
                       </span>
                     </div>
                     <div className="settings-card__options">
@@ -468,10 +466,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="target" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Disabled
+                            {copy.accessibility.focusIndicators.disabled.label}
                           </span>
                           <span className="settings-option__desc">
-                            Clean visual design without focus outlines
+                            {copy.accessibility.focusIndicators.disabled.description}
                           </span>
                         </div>
                       </button>
@@ -484,10 +482,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="search" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Enabled
+                            {copy.accessibility.focusIndicators.enabled.label}
                           </span>
                           <span className="settings-option__desc">
-                            Show focus outlines for keyboard navigation
+                            {copy.accessibility.focusIndicators.enabled.description}
                           </span>
                         </div>
                       </button>
@@ -516,10 +514,10 @@ export default function SettingsPage() {
                 <SettingsIcon id="orbit" className="settings-category__icon" />
                 <div className="settings-category__header-text">
                   <h2 className="settings-category__title">
-                    Background Effects
+                    {copy.categories.background.title}
                   </h2>
                   <p className="settings-category__description">
-                    Customize the animated space background
+                    {copy.categories.background.description}
                   </p>
                 </div>
               </div>
@@ -537,22 +535,22 @@ export default function SettingsPage() {
                   <div className="settings-card">
                     <div className="settings-card__header">
                       <h3 className="settings-card__title">
-                        Movement Direction
+                        {copy.background.movementDirection.cardTitle}
                       </h3>
                       <span className="settings-card__current">
                         {backgroundMovementDirection === 'static'
-                          ? 'Static'
+                          ? copy.background.movementDirection.static.label
                           : backgroundMovementDirection === 'forward'
-                            ? 'Forward'
+                            ? copy.background.movementDirection.forward.label
                             : backgroundMovementDirection === 'backward'
-                              ? 'Backward'
+                              ? copy.background.movementDirection.backward.label
                               : backgroundMovementDirection === 'left'
-                                ? 'Left'
+                                ? copy.background.movementDirection.left.label
                                 : backgroundMovementDirection === 'right'
-                                  ? 'Right'
+                                  ? copy.background.movementDirection.right.label
                                   : backgroundMovementDirection === 'up'
-                                    ? 'Up'
-                                    : 'Down'}
+                                    ? copy.background.movementDirection.up.label
+                                    : copy.background.movementDirection.down.label}
                       </span>
                     </div>
                     <div className="settings-card__options settings-card__options--grid">
@@ -564,9 +562,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="pause" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Static</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementDirection.static.label}
+                          </span>
                           <span className="settings-option__desc">
-                            No movement
+                            {copy.background.movementDirection.static.description}
                           </span>
                         </div>
                       </button>
@@ -581,10 +581,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="arrowUp" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Forward
+                            {copy.background.movementDirection.forward.label}
                           </span>
                           <span className="settings-option__desc">
-                            Flying ahead
+                            {copy.background.movementDirection.forward.description}
                           </span>
                         </div>
                       </button>
@@ -601,10 +601,10 @@ export default function SettingsPage() {
                         <SettingsIcon id="arrowDown" className="settings-option__icon" />
                         <div className="settings-option__content">
                           <span className="settings-option__label">
-                            Backward
+                            {copy.background.movementDirection.backward.label}
                           </span>
                           <span className="settings-option__desc">
-                            Pulling back
+                            {copy.background.movementDirection.backward.description}
                           </span>
                         </div>
                       </button>
@@ -616,9 +616,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="arrowLeft" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Left</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementDirection.left.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Drift left
+                            {copy.background.movementDirection.left.description}
                           </span>
                         </div>
                       </button>
@@ -630,9 +632,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="arrowRight" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Right</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementDirection.right.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Drift right
+                            {copy.background.movementDirection.right.description}
                           </span>
                         </div>
                       </button>
@@ -644,9 +648,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="arrowUp" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Up</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementDirection.up.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Drift up
+                            {copy.background.movementDirection.up.description}
                           </span>
                         </div>
                       </button>
@@ -658,9 +664,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="arrowDown" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Down</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementDirection.down.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Drift down
+                            {copy.background.movementDirection.down.description}
                           </span>
                         </div>
                       </button>
@@ -675,13 +683,15 @@ export default function SettingsPage() {
                   {/* Movement Speed */}
                   <div className="settings-card">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Movement Speed</h3>
+                      <h3 className="settings-card__title">
+                        {copy.background.movementSpeed.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
                         {backgroundMovementSpeed === 'slow'
-                          ? 'Slow'
+                          ? copy.background.movementSpeed.slow.label
                           : backgroundMovementSpeed === 'normal'
-                            ? 'Normal'
-                            : 'Fast'}
+                            ? copy.background.movementSpeed.normal.label
+                            : copy.background.movementSpeed.fast.label}
                       </span>
                     </div>
                     <div className="settings-card__options">
@@ -693,9 +703,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="turtle" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Slow</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementSpeed.slow.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Relaxed pace
+                            {copy.background.movementSpeed.slow.description}
                           </span>
                         </div>
                       </button>
@@ -707,9 +719,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="rocket" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Normal</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementSpeed.normal.label}
+                          </span>
                           <span className="settings-option__desc">
-                            Standard speed
+                            {copy.background.movementSpeed.normal.description}
                           </span>
                         </div>
                       </button>
@@ -721,9 +735,11 @@ export default function SettingsPage() {
                       >
                         <SettingsIcon id="zap" className="settings-option__icon" />
                         <div className="settings-option__content">
-                          <span className="settings-option__label">Fast</span>
+                          <span className="settings-option__label">
+                            {copy.background.movementSpeed.fast.label}
+                          </span>
                           <span className="settings-option__desc">
-                            High speed
+                            {copy.background.movementSpeed.fast.description}
                           </span>
                         </div>
                       </button>
@@ -739,20 +755,18 @@ export default function SettingsPage() {
                   <div className="settings-card settings-card--wide">
                     <div className="settings-card__header">
                       <h3 className="settings-card__title">
-                        Background Audio Reactivity
+                        {copy.background.audioReactivity.cardTitle}
                       </h3>
                       <span className="settings-card__current">
                         {ambientAudioReactivityPercent}%
                       </span>
                     </div>
                     <p className="settings-card__hint">
-                      How strongly the galaxy background responds to radio
-                      playback. 0% keeps the static background; 100% is full
-                      reactivity.
+                      {copy.background.audioReactivity.hint}
                     </p>
                     <div className="settings-range">
                       <label className="settings-range__label" htmlFor="ambient-audio-reactivity">
-                        Reactivity intensity
+                        {copy.background.audioReactivity.rangeLabel}
                       </label>
                       <input
                         id="ambient-audio-reactivity"
@@ -774,8 +788,8 @@ export default function SettingsPage() {
                         aria-valuetext={`${ambientAudioReactivityPercent}%`}
                       />
                       <div className="settings-range__ticks" aria-hidden="true">
-                        <span>Off</span>
-                        <span>Full</span>
+                        <span>{copy.background.audioReactivity.tickOff}</span>
+                        <span>{copy.background.audioReactivity.tickFull}</span>
                       </div>
                     </div>
                     {ambientAudioReactivityError && (
@@ -788,14 +802,16 @@ export default function SettingsPage() {
                   {/* Animation Layers */}
                   <div className="settings-card settings-card--wide">
                     <div className="settings-card__header">
-                      <h3 className="settings-card__title">Animation Layers</h3>
+                      <h3 className="settings-card__title">
+                        {copy.background.animationLayers.cardTitle}
+                      </h3>
                       <span className="settings-card__current">
                         {
                           Object.values(backgroundAnimationLayers).filter(
                             Boolean
                           ).length
                         }{' '}
-                        of 5 enabled
+                        {copy.background.animationLayers.enabledCountSuffix}
                       </span>
                     </div>
                     <div className="settings-card__options settings-card__options--toggles">
@@ -812,9 +828,13 @@ export default function SettingsPage() {
                           aria-pressed={backgroundAnimationLayers.stars}
                         >
                           <SettingsIcon id="star" className="settings-toggle__icon" />
-                          <span className="settings-toggle__label">Stars</span>
+                          <span className="settings-toggle__label">
+                            {copy.background.animationLayers.stars}
+                          </span>
                           <span className="settings-toggle__status">
-                            {backgroundAnimationLayers.stars ? 'On' : 'Off'}
+                            {backgroundAnimationLayers.stars
+                              ? copy.common.on
+                              : copy.common.off}
                           </span>
                         </button>
                       </div>
@@ -832,10 +852,12 @@ export default function SettingsPage() {
                         >
                           <SettingsIcon id="sparkles" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">
-                            Particles
+                            {copy.background.animationLayers.particles}
                           </span>
                           <span className="settings-toggle__status">
-                            {backgroundAnimationLayers.particles ? 'On' : 'Off'}
+                            {backgroundAnimationLayers.particles
+                              ? copy.common.on
+                              : copy.common.off}
                           </span>
                         </button>
                       </div>
@@ -852,9 +874,13 @@ export default function SettingsPage() {
                           aria-pressed={backgroundAnimationLayers.nebula}
                         >
                           <SettingsIcon id="cloudFog" className="settings-toggle__icon" />
-                          <span className="settings-toggle__label">Nebula</span>
+                          <span className="settings-toggle__label">
+                            {copy.background.animationLayers.nebula}
+                          </span>
                           <span className="settings-toggle__status">
-                            {backgroundAnimationLayers.nebula ? 'On' : 'Off'}
+                            {backgroundAnimationLayers.nebula
+                              ? copy.common.on
+                              : copy.common.off}
                           </span>
                         </button>
                       </div>
@@ -872,10 +898,12 @@ export default function SettingsPage() {
                         >
                           <SettingsIcon id="orbit" className="settings-toggle__icon" />
                           <span className="settings-toggle__label">
-                            Planets
+                            {copy.background.animationLayers.planets}
                           </span>
                           <span className="settings-toggle__status">
-                            {backgroundAnimationLayers.planets ? 'On' : 'Off'}
+                            {backgroundAnimationLayers.planets
+                              ? copy.common.on
+                              : copy.common.off}
                           </span>
                         </button>
                       </div>
@@ -892,9 +920,13 @@ export default function SettingsPage() {
                           aria-pressed={backgroundAnimationLayers.aurora}
                         >
                           <SettingsIcon id="rainbow" className="settings-toggle__icon" />
-                          <span className="settings-toggle__label">Aurora</span>
+                          <span className="settings-toggle__label">
+                            {copy.background.animationLayers.aurora}
+                          </span>
                           <span className="settings-toggle__status">
-                            {backgroundAnimationLayers.aurora ? 'On' : 'Off'}
+                            {backgroundAnimationLayers.aurora
+                              ? copy.common.on
+                              : copy.common.off}
                           </span>
                         </button>
                       </div>
@@ -924,10 +956,10 @@ export default function SettingsPage() {
                   <SettingsIcon id="lock" className="settings-category__icon" />
                   <div className="settings-category__header-text">
                     <h2 className="settings-category__title">
-                      Privacy & Profile
+                      {copy.categories.privacy.title}
                     </h2>
                     <p className="settings-category__description">
-                      Control your profile visibility and data
+                      {copy.categories.privacy.description}
                     </p>
                   </div>
                 </div>
@@ -945,12 +977,12 @@ export default function SettingsPage() {
                     <div className="settings-card">
                       <div className="settings-card__header">
                         <h3 className="settings-card__title">
-                          Profile Visibility
+                          {copy.privacy.profileVisibility.cardTitle}
                         </h3>
                         <span className="settings-card__current">
                           {profileVisibility === 'public'
-                            ? 'Public'
-                            : 'Private'}
+                            ? copy.privacy.profileVisibility.public.label
+                            : copy.privacy.profileVisibility.private.label}
                         </span>
                       </div>
                       <div className="settings-card__options">
@@ -963,10 +995,10 @@ export default function SettingsPage() {
                           <SettingsIcon id="globe" className="settings-option__icon" />
                           <div className="settings-option__content">
                             <span className="settings-option__label">
-                              Public
+                              {copy.privacy.profileVisibility.public.label}
                             </span>
                             <span className="settings-option__desc">
-                              Profile visible to everyone
+                              {copy.privacy.profileVisibility.public.description}
                             </span>
                           </div>
                         </button>
@@ -979,10 +1011,10 @@ export default function SettingsPage() {
                           <SettingsIcon id="lock" className="settings-option__icon" />
                           <div className="settings-option__content">
                             <span className="settings-option__label">
-                              Private
+                              {copy.privacy.profileVisibility.private.label}
                             </span>
                             <span className="settings-option__desc">
-                              Profile hidden from others
+                              {copy.privacy.profileVisibility.private.description}
                             </span>
                           </div>
                         </button>
@@ -1015,11 +1047,11 @@ export default function SettingsPage() {
                   <SettingsIcon id="check" className="settings-account-status__icon" />
                   <div className="settings-account-status__details">
                     <div className="settings-account-status__status">
-                      Signed in as{' '}
+                      {copy.account.signedInAsPrefix}{' '}
                       <strong>{session.user.name || session.user.email}</strong>
                     </div>
                     <div className="settings-account-status__note">
-                      Settings sync across devices
+                      {copy.account.syncNote}
                     </div>
                   </div>
                 </div>
@@ -1030,10 +1062,10 @@ export default function SettingsPage() {
                   <SettingsIcon id="alertTriangle" className="settings-account-status__icon" />
                   <div className="settings-account-status__details">
                     <div className="settings-account-status__status">
-                      <strong>Not signed in</strong>
+                      <strong>{copy.account.notSignedIn}</strong>
                     </div>
                     <div className="settings-account-status__note">
-                      Settings saved locally only
+                      {copy.account.localOnlyNote}
                     </div>
                   </div>
                 </div>
@@ -1043,5 +1075,13 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <SettingsCopyProvider>
+      <SettingsPageContent />
+    </SettingsCopyProvider>
   );
 }

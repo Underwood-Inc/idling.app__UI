@@ -4,6 +4,8 @@
  */
 import { vi } from 'vitest';
 
+vi.mock('server-only', () => ({}));
+
 vi.mock('next/config', async () => {
   const mod = await import('./__mocks__/next/config');
   return { default: mod.default };

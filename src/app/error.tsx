@@ -9,8 +9,11 @@
  * @see https://nextjs.org/docs/app/building-your-application/routing/error-handling
  */
 
+import { ERRORS_EN } from '$i18n-source/errors.en';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { useEffect } from 'react';
+import { useIdlingLocale } from './components/locale/IdlingLocaleProvider';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -18,6 +21,10 @@ interface ErrorProps {
 }
 
 export default function Error({ error, reset }: ErrorProps) {
+  const { ll } = useIdlingLocale();
+  const errors = resolveCatalogFromLl(ERRORS_EN, ll.errors as Record<string, unknown>);
+  const copy = errors.routeError;
+
   useEffect(() => {
     // Log the error to an error reporting service
     console.error('🧙‍♂️ Error boundary caught:', error);
@@ -48,7 +55,7 @@ export default function Error({ error, reset }: ErrorProps) {
         }}
       >
         <SiteIcon id="wand" sizeRem={1.5} />
-        Oops! Something went wrong
+        {copy.title}
       </h2>
       <p
         style={{
@@ -58,7 +65,7 @@ export default function Error({ error, reset }: ErrorProps) {
           maxWidth: '500px',
         }}
       >
-        {error.message || 'An unexpected error occurred while loading this page.'}
+        {error.message || copy.fallbackMessage}
       </p>
       {error.digest && (
         <p
@@ -68,7 +75,7 @@ export default function Error({ error, reset }: ErrorProps) {
             marginBottom: '1rem',
           }}
         >
-          Error ID: {error.digest}
+          {copy.errorIdLabel}: {error.digest}
         </p>
       )}
       <button
@@ -93,7 +100,7 @@ export default function Error({ error, reset }: ErrorProps) {
           e.currentTarget.style.boxShadow = 'none';
         }}
       >
-        Try Again
+        {copy.tryAgain}
       </button>
     </div>
   );

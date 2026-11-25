@@ -1,5 +1,6 @@
 'use client';
 
+import { useAdminCopy } from '../AdminCopyContext';
 import { useEffect, useState } from 'react';
 import './EmojiApprovalPanel.css';
 
@@ -30,6 +31,7 @@ interface PaginationInfo {
 }
 
 export default function EmojiApprovalPanel() {
+  const copy = useAdminCopy().emojis;
   const [emojis, setEmojis] = useState<CustomEmoji[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<
@@ -132,7 +134,7 @@ export default function EmojiApprovalPanel() {
     emojiId: number,
     reason: string = 'Deleted by admin'
   ) => {
-    if (!confirm('Are you sure you want to permanently delete this emoji?')) {
+    if (!confirm(copy.deleteConfirm)) {
       return;
     }
 
@@ -208,42 +210,44 @@ export default function EmojiApprovalPanel() {
   return (
     <div className="emoji-approval-panel">
       <div className="emoji-approval-panel__header">
-        <h2>Emoji Management</h2>
+        <h2>{copy.title}</h2>
 
         <div className="emoji-approval-panel__controls">
           <div className="emoji-approval-panel__filter">
-            <label htmlFor="status-filter">Status:</label>
+            <label htmlFor="status-filter">{copy.statusLabel}</label>
             <select
               id="status-filter"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
             >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">{copy.statusOptions.all}</option>
+              <option value="pending">{copy.statusOptions.pending}</option>
+              <option value="approved">{copy.statusOptions.approved}</option>
+              <option value="rejected">{copy.statusOptions.rejected}</option>
             </select>
           </div>
 
           <div className="emoji-approval-panel__search">
             <input
               type="text"
-              placeholder="Search emojis, users, or categories..."
+              placeholder={copy.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
-            <button onClick={handleSearch}>Search</button>
+            <button onClick={handleSearch}>{copy.search}</button>
           </div>
 
           {selectedEmojis.size > 0 && (
             <div className="emoji-approval-panel__bulk-actions">
-              <span>{selectedEmojis.size} selected</span>
+              <span>
+                {selectedEmojis.size} {copy.selectedCount}
+              </span>
               <button
                 onClick={handleBulkApprove}
                 className="emoji-approval-panel__bulk-btn emoji-approval-panel__bulk-btn--approve"
               >
-                Bulk Approve
+                {copy.bulkApprove}
               </button>
             </div>
           )}
@@ -251,7 +255,7 @@ export default function EmojiApprovalPanel() {
       </div>
 
       {loading ? (
-        <div className="emoji-approval-panel__loading">Loading emojis...</div>
+        <div className="emoji-approval-panel__loading">{copy.loading}</div>
       ) : (
         <>
           {emojis.length > 0 && (
@@ -264,7 +268,7 @@ export default function EmojiApprovalPanel() {
                   }
                   onChange={selectAllEmojis}
                 />
-                Select All ({emojis.length})
+                {copy.selectAll} ({emojis.length})
               </label>
             </div>
           )}
@@ -272,7 +276,7 @@ export default function EmojiApprovalPanel() {
           <div className="emoji-approval-panel__list">
             {emojis.length === 0 ? (
               <div className="emoji-approval-panel__empty">
-                No emojis found for the current filter.
+                {copy.empty}
               </div>
             ) : (
               emojis.map((emoji) => (
@@ -294,18 +298,26 @@ export default function EmojiApprovalPanel() {
                         height="48"
                       />
                     ) : (
-                      <div className="emoji-card__placeholder">No Image</div>
+                      <div className="emoji-card__placeholder">{copy.noImage}</div>
                     )}
                   </div>
 
                   <div className="emoji-card__info">
                     <div className="emoji-card__name">:{emoji.name}:</div>
                     <div className="emoji-card__meta">
-                      <span>By: {emoji.creator_email}</span>
-                      <span>Category: {emoji.category}</span>
-                      <span>Created: {formatDate(emoji.created_at)}</span>
+                      <span>
+                        {copy.byPrefix} {emoji.creator_email}
+                      </span>
+                      <span>
+                        {copy.categoryPrefix} {emoji.category}
+                      </span>
+                      <span>
+                        {copy.createdPrefix} {formatDate(emoji.created_at)}
+                      </span>
                       {emoji.description && (
-                        <span>Description: {emoji.description}</span>
+                        <span>
+                          {copy.descriptionPrefix} {emoji.description}
+                        </span>
                       )}
                     </div>
                     <span
@@ -323,7 +335,7 @@ export default function EmojiApprovalPanel() {
                           className="emoji-card__action-btn emoji-card__action-btn--approve"
                           onClick={() => handleApproveEmoji(emoji.id)}
                         >
-                          Approve
+                          {copy.approve}
                         </button>
                         <button
                           className="emoji-card__action-btn emoji-card__action-btn--reject"
@@ -332,7 +344,7 @@ export default function EmojiApprovalPanel() {
                             setShowRejectModal(true);
                           }}
                         >
-                          Reject
+                          {copy.reject}
                         </button>
                       </>
                     )}
@@ -341,7 +353,7 @@ export default function EmojiApprovalPanel() {
                       className="emoji-card__action-btn emoji-card__action-btn--delete"
                       onClick={() => handleDeleteEmoji(emoji.id)}
                     >
-                      Delete
+                      {copy.delete}
                     </button>
                   </div>
                 </div>
@@ -355,17 +367,17 @@ export default function EmojiApprovalPanel() {
                 disabled={!pagination.hasPrev}
                 onClick={() => setCurrentPage(currentPage - 1)}
               >
-                Previous
+                {copy.previous}
               </button>
               <span>
-                Page {pagination.page} of {pagination.totalPages} (
+                {copy.pageOf} {pagination.page} of {pagination.totalPages} (
                 {pagination.total} total)
               </span>
               <button
                 disabled={!pagination.hasNext}
                 onClick={() => setCurrentPage(currentPage + 1)}
               >
-                Next
+                {copy.next}
               </button>
             </div>
           )}
@@ -377,7 +389,7 @@ export default function EmojiApprovalPanel() {
         <div className="emoji-approval-panel__modal-overlay">
           <div className="emoji-approval-panel__modal">
             <div className="emoji-approval-panel__modal-header">
-              <h3>Reject Emoji</h3>
+              <h3>{copy.rejectModalTitle}</h3>
               <button
                 onClick={() => setShowRejectModal(false)}
                 className="emoji-approval-panel__modal-close"
@@ -386,12 +398,12 @@ export default function EmojiApprovalPanel() {
               </button>
             </div>
             <div className="emoji-approval-panel__modal-content">
-              <label htmlFor="reject-reason">Reason for rejection:</label>
+              <label htmlFor="reject-reason">{copy.rejectReasonLabel}</label>
               <textarea
                 id="reject-reason"
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Please provide a reason for rejecting this emoji..."
+                placeholder={copy.rejectReasonPlaceholder}
                 rows={4}
                 required
               />
@@ -401,7 +413,7 @@ export default function EmojiApprovalPanel() {
                 onClick={() => setShowRejectModal(false)}
                 className="emoji-approval-panel__modal-btn emoji-approval-panel__modal-btn--cancel"
               >
-                Cancel
+                {copy.cancel}
               </button>
               <button
                 onClick={() =>
@@ -411,7 +423,7 @@ export default function EmojiApprovalPanel() {
                 disabled={!rejectReason.trim()}
                 className="emoji-approval-panel__modal-btn emoji-approval-panel__modal-btn--reject"
               >
-                Reject Emoji
+                {copy.rejectEmoji}
               </button>
             </div>
           </div>

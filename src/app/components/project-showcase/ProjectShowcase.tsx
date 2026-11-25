@@ -11,9 +11,15 @@ import {
 import { ProjectShowcaseMetrics } from './ProjectShowcaseMetrics';
 import {
   PROJECT_SHOWCASE_CATEGORY_OPTIONS,
-  PROJECT_SHOWCASE_TOTAL_COUNT,
   type ProjectShowcaseCategoryId,
 } from './projectShowcaseCatalog';
+import {
+  buildPortfolioCategoryLabelById,
+  withShowcaseCopy,
+} from '@molecules/i18n/idlingShowcaseI18n';
+import { PORTFOLIO_EN } from '$i18n-source/portfolio.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { PROJECT_SHOWCASE_PROJECTS } from './projectShowcaseProjects';
 
 const CONTRAST_SAFE_SURFACE_CLASS = 'contrast-safe-surface';
@@ -23,6 +29,8 @@ export interface ProjectShowcaseProps {
 }
 
 export function ProjectShowcase({ initialCategory = 'All' }: ProjectShowcaseProps) {
+  const { ll } = useIdlingLocale();
+  const portfolio = resolveCatalogFromLl(PORTFOLIO_EN, ll.portfolio as Record<string, unknown>);
   const [metrics, setMetrics] = useState<ModrinthMetricsByProjectId | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<ProjectShowcaseCategoryId>(initialCategory);
   const projectsContainerRef = useRef<HTMLDivElement>(null);
@@ -33,37 +41,47 @@ export function ProjectShowcase({ initialCategory = 'All' }: ProjectShowcaseProp
       .catch((err) => console.error('Failed to fetch Modrinth stats:', err));
   }, []);
 
+  const categoryLabelById = buildPortfolioCategoryLabelById(ll);
+
   const filteredProjects = PROJECT_SHOWCASE_PROJECTS.filter(
     (project) => selectedCategory === 'All' || project.category === selectedCategory
-  );
+  ).map((project) => withShowcaseCopy(project, ll));
+
+  const selectedCategoryLabel =
+    selectedCategory === 'All'
+      ? null
+      : (categoryLabelById[selectedCategory] ?? selectedCategory);
 
   return (
     <div className={styles.showcase}>
       <div className={styles.showcase__header}>
-        <p className={styles.showcase__eyebrow}>Open-source portfolio</p>
-        <h2 className={styles.showcase__title}>Featured Projects</h2>
-        <p className={styles.showcase__subtitle}>
-          A curated slice of the monorepo — web apps, desktop maps, Minecraft mods, serverless APIs,
-          and shared packages.
-        </p>
+        <p className={styles.showcase__eyebrow}>{portfolio.showcase.eyebrow}</p>
+        <h2 className={styles.showcase__title}>{portfolio.showcase.title}</h2>
+        <p className={styles.showcase__subtitle}>{portfolio.showcase.subtitle}</p>
         <hr className={styles.showcase__divider} aria-hidden="true" />
 
         <div className={styles.showcase__meta}>
           <span className={styles.showcase__metaStat}>
-            <strong>{PROJECT_SHOWCASE_PROJECTS.length}</strong> featured
+            <strong>{PROJECT_SHOWCASE_PROJECTS.length}</strong>{' '}
+            {portfolio.showcase.featuredLabel}
           </span>
           <span className={styles.showcase__metaDivider} aria-hidden="true" />
           <span className={styles.showcase__metaStat}>
-            <strong>{PROJECT_SHOWCASE_TOTAL_COUNT}+</strong> total projects
+            <strong>{portfolio.totalProjectCount}+</strong>{' '}
+            {portfolio.showcase.totalProjectsSuffix}
           </span>
           <span className={styles.showcase__metaDivider} aria-hidden="true" />
           <span className={styles.showcase__metaStat}>
-            Showing <strong>{filteredProjects.length}</strong>
-            {selectedCategory === 'All' ? '' : ` in ${selectedCategory}`}
+            {portfolio.showcase.showingPrefix}{' '}
+            <strong>{filteredProjects.length}</strong>
+            {selectedCategoryLabel ? ` in ${selectedCategoryLabel}` : ''}
           </span>
         </div>
 
-        <nav className={styles.category__nav} aria-label="Filter projects by category">
+        <nav
+          className={styles.category__nav}
+          aria-label={portfolio.showcase.filterNavAria}
+        >
           <div className={styles.category__rail}>
             {PROJECT_SHOWCASE_CATEGORY_OPTIONS.map((category) => {
               const isActive = selectedCategory === category.id;
@@ -79,7 +97,9 @@ export function ProjectShowcase({ initialCategory = 'All' }: ProjectShowcaseProp
                   <span className={styles.filter__icon} aria-hidden="true">
                     <LucideIcon icon={category.icon} sizeRem={1} />
                   </span>
-                  <span className={styles.filter__label}>{category.label}</span>
+                  <span className={styles.filter__label}>
+                    {categoryLabelById[category.id] ?? category.label}
+                  </span>
                 </button>
               );
             })}

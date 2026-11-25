@@ -1,5 +1,8 @@
+'use client';
+
 import { DISCORD_LINK_SELECTORS } from '@lib/test-selectors/components/discord-link.selectors';
 import React from 'react';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
 
 export interface DiscordLinkProps {
@@ -7,8 +10,10 @@ export interface DiscordLinkProps {
 }
 
 export const DiscordLink: React.FC<DiscordLinkProps> = ({
-  isInsideParagraph = false
+  isInsideParagraph = false,
 }) => {
+  const { ll } = useIdlingLocale();
+
   return (
     <LinkTooltip
       url="https://discord.gg/mpThbx67J7"
@@ -19,11 +24,11 @@ export const DiscordLink: React.FC<DiscordLinkProps> = ({
         href="https://discord.gg/mpThbx67J7"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Join our Discord server"
+        aria-label={ll.footer.discordAria()}
         aria-describedby="discord-link-tooltip"
         aria-labelledby="discord-link-tooltip"
       >
-        Discord
+        {ll.footer.discord()}
       </a>
     </LinkTooltip>
   );

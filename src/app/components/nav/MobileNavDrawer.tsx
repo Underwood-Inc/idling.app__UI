@@ -1,13 +1,16 @@
 'use client';
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
-import { NAV_GROUPS } from '@lib/routes';
+import { HEADER_NAV_PATHS, isExternalLink, NAV_GROUPS, NAV_PATHS, ROUTE_KEYS } from '@lib/routes';
+import { resolveNavGroupLabel, resolveNavRouteLabel } from '@molecules/i18n/idlingNavI18n';
 import { useSession } from 'next-auth/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { InstantLink } from '../ui/InstantLink';
-import { UserSearch } from '../user-search/UserSearch';
+import { IDLING_PRODUCT_NAME } from '@molecules/i18n/idlingProductName';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
+import { LocalizedUserSearch } from './LocalizedUserSearch';
 import { MobileNavAuth } from './MobileNavAuth';
 
 interface MobileNavDrawerProps {
@@ -21,6 +24,7 @@ interface MobileNavContentProps {
 
 function MobileNavContent({ onClose }: MobileNavContentProps) {
   const { data: session } = useSession();
+  const { ll } = useIdlingLocale();
   const currentPath = usePathname();
   const searchParams = useSearchParams();
 
@@ -37,12 +41,12 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
           className="mobile-nav-drawer__brand-link instant-link--brand"
           onClick={handleLinkClick}
         >
-          <h2 className="mobile-nav-drawer__title">Idling.app</h2>
+          <h2 className="mobile-nav-drawer__title">{IDLING_PRODUCT_NAME}</h2>
         </InstantLink>
         <button
           className="mobile-nav-drawer__close"
           onClick={onClose}
-          aria-label="Close mobile menu"
+          aria-label={ll.mobile.closeMenuAria()}
         >
           ✕
         </button>
@@ -50,7 +54,7 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
 
       {session ? (
         <div className="mobile-nav-drawer__search">
-          <UserSearch placeholder="Find users..." />
+          <LocalizedUserSearch />
         </div>
       ) : null}
 
@@ -60,19 +64,19 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
             key={`mobile-group-${groupKey}`}
             className="mobile-nav-drawer__group"
           >
-            <h3 className="mobile-nav-drawer__group-title">{group.label}</h3>
+            <h3 className="mobile-nav-drawer__group-title">
+              {resolveNavGroupLabel(groupKey, ll)}
+            </h3>
             <div className="mobile-nav-drawer__group-items">
               {group.items.map((item) => {
-                const key =
-                  item as keyof typeof import('@lib/routes').NAV_PATHS;
-                const routeModule = require('@lib/routes');
-                const value = routeModule.NAV_PATHS[key];
+                const key = item as keyof typeof HEADER_NAV_PATHS;
+                const value = NAV_PATHS[key as ROUTE_KEYS];
                 const isActive = currentPath === value;
-                const isExternal = value.startsWith('http');
+                const isExternal = isExternalLink(value);
 
                 const path = value;
 
-                const label = routeModule.NAV_PATH_LABELS[key] || item;
+                const label = resolveNavRouteLabel(key as ROUTE_KEYS, ll);
 
                 return (
                   <InstantLink
@@ -106,6 +110,7 @@ function MobileNavContent({ onClose }: MobileNavContentProps) {
 }
 
 export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
+  const { ll } = useIdlingLocale();
   const overlayRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -172,19 +177,19 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Mobile navigation menu"
+      aria-label={ll.mobile.menuAria()}
     >
       <div className="mobile-nav-drawer" ref={drawerRef}>
         <Suspense
           fallback={
             <div className="mobile-nav-drawer__content">
               <div className="mobile-nav-drawer__header">
-                <h2 className="mobile-nav-drawer__title">Idling.app</h2>
+                <h2 className="mobile-nav-drawer__title">{IDLING_PRODUCT_NAME}</h2>
                 <button className="mobile-nav-drawer__close" onClick={onClose}>
                   ✕
                 </button>
               </div>
-              <div className="mobile-nav-drawer__loading">Loading...</div>
+              <div className="mobile-nav-drawer__loading">{ll.common.actions.loading()}</div>
             </div>
           }
         >

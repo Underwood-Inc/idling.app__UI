@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { getHomeHubMinecraftMoreLink } from './homeHubCatalog';
 import {
   getHomeProductPrimaryLink,
@@ -10,6 +11,7 @@ import {
 import styles from './marketing-dashboard.module.css';
 
 export function HomeHubMinecraftBand() {
+  const { ll } = useIdlingLocale();
   const projects = listHomeMinecraftProjects();
 
   if (projects.length === 0) {
@@ -19,21 +21,21 @@ export function HomeHubMinecraftBand() {
   return (
     <section className={styles.hub__minecraft} aria-labelledby="hub-minecraft-title">
       <h2 id="hub-minecraft-title" className={styles.hub__minecraftTitle}>
-        More Minecraft projects
+        {ll.home.minecraftBand.title()}
       </h2>
       <p className={styles.hub__minecraftLine}>
-        Plugins, datapacks, and our whitelist server — same lineup as Modrinth and BuiltByBit.
+        {ll.home.minecraftBand.line()}
       </p>
       <ul className={styles.hub__minecraftList}>
         {projects.map((project) => {
-          const primary = getHomeProductPrimaryLink(project);
-          const more = getHomeHubMinecraftMoreLink(project.id);
+          const primary = getHomeProductPrimaryLink(project, ll);
+          const more = getHomeHubMinecraftMoreLink(project.id, ll);
 
           if (!primary) {
             return null;
           }
 
-          const line = productMarketingAudienceLine(project);
+          const line = productMarketingAudienceLine(project, ll);
           const label = `${project.title} — ${line}`;
 
           return (

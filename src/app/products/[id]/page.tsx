@@ -1,3 +1,6 @@
+import { getServerLL } from '$i18n/idling-server-i18n';
+import { withShowcaseCopy } from '@molecules/i18n/idlingShowcaseI18n';
+import { resolveProfileCopy } from '@molecules/i18n/idlingMeta';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProductMarketingDetail } from '../../components/marketing-dashboard/ProductMarketingDetail';
@@ -23,14 +26,18 @@ export function generateStaticParams(): ProductPageParams[] {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
   const project = getProductMarketingProject(id);
+  const profile = await resolveProfileCopy();
 
   if (!project) {
-    return { title: 'Product' };
+    return { title: profile.metadata.productNotFoundTitle };
   }
 
+  const ll = await getServerLL();
+  const localized = withShowcaseCopy(project, ll);
+
   return {
-    title: project.title,
-    description: productMarketingTagline(project),
+    title: localized.title,
+    description: productMarketingTagline(localized),
   };
 }
 

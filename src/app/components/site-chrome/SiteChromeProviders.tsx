@@ -17,6 +17,7 @@ import { ServiceWorkerRegistration } from '../service-worker/ServiceWorkerRegist
 import { AmbientStarfieldProvider } from '../ambient-background';
 import { AmbientBackgroundWrapper } from '../ui/ClientWrappers';
 import { VisualizerModeGate } from '../visualizer-mode/VisualizerModeGate';
+import { IdlingLocaleProvider } from '../locale/IdlingLocaleProvider';
 
 export interface SiteChromeProvidersProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
       <MicrosoftClarity />
       <SessionProvider>
         <ClarityUserIdentifier />
+        <IdlingLocaleProvider>
         <UserPreferencesProvider>
           <OverlayProvider>
             <NavigationLoadingProvider>
@@ -56,6 +58,7 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
             </NavigationLoadingProvider>
           </OverlayProvider>
         </UserPreferencesProvider>
+        </IdlingLocaleProvider>
       </SessionProvider>
       <div id="overlay-portal"></div>
     </AmbientStarfieldProvider>

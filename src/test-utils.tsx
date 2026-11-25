@@ -1,3 +1,4 @@
+import { IdlingLocaleProvider } from './app/components/locale/IdlingLocaleProvider';
 import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '@lib/context/OverlayContext';
 import { render, RenderOptions } from '@testing-library/react';
@@ -6,9 +7,11 @@ import React from 'react';
 // Create a custom render function that includes providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <NavigationLoadingProvider>
-      <OverlayProvider>{children}</OverlayProvider>
-    </NavigationLoadingProvider>
+    <IdlingLocaleProvider>
+      <NavigationLoadingProvider>
+        <OverlayProvider>{children}</OverlayProvider>
+      </NavigationLoadingProvider>
+    </IdlingLocaleProvider>
   );
 };
 

@@ -5,6 +5,7 @@ import { LucideIcon } from '@molecules/lucide/LucideIcon';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { ProjectShowcaseProject } from '../project-showcase/projectShowcaseProjects';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { getHomeProductPrimaryLink, productMarketingHook } from './productMarketing';
 import styles from './marketing-dashboard.module.css';
 
@@ -63,13 +64,14 @@ function HomeProductTileWrap({ children, size }: HomeProductTileWrapProps) {
 }
 
 export function HomeProductTile({ project, size }: HomeProductTileProps) {
-  const primary = getHomeProductPrimaryLink(project);
+  const { ll } = useIdlingLocale();
+  const primary = getHomeProductPrimaryLink(project, ll);
 
   if (!primary) {
     return null;
   }
 
-  const blurb = productMarketingHook(project);
+  const blurb = productMarketingHook(project, ll);
   const ariaLabel = `${project.title} — ${primary.label}`;
   const iconSize = size === 'hero' ? 2.75 : size === 'wide' ? 2 : 1.25;
   const watermarkSize = size === 'hero' ? 5 : size === 'wide' ? 4 : 3;

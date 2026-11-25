@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Global Guest Quota Management Panel
  *
@@ -12,6 +14,7 @@ import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useAdminCopy } from '../AdminCopyContext';
 
 interface IconTextProps {
   iconId: SiteIconId;
@@ -69,7 +72,7 @@ interface ApiResponse<T> {
 // ================================
 
 export default function GlobalGuestQuotaPanel(): React.JSX.Element {
-  // State management
+  const copy = useAdminCopy().guestQuotas;
   const [quotas, setQuotas] = useState<GlobalGuestQuota[]>([]);
   const [availableFeatures, setAvailableFeatures] = useState<ServiceFeature[]>(
     []
@@ -801,7 +804,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
         <div style={{ marginBottom: '10px' }}>
           <SiteIcon id="loader" sizeRem={1.5} />
         </div>
-        <p>Loading global guest quotas...</p>
+        <p>{copy.loading}</p>
       </div>
     );
   }
@@ -818,7 +821,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
       >
         <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
           <SiteIcon id="target" sizeRem={1.25} />
-          Global Guest Quota Management
+          {copy.title}
         </h2>
         <button
           onClick={() => setShowCreateForm(true)}
@@ -832,7 +835,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
             cursor: showCreateForm ? 'not-allowed' : 'pointer'
           }}
         >
-          <IconText iconId="plusCircle">Add New Quota</IconText>
+          <IconText iconId="plusCircle">{copy.addNewQuota}</IconText>
         </button>
       </div>
 
@@ -873,29 +876,12 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
         }}
       >
         <h4 style={{ margin: '0 0 10px 0' }}>
-          <IconText iconId="lightbulb">How Global Guest Quotas Work:</IconText>
+          <IconText iconId="lightbulb">{copy.howItWorksTitle}</IconText>
         </h4>
         <ul style={{ margin: 0, paddingLeft: '20px' }}>
-          <li>
-            <strong>Priority:</strong> Global quotas apply to anonymous users
-            when no user-specific overrides exist
-          </li>
-          <li>
-            <strong>Feature-Level:</strong> Set different quotas for different
-            services/features to avoid unintended impacts
-          </li>
-          <li>
-            <strong>IP-Based:</strong> Quotas are tracked by IP address and
-            optional machine fingerprinting
-          </li>
-          <li>
-            <strong>Reset Periods:</strong> Choose hourly, daily, weekly, or
-            monthly reset cycles
-          </li>
-          <li>
-            <strong>Unlimited:</strong> Check &ldquo;Unlimited&rdquo; to remove
-            quota restrictions entirely
-          </li>
+          {copy.howItWorksBullets.map((bullet) => (
+            <li key={bullet}>{bullet}</li>
+          ))}
         </ul>
       </div>
     </div>

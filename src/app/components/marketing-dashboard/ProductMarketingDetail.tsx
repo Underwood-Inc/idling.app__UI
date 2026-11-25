@@ -8,6 +8,8 @@ import PageContent from '../page-content/PageContent';
 import type { ProjectShowcaseProject } from '../project-showcase/projectShowcaseProjects';
 import { ProductTechStack } from '../../strixun-stream-suite/ProductTechStack';
 import { productTechStackItems } from '../../strixun-stream-suite/productTechStackCatalog';
+import { useLocalizedCommon } from '@molecules/i18n/useLocalizedCommon';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import {
   getHomeHubContentEntry,
   listProductMarketingBuiltWithLabels,
@@ -27,10 +29,12 @@ export interface ProductMarketingDetailProps {
 }
 
 export function ProductMarketingDetail({ project }: ProductMarketingDetailProps) {
-  const status = productMarketingStatusLabel(project.status);
-  const links = listProductMarketingLinks(project.links);
+  const { ll } = useIdlingLocale();
+  const common = useLocalizedCommon();
+  const status = productMarketingStatusLabel(project.status, ll);
+  const links = listProductMarketingLinks(project.links, ll);
   const tourHref = getProductMarketingTourHref(project);
-  const tagline = productMarketingTagline(project);
+  const tagline = productMarketingTagline(project, ll);
   const hubVisual = getHomeHubContentEntry(project.id)?.visual;
   const visualFit = hubVisual?.fit ?? 'cover';
   const explainedHighlights = listProductMarketingHighlightsForProject(project);
@@ -42,7 +46,7 @@ export function ProductMarketingDetail({ project }: ProductMarketingDetailProps)
       <div className="detail__showcase" data-testid="product-detail">
         <FadeIn>
           <Link href="/" className="product-marketing-back">
-            ← Back home
+            {common.actions.backHome}
           </Link>
 
           <div className="product-hero">

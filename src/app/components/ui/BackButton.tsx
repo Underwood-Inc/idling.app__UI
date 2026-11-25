@@ -4,7 +4,10 @@ import { createLogger } from '@lib/logging';
 import { getStoredScrollPosition } from '@lib/utils/scroll-position';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { COMMON_EN } from '$i18n-source/common.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
+import { useEffect, useMemo, useState } from 'react';
+import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 
 // Create component-specific logger
 const logger = createLogger({
@@ -25,11 +28,17 @@ interface BackButtonProps {
 
 export function BackButton({
   className = '',
-  children = '← Back',
+  children,
   fallbackHref = '/',
   scrollRestoreKey,
   onBack
 }: BackButtonProps) {
+  const { ll } = useIdlingLocale();
+  const common = useMemo(
+    () => resolveCatalogFromLl(COMMON_EN, ll.common as Record<string, unknown>),
+    [ll]
+  );
+  const label = children ?? common.backButton.defaultLabel;
   const router = useRouter();
   const [canGoBack, setCanGoBack] = useState(false);
   const [scrollPosition, setScrollPosition] = useState<any>(null);
@@ -100,12 +109,15 @@ export function BackButton({
       className={`back-button ${className}`}
       title={
         scrollPosition
-          ? `Back to previous page (page ${scrollPosition.currentPage || 1})`
-          : 'Go back'
+          ? common.backButton.titleWithPage.replace(
+              '{page}',
+              String(scrollPosition.currentPage || 1)
+            )
+          : common.backButton.titleGoBack
       }
       onClick={handleClick}
     >
-      {children}
+      {label}
     </Link>
   );
 }

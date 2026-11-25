@@ -7,6 +7,7 @@
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React from 'react';
+import { useAdminCopy } from '../../AdminCopyContext';
 import { InteractiveTooltip } from '../../../components/tooltip/InteractiveTooltip';
 
 interface HeaderSectionProps {
@@ -38,16 +39,16 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   onSearchBlur,
   onSearchClear
 }) => {
+  const copy = useAdminCopy().userManagement;
+
   return (
     <div className="panel-header">
       <div className="header-content">
         <h2 className="panel-title">
           <SiteIcon id="users" className="panel-title__icon" sizeRem={1.25} />
-          User Management
+          {copy.panelTitle}
         </h2>
-        <p className="panel-description">
-          Manage user accounts, roles, subscriptions, and permissions
-        </p>
+        <p className="panel-description">{copy.panelDescription}</p>
       </div>
 
       <div className="header-actions">
@@ -59,7 +60,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           <span className="filter-icon">
             <SiteIcon id="search" sizeRem={1} />
           </span>
-          <span className="filter-label">Filters</span>
+          <span className="filter-label">{copy.filters}</span>
           {activeFiltersCount > 0 && (
             <span className="filter-count">{activeFiltersCount}</span>
           )}
@@ -73,7 +74,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           <span className="export-icon">
             <SiteIcon id="barChart" sizeRem={1} />
           </span>
-          <span className="export-label">Export All</span>
+          <span className="export-label">{copy.exportAll}</span>
         </button>
 
         {/* Smart Search Input with InteractiveTooltip */}
@@ -96,7 +97,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchQueryChange(e.target.value)}
-                placeholder="Search users by name, email, or ID..."
+                placeholder={copy.searchPlaceholder}
                 className="search-input"
                 onFocus={onSearchFocus}
                 onBlur={onSearchBlur}

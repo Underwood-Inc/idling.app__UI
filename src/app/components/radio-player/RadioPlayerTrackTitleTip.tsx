@@ -15,6 +15,8 @@ import {
   resolveRadioPlayerTrackTitleTipPosition,
   type RadioPlayerTrackTitleTipPlacement,
 } from './radioPlayerTrackTitleTipPosition';
+import { formatRadioTrackTitleTriggerAria } from '@molecules/i18n/idlingRadioI18n';
+import { useRadioCopy } from './useRadioCopy';
 import styles from './RadioPlayerTrackTitleTip.module.css';
 
 export interface RadioPlayerTrackTitleTipProps {
@@ -33,6 +35,8 @@ export function RadioPlayerTrackTitleTip({
   className,
   marqueeEnabled = true,
 }: RadioPlayerTrackTitleTipProps) {
+  const radioCopy = useRadioCopy();
+  const { aria } = radioCopy;
   const [open, setOpen] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
   const [positioned, setPositioned] = useState(false);
@@ -141,7 +145,7 @@ export function RadioPlayerTrackTitleTip({
         className={`${styles.trigger} no-glass`}
         aria-expanded={open}
         aria-controls={open ? tipId : undefined}
-        aria-label={`Now playing: ${trackDisplay}. Click to show full title.`}
+        aria-label={formatRadioTrackTitleTriggerAria(radioCopy, trackDisplay)}
         data-testid="radio-track-title-trigger"
         onClick={(event) => {
           event.stopPropagation();
@@ -163,7 +167,7 @@ export function RadioPlayerTrackTitleTip({
               ref={tipRef}
               id={tipId}
               role="dialog"
-              aria-label="Full track title"
+              aria-label={aria.fullTrackTitle}
               className={styles.tipWrap}
               data-placement={placement}
               data-positioned={positioned ? 'true' : 'false'}

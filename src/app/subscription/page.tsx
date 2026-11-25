@@ -1,7 +1,10 @@
 'use client';
 
+import { SUBSCRIPTION_EN } from '$i18n-source/subscription.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useIdlingLocale } from '../components/locale/IdlingLocaleProvider';
 import FadeIn from '../components/fade-in/FadeIn';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
@@ -28,21 +31,29 @@ interface SubscriptionData {
   };
 }
 
-// Loading component for Suspense fallback
+function useSubscriptionCopy() {
+  const { ll } = useIdlingLocale();
+  return useMemo(
+    () => resolveCatalogFromLl(SUBSCRIPTION_EN, ll.subscription as Record<string, unknown>),
+    [ll]
+  );
+}
+
 function SubscriptionLoading() {
+  const { page: copy } = useSubscriptionCopy();
   return (
     <PageContainer>
       <PageHeader>
         <div>
-          <h1>Subscription</h1>
-          <p>Choose your plan</p>
+          <h1>{copy.title}</h1>
+          <p>{copy.subtitle}</p>
         </div>
       </PageHeader>
       <PageContent>
         <FadeIn>
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner}></div>
-            <p>Loading subscription options...</p>
+            <p>{copy.loading}</p>
           </div>
         </FadeIn>
       </PageContent>
@@ -52,6 +63,7 @@ function SubscriptionLoading() {
 
 // Component that uses useSearchParams - wrapped in Suspense
 function SubscriptionContent() {
+  const { page: copy } = useSubscriptionCopy();
   const searchParams = useSearchParams();
   const [subscriptionData, setSubscriptionData] =
     useState<SubscriptionData | null>(null);
@@ -68,7 +80,7 @@ function SubscriptionContent() {
         const response = await fetch(`/api/subscription?tier=${tier}`);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch subscription data');
+          throw new Error(copy.fetchFailed);
         }
 
         const data = await response.json();
@@ -77,7 +89,7 @@ function SubscriptionContent() {
         setError(
           err instanceof Error
             ? err.message
-            : 'Failed to load subscription data'
+            : copy.fetchFailed
         );
       } finally {
         setIsLoading(false);
@@ -92,15 +104,15 @@ function SubscriptionContent() {
       <PageContainer>
         <PageHeader>
           <div>
-            <h1>Subscription</h1>
-            <p>Choose your plan</p>
+            <h1>{copy.title}</h1>
+            <p>{copy.subtitle}</p>
           </div>
         </PageHeader>
         <PageContent>
           <FadeIn>
             <div className={styles.loadingContainer}>
               <div className={styles.loadingSpinner}></div>
-              <p>Loading subscription data...</p>
+              <p>{copy.loadingData}</p>
             </div>
           </FadeIn>
         </PageContent>
@@ -113,16 +125,16 @@ function SubscriptionContent() {
       <PageContainer>
         <PageHeader>
           <div>
-            <h1>Subscription</h1>
-            <p>Choose your plan</p>
+            <h1>{copy.title}</h1>
+            <p>{copy.subtitle}</p>
           </div>
         </PageHeader>
         <PageContent>
           <FadeIn>
             <div className={styles.errorContainer}>
-              <h2>Error</h2>
+              <h2>{copy.errorHeading}</h2>
               <p>{error}</p>
-              <InstantLink href="/">Return to Home</InstantLink>
+              <InstantLink href="/">{copy.returnHome}</InstantLink>
             </div>
           </FadeIn>
         </PageContent>
@@ -135,16 +147,16 @@ function SubscriptionContent() {
       <PageContainer>
         <PageHeader>
           <div>
-            <h1>Subscription</h1>
-            <p>Choose your plan</p>
+            <h1>{copy.title}</h1>
+            <p>{copy.subtitle}</p>
           </div>
         </PageHeader>
         <PageContent>
           <FadeIn>
             <div className={styles.errorContainer}>
-              <h2>No Data Available</h2>
-              <p>Subscription data could not be loaded.</p>
-              <InstantLink href="/">Return to Home</InstantLink>
+              <h2>{copy.noDataHeading}</h2>
+              <p>{copy.noDataBody}</p>
+              <InstantLink href="/">{copy.returnHome}</InstantLink>
             </div>
           </FadeIn>
         </PageContent>
@@ -156,12 +168,8 @@ function SubscriptionContent() {
     <PageContainer>
       <PageHeader>
         <div>
-          <h1>Subscription</h1>
-          <p>
-            {fromQuotaLimit
-              ? 'Upgrade to continue generating emojis'
-              : 'Choose your plan'}
-          </p>
+          <h1>{copy.title}</h1>
+          <p>{fromQuotaLimit ? copy.subtitleQuota : copy.subtitle}</p>
         </div>
       </PageHeader>
       <PageContent>
@@ -169,12 +177,8 @@ function SubscriptionContent() {
           <FadeIn>
             {fromQuotaLimit && (
               <div className={styles.quotaLimitBanner}>
-                <h2>Daily Limit Reached</h2>
-                <p>
-                  You&apos;ve reached your daily generation limit. Upgrade to
-                  Pro to continue generating emojis with unlimited daily
-                  generations.
-                </p>
+                <h2>{copy.quotaBannerTitle}</h2>
+                <p>{copy.quotaBannerBody}</p>
               </div>
             )}
 
@@ -188,7 +192,7 @@ function SubscriptionContent() {
                 </div>
 
                 <div className={styles.cardBody}>
-                  <h3>What you get:</h3>
+                  <h3>{copy.whatYouGet}</h3>
                   <ul className={styles.featuresList}>
                     {subscriptionData.tier.features.map((feature, index) => (
                       <li key={index}>{feature}</li>
@@ -196,22 +200,22 @@ function SubscriptionContent() {
                   </ul>
 
                   <div className={styles.limitInfo}>
-                    <strong>Daily Limit:</strong>{' '}
+                    <strong>{copy.dailyLimitLabel}</strong>{' '}
                     {subscriptionData.tier.dailyLimit}
                   </div>
 
                   <div className={styles.currentLimitsSection}>
-                    <h4>Your Current Limits (Free Plan):</h4>
+                    <h4>{copy.currentLimitsTitle}</h4>
                     <ul>
                       <li>
-                        Daily Generations:{' '}
+                        {copy.dailyGenerations}{' '}
                         {subscriptionData.currentLimits.free.dailyGenerations}
                       </li>
                       <li>
-                        Advanced Options:{' '}
+                        {copy.advancedOptions}{' '}
                         {subscriptionData.currentLimits.free.advancedOptions
-                          ? 'Yes'
-                          : 'No'}
+                          ? copy.yes
+                          : copy.no}
                       </li>
                     </ul>
                   </div>
@@ -224,7 +228,7 @@ function SubscriptionContent() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Subscribe Now
+                    {copy.subscribeNow}
                   </a>
                 </div>
               </div>
@@ -234,7 +238,7 @@ function SubscriptionContent() {
               </div>
 
               <div className={styles.backLink}>
-                <InstantLink href="/">← Back to Emoji Generator</InstantLink>
+                <InstantLink href="/">{copy.backToGenerator}</InstantLink>
               </div>
             </div>
           </FadeIn>

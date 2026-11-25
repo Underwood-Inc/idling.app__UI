@@ -1,8 +1,9 @@
+import enCatalog from '$i18n/locales/en.json';
 import {
   HEADER_NAV_PATHS,
   isExternalLink,
-  NAV_PATH_LABELS,
   NAV_PATHS,
+  ROUTE_KEYS,
 } from '../../../lib/routes';
 import { render, screen } from '../../../test-utils';
 import { NavPaths } from './NavPaths';
@@ -54,9 +55,10 @@ describe('NavPaths', () => {
 
     Object.entries(HEADER_NAV_PATHS).forEach(([key, path]) => {
       const routeKey = key as keyof typeof HEADER_NAV_PATHS;
+      const label = enCatalog.nav.routes[routeKey as ROUTE_KEYS];
       const expectedName = isExternalLink(path)
-        ? `${NAV_PATH_LABELS[routeKey]} External link`
-        : NAV_PATH_LABELS[routeKey];
+        ? `${label} ${enCatalog.nav.externalLinkAria}`
+        : label;
 
       const element = screen.getByRole('link', {
         name: expectedName,
@@ -71,7 +73,7 @@ describe('NavPaths', () => {
     render(<NavPaths />);
 
     const activeLink = screen.getByRole('link', {
-      name: NAV_PATH_LABELS.CARD_GENERATOR,
+      name: enCatalog.nav.routes.CARD_GENERATOR,
     });
     expect(activeLink).toHaveClass('active');
   });

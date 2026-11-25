@@ -1,0 +1,69 @@
+/* Overlay shell — same pattern as .galaxy-modal in GalaxyLink.css */
+.message-ticker-quote-modal__shell .modal-content {
+  width: min(42rem, 92vw);
+  max-width: min(42rem, 92vw);
+  padding: 0;
+}
+
+.message-ticker-quote-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: var(--dark-bg__text-color--primary);
+}
+
+.message-ticker-quote-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+  background: var(--dark-background--secondary);
+}
+
+.message-ticker-quote-modal__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.message-ticker-quote-modal__close {
+  background: none;
+  border: none;
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.message-ticker-quote-modal__body {
+  margin: 0;
+  padding: 1.5rem 1.5rem 0;
+}
+
+.message-ticker-quote-modal__text {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  line-height: 1.55;
+  text-wrap: pretty;
+  white-space: pre-wrap;
+}
+
+.message-ticker-quote-modal__footer {
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 1.25rem;
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--brand-tertiary--dark);
+}
+
+.message-ticker-quote-modal__attribution {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--dark-bg__text-color--secondary);
+}

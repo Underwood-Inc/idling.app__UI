@@ -9,11 +9,6 @@ interface HomeHubTileVisualProps {
   visual: HomeHubTileVisualAsset;
 }
 
-interface PointerOffset {
-  x: number;
-  y: number;
-}
-
 export function HomeHubTileVisual({ visual }: HomeHubTileVisualProps) {
   const fit = visual.fit ?? 'cover';
   const imgClassName =
@@ -21,7 +16,9 @@ export function HomeHubTileVisual({ visual }: HomeHubTileVisualProps) {
       ? `${styles.hub__visualImg} ${styles['hub__visualImg--contain']}`
       : styles.hub__visualImg;
   const frameRef = useRef<HTMLDivElement>(null);
-  const [offset, setOffset] = useState<PointerOffset>({ x: 0, y: 0 });
+  const glowRef = useRef<HTMLSpanElement>(null);
+  const midRef = useRef<HTMLDivElement>(null);
+  const shineRef = useRef<HTMLSpanElement>(null);
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -42,6 +39,19 @@ export function HomeHubTileVisual({ visual }: HomeHubTileVisualProps) {
     let currentX = 0;
     let currentY = 0;
     let frameId = 0;
+
+    const applyTransforms = (x: number, y: number) => {
+      const liftY = y * 4;
+      if (glowRef.current) {
+        glowRef.current.style.transform = `translate3d(${x * 6}px, ${liftY}px, 0)`;
+      }
+      if (midRef.current) {
+        midRef.current.style.transform = `translate3d(${x * 12}px, ${liftY * 0.5}px, 0)`;
+      }
+      if (shineRef.current) {
+        shineRef.current.style.transform = `translate3d(${x * 20}px, ${liftY * 0.25}px, 0)`;
+      }
+    };
 
     const onMove = (event: PointerEvent) => {
       const frame = frameRef.current;
@@ -64,13 +74,14 @@ export function HomeHubTileVisual({ visual }: HomeHubTileVisualProps) {
     const animate = () => {
       currentX += (targetX - currentX) * 0.08;
       currentY += (targetY - currentY) * 0.08;
-      setOffset({ x: currentX, y: currentY });
+      applyTransforms(currentX, currentY);
       frameId = window.requestAnimationFrame(animate);
     };
 
     const frame = frameRef.current;
     frame?.addEventListener('pointermove', onMove);
     frame?.addEventListener('pointerleave', onLeave);
+    applyTransforms(0, 0);
     frameId = window.requestAnimationFrame(animate);
 
     return () => {
@@ -80,25 +91,10 @@ export function HomeHubTileVisual({ visual }: HomeHubTileVisualProps) {
     };
   }, [reduceMotion]);
 
-  const depthBack = reduceMotion ? 0 : offset.x * 6;
-  const depthMid = reduceMotion ? 0 : offset.x * 12;
-  const depthFront = reduceMotion ? 0 : offset.x * 20;
-  const liftY = reduceMotion ? 0 : offset.y * 4;
-
   return (
     <div ref={frameRef} className={styles.hub__visualFrame}>
-      <span
-        className={styles.hub__visualGlow}
-        style={{
-          transform: `translate3d(${depthBack}px, ${liftY}px, 0)`,
-        }}
-      />
-      <div
-        className={styles.hub__visualMid}
-        style={{
-          transform: `translate3d(${depthMid}px, ${liftY * 0.5}px, 0)`,
-        }}
-      >
+      <span ref={glowRef} className={styles.hub__visualGlow} />
+      <div ref={midRef} className={styles.hub__visualMid}>
         <Image
           src={visual.src}
           alt={visual.alt}
@@ -115,12 +111,7 @@ export function HomeHubTileVisual({ visual }: HomeHubTileVisualProps) {
           }
         />
       </div>
-      <span
-        className={styles.hub__visualShine}
-        style={{
-          transform: `translate3d(${depthFront}px, ${liftY * 0.25}px, 0)`,
-        }}
-      />
+      <span ref={shineRef} className={styles.hub__visualShine} />
     </div>
   );
 }

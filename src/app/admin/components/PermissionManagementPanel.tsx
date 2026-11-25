@@ -20,6 +20,7 @@ import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAdminCopy } from '../AdminCopyContext';
 import './PermissionManagementPanel.css';
 
 interface IconTextProps {
@@ -113,9 +114,7 @@ type RiskLevel = 'all' | 'low' | 'medium' | 'high' | 'critical';
 // ================================
 
 export default function PermissionManagementPanel() {
-  // ================================
-  // STATE MANAGEMENT
-  // ================================
+  const copy = useAdminCopy().permissions;
 
   const [viewMode, setViewMode] = useState<ViewMode>('permissions');
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -834,12 +833,9 @@ export default function PermissionManagementPanel() {
             <span className="title-icon">
               <SiteIcon id="lockKeyhole" sizeRem={1.25} />
             </span>
-            Permission Management System
+            {copy.title}
           </h1>
-          <p className="panel-subtitle">
-            Comprehensive permissions and roles management with enterprise-grade
-            security
-          </p>
+          <p className="panel-subtitle">{copy.subtitle}</p>
         </div>
 
         <div className="header-actions">
@@ -851,7 +847,7 @@ export default function PermissionManagementPanel() {
             <span className="btn-icon">
               <SiteIcon id="plusCircle" sizeRem={1} />
             </span>
-            Create New {viewMode === 'permissions' ? 'Permission' : 'Role'}
+            {viewMode === 'permissions' ? copy.createPermission : copy.createRole}
           </button>
         </div>
       </div>
@@ -862,19 +858,19 @@ export default function PermissionManagementPanel() {
           onClick={() => setViewMode('permissions')}
           className={`nav-tab ${viewMode === 'permissions' ? 'nav-tab--active' : ''}`}
         >
-          <TabLabel iconId="shield">Permissions</TabLabel>
+          <TabLabel iconId="shield">{copy.tabs.permissions}</TabLabel>
         </button>
         <button
           onClick={() => setViewMode('roles')}
           className={`nav-tab ${viewMode === 'roles' ? 'nav-tab--active' : ''}`}
         >
-          <TabLabel iconId="users">Roles</TabLabel>
+          <TabLabel iconId="users">{copy.tabs.roles}</TabLabel>
         </button>
         <button
           onClick={() => setViewMode('audit')}
           className={`nav-tab ${viewMode === 'audit' ? 'nav-tab--active' : ''}`}
         >
-          <TabLabel iconId="barChart">Audit Trail</TabLabel>
+          <TabLabel iconId="barChart">{copy.tabs.audit}</TabLabel>
         </button>
       </div>
 
@@ -902,7 +898,9 @@ export default function PermissionManagementPanel() {
         {loading && (
           <div className="loading-overlay">
             <div className="loading-spinner"></div>
-            <p>Loading {viewMode}...</p>
+            <p>
+              {copy.loading} {viewMode}...
+            </p>
           </div>
         )}
 
@@ -911,9 +909,9 @@ export default function PermissionManagementPanel() {
         {!loading && viewMode === 'audit' && (
           <div className="audit-placeholder">
             <h3>
-              <IconText iconId="barChart">Audit Trail</IconText>
+              <IconText iconId="barChart">{copy.auditTitle}</IconText>
             </h3>
-            <p>Comprehensive audit logging coming soon...</p>
+            <p>{copy.auditComingSoon}</p>
           </div>
         )}
 
@@ -927,14 +925,18 @@ export default function PermissionManagementPanel() {
                   sizeRem={3}
                 />
               </div>
-              <h3>No {viewMode} found</h3>
+              <h3>
+                {copy.noResultsTitle} {viewMode} found
+              </h3>
               <p>
                 {searchQuery ||
                 statusFilter !== 'all' ||
                 categoryFilter !== 'all' ||
                 riskFilter !== 'all'
-                  ? 'Try adjusting your search criteria or filters.'
-                  : `Create your first ${viewMode === 'permissions' ? 'permission' : 'role'} to get started.`}
+                  ? copy.noResultsFiltered
+                  : viewMode === 'permissions'
+                    ? copy.noResultsEmptyPermission
+                    : copy.noResultsEmptyRole}
               </p>
             </div>
           )}

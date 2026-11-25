@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
 import { LoadingButton } from '../../../components/ui/LoadingButton';
 import { Username } from '../../../components/username';
+import { useAdminCopy } from '../../AdminCopyContext';
 import type {
   ManagementUser,
   SearchResult,
@@ -46,7 +47,10 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   onTimeoutUser,
   onRevokeTimeout,
   closeTooltip
-}) => (
+}) => {
+  const copy = useAdminCopy().userManagement;
+
+  return (
   <div className="user-actions-menu">
     <LoadingButton
       className="action-menu-item"
@@ -60,7 +64,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       size="sm"
     >
       <ActionIcon id="eye" />
-      <span className="action-label">View Details</span>
+      <span className="action-label">{copy.viewDetails}</span>
     </LoadingButton>
 
     <button
@@ -71,7 +75,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       }}
     >
       <ActionIcon id="theater" />
-      <span className="action-label">Assign Role</span>
+      <span className="action-label">{copy.assignRole}</span>
     </button>
 
     <button
@@ -82,7 +86,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       }}
     >
       <ActionIcon id="gem" />
-      <span className="action-label">Manage Subscription</span>
+      <span className="action-label">{copy.manageSubscription}</span>
     </button>
 
     <button
@@ -93,7 +97,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       }}
     >
       <ActionIcon id="zap" />
-      <span className="action-label">Manage Quota</span>
+      <span className="action-label">{copy.manageQuota}</span>
     </button>
 
     <button
@@ -141,7 +145,8 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       </LoadingButton>
     )}
   </div>
-);
+  );
+};
 
 // ================================
 // SEARCH OVERLAY COMPONENTS
@@ -358,14 +363,18 @@ export const TimeoutDetailsCell: React.FC<TimeoutDetailsCellProps> = ({
 /**
  * Loading state component
  */
-export const LoadingState: React.FC = () => (
-  <div className="user-management-panel">
-    <div className="loading-state">
-      <div className="loading-spinner"></div>
-      <p>Loading users...</p>
+export const LoadingState: React.FC = () => {
+  const copy = useAdminCopy().userManagement;
+
+  return (
+    <div className="user-management-panel">
+      <div className="loading-state">
+        <div className="loading-spinner"></div>
+        <p>{copy.loadingUsers}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface ErrorStateProps {
   error: string;
@@ -375,26 +384,34 @@ interface ErrorStateProps {
 /**
  * Error state component
  */
-export const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => (
-  <div className="user-management-panel">
-    <div className="error-state">
-      <p>Error: {error}</p>
-      <button onClick={onRetry} className="btn btn--primary">
-        Retry
-      </button>
+export const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => {
+  const copy = useAdminCopy().userManagement;
+
+  return (
+    <div className="user-management-panel">
+      <div className="error-state">
+        <p>Error: {error}</p>
+        <button onClick={onRetry} className="btn btn--primary">
+          {copy.retry}
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /**
  * Infinite scroll loading indicator
  */
-export const InfiniteScrollLoading: React.FC = () => (
-  <div className="infinite-scroll-loading">
-    <div className="loading-spinner"></div>
-    <span>Loading more users...</span>
-  </div>
-);
+export const InfiniteScrollLoading: React.FC = () => {
+  const copy = useAdminCopy().userManagement;
+
+  return (
+    <div className="infinite-scroll-loading">
+      <div className="loading-spinner"></div>
+      <span>{copy.loadingMoreUsers}</span>
+    </div>
+  );
+};
 
 /**
  * End of list indicator for infinite scroll

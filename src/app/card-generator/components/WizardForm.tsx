@@ -3,7 +3,7 @@
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
 import {
@@ -22,6 +22,10 @@ import {
 import { useAspectRatios } from '../hooks/useFormOptions';
 import formStyles from './FormElements.module.css';
 import type { AspectRatioOption } from './GenerationForm';
+import { useToolsCopy } from '../../tools/ToolsCopyContext';
+import { COMMON_EN } from '$i18n-source/common.en';
+import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
+import { useIdlingLocale } from '../../components/locale/IdlingLocaleProvider';
 import wizardStyles from './WizardForm.module.css';
 
 export interface WizardFormData {
@@ -64,6 +68,13 @@ export function WizardForm({
   isCollapsed = false,
   onToggleCollapse
 }: WizardFormProps) {
+  const { cardGenerator } = useToolsCopy();
+  const w = cardGenerator.wizard;
+  const { ll } = useIdlingLocale();
+  const common = useMemo(
+    () => resolveCatalogFromLl(COMMON_EN, ll.common as Record<string, unknown>),
+    [ll]
+  );
   const { data: session } = useSession();
   const isAuthenticated = !!session?.user?.id;
 
@@ -195,45 +206,45 @@ export function WizardForm({
         return (
           <>
             <SiteIcon id="layout" sizeRem={1.125} />
-            Choose Platform
+            {w.steps.platformSelection}
           </>
         );
       case 'basic':
         return (
           <>
             <SiteIcon id="palette" sizeRem={1.125} />
-            Basic Configuration
+            {w.steps.basicConfiguration}
           </>
         );
       case 'pro':
         return (
           <>
             <SiteIcon id="zap" sizeRem={1.125} />
-            Pro Configuration
+            {w.steps.proConfiguration}
           </>
         );
       case 'confirm':
         return (
           <>
             <SiteIcon id="target" sizeRem={1.125} />
-            Confirm & Generate
+            {w.steps.confirmAndGenerate}
           </>
         );
       default:
-        return 'Card Generator Wizard';
+        return w.wizardTitle;
     }
   };
 
   const getStepDescription = () => {
     switch (currentStep) {
       case 'platform':
-        return 'Select the platform and aspect ratio for your card';
+        return w.stepDescriptions.platform;
       case 'basic':
-        return 'Configure the main elements of your card';
+        return w.stepDescriptions.basic;
       case 'pro':
-        return 'Fine-tune advanced settings with Pro features';
+        return w.stepDescriptions.pro;
       case 'confirm':
-        return 'Review your configuration and generate the card';
+        return w.stepDescriptions.confirm;
       default:
         return '';
     }
@@ -289,14 +300,14 @@ export function WizardForm({
                 }}
                 title={
                   stepClickable
-                    ? `Go to ${
+                    ? `${w.goToStepPrefix} ${
                         step === 'platform'
-                          ? 'Platform Selection'
+                          ? w.steps.platformSelection
                           : step === 'basic'
-                            ? 'Basic Configuration'
+                            ? w.steps.basicConfiguration
                             : step === 'pro'
-                              ? 'Pro Configuration'
-                              : 'Confirm & Generate'
+                              ? w.steps.proConfiguration
+                              : w.steps.confirmAndGenerate
                       }`
                     : undefined
                 }
@@ -323,12 +334,9 @@ export function WizardForm({
     <div className={wizardStyles.stepContent}>
       <h3>
         <SiteIcon id="target" sizeRem={1.125} />
-        Choose Your Platform
+        {w.choosePlatformTitle}
       </h3>
-      <p>
-        Select the platform where you&apos;ll be sharing your card. Each
-        platform has optimized dimensions for the best visual impact.
-      </p>
+      <p>{w.choosePlatformBody}</p>
 
       <div className={wizardStyles.ratioGrid}>
         {aspectRatioLoading ? (
@@ -340,7 +348,7 @@ export function WizardForm({
               color: 'var(--dark-bg__text-color--secondary)'
             }}
           >
-            Loading aspect ratios...
+            {w.loadingAspectRatios}
           </div>
         ) : (
           effectiveAspectRatios.map((ratio) => (
@@ -375,10 +383,9 @@ export function WizardForm({
 
   const renderBasicStep = () => (
     <div className={wizardStyles.stepContent}>
-      <h3>Basic Configuration</h3>
+      <h3>{w.steps.basicConfiguration}</h3>
       <p>
-        Configure the main elements of your card. Leave fields empty for random
-        generation.
+        {w.stepDescriptions.basic} {w.basicEmptyNote}
       </p>
 
       <div className={wizardStyles.formGrid}>
@@ -386,18 +393,16 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="dices" sizeRem={1} />
-              Main Seed
+              {w.labels.mainSeed}
             </span>
             <input
               type="text"
               value={currentSeed}
               onChange={(e) => setCurrentSeed(e.target.value)}
-              placeholder="Leave empty for random"
+              placeholder={w.placeholders.random}
               className={wizardStyles.input}
             />
-            <span className={wizardStyles.fieldHint}>
-              Controls the overall design pattern
-            </span>
+            <span className={wizardStyles.fieldHint}>{w.hints.pattern}</span>
           </label>
         </div>
 
@@ -405,18 +410,16 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="user" sizeRem={1} />
-              Avatar Seed
+              {w.labels.avatarSeed}
             </span>
             <input
               type="text"
               value={avatarSeed}
               onChange={(e) => setAvatarSeed(e.target.value)}
-              placeholder="Leave empty for random"
+              placeholder={w.placeholders.random}
               className={wizardStyles.input}
             />
-            <span className={wizardStyles.fieldHint}>
-              Controls the avatar design
-            </span>
+            <span className={wizardStyles.fieldHint}>{w.hints.avatar}</span>
           </label>
         </div>
 
@@ -424,18 +427,16 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="pen" sizeRem={1} />
-              Author
+              {w.labels.author}
             </span>
             <input
               type="text"
               value={customAuthor}
               onChange={(e) => setCustomAuthor(e.target.value)}
-              placeholder="Leave empty for random"
+              placeholder={w.placeholders.random}
               className={wizardStyles.input}
             />
-            <span className={wizardStyles.fieldHint}>
-              The person who said the quote
-            </span>
+            <span className={wizardStyles.fieldHint}>{w.hints.author}</span>
           </label>
         </div>
 
@@ -443,18 +444,16 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="messages" sizeRem={1} />
-              Quote
+              {w.labels.quote}
             </span>
             <textarea
               value={customQuote}
               onChange={(e) => setCustomQuote(e.target.value)}
-              placeholder="Leave empty for random inspirational quote"
+              placeholder={w.placeholders.randomQuote}
               className={wizardStyles.textarea}
               rows={3}
             />
-            <span className={wizardStyles.fieldHint}>
-              The inspirational message for your card
-            </span>
+            <span className={wizardStyles.fieldHint}>{w.hints.quote}</span>
           </label>
         </div>
       </div>
@@ -465,21 +464,17 @@ export function WizardForm({
     <div className={wizardStyles.stepContent}>
       <h3>
         <SiteIcon id="zap" sizeRem={1.125} />
-        Pro Configuration
+        {w.steps.proConfiguration}
       </h3>
-      <p>Fine-tune advanced settings with your Pro subscription.</p>
+      <p>{w.stepDescriptions.pro}</p>
 
       {!isPro && (
         <div className={wizardStyles.proNotice}>
           <h4>
             <SiteIcon id="rocket" sizeRem={1} />
-            Upgrade to Pro
+            {w.proStep.upgradeTitle}
           </h4>
-          <p>
-            This step contains advanced features available only to Pro
-            subscribers. Wizard mode with basic configuration is completely
-            free!
-          </p>
+          <p>{w.proStep.upgradeBody}</p>
         </div>
       )}
 
@@ -488,20 +483,20 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="layout" sizeRem={1} />
-              Custom Width
+              {w.labels.customWidth}
             </span>
             <input
               type="number"
               value={customWidth}
               onChange={(e) => setCustomWidth(e.target.value)}
-              placeholder="Auto"
+              placeholder={w.placeholders.auto}
               min="400"
               max="2000"
               className={wizardStyles.input}
               disabled={!isPro}
             />
             <span className={wizardStyles.fieldHint}>
-              Custom width in pixels {!isPro && '(Pro feature)'}
+              {w.proStep.widthHint} {!isPro && w.proStep.proFeatureSuffix}
             </span>
           </label>
         </div>
@@ -510,20 +505,20 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="layout" sizeRem={1} />
-              Custom Height
+              {w.labels.customHeight}
             </span>
             <input
               type="number"
               value={customHeight}
               onChange={(e) => setCustomHeight(e.target.value)}
-              placeholder="Auto"
+              placeholder={w.placeholders.auto}
               min="400"
               max="2000"
               className={wizardStyles.input}
               disabled={!isPro}
             />
             <span className={wizardStyles.fieldHint}>
-              Custom height in pixels {!isPro && '(Pro feature)'}
+              {w.proStep.heightHint} {!isPro && w.proStep.proFeatureSuffix}
             </span>
           </label>
         </div>
@@ -532,20 +527,20 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>
               <SiteIcon id="flame" sizeRem={1} />
-              Shape Count
+              {w.labels.shapeCount}
             </span>
             <input
               type="number"
               value={shapeCount}
               onChange={(e) => setShapeCount(e.target.value)}
-              placeholder="8"
+              placeholder={w.proStep.shapeCountPlaceholder}
               min="3"
               max="15"
               className={wizardStyles.input}
               disabled={!isPro}
             />
             <span className={wizardStyles.fieldHint}>
-              Number of background shapes {!isPro && '(Pro feature)'}
+              {w.proStep.shapeCountHint} {!isPro && w.proStep.proFeatureSuffix}
             </span>
           </label>
         </div>
@@ -553,92 +548,97 @@ export function WizardForm({
     </div>
   );
 
-  const renderConfirmStep = () => (
-    <div className={wizardStyles.stepContent}>
-      <h3>Review & Generate</h3>
-      <p>Review your configuration and generate your mystical card.</p>
+  const renderConfirmStep = () => {
+    const c = w.confirmStep;
+    const random = c.randomValue;
 
-      <div className={wizardStyles.confirmationCard}>
-        <div className={wizardStyles.configSection}>
-          <h4>
-            <SiteIcon id="layout" sizeRem={1} />
-            Platform
-          </h4>
-          <div className={wizardStyles.configItem}>
-            <span>Format:</span>
-            <span>{selectedRatio.name}</span>
-          </div>
-          <div className={wizardStyles.configItem}>
-            <span>Dimensions:</span>
-            <span>{selectedRatio.dimensions}</span>
-          </div>
-        </div>
+    return (
+      <div className={wizardStyles.stepContent}>
+        <h3>{w.reviewTitle}</h3>
+        <p>{c.body}</p>
 
-        <div className={wizardStyles.configSection}>
-          <h4>
-            <SiteIcon id="palette" sizeRem={1} />
-            Content
-          </h4>
-          <div className={wizardStyles.configItem}>
-            <span>Author:</span>
-            <span>{customAuthor || 'Random'}</span>
-          </div>
-          <div className={wizardStyles.configItem}>
-            <span>Quote:</span>
-            <span>
-              {customQuote
-                ? `"${customQuote.substring(0, 50)}${customQuote.length > 50 ? '...' : ''}"`
-                : 'Random'}
-            </span>
-          </div>
-        </div>
-
-        <div className={wizardStyles.configSection}>
-          <h4>
-            <SiteIcon id="dices" sizeRem={1} />
-            Seeds
-          </h4>
-          <div className={wizardStyles.configItem}>
-            <span>Main:</span>
-            <span>{currentSeed || 'Random'}</span>
-          </div>
-          <div className={wizardStyles.configItem}>
-            <span>Avatar:</span>
-            <span>{avatarSeed || 'Random'}</span>
-          </div>
-        </div>
-
-        {isAuthenticated &&
-          isPro &&
-          (customWidth || customHeight || shapeCount !== '8') && (
-            <div className={wizardStyles.configSection}>
-              <h4>
-                <SiteIcon id="zap" sizeRem={1} />
-                Pro Settings
-              </h4>
-              {customWidth && (
-                <div className={wizardStyles.configItem}>
-                  <span>Width:</span>
-                  <span>{customWidth}px</span>
-                </div>
-              )}
-              {customHeight && (
-                <div className={wizardStyles.configItem}>
-                  <span>Height:</span>
-                  <span>{customHeight}px</span>
-                </div>
-              )}
-              {shapeCount !== '8' && (
-                <div className={wizardStyles.configItem}>
-                  <span>Shapes:</span>
-                  <span>{shapeCount}</span>
-                </div>
-              )}
+        <div className={wizardStyles.confirmationCard}>
+          <div className={wizardStyles.configSection}>
+            <h4>
+              <SiteIcon id="layout" sizeRem={1} />
+              {c.sections.platform}
+            </h4>
+            <div className={wizardStyles.configItem}>
+              <span>{c.labels.format}</span>
+              <span>{selectedRatio.name}</span>
             </div>
-          )}
+            <div className={wizardStyles.configItem}>
+              <span>{c.labels.dimensions}</span>
+              <span>{selectedRatio.dimensions}</span>
+            </div>
+          </div>
+
+          <div className={wizardStyles.configSection}>
+            <h4>
+              <SiteIcon id="palette" sizeRem={1} />
+              {c.sections.content}
+            </h4>
+            <div className={wizardStyles.configItem}>
+              <span>{c.labels.author}</span>
+              <span>{customAuthor || random}</span>
+            </div>
+            <div className={wizardStyles.configItem}>
+              <span>{c.labels.quote}</span>
+              <span>
+                {customQuote
+                  ? `"${customQuote.substring(0, 50)}${customQuote.length > 50 ? '...' : ''}"`
+                  : random}
+              </span>
+            </div>
+          </div>
+
+          <div className={wizardStyles.configSection}>
+            <h4>
+              <SiteIcon id="dices" sizeRem={1} />
+              {c.sections.seeds}
+            </h4>
+            <div className={wizardStyles.configItem}>
+              <span>{c.labels.main}</span>
+              <span>{currentSeed || random}</span>
+            </div>
+            <div className={wizardStyles.configItem}>
+              <span>{c.labels.avatar}</span>
+              <span>{avatarSeed || random}</span>
+            </div>
+          </div>
+
+          {isAuthenticated &&
+            isPro &&
+            (customWidth || customHeight || shapeCount !== '8') && (
+              <div className={wizardStyles.configSection}>
+                <h4>
+                  <SiteIcon id="zap" sizeRem={1} />
+                  {c.sections.proSettings}
+                </h4>
+                {customWidth && (
+                  <div className={wizardStyles.configItem}>
+                    <span>{c.labels.width}</span>
+                    <span>{customWidth}px</span>
+                  </div>
+                )}
+                {customHeight && (
+                  <div className={wizardStyles.configItem}>
+                    <span>{c.labels.height}</span>
+                    <span>{customHeight}px</span>
+                  </div>
+                )}
+                {shapeCount !== '8' && (
+                  <div className={wizardStyles.configItem}>
+                    <span>{c.labels.shapes}</span>
+                    <span>{shapeCount}</span>
+                  </div>
+                )}
+              </div>
+            )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderCurrentStep = () => {
     switch (currentStep) {
@@ -695,7 +695,7 @@ export function WizardForm({
               className={wizardStyles.wizardCollapseButton}
               title={isCollapsed ? 'Expand wizard' : 'Collapse wizard'}
             >
-              <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
+              <span>{isCollapsed ? common.actions.expand : common.actions.collapse}</span>
               <svg
                 className={`${wizardStyles.wizardCollapseChevron} ${
                   isCollapsed
@@ -735,7 +735,7 @@ export function WizardForm({
               className={wizardStyles.cancelButton}
               disabled={isGenerating}
             >
-              Cancel
+              {w.cancel}
             </button>
           )}
 
@@ -746,7 +746,7 @@ export function WizardForm({
                 className={wizardStyles.previousButton}
                 disabled={isGenerating}
               >
-                ← Previous
+                {w.previous}
               </button>
             )}
 
@@ -756,7 +756,7 @@ export function WizardForm({
                 className={wizardStyles.nextButton}
                 disabled={!canGoNext() || isGenerating}
               >
-                Next →
+                {w.next}
               </button>
             )}
 
@@ -773,12 +773,12 @@ export function WizardForm({
                 {isGenerating ? (
                   <>
                     <SiteIcon id="sparkles" sizeRem={1} />
-                    Generating...
+                    {w.generating}
                   </>
                 ) : (
                   <>
                     <SiteIcon id="zap" sizeRem={1} />
-                    Generate Card
+                    {w.generateCard}
                   </>
                 )}
               </button>
@@ -789,17 +789,15 @@ export function WizardForm({
             <div className={wizardStyles.quotaExceededNotice}>
               <h4>
                 <SiteIcon id="zap" sizeRem={1.125} />
-                Daily Quota Exceeded
+                {w.dailyQuotaExceeded}
               </h4>
-              <p>
-                Upgrade to Pro for unlimited generations and advanced features!
-              </p>
+              <p>{w.upgradeForUnlimited}</p>
               <InstantLink
                 href="/subscription"
                 className={wizardStyles.upgradeButton}
               >
                 <>
-                  Upgrade to Pro
+                  {cardGenerator.welcome.upgradeCta}
                   <SiteIcon id="rocket" sizeRem={0.875} />
                 </>
               </InstantLink>

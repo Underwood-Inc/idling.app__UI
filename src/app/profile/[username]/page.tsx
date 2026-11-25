@@ -6,6 +6,11 @@ import {
   extractEmbedUrls,
   getFirstYouTubeUrl
 } from '@lib/utils/social-sharing';
+import {
+  formatProfileNamedCopy,
+  resolveCommonCopy,
+  resolveProfileCopy,
+} from '@molecules/i18n/idlingMeta';
 import { notFound } from 'next/navigation';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
@@ -26,6 +31,8 @@ interface ProfilePageProps {
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
+  const profileCopy = await resolveProfileCopy();
+  const common = await resolveCommonCopy();
 
   // Decode username in case it contains special characters
   const decodedUsername = decodeURIComponent(username);
@@ -82,15 +89,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       <SiteIcon id="lock" sizeRem={2} />
                     </div>
                     <h2 className="profile-page__private-title">
-                      Private Profile
+                      {profileCopy.private.title}
                     </h2>
                     <p className="profile-page__private-message">
-                      This user has set their profile to private. Only they can
-                      view their profile information.
+                      {profileCopy.private.message}
                     </p>
                     <div className="profile-page__private-actions">
                       <InstantLink href="/" className="profile-page__private-link">
-                        ← Back home
+                        {common.actions.backHome}
                       </InstantLink>
                     </div>
                   </div>
@@ -184,13 +190,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 export async function generateMetadata({ params }: ProfilePageProps) {
   const { username } = await params;
   const decodedUsername = decodeURIComponent(username);
+  const profileCopy = await resolveProfileCopy();
+  const meta = profileCopy.metadata;
 
   try {
     // ✅ Only database ID-based URLs supported after migration 0010
     if (!/^\d+$/.test(decodedUsername)) {
       return {
-        title: 'Invalid Profile URL | Idling.app',
-        description: 'Profile URLs must use database IDs only.',
+        title: meta.invalidUrlTitle,
+        description: meta.invalidUrlDescription,
         robots: 'noindex, nofollow'
       };
     }
@@ -200,8 +208,8 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 
     if (!userProfile) {
       return {
-        title: 'User Not Found | Idling.app',
-        description: 'The requested user profile could not be found.',
+        title: meta.notFoundTitle,
+        description: meta.notFoundDescription,
         robots: 'noindex, nofollow' // Don't index not found pages
       };
     }
@@ -211,8 +219,8 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 
     if (isPrivateProfile) {
       return {
-        title: 'Private Profile | Idling.app',
-        description: 'This user has set their profile to private.',
+        title: meta.privateTitle,
+        description: meta.privateDescription,
         robots: 'noindex, nofollow' // Don't index private profiles
       };
     }
@@ -250,20 +258,25 @@ export async function generateMetadata({ params }: ProfilePageProps) {
       }
     }
 
-    const fallbackDescription = `View ${displayName}'s profile, activity stats, and contributions on Idling.app.`;
+    const fallbackDescription = formatProfileNamedCopy(
+      meta.publicFallbackDescription,
+      displayName
+    );
+    const fallbackOpenGraphDescription = formatProfileNamedCopy(
+      meta.publicFallbackOpenGraphDescription,
+      displayName
+    );
 
     // Base metadata
     const baseMetadata = {
-      title: `${displayName} - User Profile | Idling.app`,
+      title: `${displayName}${meta.publicTitleSuffix}`,
       description: cleanBioForSocial || fallbackDescription
     };
 
     // Enhanced Open Graph metadata
     const openGraphMetadata: any = {
-      title: `${displayName} - Profile`,
-      description:
-        cleanBioForSocial ||
-        `View ${displayName}'s profile and activity on Idling.app.`,
+      title: `${displayName}${meta.publicOpenGraphTitleSuffix}`,
+      description: cleanBioForSocial || fallbackOpenGraphDescription,
       type: 'profile',
       siteName: 'Idling.app',
       url: `https://idling.app/profile/${decodedUsername}`
@@ -272,10 +285,8 @@ export async function generateMetadata({ params }: ProfilePageProps) {
     // Enhanced Twitter Card metadata
     const twitterMetadata: any = {
       card: 'summary',
-      title: `${displayName} - Profile`,
-      description:
-        cleanBioForSocial ||
-        `View ${displayName}'s profile and activity on Idling.app.`,
+      title: `${displayName}${meta.publicOpenGraphTitleSuffix}`,
+      description: cleanBioForSocial || fallbackOpenGraphDescription,
       site: '@idlingapp' // Update with your actual Twitter handle
     };
 

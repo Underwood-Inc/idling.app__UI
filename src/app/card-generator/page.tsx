@@ -38,6 +38,7 @@ import {
   downloadFile,
   generateFilename
 } from './utils/fileUtils';
+import { ToolsCopyProvider } from '../tools/ToolsCopyContext';
 
 export default function OgImageViewer() {
   const searchParams = useSearchParams();
@@ -335,6 +336,7 @@ export default function OgImageViewer() {
   };
 
   return (
+    <ToolsCopyProvider>
     <div data-testid="card-generator">
       <PageContainer>
         <div className={styles.generator__layout}>
@@ -531,5 +533,6 @@ export default function OgImageViewer() {
         </div>
       </PageContainer>
     </div>
+    </ToolsCopyProvider>
   );
 }
