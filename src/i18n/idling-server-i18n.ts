@@ -1,13 +1,16 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import type { TranslationFunctions } from './i18n-types';
-import { loadLocaleAsync } from './i18n-util.async';
 import { getLL, initIdlingI18nAsync } from './idling-i18n';
 import { resolveServerIdlingLocale } from '@molecules/quotes/resolveIdlingLocale.server';
 
-export async function getServerLL(): Promise<TranslationFunctions> {
+async function loadServerLL(): Promise<TranslationFunctions> {
   const locale = await resolveServerIdlingLocale();
-  await loadLocaleAsync('en');
   await initIdlingI18nAsync(locale);
   return getLL();
 }
+
+/** Cached per RSC request so layout + page metadata do not reload locale chunks twice. */
+export const getServerLL = cache(loadServerLL);
