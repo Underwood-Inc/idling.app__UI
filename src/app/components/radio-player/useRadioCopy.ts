@@ -6,9 +6,9 @@ import { useMemo } from 'react';
 import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 
 export function useRadioCopy(): RadioEnCopy {
-  const { ll, localeRevision } = useIdlingLocale();
+  const { ll, localeId } = useIdlingLocale();
   return useMemo(
     () => resolveCatalogFromLl(RADIO_EN, ll.radio as Record<string, unknown>),
-    [ll, localeRevision]
+    [ll, localeId]
   );
 }

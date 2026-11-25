@@ -6,7 +6,6 @@ import { logRadioPlayerUnavailable } from '@widgets/radio-player/probeRadioStati
 import { buildRadioStationCatalog } from '@widgets/radio-player/radioStationCatalog';
 import { countStationsByAvailabilityStatus } from '@widgets/radio-player/radioStationBrowse';
 import { useEffect, useRef } from 'react';
-import { useIdlingLocale } from '../locale/IdlingLocaleProvider';
 import { RadioPlayerBar } from './RadioPlayerBar';
 import styles from './RadioPlayerBar.module.css';
 
@@ -15,7 +14,6 @@ export interface RadioPlayerMountProps {
 }
 
 export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
-  const { localeRevision } = useIdlingLocale();
   const hostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<ReturnType<typeof mountRadioPlayer> | null>(null);
   const {
@@ -78,7 +76,7 @@ export function RadioPlayerMount({ autoplay = false }: RadioPlayerMountProps) {
   return (
     <>
       <div ref={hostRef} className={styles.engineHost} data-testid="radio-player-host" aria-hidden="true" />
-      <RadioPlayerBar key={localeRevision} />
+      <RadioPlayerBar />
     </>
   );
 }

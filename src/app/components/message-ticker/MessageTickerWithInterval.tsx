@@ -45,7 +45,7 @@ function tickerLines(
 }
 
 export default function MessageTickerWithInterval() {
-  const { localeId, localeRevision, ll } = useIdlingLocale();
+  const { localeId, ll } = useIdlingLocale();
   const { openOverlay, closeOverlay } = useOverlay();
   const separator = ll.messageTicker.separator();
 
@@ -81,7 +81,7 @@ export default function MessageTickerWithInterval() {
     return () => {
       cancelled = true;
     };
-  }, [localeId, localeRevision, separator]);
+  }, [localeId, ll, separator]);
 
   useEffect(() => {
     const getRandomInterval = () => {
