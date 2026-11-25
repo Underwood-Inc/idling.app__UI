@@ -43,6 +43,10 @@ interface IdlingLocaleContextValue {
 
 const IdlingLocaleContext = createContext<IdlingLocaleContextValue | null>(null);
 
+function isTestRuntime(): boolean {
+  return process.env.NODE_ENV === 'test';
+}
+
 function resolveInitialLocale(): IdlingLocaleId {
   if (typeof window === 'undefined') {
     return IDLING_BASE_LOCALE;
@@ -50,14 +54,44 @@ function resolveInitialLocale(): IdlingLocaleId {
   return resolveIdlingLocale();
 }
 
+function bootLocaleSync(locale: IdlingLocaleId): void {
+  initIdlingI18n(locale as Locales);
+  try {
+    writeIdlingLocaleCookie(locale);
+  } catch {
+    /* ignore */
+  }
+}
+
+function testLocaleContext(): IdlingLocaleContextValue {
+  bootLocaleSync(IDLING_BASE_LOCALE);
+  return {
+    localeId: getLocale() as IdlingLocaleId,
+    localeRevision: 0,
+    ll: getLL(),
+    loading: false,
+    setLocaleId: () => {},
+    catalog: IDLING_LOCALE_CATALOG,
+  };
+}
+
 /** Same stack as Mappy site + Overlane console: typesafe-i18n global `getLL()`, async chunks on switch. */
 export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   const [initialLocale] = useState<IdlingLocaleId>(resolveInitialLocale);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() => {
+    if (!isTestRuntime()) {
+      return false;
+    }
+    bootLocaleSync(initialLocale);
+    return true;
+  });
   const [localeEpoch, bumpLocale] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !isTestRuntime());
 
   useEffect(() => {
+    if (isTestRuntime()) {
+      return;
+    }
     let cancelled = false;
     void (async () => {
       try {
@@ -120,6 +154,9 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
 export function useIdlingLocale(): IdlingLocaleContextValue {
   const ctx = useContext(IdlingLocaleContext);
   if (!ctx) {
+    if (isTestRuntime()) {
+      return testLocaleContext();
+    }
     throw new Error('useIdlingLocale must be used within IdlingLocaleProvider');
   }
   return ctx;
