@@ -111,14 +111,15 @@ export function IdlingLocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => subscribeIdlingLocale(() => bumpLocale((n) => n + 1)), []);
 
   const setLocaleId = useCallback((id: IdlingLocaleId) => {
+    if (getLocale() === id) {
+      return;
+    }
     try {
       localStorage.setItem(IDLING_UI_LOCALE_STORAGE_KEY, id);
     } catch {
       /* ignore */
     }
     writeIdlingLocaleCookie(id);
-    initIdlingI18n(id as Locales);
-    bumpLocale((epoch) => epoch + 1);
     void setIdlingLocale(id as Locales);
   }, []);
 
