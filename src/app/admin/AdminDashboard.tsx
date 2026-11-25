@@ -69,7 +69,7 @@ function AdminDashboardInner() {
         <h1 className="admin-dashboard__title">{admin.dashboard.title}</h1>
         <div className="admin-dashboard__tabs">
           {ADMIN_TAB_SHELL.map((tab) => {
-            const copy = admin.dashboard.tabs[tab.id];
+            const copy = admin.dashboard.tabs.find((row) => row.id === tab.id);
             return (
             <button
               key={tab.id}

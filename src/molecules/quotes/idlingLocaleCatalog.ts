@@ -1,6 +1,8 @@
+import type { Locales } from '$i18n/i18n-types';
 import supportedLocales from '$i18n/supported-locales.json';
 
-export type IdlingLocaleId = (typeof supportedLocales.locales)[number]['id'];
+/** Aligns with typesafe-i18n `Locales` — do not widen to `string` via JSON import typing. */
+export type IdlingLocaleId = Locales;
 
 export interface IdlingLocaleRow {
   id: IdlingLocaleId;

@@ -66,7 +66,7 @@ export function SuiteDetailPageClient({
   icons,
 }: SuiteDetailPageClientProps) {
   const { ll } = useIdlingLocale();
-  const copy = useMemo(() => {
+  const copy = useMemo((): SuiteDetailEnCopy => {
     const suite = ll.suite as { details?: Record<string, unknown> };
     const localized = suite.details?.[productId] as Record<string, unknown> | undefined;
     return resolveCatalogFromLl(SUITE_DETAILS_EN[productId], localized);
