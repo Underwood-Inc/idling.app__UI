@@ -81,7 +81,7 @@ export default function MessageTickerWithInterval() {
     return () => {
       cancelled = true;
     };
-  }, [localeId, ll, separator]);
+  }, [localeId]);
 
   useEffect(() => {
     const getRandomInterval = () => {
