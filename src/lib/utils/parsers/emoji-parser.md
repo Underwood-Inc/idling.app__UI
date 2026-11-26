@@ -1,6 +1,6 @@
 ---
 title: emoji-parser
-description: Custom :code: emoji resolution with API-backed registry
+description: "Custom :code: emoji resolution with API-backed registry"
 ---
 
 # emoji-parser
