@@ -59,7 +59,7 @@ pnpm docs:dev
 
 - [Stack & tooling](/guides/stack)
 - [Contributing](/guides/contributing)
-- [Idling application features](/idling/index) — radio, PWA, tools, API map
+- [Idling application features](/idling/) — radio, PWA, tools, API map
 - [API overview](/idling/api-overview) — real `/api/*` handlers vs OpenAPI
 
 ---

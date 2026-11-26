@@ -109,10 +109,10 @@ Jest, Yarn-as-default, Next 14, Node 18, Tailwind-as-primary-stack, Jekyll, `/do
 
 | Tree | Bootstrap stubs remaining (2026-11-26) |
 | ---- | -------------------------------------- |
-| `src/lib/**` | **0** — [Co-located docs lib](96fd5e04-eed8-47b0-bcee-e75871c4f14d) |
-| `src/app/**` (incl. `api/`) | **0** — [Co-located docs src/app](3089c8dd-406e-4460-9600-cb41eee195a1) (+ earlier API pass) |
-| `src/idling/**`, `src/guides/**` | Hand hub pages — [Deep idling guides hub](7776bd9a-b07e-4b5b-a1d6-fe0d4743db39) |
-| Product ensemble | Living catalog — [Full ensemble product hubs](b21e160e-64aa-4af6-929d-b446a8dc878e), [Ensemble product docs gaps](92f5cb7d-4278-43c3-bb49-189f3a14dac2) |
+| `src/lib/**` | **0** — hand-audited co-located pages |
+| `src/app/**` (incl. `api/`) | **0** — hand-audited co-located pages |
+| `src/idling/**`, `src/guides/**` | Hand hub pages — see [/guides/](/guides/) and [/idling/](/idling/) |
+| Product ensemble | Living catalog — [/products/](/products/) and [/products/inventory](/products/inventory) |
 
 Repo-wide `grep bootstrap-co-located-docs src` should hit only meta mentions (e.g. `guides/documentation-coverage.md`), not co-located neighbors.
 

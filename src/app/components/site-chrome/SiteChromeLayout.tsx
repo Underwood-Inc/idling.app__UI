@@ -13,25 +13,48 @@ import '../../../css/mappy-cursors/cursors.css';
 export function SiteChromeLayout({ children }: { children: ReactNode }) {
   return (
     <SiteChromeProviders>
-      <div data-visualizer-layout data-site-chrome>
+      <div
+        data-visualizer-layout
+        data-site-chrome
+        role="status"
+        aria-live="polite"
+        aria-label="Page loading"
+      >
         <NavigationLoadingBar />
       </div>
-      <div data-visualizer-layout className="sticky-header-wrapper" data-site-chrome>
+      <div
+        data-visualizer-layout
+        className="sticky-header-wrapper"
+        data-site-chrome
+        role="presentation"
+      >
         <Header />
       </div>
-      <div data-visualizer-layout data-site-chrome>
+      <section
+        data-visualizer-layout
+        data-site-chrome
+        aria-label="Message ticker"
+      >
         <MessageTickerWithInterval />
-      </div>
+      </section>
       <main data-visualizer-layout>{children}</main>
-      <div data-visualizer-layout data-site-chrome>
+      <div data-visualizer-layout data-site-chrome role="presentation">
         <Footer />
       </div>
-      <div data-visualizer-layout data-site-chrome>
+      <section
+        data-visualizer-layout
+        data-site-chrome
+        aria-label="Overlays"
+      >
         <OverlayRendererWrapper />
-      </div>
-      <div data-visualizer-layout data-site-chrome>
+      </section>
+      <section
+        data-visualizer-layout
+        data-site-chrome
+        aria-label="Install app"
+      >
         <PWAInstallPrompt />
-      </div>
+      </section>
     </SiteChromeProviders>
   );
 }

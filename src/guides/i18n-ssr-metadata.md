@@ -59,7 +59,7 @@ Implementation notes also live in `src/i18n/i18n-ssr-metadata-gotcha.mdx` (co-lo
 ## Related
 
 - [Internationalization](/guides/i18n)
-- [Idling application](/idling/index)
+- [Idling application](/idling/)
 - [Stack](/guides/stack)
 
 ---
