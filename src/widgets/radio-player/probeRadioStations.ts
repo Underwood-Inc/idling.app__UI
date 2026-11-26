@@ -49,6 +49,39 @@ export interface RunStationAvailabilityChecksOptions {
   onUpdate: (update: RadioStationAvailabilityState) => void;
 }
 
+/** Map a server or browser probe result into availability rows for one catalog slice. */
+export function mapRadioStationProbeResultToAvailability(
+  catalog: RadioStationCatalog,
+  result: RadioStationProbeResult
+): Record<string, RadioStationAvailabilityState> {
+  const nextMap: Record<string, RadioStationAvailabilityState> = {};
+
+  Object.entries(result.available).forEach(([name, url]) => {
+    if (catalog[name]) {
+      nextMap[name] = { name, url, status: 'available' };
+    }
+  });
+
+  result.failures.forEach(({ name, url, reason }) => {
+    if (catalog[name]) {
+      nextMap[name] = { name, url, status: 'unreachable', reason };
+    }
+  });
+
+  Object.keys(catalog).forEach((name) => {
+    if (!nextMap[name]) {
+      nextMap[name] = {
+        name,
+        url: catalog[name]!,
+        status: 'unreachable',
+        reason: 'No probe result',
+      };
+    }
+  });
+
+  return nextMap;
+}
+
 export function createInitialStationAvailabilityMap(
   catalog: RadioStationCatalog
 ): Record<string, RadioStationAvailabilityState> {

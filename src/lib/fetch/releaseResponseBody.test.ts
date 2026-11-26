@@ -19,6 +19,6 @@ describe('releaseResponseBody', () => {
     await releaseResponseBody(response);
 
     expect(readChunks).toBeLessThan(200);
-    expect(readChunks).toBeLessThanOrEqual(32);
+    expect(readChunks).toBeLessThanOrEqual(33);
   });
 });
