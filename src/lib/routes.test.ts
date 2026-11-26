@@ -19,6 +19,7 @@ describe('public route infrastructure', () => {
     expect(PUBLIC_API_ROUTES).toContain('/api/radio/');
     expect(isPublicApiPath('/api/radio/stations')).toBe(true);
     expect(isPublicApiPath('/api/radio/now-playing')).toBe(true);
+    expect(isPublicApiPath('/api/radio/playlist')).toBe(true);
   });
 
   test('when the path is a protected page, page auth still applies', () => {

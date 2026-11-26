@@ -1,7 +1,20 @@
 import { describe, expect, test, vi } from 'vitest';
-import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
+import {
+  browserPlaylistRequestUrl,
+  playlistFetchUsesAppProxy,
+  resolveRadioStreamUrl,
+} from './resolveRadioStreamUrl';
 
 describe('resolveRadioStreamUrl', () => {
+  test('when the browser resolves a playlist, the fetch stays on this origin', () => {
+    expect(browserPlaylistRequestUrl('https://www.wefunkradio.com/play/radio.pls')).toBe(
+      '/api/radio/playlist?url=https%3A%2F%2Fwww.wefunkradio.com%2Fplay%2Fradio.pls'
+    );
+    expect(playlistFetchUsesAppProxy(true, undefined)).toBe(true);
+    expect(playlistFetchUsesAppProxy(true, 'true')).toBe(false);
+    expect(playlistFetchUsesAppProxy(false, undefined)).toBe(false);
+  });
+
   test('when the URL is a direct mp3 stream, playback uses native audio', async () => {
     const result = await resolveRadioStreamUrl({
       url: 'https://stream.example.com/live.mp3'

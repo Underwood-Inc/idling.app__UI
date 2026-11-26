@@ -52,7 +52,8 @@ export default defineConfig({
     environmentMatchGlobs: [
       ['src/lib/security/**', 'node'],
       ['src/lib/api/**', 'node'],
-      ['src/app/components/**/actions.test.ts', 'node']
+      ['src/app/components/**/actions.test.ts', 'node'],
+      ['src/widgets/radio-player/radioStationCatalog.availability.test.ts', 'node']
     ],
     server: {
       deps: {

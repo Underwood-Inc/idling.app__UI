@@ -54,6 +54,8 @@ graph TD
 
 Most coverage should be Vitest; Playwright covers a small set of user-critical paths so CI stays under a practical time budget (`testTimeout: 15000` per Vitest test, `maxWorkers: 1` in config for stability on Windows).
 
+The radio catalog health check is the exception. `src/widgets/radio-player/radioStationCatalog.availability.test.ts` probes every station in `RADIO_STATIONS` with the equalizer rules (HTTPS plus `Access-Control-Allow-Origin` for `https://idling.app`). It runs only when `GITHUB_ACTIONS=true`. Local `pnpm test` skips it. `vitest.setup.ts` replaces `fetch`; that test puts the real fetch back from `vitest.real-fetch.ts` before it probes. The site's `/api/radio/stations` probe is separate and does not use this audit.
+
 ## Hub vs this file
 
 Curated onboarding: [/guides/testing](/guides/testing). Repo-root `TESTING.md` still contains legacy Jest diagrams — treat it as deprecated; **this file and the hub guide are authoritative** for stack facts.

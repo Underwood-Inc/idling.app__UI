@@ -2,9 +2,12 @@
  * Vitest global setup — runs before each test file.
  * Playwright E2E tests stay separate under e2e/.
  */
+import { realFetch } from './vitest.real-fetch';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, vi } from 'vitest';
 import { mockEssentialBrowserAPIs } from './__mocks__/index';
+
+void realFetch;
 
 global.fetch = vi.fn((url: RequestInfo | URL) => {
   const urlString =

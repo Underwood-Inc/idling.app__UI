@@ -9,14 +9,14 @@ describe('radioStationNavigation', () => {
     const order = buildRadioStationNavigationOrder({
       stations: RADIO_STATION_DEFINITIONS,
       availabilityByName: {
-        Jazz24: { name: 'Jazz24', url: '', status: 'available' },
+        'WBGO Jazz': { name: 'WBGO Jazz', url: '', status: 'available' },
         FIP: { name: 'FIP', url: '', status: 'available' },
         CeolFM: { name: 'CeolFM', url: '', status: 'available' },
       },
-      favoriteOrder: ['CeolFM', 'Jazz24'],
+      favoriteOrder: ['CeolFM', 'WBGO Jazz'],
     });
 
-    expect(order.slice(0, 2)).toEqual(['CeolFM', 'Jazz24']);
+    expect(order.slice(0, 2)).toEqual(['CeolFM', 'WBGO Jazz']);
     expect(order).toContain('FIP');
   });
 
