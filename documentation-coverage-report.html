@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation Coverage Report - 2025-07-15T10:49:32.170255</title>
+    <title>Documentation Coverage Report - 2026-11-26T00:34:18.395298</title>
     <!-- Highlight.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
     <style>
@@ -221,6 +221,7 @@ body {
 
 /* Header */
 .header {
+  min-height: 8rem;
   background: linear-gradient(
     135deg,
     var(--brand-primary) 0%,
@@ -4185,16 +4186,16 @@ tr:hover {
         <div class="header">
             <h1>📊 Documentation Coverage Report</h1>
             <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
-            <p>Generated: 2025-07-15T10:49:32.170255</p>
+            <p>Generated: 2026-11-26T00:34:18.395298</p>
         </div>
 
         <div class="overview-grid">
             <div class="metric-card" data-metric="total-files">
-                <div class="metric-value">0</div>
+                <div class="metric-value">406</div>
                 <div class="metric-label">TOTAL FILES</div>
             </div>
             <div class="metric-card" data-metric="documented-files">
-                <div class="metric-value">0</div>
+                <div class="metric-value">406</div>
                 <div class="metric-label">DOCUMENTED FILES</div>
             </div>
             <div class="metric-card" data-metric="coverage">
@@ -4202,7 +4203,7 @@ tr:hover {
                 <div class="metric-label">COVERAGE</div>
             </div>
             <div class="metric-card" data-metric="quality">
-                <div class="metric-value quality-poor">0.00</div>
+                <div class="metric-value quality-excellent">1.03</div>
                 <div class="metric-label">QUALITY SCORE</div>
                 <div class="metric-subtitle">Shows files needing quality improvements</div>
             </div>
@@ -4247,8 +4248,8 @@ tr:hover {
             <h2>💡 Recommendations</h2>
             
             <div class="recommendation">
-                <h4>Quality Improvement Needed</h4>
-                <p>Documentation quality score (0.00) indicates room for improvement. Add missing sections and examples.</p>
+                <h4>Excellent Coverage!</h4>
+                <p>Your documentation coverage meets standards. Continue maintaining this quality level.</p>
             </div>
             
         </div>
@@ -4274,7 +4275,7 @@ tr:hover {
                 </div>
                     <div class="footer-stats">
                         <div class="footer-stat">
-                            <span class="footer-stat-value">0</span>
+                            <span class="footer-stat-value">406</span>
                             <span class="footer-stat-label">Total Files</span>
                         </div>
                         <div class="footer-stat">
@@ -4295,13 +4296,13 @@ tr:hover {
                     <div class="footer-info">
                         <div class="footer-info-item">
                             <span class="footer-info-label">Generated:</span>
-                            <span class="footer-info-value timestamp-with-tooltip" data-timestamp="2025-07-15T10:49:32.170255">
+                            <span class="footer-info-value timestamp-with-tooltip" data-timestamp="2026-11-26T00:34:18.395298">
                         <span class="relative-time">Loading...</span>
                             </span>
                         </div>
                         <div class="footer-info-item">
                             <span class="footer-info-label">Analysis:</span>
-                            <span class="footer-info-value timestamp-with-tooltip" data-timestamp="2025-07-15T10:49:32.170255">
+                            <span class="footer-info-value timestamp-with-tooltip" data-timestamp="2026-11-26T00:34:18.395298">
                         <span class="relative-time">Loading...</span>
                             </span>
                 </div>
@@ -4319,7 +4320,7 @@ tr:hover {
             </div>
                         <div class="footer-config-item">
                             <span class="footer-config-label">Quality Threshold:</span>
-                            <span class="footer-config-value">0.0</span>
+                            <span class="footer-config-value">1.0</span>
             </div>
         </div>
                 </div>
@@ -4988,7 +4989,7 @@ function applySyntaxHighlighting(element, language) {
                 element.classList.add(`language-${language}`);
             }
             window.hljs.highlightElement(element);
-            console.log('✨ Syntax highlighting applied with hljs');
+            console.log('âœ¨ Syntax highlighting applied with hljs');
             return;
         } catch (e) {
             console.warn('Failed to apply hljs highlighting:', e);
@@ -5000,7 +5001,7 @@ function applySyntaxHighlighting(element, language) {
         try {
             element.className = language ? `language-${language}` : '';
             window.hljs.highlightBlock(element);
-            console.log('✨ Syntax highlighting applied with hljs (legacy)');
+            console.log('âœ¨ Syntax highlighting applied with hljs (legacy)');
             return;
         } catch (e) {
             console.warn('Failed to apply hljs legacy highlighting:', e);
@@ -5010,7 +5011,7 @@ function applySyntaxHighlighting(element, language) {
     // Strategy 3: Manual highlighting with classes
     try {
         applyManualSyntaxHighlighting(element, language);
-        console.log('✨ Manual syntax highlighting applied');
+        console.log('âœ¨ Manual syntax highlighting applied');
     } catch (e) {
         console.warn('Failed to apply manual highlighting:', e);
     }
@@ -5189,7 +5190,7 @@ class ModalManager {
         this.loadEmbeddedSourceCode();
         this.setupModalEventHandlers();
         
-        console.log('🎭 Modal system initialized successfully');
+        console.log('ðŸŽ­ Modal system initialized successfully');
     }
     
     loadEmbeddedSourceCode() {
@@ -5199,7 +5200,7 @@ class ModalManager {
             if (sourceCodeScript) {
                 try {
                     this.fileMetadata = JSON.parse(sourceCodeScript.textContent);
-                    console.log(`📄 Loaded source code for ${Object.keys(this.fileMetadata).length} files`);
+                    console.log(`ðŸ“„ Loaded source code for ${Object.keys(this.fileMetadata).length} files`);
                 } catch (e) {
                     console.warn('Failed to parse source code data:', e);
                     this.fileMetadata = {};
@@ -5271,13 +5272,13 @@ class ModalManager {
         });
         
         this.activeModal = modal;
-        console.log('🎭 Modal opened successfully');
+        console.log('ðŸŽ­ Modal opened successfully');
     }
     
     closeModal() {
         if (!this.activeModal || this.isDestroyed) { return; }
         
-        console.log('🎭 Closing modal...');
+        console.log('ðŸŽ­ Closing modal...');
         
         const modalToClose = this.activeModal;
         modalToClose.classList.remove('show');
@@ -5290,7 +5291,7 @@ class ModalManager {
             }
         }, 300);
         
-        console.log('🎭 Modal closed successfully');
+        console.log('ðŸŽ­ Modal closed successfully');
     }
     
     showLoadingState(loading, error, content) {
@@ -5334,7 +5335,7 @@ function initializeModalManager() {
     }
     
     window.modalManager = new ModalManager();
-    console.log('✅ Modal manager initialized');
+    console.log('âœ… Modal manager initialized');
 }
 
 // Auto-initialize when DOM is ready
@@ -5373,7 +5374,7 @@ function extendModalManagerWithSourceCode() {
         }
         
         this.currentFilePath = filePath;
-        console.log(`📄 Opening source code modal for: ${fileName}`);
+        console.log(`ðŸ“„ Opening source code modal for: ${fileName}`);
         
         const modal = document.getElementById('source-code-modal');
         const title = document.getElementById('source-modal-title');
@@ -5389,7 +5390,7 @@ function extendModalManagerWithSourceCode() {
         }
         
         if (title) {
-            title.textContent = `📄 ${fileName}`;
+            title.textContent = `ðŸ“„ ${fileName}`;
         }
         
         if (githubBtn && githubUrl) {
@@ -5439,7 +5440,7 @@ function extendModalManagerWithSourceCode() {
         
         applySyntaxHighlighting(codeText, language);
         
-        console.log('📄 Source code displayed successfully');
+        console.log('ðŸ“„ Source code displayed successfully');
     };
 
     ModalManager.prototype.displaySourceCodeError = function(message, loading, error, content) {
@@ -5450,7 +5451,7 @@ function extendModalManagerWithSourceCode() {
             error.style.display = 'flex';
             error.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 2rem; margin-bottom: 1rem;">📂</div>
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">ðŸ“‚</div>
                     <h3 style="margin: 0 0 1rem 0;">Source Code Viewer</h3>
                     <p style="margin-bottom: 1.5rem; color: #888;">
                         ${message}
@@ -5467,10 +5468,10 @@ function extendModalManagerWithSourceCode() {
             `;
         }
         
-        console.log('📄 Source code error displayed');
+        console.log('ðŸ“„ Source code error displayed');
     };
     
-    console.log('🔧 Modal manager extended with source code functionality');
+    console.log('ðŸ”§ Modal manager extended with source code functionality');
 }
 
  

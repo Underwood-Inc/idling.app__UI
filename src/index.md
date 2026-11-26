@@ -6,7 +6,7 @@ sidebar_position: 1
 
 # 📚 Idling.app Documentation
 
-[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-3.1%25-red?style=flat&logo=gitbook&logoColor=white)](https://docs.idling.app)
+[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100.0%25-brightgreen?style=flat&logo=gitbook&logoColor=white)](https://docs.idling.app/coverage/)
 
 Welcome to the **co-located documentation** for Idling.app! This documentation lives right alongside the source code, ensuring it stays up-to-date and accurate.
 

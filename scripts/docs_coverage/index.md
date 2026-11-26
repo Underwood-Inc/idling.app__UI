@@ -37,6 +37,16 @@ The system is now broken down into focused, manageable modules:
 
 ## 🛠️ Usage
 
+### Repo scripts (Node + Python)
+
+```bash
+pnpm docs:coverage:analyze    # JSON report, no non-zero exit locally
+pnpm docs:coverage:bootstrap  # Fill gaps from doc-coverage-report.json
+pnpm docs:coverage:refresh    # analyze → bootstrap → analyze → badge sync
+```
+
+Badge and HTML ship in `static/coverage/` and `src/index.md` via `scripts/sync-docs-coverage-badge.mjs`. **Protected paths:** `src/index.md`, `src/lib/utils/index.md` (never overwritten by bootstrap).
+
 ### File Output (New!)
 
 ```bash

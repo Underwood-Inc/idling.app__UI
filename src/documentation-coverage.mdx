@@ -1,0 +1,28 @@
+---
+title: Documentation coverage
+description: How the docs.idling.app coverage badge is measured and updated
+---
+
+# Documentation coverage
+
+The home page badge reflects **co-located markdown quality**, not unit-test coverage.
+
+## What counts
+
+- TypeScript / TSX under `src/` in scope in [`scripts/docs-coverage-config.json`](../scripts/docs-coverage-config.json)
+- Each file needs a neighbor doc (`{basename}.md`, `index.md`, or `README.md`) with **Overview**, **Usage**, **API Reference**, and **Examples** (plus **Props** or **Configuration** where required)
+- Score ≥ **0.7** and minimum word count by priority
+
+## Update the badge locally
+
+```bash
+pnpm docs:coverage:refresh
+```
+
+Reports are copied to [`static/coverage/`](../static/coverage/) for [docs.idling.app/coverage/](https://docs.idling.app/coverage/).
+
+## Maintainer notes
+
+- Analyzer: [`scripts/docs_coverage/`](../scripts/docs_coverage/) (deduped globs, `fnmatch` excludes for tests/stories)
+- Bootstrap: [`scripts/bootstrap-co-located-docs.mjs`](../scripts/bootstrap-co-located-docs.mjs) — does not overwrite `src/index.md` or `src/lib/utils/index.md`
+- Full system write-up: [`scripts/docs_coverage/index.md`](../scripts/docs_coverage/index.md)
