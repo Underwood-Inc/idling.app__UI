@@ -1,3 +1,4 @@
+import { releaseResponseBody } from '@lib/fetch/releaseResponseBody';
 import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import type { ProbeRadioStreamOptions, ProbeRadioStreamResult } from './radioStreamProbe.types';
 
@@ -34,7 +35,7 @@ async function probeDirectStreamUrl(
       });
     }
 
-    await response.body?.cancel();
+    await releaseResponseBody(response);
 
     if (response.ok) {
       return { ok: true };

@@ -93,6 +93,14 @@ export class RateLimitService {
       storage: 'memory' as const,
       keyPrefix: 'search'
     },
+
+    // Radio infra (playlist proxy, station catalog probes)
+    radio: {
+      windowMs: 60 * 1000,
+      maxRequests: 600,
+      storage: 'memory' as const,
+      keyPrefix: 'radio',
+    },
     
     // Admin endpoints (per user) - sliding window
     admin: {

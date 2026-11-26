@@ -144,7 +144,9 @@ export function getRequestIdentifier(request: NextRequest, session: any): Reques
 /**
  * Determine rate limit configuration type based on endpoint
  */
-export function getRateLimitType(pathname: string): 'api' | 'auth' | 'upload' | 'search' | 'admin' | 'og-image' | 'sse' {
+export function getRateLimitType(
+  pathname: string
+): 'api' | 'auth' | 'upload' | 'search' | 'admin' | 'og-image' | 'sse' | 'radio' {
   if (pathname.startsWith('/api/auth')) {
     return 'auth';
   }
@@ -167,6 +169,11 @@ export function getRateLimitType(pathname: string): 'api' | 'auth' | 'upload' | 
   // OG Image generation endpoints - more generous limits
   if (pathname.startsWith('/api/og-image')) {
     return 'og-image';
+  }
+
+  // Radio playlist proxy + station probes (many playlist resolves per page load)
+  if (pathname.startsWith('/api/radio/playlist') || pathname.startsWith('/api/radio/stations')) {
+    return 'radio';
   }
   
   // Search and filter endpoints
