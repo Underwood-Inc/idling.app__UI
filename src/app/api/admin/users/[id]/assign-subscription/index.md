@@ -1,27 +1,26 @@
 ---
-title: route
-category: api_route
-tags: [documentation-needed]
-status: draft
+title: /api/admin/users/[id]/assign-subscription
+description: Assign, update, cancel user subscriptions
 ---
 
-# route
+# /api/admin/users/[id]/assign-subscription
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Co-located with `route.ts`. `requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_MANAGE)` on all methods.
 
-## Overview
+## POST
 
-TODO: Describe what this api_route does.
+`AdminSubscriptionAssignmentSchema`: `planId`, optional `billingCycle`, `expiresAt`, `status`, `reason`, price override fields. Rejects if user already has active/trialing subscription (**409**). Derives `expiresAt` from cycle when omitted (`lifetime` → null).
 
-## Usage
+Inserts `user_subscriptions` with `assigned_by` = admin.
 
-TODO: Provide usage examples.
+## PATCH
 
-## API Reference
+`AdminSubscriptionUpdateSchema`: `subscriptionId`, `status`, `expiresAt`, `reason` — updates row scoped to target user.
 
-TODO: Document the public interface.
+## DELETE
+
+Query: `AdminSubscriptionCancelParamsSchema` (`subscriptionId`, `reason`). Sets `status = 'cancelled'`.
 
 ---
 
-*File: `src/app/api/admin/users/[id]/assign-subscription/route.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/admin/users/[id]/assign-subscription/route.ts`

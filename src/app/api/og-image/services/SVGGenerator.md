@@ -1,27 +1,20 @@
 ---
 title: SVGGenerator
-category: service
-tags: [documentation-needed]
-status: draft
+description: Composes final OG card SVG
 ---
 
 # SVGGenerator
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Uses `BasePatternGenerator` for background, `escapeXml` / `wrapTextForSVG` for text.
 
-## Overview
+## `generateSVG(...)`
 
-TODO: Describe what this service does.
+Inputs: avatar SVG string, `QuoteData`, pattern seed, `AspectRatioConfig`, layout structs, optional Pro overrides (`allCustomOptions`), default watermark for free tier.
 
-## Usage
+Output: `{ svg, actualValues }` where `actualValues` records resolved numeric styling used (for persistence and client echo).
 
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Layers: procedural background, bordered frame, avatar placement, wrapped quote/author text, optional watermark/glass effects per config.
 
 ---
 
-*File: `src/app/api/og-image/services/SVGGenerator.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/SVGGenerator.ts`

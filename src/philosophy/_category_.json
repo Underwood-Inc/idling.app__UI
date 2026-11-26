@@ -1,0 +1,8 @@
+{
+  "label": "Philosophy",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "CLAD, Canon Molecules, traceability, and Local Data Plane pointers."
+  }
+}

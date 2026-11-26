@@ -1,27 +1,26 @@
 ---
 title: OGImageService
-category: service
-tags: [documentation-needed]
-status: draft
+description: Orchestrates authenticated OG SVG generation and quotas
 ---
 
 # OGImageService
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Central coordinator for `/api/og-image` generation.
 
-## Overview
+## Dependencies
 
-TODO: Describe what this service does.
+`QuoteService`, `AvatarService`, `SVGGenerator`, `DatabaseService` (singleton).
 
-## Usage
+## `generateImage(request: NextRequest)`
 
-TODO: Provide usage examples.
+Reads query params into `GenerationConfig`. Enforces subscription tier: Pro-only knobs (positioning, visual styling, watermark overrides) stripped or rejected for free users. Integrates `EnhancedQuotaService` / `checkGuestQuota` + `recordGuestUsage`; supports `dry-run` without persisting.
 
-## API Reference
+Returns `GenerationResponse`: `svg`, `seed`, `dimensions`, `aspectRatio`, `generationOptions`, quota remainder fields, optional `generationId`.
 
-TODO: Document the public interface.
+## Security notes (in-source)
+
+Server-side validation prevents client tampering with Pro flags; unauthorized Pro params are logged.
 
 ---
 
-*File: `src/app/api/og-image/services/OGImageService.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/OGImageService.ts`

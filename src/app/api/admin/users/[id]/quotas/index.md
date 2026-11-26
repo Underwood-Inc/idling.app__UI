@@ -1,27 +1,22 @@
 ---
-title: route
-category: api_route
-tags: [documentation-needed]
-status: draft
+title: /api/admin/users/[id]/quotas
+description: Read and patch user quota state
 ---
 
-# route
+# /api/admin/users/[id]/quotas
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Co-located with `route.ts` in this folder.
 
-## Overview
+## GET
 
-TODO: Describe what this api_route does.
+Session + admin/moderator role check. Loads quotas via `EnhancedQuotaService.getUserQuotaInfo`, enriches display names from `subscription_services` / `subscription_features`. Returns `{ success, data: { quotas: UserQuotaData[] } }`.
 
-## Usage
+`UserQuotaData` exposes usage, limits, `quota_source`, `is_custom`, reset metadata.
 
-TODO: Provide usage examples.
+## PATCH
 
-## API Reference
-
-TODO: Document the public interface.
+Exported as bare `PATCH` (not wrapped in export const). Same override upsert logic as quota-overrides; optional `reset_usage` deletes matching `subscription_usage` rows. Default `reset_period` when creating: `monthly`.
 
 ---
 
-*File: `src/app/api/admin/users/[id]/quotas/route.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/admin/users/[id]/quotas/route.ts`

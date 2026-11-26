@@ -79,6 +79,7 @@ def main():
     parser.add_argument("--fail-under", type=float, help="Fail if coverage is under this percentage")
     parser.add_argument("--min-quality", type=float, help="Minimum quality score required")
     parser.add_argument("--quiet", "-q", action="store_true", help="Suppress interactive prompts (use defaults)")
+    parser.add_argument("--no-fail", action="store_true", help="Exit 0 even when below coverage thresholds (local report generation)")
     
     args = parser.parse_args()
     
@@ -179,6 +180,10 @@ def main():
         else:
             print(output)
     
+    if args.no_fail:
+        print(f"\n📊 Coverage {report.coverage_percentage:.1f}% (exit 0 via --no-fail)", file=sys.stderr)
+        sys.exit(0)
+
     # Exit with appropriate code
     min_coverage = checker.get_config("documentation_standards.minimum_coverage_percentage", 85.0)
     min_quality = checker.get_config("documentation_standards.minimum_quality_score", 0.7)

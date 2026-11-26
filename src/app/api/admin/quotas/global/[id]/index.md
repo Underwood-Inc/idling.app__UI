@@ -1,27 +1,22 @@
 ---
-title: route
-category: api_route
-tags: [documentation-needed]
-status: draft
+title: /api/admin/quotas/global/[id]
+description: Update or delete one global guest quota
 ---
 
-# route
+# /api/admin/quotas/global/[id]
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Co-located with `[id]/route.ts`. **Runtime:** `nodejs`, `force-dynamic`.
 
-## Overview
+## PUT
 
-TODO: Describe what this api_route does.
+`UpdateGlobalQuotaSchema` — dynamic `UPDATE global_guest_quotas` via `sql.unsafe`. Treats `quota_limit: 0` as unlimited. Logs `global_quota_update` with old/new snapshots.
 
-## Usage
+## DELETE
 
-TODO: Provide usage examples.
+Removes row by id; logs `global_quota_delete` with deleted quota payload.
 
-## API Reference
-
-TODO: Document the public interface.
+Admin gate: active `admin` or `moderator` role assignment.
 
 ---
 
-*File: `src/app/api/admin/quotas/global/[id]/route.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/admin/quotas/global/[id]/route.ts`

@@ -1,27 +1,20 @@
 ---
 title: EnhancedQuotaService
-category: service
-tags: [documentation-needed]
-status: draft
+description: Effective user quotas across plans and overrides
 ---
 
 # EnhancedQuotaService
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Static service class (default export). Resolves per-user limits from `user_quota_overrides`, subscription plan features, and service defaults — **higher effective limit wins** when multiple sources apply.
 
-## Overview
+## `getUserQuotaInfo(userId)`
 
-TODO: Describe what this service does.
+Returns `UserQuotaInfo[]` with `current_usage`, `quota_limit`, `quota_source`, `reset_period`, `reset_date`.
 
-## Usage
+Used by admin quota APIs, OG generation, and `quota.actions` for authenticated checks.
 
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Types: `UserQuotaInfo`, `QuotaOverride`, `ServiceFeature`.
 
 ---
 
-*File: `src/lib/services/EnhancedQuotaService.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/lib/services/EnhancedQuotaService.ts`

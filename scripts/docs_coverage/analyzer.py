@@ -7,6 +7,7 @@ import os
 import sys
 import glob
 import re
+import fnmatch
 from pathlib import Path
 from typing import List, Dict
 
@@ -21,24 +22,30 @@ class CodeAnalyzer:
     
     def find_code_files(self) -> List[CodeFileAnalysis]:
         """Find and analyze all code files"""
-        code_files = []
+        code_files: List[CodeFileAnalysis] = []
+        seen: set[str] = set()
         
-        for file_type, pattern in self.config["code_analysis"]["file_patterns"].items():
+        for _file_type, pattern in self.config["code_analysis"]["file_patterns"].items():
             files = glob.glob(pattern, recursive=True)
             for file_path in files:
+                normalized = os.path.normpath(file_path)
+                if normalized in seen:
+                    continue
                 if self._should_exclude_file(file_path):
                     continue
                 
                 analysis = self._analyze_typescript_file(file_path)
                 if analysis.documentation_required:
+                    seen.add(normalized)
                     code_files.append(analysis)
         
         return code_files
     
     def _should_exclude_file(self, file_path: str) -> bool:
         """Check if file should be excluded from analysis"""
+        normalized = file_path.replace("\\", "/")
         for pattern in self.config["code_analysis"]["exclude_patterns"]:
-            if pattern.replace("**", "").replace("*", "") in file_path:
+            if fnmatch.fnmatch(normalized, pattern):
                 return True
         return False
     

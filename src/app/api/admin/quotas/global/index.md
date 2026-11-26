@@ -1,27 +1,22 @@
 ---
-title: route
-category: api_route
-tags: [documentation-needed]
-status: draft
+title: /api/admin/quotas/global
+description: Global guest quota catalog
 ---
 
-# route
+# /api/admin/quotas/global
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Co-located with `route.ts`. **Runtime:** `nodejs`, `force-dynamic`.
 
-## Overview
+## GET
 
-TODO: Describe what this api_route does.
+Admin/moderator session. Returns `{ quotas, available_features }` — rows from `global_guest_quotas` joined to service/feature display names, plus `getAvailableServiceFeatures()` (limit-type features matching naming heuristics).
 
-## Usage
+## POST
 
-TODO: Provide usage examples.
+`CreateGlobalQuotaSchema` for `service_name` + `feature_name`. **409** if row exists. `quota_limit` 0 → unlimited. Inserts `global_guest_quotas`, logs `global_quota_create`.
 
-## API Reference
-
-TODO: Document the public interface.
+Handlers exported as `GET` / `POST` functions (no `withUniversalEnhancements`).
 
 ---
 
-*File: `src/app/api/admin/quotas/global/route.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/admin/quotas/global/route.ts`

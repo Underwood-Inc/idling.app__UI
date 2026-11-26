@@ -1,27 +1,24 @@
 ---
-title: DatabaseService
-category: service
-tags: [documentation-needed]
-status: draft
+title: DatabaseService (og-image)
+description: Singleton persistence for OG generations
 ---
 
-# DatabaseService
+# DatabaseService (og-image)
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+## Pattern
 
-## Overview
+`getInstance()` singleton; skips DB during production build phase (`NEXT_PHASE === phase-production-build`).
 
-TODO: Describe what this service does.
+## Key types
 
-## Usage
+`CreateOGGenerationParams`, `OGGenerationRecord`, `StoredGeneration` — map to `og_generations` (or equivalent) columns including SVG payload, fingerprint fields, and serialized `generation_options`.
 
-TODO: Provide usage examples.
+## Responsibilities
 
-## API Reference
+Insert/list/update generation records, tie generations to users or guests, and surface metadata for history UI. Uses shared `@lib/db` sql client.
 
-TODO: Document the public interface.
+Consult `route.tsx` / `OGImageService` for which methods are called per request path.
 
 ---
 
-*File: `src/app/api/og-image/services/DatabaseService.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/DatabaseService.ts`

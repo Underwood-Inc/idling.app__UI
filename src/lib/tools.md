@@ -1,220 +1,71 @@
 ---
-title: 'Development Tools'
-description: 'Development environment setup, debugging tools, and utilities'
+title: 'Development tooling'
+description: 'pnpm, Docker, Next 16, and day-to-day commands for idling.app__UI'
 sidebar_position: 2
 ---
 
-# 🔧 Development Tools
+# Development tooling
 
-Comprehensive guide to development environment setup, tools, performance optimization, and debugging utilities.
+**What this page is about:** how engineers actually run and ship this app — not generic “install Yarn” copy.
 
-## 🔧 Environment
+## Prerequisites
 
-**[Development Environment](environment/)** - Setup and configuration:
+| Tool | Version |
+| ---- | ------- |
+| Node.js | **≥ 22** (`package.json` `engineStrict`) |
+| pnpm | **≥ 11** |
+| Docker | Recommended for `pnpm dev:docker:win` |
+| Git | Husky hooks via `pnpm prepare` |
 
-- Local development setup
-- Docker containerization
-- Environment variables management
-- IDE configuration and extensions
-- Git hooks and pre-commit setup
-- Package management and dependencies
+Windows first-time setup: `pnpm setup:windows`, then `pnpm install`.
 
-## ⏳ Performance
-
-**[Performance Tools](performance/)** - Optimization and monitoring:
-
-- Bundle analysis and optimization
-- Performance profiling tools
-- Memory usage monitoring
-- Network performance analysis
-- Lighthouse integration
-- Performance budgets and alerts
-
-## 🔍 Debugging
-
-**[Debugging Tools](debugging/)** - Troubleshooting and diagnostics:
-
-- Browser DevTools configuration
-- React DevTools usage
-- Network debugging
-- Error tracking and logging
-- Performance debugging
-- Production debugging strategies
-
-## 🛠️ Essential Tools
-
-### Development Environment
-
-- **Node.js** (v18+) - JavaScript runtime
-- **Yarn** - Package manager
-- **Docker** - Containerization
-- **Git** - Version control
-- **VS Code** - Recommended IDE
-
-### Build Tools
-
-- **Next.js** - React framework
-- **TypeScript** - Type safety
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Husky** - Git hooks
-
-### Testing Tools
-
-- **Jest** - Unit testing
-- **Playwright** - E2E testing
-- **React Testing Library** - Component testing
-- **MSW** - API mocking
-
-### Performance Tools
-
-- **Lighthouse** - Performance auditing
-- **Bundle Analyzer** - Bundle analysis
-- **React Profiler** - Component performance
-- **Chrome DevTools** - Browser debugging
-
-## 🚀 Quick Setup
-
-### 1. Prerequisites
+## Everyday commands
 
 ```bash
-# Install Node.js (v18+)
-node --version
-
-# Install Yarn
-npm install -g yarn
-
-# Install Docker
-docker --version
+pnpm dev                 # Next.js dev server (:3000) — use Docker workflow when team-default
+pnpm dev:docker:win      # Interactive Docker menu for Postgres + app
+pnpm build               # next build --webpack; prebuild bumps service worker version
+pnpm validate            # tsc + stylelint + CSS variable lint
+pnpm test                # Vitest
+pnpm docs:dev            # Docusaurus on **:3001**
+pnpm docs:build          # Static docs site
+pnpm gen:secret          # AUTH_SECRET material for .env.local
 ```
 
-### 2. Project Setup
+Environment variables for local Postgres and NextAuth live in `.env.local` — see repo-root `QUICK_START.md`.
 
-```bash
-# Clone repository
-git clone https://github.com/Underwood-Inc/idling.app__UI.git
-cd idling.app__UI
+## Framework and styling
 
-# Install dependencies
-yarn install
+- **Next.js 16** App Router (`next build --webpack` in scripts).
+- **React 19**, **TypeScript** strict.
+- Styling: **CSS modules** / SCSS (`src/**/*.module.css`, `stylelint` in `pnpm validate`).
+- i18n: **typesafe-i18n** — hub: [/guides/i18n](/guides/i18n).
 
-# Set up environment
-cp .env.example .env.local
+## Quality gates
 
-# Start development server
-yarn dev
-```
+| Gate | Command |
+| ---- | ------- |
+| Types | `pnpm lint` → `tsc --noEmit` |
+| CSS | `pnpm lint:css`, `pnpm lint:css:vars` |
+| Unit tests | `pnpm test` |
+| E2E | `pnpm e2e:headless` when stack is up |
 
-### 3. IDE Configuration
+Pre-commit hooks (`husky`, `lint-staged`) run on staged files — do not bypass without reason.
 
-**VS Code Extensions:**
+## Documentation tooling
 
-- ES7+ React/Redux/React-Native snippets
-- TypeScript Hero
-- Prettier - Code formatter
-- ESLint
-- GitLens
-- Auto Rename Tag
-- Bracket Pair Colorizer
+- **Docusaurus 3** scans `src/**/*.md` (`docusaurus.config.js` → `docs.path: 'src'`).
+- OpenAPI: `pnpm docs:openapi`; Redoc served at `/api/` on the docs site.
+- Co-located markdown neighbors are maintained for coverage reporting; curated hub pages live under `src/guides/`, `src/philosophy/`, `src/products/`, `src/idling/`.
 
-## 📊 Performance Monitoring
+## OpenAPI and admin scripts
 
-### Metrics to Track
+- `pnpm docs:openapi` — regenerate `src/app/api/openapi.json`
+- `pnpm manage-user`, `pnpm explore-db` — operator CLIs (Node) against Postgres
+- `pnpm tui:run` — Go TUI for user management (`cmd/manage-user`)
 
-- **Bundle Size** - Keep under 500KB
-- **First Contentful Paint** - Under 1.5s
-- **Largest Contentful Paint** - Under 2.5s
-- **Time to Interactive** - Under 3.5s
-- **Cumulative Layout Shift** - Under 0.1
+## Related
 
-### Monitoring Tools
-
-- **Lighthouse CI** - Automated performance testing
-- **Web Vitals** - Core performance metrics
-- **Bundle Analyzer** - Bundle size analysis
-- **React Profiler** - Component performance
-
-## 🐛 Debugging Strategies
-
-### Common Issues
-
-1. **Performance Problems**
-
-   - Use React Profiler to identify slow components
-   - Check for unnecessary re-renders
-   - Optimize bundle size
-
-2. **Memory Leaks**
-
-   - Monitor memory usage in DevTools
-   - Check for event listener cleanup
-   - Analyze component lifecycle
-
-3. **Network Issues**
-   - Use Network tab in DevTools
-   - Check API response times
-   - Verify caching strategies
-
-## 🔗 Tool Configuration
-
-### ESLint Configuration
-
-```json
-{
-  "extends": [
-    "next/core-web-vitals",
-    "@typescript-eslint/recommended",
-    "prettier"
-  ],
-  "rules": {
-    "prefer-const": "error",
-    "no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn"
-  }
-}
-```
-
-### Prettier Configuration
-
-```json
-{
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": true,
-  "printWidth": 80,
-  "tabWidth": 2,
-  "useTabs": false
-}
-```
-
-## 🚀 Getting Started
-
-1. **[Set up environment](environment/)** - Configure development setup
-2. **[Configure performance tools](performance/)** - Set up monitoring
-3. **[Learn debugging techniques](debugging/)** - Master troubleshooting
-
-## 📋 Development Checklist
-
-### Before Starting
-
-- [ ] Environment variables configured
-- [ ] Dependencies installed
-- [ ] IDE extensions installed
-- [ ] Git hooks set up
-
-### During Development
-
-- [ ] Code linting passes
-- [ ] Tests are passing
-- [ ] Performance budgets met
-- [ ] Accessibility checks pass
-
-## 🔗 Related Sections
-
-- **[Testing](../testing/)** - Testing tools and strategies
-- **Components** - Component development
-- **[Database](../database/)** - Database tools
-
----
-
-_Development tools documentation is continuously updated. Last updated: January 28, 2025_
+- [/guides/getting-started](/guides/getting-started)
+- [/guides/stack](/guides/stack)
+- Co-located testing detail: [testing.md](./testing.md)

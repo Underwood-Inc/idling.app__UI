@@ -1,27 +1,21 @@
 ---
 title: LinePatternGenerator
-category: service
-tags: [documentation-needed]
-status: draft
+description: Line-based SVG pattern layers
 ---
 
 # LinePatternGenerator
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+## `generateLinePattern(layerType, ...)`
 
-## Overview
+Branches on `layerType` threshold:
 
-TODO: Describe what this service does.
+- lines (`<line>` scatter)
+- spirals
+- zigzags
+- dots/dashes
 
-## Usage
-
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Mutates shared `patterns: string[]` and `colorUsage` map. Opacity scales from `layerOpacity` and per-element randomness.
 
 ---
 
-*File: `src/app/api/og-image/services/patterns/LinePatternGenerator.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/patterns/LinePatternGenerator.ts`

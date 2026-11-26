@@ -1,27 +1,26 @@
 ---
-title: route
-category: api_route
-tags: [documentation-needed]
-status: draft
+title: POST /api/admin/users/[id]/quotas/reset
+description: Zero out usage counters for one feature
 ---
 
-# route
+# POST /api/admin/users/[id]/quotas/reset
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Sibling: `reset/route.ts`.
 
-## Overview
+## Auth
 
-TODO: Describe what this api_route does.
+`requireAdminApiAccess(PERMISSIONS.ADMIN.USERS_MANAGE)`.
 
-## Usage
+## Body
 
-TODO: Provide usage examples.
+`ResetUserQuotaSchema`: `service_name`, `feature_name`, optional `reason`.
 
-## API Reference
+## Behavior
 
-TODO: Document the public interface.
+Reads today's `subscription_usage` sum, deletes today's usage rows for that service/feature, and clears matching `guest_usage` by user email. Logs `admin_actions` (`user_quota_reset`).
+
+Returns `{ success, data: { reset: true, previous_usage }, message }`.
 
 ---
 
-*File: `src/app/api/admin/users/[id]/quotas/reset/route.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/admin/users/[id]/quotas/reset/route.ts`

@@ -1,27 +1,20 @@
 ---
-title: MachineFingerprint
-category: service
-tags: [documentation-needed]
-status: draft
+title: MachineFingerprintService
+description: Guest identification for OG quota enforcement
 ---
 
-# MachineFingerprint
+# MachineFingerprintService
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+**Server-only** (not middleware). Builds stable guest identity from `NextRequest` headers plus optional client hints.
 
-## Overview
+## `generateFingerprint(request, clientData?)`
 
-TODO: Describe what this service does.
+Returns `MachineFingerprint` (`fingerprintId`, IP, UA, language, encoding, platform, timezone, screen) and `FingerprintComponents` for fuzzy overlap matching.
 
-## Usage
+`fingerprintId` = first 16 hex chars of SHA-256 over joined component strings. IP hashed; UA parsed into browser/OS families.
 
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Additional methods in file support similarity scoring across partial component matches (guest abuse resistance).
 
 ---
 
-*File: `src/app/api/og-image/services/MachineFingerprint.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/MachineFingerprint.ts`

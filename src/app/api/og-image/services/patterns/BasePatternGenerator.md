@@ -1,27 +1,20 @@
 ---
 title: BasePatternGenerator
-category: service
-tags: [documentation-needed]
-status: draft
+description: Seeds procedural OG background layers
 ---
 
 # BasePatternGenerator
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+## `generateBackgroundPattern(seed, width, height, shapeCount?)`
 
-## Overview
+`seededRandom(seed)` drives palette pick, gradient base, and 5–8 (or clamped `shapeCount`) layers. Delegates layer geometry to:
 
-TODO: Describe what this service does.
+- `ShapePatternGenerator`
+- `LinePatternGenerator`
+- `OrganicPatternGenerator`
 
-## Usage
-
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Returns `BackgroundPatternResult` — concatenated SVG snippet string plus `predominantColor` from usage counts.
 
 ---
 
-*File: `src/app/api/og-image/services/patterns/BasePatternGenerator.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/patterns/BasePatternGenerator.ts`

@@ -1,27 +1,16 @@
 ---
 title: ShapePatternGenerator
-category: service
-tags: [documentation-needed]
-status: draft
+description: Primitive shape scatter for OG backgrounds
 ---
 
 # ShapePatternGenerator
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+## `generateShapePattern(layerType, ...)`
 
-## Overview
+Dispatches on `layerType` bands to generators: circles, hexagons, stars, triangles, ellipses, crosses, arcs.
 
-TODO: Describe what this service does.
-
-## Usage
-
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Each helper pushes SVG elements with randomized position, size, and opacity; increments `colorUsage[layerColor]`.
 
 ---
 
-*File: `src/app/api/og-image/services/patterns/ShapePatternGenerator.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/patterns/ShapePatternGenerator.ts`

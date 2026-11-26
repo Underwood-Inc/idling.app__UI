@@ -1,0 +1,38 @@
+---
+title: Documentation coverage
+description: Mechanical neighbor coverage vs human-written hub docs
+---
+
+# Documentation coverage
+
+The homepage badge measures **whether TypeScript neighbors have markdown files** that pass the coverage analyzer — not whether every page reads like a product guide.
+
+## Two different scores
+
+| Metric | Meaning |
+| ------ | ------- |
+| **Neighbor coverage** | `scripts/check-docs-coverage.py` + optional bootstrap pass — file has `{basename}.md` with required sections and word count |
+| **Human quality** | Curated hub (`guides/`, `philosophy/`, `products/`, `idling/`) and hand-maintained co-located pages (e.g. radio, rate limits, testing) |
+
+Do not treat 100% neighbor coverage as “fully documented product.” Check [/guides/documentation-coverage](/guides/documentation-coverage) and [/products/inventory](/products/inventory) for editorial status.
+
+## Update the badge
+
+```bash
+pnpm docs:coverage:analyze
+pnpm docs:coverage:bootstrap   # only creates missing neighbors — does not replace hand-written pages
+pnpm docs:coverage:refresh     # full analyze + badge sync
+```
+
+## Maintainer policy
+
+1. **Hub first** for stack truth (Vitest, pnpm, Node 22, Next 16).
+2. **Rewrite co-located pages from source** when touching a module — remove bootstrap footer lines and generic filler when you find them.
+3. **Protected pages:** `src/index.md`, hub indices, inventory — never overwrite via bootstrap.
+4. New showcase product ⇒ `projectShowcaseProjects.ts` **and** `src/products/showcase/<id>.md`.
+
+## Reports
+
+HTML/JSON output lands in `static/coverage/` after refresh — linked from docs.idling.app/coverage/.
+
+Analyzer implementation: `scripts/docs_coverage/`.

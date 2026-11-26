@@ -1,27 +1,20 @@
 ---
 title: QuoteService
-category: service
-tags: [documentation-needed]
-status: draft
+description: Weighted round-robin external quote fetching
 ---
 
 # QuoteService
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+## Construction
 
-## Overview
+Builds shuffled weighted index pool from `QUOTE_APIS` in `../config` (weights expand pool entries).
 
-TODO: Describe what this service does.
+## `fetchRandomQuote(): Promise<QuoteData>`
 
-## Usage
+Up to `QUOTE_APIS.length` attempts: `fetch` with 5s abort, custom UA `Idling.app OG Image Generator`, per-API `transform`. On exhaustion uses `FALLBACK_QUOTES`.
 
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+No auth; failures advance pool index and reshuffle when cycle completes.
 
 ---
 
-*File: `src/app/api/og-image/services/QuoteService.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/QuoteService.ts`

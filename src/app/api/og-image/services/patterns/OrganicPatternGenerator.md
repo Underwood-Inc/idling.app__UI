@@ -1,27 +1,21 @@
 ---
 title: OrganicPatternGenerator
-category: service
-tags: [documentation-needed]
-status: draft
+description: Polygon, grid, blob, and wave layers
 ---
 
 # OrganicPatternGenerator
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+## `generateOrganicPattern(layerType, ...)`
 
-## Overview
+Sub-styles by `layerType`:
 
-TODO: Describe what this service does.
+- polygons (random-sided)
+- grid
+- blobs
+- waves
 
-## Usage
-
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
+Appends SVG primitives to shared `patterns` array; updates `colorUsage` where applicable.
 
 ---
 
-*File: `src/app/api/og-image/services/patterns/OrganicPatternGenerator.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/og-image/services/patterns/OrganicPatternGenerator.ts`

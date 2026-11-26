@@ -1,27 +1,26 @@
 ---
-title: route
-category: api_route
-tags: [documentation-needed]
-status: draft
+title: /api/admin/emojis
+description: Custom emoji moderation API
 ---
 
-# route
+# /api/admin/emojis
 
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
+Co-located with `route.ts`. **Runtime:** `nodejs`, `force-dynamic`.
 
-## Overview
+## GET
 
-TODO: Describe what this api_route does.
+`PERMISSIONS.ADMIN.EMOJI_APPROVE`. `AdminEmojiSearchParamsSchema` (`page`, `limit`, `status`, `search`). Pending uses `getPendingCustomEmojis`; approved/rejected from SQL on `custom_emojis`. Status `all` merges streams.
 
-## Usage
+## POST
 
-TODO: Provide usage examples.
+`AdminEmojiActionSchema`: `emojiId`, `action` (`approve` | `reject`), `reason`. Delegates to `approveCustomEmoji` / `rejectCustomEmoji` server actions.
 
-## API Reference
+## DELETE
 
-TODO: Document the public interface.
+Query `id`, optional `reason` → `deleteCustomEmoji`.
+
+All mutating routes use `withUniversalEnhancements`.
 
 ---
 
-*File: `src/app/api/admin/emojis/route.ts`*  
-*Auto-generated on: 2025-07-01 11:33:14*
+**Sources:** `src/app/api/admin/emojis/route.ts`
