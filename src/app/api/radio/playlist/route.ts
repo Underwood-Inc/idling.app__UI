@@ -28,6 +28,8 @@ async function getHandler(request: NextRequest) {
       },
     });
 
+    clearTimeout(timer);
+
     if (!upstream.ok) {
       return NextResponse.json(
         { error: `Playlist fetch failed (${upstream.status})` },

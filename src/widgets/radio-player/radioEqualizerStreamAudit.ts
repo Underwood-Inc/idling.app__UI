@@ -1,3 +1,4 @@
+import { releaseResponseBody } from '@lib/fetch/releaseResponseBody';
 import {
   equalizerStreamRejection,
   IDLING_RADIO_EQUALIZER_ORIGIN,
@@ -57,7 +58,7 @@ export async function probeEqualizerRadioStream(
     const reason = rejectionFromResponse(response, resolved.sourceUrl);
 
     if (reason) {
-      await response.body?.cancel();
+      await releaseResponseBody(response);
       return { ok: false, reason };
     }
 
@@ -69,7 +70,7 @@ export async function probeEqualizerRadioStream(
       return { ok: true };
     }
 
-    await response.body?.cancel();
+    await releaseResponseBody(response);
     return { ok: true };
   } catch (error) {
     const reason =
