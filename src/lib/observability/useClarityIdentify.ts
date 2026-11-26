@@ -10,6 +10,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { clarityIdentify, claritySetTag } from './MicrosoftClarity';
+import { clarityTextField } from './clarityTextField';
 
 export interface UseClarityIdentifyOptions {
   /** Whether to enable identification (default: true) */
@@ -47,9 +48,13 @@ export function useClarityIdentify(options: UseClarityIdentifyOptions = {}) {
       return;
     }
 
-    // Identify the user in Clarity
-    const userId = session.user.id || session.user.email || 'anonymous';
-    const friendlyName = session.user.name || undefined;
+    const userId = clarityTextField(
+      session.user.id ?? session.user.email,
+      'anonymous'
+    );
+    const friendlyName = session.user.name
+      ? clarityTextField(session.user.name, '')
+      : undefined;
 
     clarityIdentify(userId, undefined, undefined, friendlyName);
 
