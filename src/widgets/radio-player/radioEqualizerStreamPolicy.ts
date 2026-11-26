@@ -19,7 +19,9 @@ export function equalizerStreamRejection(input: {
   accessControlAllowOrigin: string | null;
 }): string | null {
   if (!input.finalUrl.startsWith('https://')) {
-    return 'Stream URL is not HTTPS';
+    return input.finalUrl.startsWith('http://')
+      ? 'Stream redirects to HTTP'
+      : 'Stream URL is not HTTPS';
   }
 
   if (input.status !== 200 && input.status !== 206) {

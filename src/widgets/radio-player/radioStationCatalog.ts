@@ -105,34 +105,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     supportsTrackMetadata: false,
   },
   {
-    name: 'Radio Swiss Jazz',
-    url: 'https://stream.srg-ssr.ch/m/rsj/mp3_128',
-    genre: 'jazz',
-    regionFlag: '🇨🇭',
-    blurb: 'Swiss public jazz service',
-  },
-  {
-    name: 'Radio Swiss Classic',
-    url: 'https://stream.srg-ssr.ch/m/rsc_de/mp3_128',
-    genre: 'classical',
-    regionFlag: '🇨🇭',
-    blurb: 'Swiss public classical service',
-  },
-  {
-    name: 'Radio Swiss Pop',
-    url: 'https://stream.srg-ssr.ch/m/rsp/mp3_128',
-    genre: 'eclectic',
-    regionFlag: '🇨🇭',
-    blurb: 'Swiss public pop and rock',
-  },
-  {
-    name: 'Couleur 3',
-    url: 'https://stream.srg-ssr.ch/m/couleur3/mp3_128',
-    genre: 'electronic',
-    regionFlag: '🇨🇭',
-    blurb: 'Alternative and electronic from RTS',
-  },
-  {
     name: 'FluxFM',
     url: 'https://channels.fluxfm.de/FluxFM/externalembedflxhp/stream.mp3',
     genre: 'electronic',
@@ -402,13 +374,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     regionFlag: '🇫🇷',
     blurb: 'Hip-hop and rap from Radio France',
     supportsTrackMetadata: false,
-  },
-  {
-    name: 'Radio Swiss Classic (FR)',
-    url: 'https://stream.srg-ssr.ch/m/rsc_fr/mp3_128',
-    genre: 'classical',
-    regionFlag: '🇨🇭',
-    blurb: 'Swiss public classical in French',
   },
   {
     name: 'BR Klassik',
@@ -873,13 +838,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'Inspired by John Peel — home of the Festive 50',
   },
   {
-    name: 'LuxuriaMusic',
-    url: 'https://ice10.securenetsystems.net/LUXOMP3',
-    genre: 'eclectic',
-    regionFlag: '🇺🇸',
-    blurb: 'Surf, bossa nova, exotica, and space-age lounge',
-  },
-  {
     name: 'KUSF San Francisco',
     url: 'https://listen.kusf.org/stream',
     genre: 'community',
@@ -1154,13 +1112,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'Progressive rock and metal',
   },
   {
-    name: 'Nugs.net Radio',
-    url: 'https://radio.nugs.net/nugsnet',
-    genre: 'eclectic',
-    regionFlag: '🇺🇸',
-    blurb: 'Live rock and jam band recordings',
-  },
-  {
     name: 'BAGeL Radio',
     url: 'https://ais-sa3.cdnstream1.com/2606_128.aac',
     genre: 'eclectic',
@@ -1334,13 +1285,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     genre: 'public',
     regionFlag: '📚',
     blurb: 'Audiobooks, poetry, and classic plays',
-  },
-  {
-    name: 'Historyradio.org',
-    url: 'https://stream.radiojar.com/6bmecgg3wd5tv',
-    genre: 'public',
-    regionFlag: '📜',
-    blurb: 'Literature, speeches, and audiobooks',
   },
   {
     name: 'Old Time Radio',

@@ -41,7 +41,7 @@ describe('radioEqualizerStreamPolicy', () => {
         status: 200,
         accessControlAllowOrigin: '*',
       })
-    ).toBe('Stream URL is not HTTPS');
+    ).toBe('Stream redirects to HTTP');
     expect(
       equalizerStreamRejection({
         finalUrl: 'https://stream.example.com/live.mp3',
