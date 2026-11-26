@@ -1,0 +1,35 @@
+---
+description: SSR metadata must not async-load locale chunks (prod outage gotcha — see docs/i18n-ssr-metadata-gotcha.mdx)
+globs:
+  - src/app/layout.tsx
+  - src/app/page.tsx
+  - src/app/portfolio/page.tsx
+  - src/app/admin/page.tsx
+  - src/app/subscription/layout.tsx
+  - src/i18n/idling-server-i18n.ts
+  - src/molecules/i18n/idlingMeta.ts
+  - src/molecules/quotes/resolveIdlingLocale.server.ts
+alwaysApply: false
+---
+
+# SSR metadata and i18n (production gotcha)
+
+Read **`src/i18n/i18n-ssr-metadata-gotcha.mdx`** before changing metadata or server locale.
+
+## Non-negotiables
+
+1. **Root layout and hot marketing routes** use `export const metadata` built from `META_EN` / `buildRootSiteMetadata()` — **not** `async function generateMetadata()` that calls `getServerLL()` or `initIdlingI18nAsync`.
+2. **`idling-server-i18n.ts`**: `getServerLL()` = sync `initIdlingI18n('en')` only. **Never** `loadLocaleAsync`, **never** `initIdlingI18nAsync`, **never** `resolveServerIdlingLocale()` for metadata.
+3. **Client UI i18n** lives in `IdlingLocaleProvider` only — do not “fix” SSR by wrapping more server code in locale async loads.
+4. Do **not** use `Accept-Language` on the server for locale selection (`resolveServerIdlingLocale.server.ts` = cookie or `en` only if ever used).
+
+## Before claiming an i18n prod fix
+
+- Verify prod TTFB: `curl.exe` home should return **non-zero starttransfer** in a few seconds (see gotcha doc).
+- Run `pnpm exec next build --webpack` after metadata changes.
+
+## Do not reintroduce
+
+- `generateMetadata` + `await initIdlingI18nAsync(locale)` on layout/home
+- Double `loadLocaleAsync('en')` + `loadLocaleAsync(target)` on every `localeId` effect in the provider
+- Global locale notify/subscriber buses on the Next shell
