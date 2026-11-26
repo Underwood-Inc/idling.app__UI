@@ -51,7 +51,7 @@ export default async function Nav() {
             </Navbar.Item>
           ) : null}
           <Navbar.Item className="nav__auth">
-            <NavAuth />
+            <NavAuth session={session} />
           </Navbar.Item>
         </Navbar.Content>
       </Navbar.Body>

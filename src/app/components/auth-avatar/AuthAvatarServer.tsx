@@ -1,7 +1,9 @@
 import { auth } from '@lib/auth';
+import type { Session } from 'next-auth';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 
 interface AuthAvatarServerProps {
+  session?: Session | null;
   size?: AvatarPropSizes;
   enableTooltip?: boolean;
   tooltipScale?: 2 | 3 | 4;
@@ -14,12 +16,13 @@ interface AuthAvatarServerProps {
  * appearance remains the same across all parts of the application.
  */
 export async function AuthAvatarServer({
+  session: sessionFromParent,
   size = 'md',
   enableTooltip = false,
   tooltipScale = 2,
   className = ''
 }: AuthAvatarServerProps) {
-  const session = await auth();
+  const session = sessionFromParent ?? (await auth());
 
   // Generate a random seed for unauthenticated users
   const randomSeed = `guest-${Math.random().toString(36).substring(2, 15)}-${Date.now()}`;
