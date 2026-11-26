@@ -83,6 +83,8 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
+    "build",
+    "docs/build",
     "node_modules",
     "scripts",
     "vitest.config.ts",
