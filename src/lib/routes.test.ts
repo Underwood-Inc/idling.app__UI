@@ -15,9 +15,8 @@ describe('public route infrastructure', () => {
     }
   });
 
-  test('when the path is the radio API, guests may reach station probes', () => {
+  test('when the path is the radio API, guests may reach playlist and metadata routes', () => {
     expect(PUBLIC_API_ROUTES).toContain('/api/radio/');
-    expect(isPublicApiPath('/api/radio/stations')).toBe(true);
     expect(isPublicApiPath('/api/radio/now-playing')).toBe(true);
     expect(isPublicApiPath('/api/radio/playlist')).toBe(true);
   });

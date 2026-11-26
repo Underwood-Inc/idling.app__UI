@@ -11,8 +11,8 @@ import type { RadioStationCatalog, RadioStationDefinition } from './radioPlayer.
  * (e.g. SomaFM ToS), creator-only catalogs (Chillhop/Lofi Girl livestreams),
  * YouTube-only delivery, and streams that omit CORS, stay on HTTP, or never connect.
  *
- * Runtime reachability is the host-region HTTP probe at `/api/radio/stations`.
- * Listener region locks are not measured there. Equalizer CORS is rechecked in GitHub Actions only.
+ * Runtime reachability is probed in the visitor's browser when the radio UI mounts.
+ * Equalizer CORS is rechecked in GitHub Actions only.
  */
 export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
   {

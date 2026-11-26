@@ -15,8 +15,10 @@ import {
   RADIO_PROBE_MAX_RETRIES,
   RADIO_PROBE_RETRY_DELAY_MS,
 } from './probeConcurrency';
-import { probeRadioStreamInBrowser, probeRadioStreamUrl } from './radioStreamProbe';
+import { probeRadioStreamInBrowser } from './radioStreamProbe';
 import type { ProbeRadioStreamOptions, ProbeRadioStreamResult } from './radioStreamProbe.types';
+
+/** Station catalog reachability is probed in the browser only — never from `src/app/api`. */
 
 export { LOCAL_DEV_RADIO_STATIONS };
 
@@ -334,10 +336,7 @@ export function rerunStationAvailabilityChecks(
   };
 }
 
-/**
- * Probe stations before the player mounts.
- * Prefers the server route so localhost/dev does not spam failed media GETs in the console.
- */
+/** Probe stations in the browser (availability checks are not run on the app server). */
 export async function probeRadioStations(
   catalog: RadioStationCatalog,
   options: ProbeRadioStationsOptions = {}
@@ -350,19 +349,6 @@ export async function probeRadioStations(
     hostname,
     includeLocalDevFallbacks
   );
-
-  try {
-    const response = await fetch('/api/radio/stations', {
-      cache: 'no-store',
-    });
-
-    if (response.ok) {
-      const result = (await response.json()) as RadioStationProbeResult;
-      return result;
-    }
-  } catch {
-    // Fall back to in-browser probing below.
-  }
 
   return probeRadioStationsInBrowser(stationsToProbe, { ...options, timeoutMs });
 }
@@ -379,4 +365,3 @@ export function logRadioPlayerUnavailable(failures: RadioStationProbeFailure[]):
   );
 }
 
-export { probeRadioStreamUrl };
