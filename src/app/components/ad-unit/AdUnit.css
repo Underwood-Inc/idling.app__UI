@@ -10,10 +10,22 @@
   overflow: hidden;
 }
 
-/* Collapse when no ad is served (adblocker or unfilled) */
-.ad-unit:has(ins:empty),
+/* Collapse only after AdSense reports an unfilled slot.
+   Hiding an empty <ins> before push() gives the slot width 0. */
 .ad-unit:has(ins[data-ad-status="unfilled"]) {
   display: none;
+}
+
+/* Ad traffic-quality frames are measurement pixels. A CSP block leaves
+   them at the browser default iframe size and opens a gap under the footer. */
+iframe[src*="adtrafficquality.google"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* Ensure adsbygoogle container fills width */

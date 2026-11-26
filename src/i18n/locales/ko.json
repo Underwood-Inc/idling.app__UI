@@ -2281,7 +2281,12 @@
       "searchWebForTrack": " {query}에 대한 웹 검색",
       "findTrackTitle": "찾기 “{query}”",
       "addFavorite": "즐겨찾기에 추가 {stationName} ",
-      "removeFavorite": "즐겨찾기에서 {stationName} 제거"
+      "removeFavorite": "즐겨찾기에서 {stationName} 제거",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "reset": "지원하다",
@@ -2327,7 +2332,9 @@
       "emptyUnreachable": "이 필터와 일치하지 않는 역.",
       "emptyFavorites": "좋아하는 역이 필터 일치하지 않습니다.",
       "emptySearchPrefix": "역 일치 없음",
-      "checkingStreamAvailability": "스트림 가용성 확인.."
+      "checkingStreamAvailability": "스트림 가용성 확인..",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "none": "이름 *",

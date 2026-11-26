@@ -2281,7 +2281,12 @@
       "searchWebForTrack": "搜索网络中的 {query}",
       "findTrackTitle": "查找“{query}”",
       "addFavorite": "在最爱中添加 {stationName} ",
-      "removeFavorite": "从最爱中删除 {stationName} "
+      "removeFavorite": "从最爱中删除 {stationName} ",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "reset": "重设",
@@ -2327,7 +2332,9 @@
       "emptyUnreachable": "没有无法到达的站台匹配此过滤器 .",
       "emptyFavorites": "没有最喜欢的站台匹配此过滤器 .",
       "emptySearchPrefix": "没有站台匹配",
-      "checkingStreamAvailability": "正在检查流可用性.."
+      "checkingStreamAvailability": "正在检查流可用性..",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "look": "听着",

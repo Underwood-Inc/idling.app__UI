@@ -55,6 +55,11 @@ export interface RadioEnAriaCopy {
   findTrackTitle: string;
   addFavorite: string;
   removeFavorite: string;
+  saveSong: string;
+  removeSavedSong: string;
+  signInToFavoriteSongs: string;
+  viewSavedSongs: string;
+  savedSongs: string;
 }
 
 export interface RadioEnBarCopy {
@@ -68,6 +73,8 @@ export interface RadioEnBarCopy {
   recheckAll: string;
   emptyUnreachable: string;
   emptyFavorites: string;
+  emptySavedSongs: string;
+  savedSongsSignIn: string;
   emptySearchPrefix: string;
   checkingStreamAvailability: string;
 }
@@ -227,6 +234,11 @@ export const RADIO_EN = {
     findTrackTitle: 'Find “{query}”',
     addFavorite: 'Add {stationName} to favorites',
     removeFavorite: 'Remove {stationName} from favorites',
+    saveSong: 'Favorite this song',
+    removeSavedSong: 'Remove this song from saved songs',
+    signInToFavoriteSongs: 'Sign in to favorite songs',
+    viewSavedSongs: 'View saved songs',
+    savedSongs: 'Saved songs',
   },
   bar: {
     pressPlayToStart: 'Press play to start',
@@ -239,6 +251,8 @@ export const RADIO_EN = {
     recheckAll: 'Re-check all',
     emptyUnreachable: 'No unreachable stations match this filter.',
     emptyFavorites: 'No favorite stations match this filter.',
+    emptySavedSongs: 'No saved songs yet. Favorite a song while it is playing.',
+    savedSongsSignIn: 'Sign in to favorite songs and look them up again later.',
     emptySearchPrefix: 'No stations match',
     checkingStreamAvailability: 'Checking stream availability…',
   },

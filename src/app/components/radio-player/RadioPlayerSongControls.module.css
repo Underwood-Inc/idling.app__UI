@@ -1,0 +1,128 @@
+.tip {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.songSave,
+.libraryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border-radius: 6px;
+  cursor: var(--mappy-cursor-pointer, pointer);
+}
+
+.songSave {
+  border: 1px solid rgb(126 184 201 / 35%);
+  background: rgb(126 184 201 / 8%);
+  color: #9ec8d4;
+}
+
+.songSave:hover:not(:disabled) {
+  background: rgb(126 184 201 / 16%);
+  color: #d5eef4;
+}
+
+.songSave[aria-pressed='true'] {
+  border-color: rgb(126 184 201 / 70%);
+  background: rgb(126 184 201 / 22%);
+  color: #d5eef4;
+}
+
+.songSave[aria-pressed='true'] svg {
+  fill: currentColor;
+}
+
+.songSave:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.tip:has(.songSave:disabled) {
+  cursor: not-allowed;
+}
+
+.songSave:focus-visible,
+.libraryBtn:focus-visible {
+  outline: 2px solid rgb(126 184 201 / 70%);
+  outline-offset: 2px;
+}
+
+.libraryBtn {
+  border: 1px dashed rgb(126 184 201 / 55%);
+  background: transparent;
+  color: #9ec8d4;
+}
+
+.libraryBtn:hover,
+.libraryBtn[aria-expanded='true'] {
+  background: rgb(126 184 201 / 14%);
+  color: #d5eef4;
+  border-style: solid;
+}
+
+.libraryBtn__count {
+  position: absolute;
+  top: -0.28rem;
+  right: -0.28rem;
+  min-width: 0.85rem;
+  height: 0.85rem;
+  padding: 0 0.18rem;
+  border-radius: 999px;
+  background: #1b3a42;
+  color: #d5eef4;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 0.85rem;
+  text-align: center;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.65rem 0.75rem 0.85rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.title {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-size: var(--font-size-sm);
+  line-height: 1.35;
+  color: var(--text-primary, #ece8e0);
+}
+
+.note {
+  margin: 0;
+  padding: 0.85rem 0.95rem;
+  color: var(--text-secondary, #a8a096);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.15rem 0.75rem 0;
+  color: #9ec8d4;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

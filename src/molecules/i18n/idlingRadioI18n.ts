@@ -1,4 +1,4 @@
-import type { RadioEnCopy } from '$i18n-source/radio.en';
+import { RADIO_EN, type RadioEnCopy } from '$i18n-source/radio.en';
 import type {
   RadioEqualizerBandGainsMatch,
   RadioEqualizerCustomSlot,
@@ -20,6 +20,17 @@ function replaceRadioTemplate(
     (text, [key, value]) => text.replace(`{${key}}`, String(value)),
     template
   );
+}
+
+function formatRadioTemplate(
+  resolved: string,
+  english: string,
+  values: Record<string, string | number>
+): string {
+  const template = Object.keys(values).every((key) => resolved.includes(`{${key}}`))
+    ? resolved
+    : english;
+  return replaceRadioTemplate(template, values);
 }
 
 export function formatRadioCheckingStations(
@@ -52,14 +63,18 @@ export function formatRadioTrackSearchAria(
   copy: RadioEnCopy,
   searchQuery: string
 ): string {
-  return replaceRadioTemplate(copy.aria.searchWebForTrack, { query: searchQuery });
+  return formatRadioTemplate(copy.aria.searchWebForTrack, RADIO_EN.aria.searchWebForTrack, {
+    query: searchQuery,
+  });
 }
 
 export function formatRadioTrackSearchTitle(
   copy: RadioEnCopy,
   searchQuery: string
 ): string {
-  return replaceRadioTemplate(copy.aria.findTrackTitle, { query: searchQuery });
+  return formatRadioTemplate(copy.aria.findTrackTitle, RADIO_EN.aria.findTrackTitle, {
+    query: searchQuery,
+  });
 }
 
 export function formatRadioTrackTitleTriggerAria(

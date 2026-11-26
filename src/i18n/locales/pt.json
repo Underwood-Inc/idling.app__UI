@@ -2281,7 +2281,12 @@
       "searchWebForTrack": "Procurar na Web por {query}",
       "findTrackTitle": "Procurar “{query}”",
       "addFavorite": "Adicionar {stationName} aos favoritos",
-      "removeFavorite": "Remover {stationName} dos favoritos"
+      "removeFavorite": "Remover {stationName} dos favoritos",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "title": "Equalizador",
@@ -2327,7 +2332,9 @@
       "filterUnreachable": "Inalcançável",
       "recheckAll": "Verificar novamente tudo",
       "emptyUnreachable": "Nenhuma estação inalcançável corresponde a este filtro.",
-      "emptyFavorites": "Nenhuma estação favorita corresponde a este filtro."
+      "emptyFavorites": "Nenhuma estação favorita corresponde a este filtro.",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "look": "Olha",

@@ -63,7 +63,8 @@
 :is(
   [class*='cta__primary'],
   [class*='product-hero__cta--primary'],
-  [class*='product-marketing__cta--primary']
+  [class*='product-marketing__cta--primary'],
+  [class*='hub__tileBtn'].contrast-safe-surface--cta-primary
 ) {
   color: var(--text-on-tan, #1a1a1a);
   -webkit-text-fill-color: currentColor;
@@ -72,7 +73,8 @@
 :is(
   [class*='cta__primary'],
   [class*='product-hero__cta--primary'],
-  [class*='product-marketing__cta--primary']
+  [class*='product-marketing__cta--primary'],
+  [class*='hub__tileBtn'].contrast-safe-surface--cta-primary
 ):is(:link, :visited, :hover, :active, :focus-visible) {
   color: var(--text-on-tan, #1a1a1a);
   -webkit-text-fill-color: currentColor;

@@ -84,6 +84,7 @@
       "templates_ts": "src/templates/**/*.ts"
     },
     "exclude_patterns": [
+      "public/widgets/**",
       "**/*.test.*",
       "**/*.spec.*",
       "**/*.stories.*",

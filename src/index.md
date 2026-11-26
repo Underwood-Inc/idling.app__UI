@@ -29,9 +29,9 @@ Think of this site as the **map room** for the whole idling.app workspace: the s
 
 ## Documentation coverage
 
-[![Documentation Coverage](https://img.shields.io/badge/co--located%20neighbors-100%25-informational?style=flat&logo=gitbook)](https://docs.idling.app/guides/documentation-coverage)
+[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100.0%25-brightgreen?style=flat&logo=gitbook&logoColor=white)](https://docs.idling.app/coverage/)
 
-The badge reflects **files that have a markdown neighbor** from the bootstrap script. It does **not** mean every page is a full human guide. Hub pages under `guides/`, `philosophy/`, `products/`, and `idling/` are maintained intentionally; code-adjacent stubs remain for search and traceability.
+The badge reflects **adequately documented** in-scope source files (synced from CI via `scripts/sync-docs-coverage-badge.mjs`). Neighbor stubs from bootstrap count only when they meet quality thresholds — see [Coverage honesty](/guides/documentation-coverage). Hub pages under `guides/`, `philosophy/`, `products/`, and `idling/` are maintained intentionally; code-adjacent stubs remain for search and traceability.
 
 ```mermaid
 flowchart TB

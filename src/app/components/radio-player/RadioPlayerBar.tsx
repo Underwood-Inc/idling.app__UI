@@ -7,6 +7,9 @@ import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics'
 import { useRadioDockInlineVisualizer } from '@lib/hooks/useRadioDockInlineVisualizer';
 import { useRadioMediaSession } from '@lib/hooks/useRadioMediaSession';
 import { useRadioStationFavorites } from '@lib/hooks/useRadioStationFavorites';
+import { useRadioSongFavorites } from '@lib/hooks/useRadioSongFavorites';
+import { resolveRadioSongFavoriteUserId } from '@widgets/radio-player/radioSongFavorites';
+import { useSession } from 'next-auth/react';
 import { useRadioStationPanelHeight } from '@lib/hooks/useRadioStationPanelHeight';
 import { useRadioMetaWidth } from '@lib/hooks/useRadioMetaWidth';
 import { HumanFriendlySearchHighlight } from '@molecules/humanFriendlySearch/HumanFriendlySearchHighlight';
@@ -98,6 +101,9 @@ import { RadioPlayerVolumeFader } from './RadioPlayerVolumeFader';
 import { RadioPlayerTrackTitleTip } from './RadioPlayerTrackTitleTip';
 import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
 import { RadioPlayerTrackSearchButton } from './RadioPlayerTrackSearchButton';
+import { RadioPlayerSongSaveButton } from './RadioPlayerSongSaveButton';
+import { RadioPlayerSavedSongsPanel } from './RadioPlayerSavedSongsPanel';
+import songStyles from './RadioPlayerSongControls.module.css';
 
 export interface RadioPlayerBarPlaybackState {
   isPlaying: boolean;
@@ -107,7 +113,7 @@ export interface RadioPlayerBarPlaybackState {
   visualizerPrefs: BarVisualizerPreferences;
 }
 
-export type RadioPlayerPanel = 'stations' | 'settings' | null;
+export type RadioPlayerPanel = 'stations' | 'settings' | 'savedSongs' | null;
 
 export interface RadioPlayerBarProps {
   handle?: RadioPlayerHandle | null;
@@ -187,6 +193,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const stationListRef = useRef<HTMLDivElement>(null);
   const stationPanelRef = useRef<HTMLElement>(null);
   const settingsPanelRef = useRef<HTMLElement>(null);
+  const savedSongsPanelRef = useRef<HTMLElement>(null);
   const lookPanelRef = useRef<HTMLDivElement>(null);
   const stationSearchInputRef = useRef<HTMLInputElement>(null);
   const prevActivePanelRef = useRef<RadioPlayerPanel>(null);
@@ -206,6 +213,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     isFavorite,
     toggleFavorite,
   } = useRadioStationFavorites();
+  const { data: session, status: sessionStatus } = useSession();
+  const signedInUserId = resolveRadioSongFavoriteUserId(sessionStatus, session?.user?.id);
+  const { savedSongs, isSongSaved, toggleSavedSong } = useRadioSongFavorites(signedInUserId);
 
   const applyStationGenreFilter = useCallback((genreId: RadioStationGenreId | null) => {
     setStationGenreFilter(genreId);
@@ -395,7 +405,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     return undefined;
   }, [activePanel]);
 
-  const controlBarPanelRef = activePanel === 'settings' ? settingsPanelRef : stationPanelRef;
+  const controlBarPanelRef =
+    activePanel === 'settings'
+      ? settingsPanelRef
+      : activePanel === 'savedSongs'
+        ? savedSongsPanelRef
+        : stationPanelRef;
 
   const {
     panelHeightPx,
@@ -1687,6 +1702,21 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
         </section>
       ) : null}
 
+      {activePanel === 'savedSongs' && isControlBarPanelHeightResolved ? (
+        <RadioPlayerSavedSongsPanel
+          panelRef={savedSongsPanelRef}
+          panelStyle={controlBarPanelStyle}
+          panelHeightPx={panelHeightPx}
+          onBeginResize={beginControlBarPanelResize}
+          onResetHeight={resetControlBarPanelHeight}
+          signedIn={signedInUserId !== null}
+          songs={savedSongs}
+          onToggleSong={(song) => {
+            void toggleSavedSong(song);
+          }}
+        />
+      ) : null}
+
       <div ref={rowRef} className={styles.row} data-meta-resizing={isMetaResizing ? 'true' : 'false'}>
         {showDockVizBackdrop ? (
           <div
@@ -1811,24 +1841,56 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                   />
                 </button>
               </div>
-              {hasReportedTrack && playback.trackDisplay ? (
-                <div className={styles.trackRow}>
-                  <RadioPlayerTrackSearchButton
-                    handle={handle}
-                    trackDisplay={playback.trackDisplay}
-                  />
-                  <RadioPlayerTrackTitleTip
-                    trackDisplay={playback.trackDisplay}
+              <div className={styles.trackRow}>
+                {hasReportedTrack && playback.trackDisplay ? (
+                  <>
+                    <RadioPlayerSongSaveButton
+                      signedIn={signedInUserId !== null}
+                      saved={isSongSaved(playback.trackDisplay)}
+                      onToggle={() => {
+                        const nowPlaying = handle.getNowPlaying();
+                        void toggleSavedSong({
+                          display: playback.trackDisplay ?? '',
+                          artist: nowPlaying.artist,
+                          title: nowPlaying.title,
+                          stationName: playback.stationName,
+                        });
+                      }}
+                    />
+                    <RadioPlayerTrackSearchButton
+                      trackDisplay={playback.trackDisplay}
+                      artist={handle.getNowPlaying().artist}
+                      title={handle.getNowPlaying().title}
+                    />
+                    <RadioPlayerTrackTitleTip
+                      trackDisplay={playback.trackDisplay}
+                      className={styles.subtitle}
+                    />
+                  </>
+                ) : subtitle ? (
+                  <RadioPlayerOverflowText
+                    text={subtitle}
                     className={styles.subtitle}
+                    as="p"
                   />
-                </div>
-              ) : subtitle ? (
-                <RadioPlayerOverflowText
-                  text={subtitle}
-                  className={styles.subtitle}
-                  as="p"
-                />
-              ) : null}
+                ) : null}
+                <button
+                  type="button"
+                  className={`${songStyles.libraryBtn} no-glass`}
+                  aria-expanded={activePanel === 'savedSongs'}
+                  aria-label={radioAria.viewSavedSongs}
+                  title={radioAria.viewSavedSongs}
+                  data-testid="radio-view-saved-songs"
+                  onClick={() => {
+                    togglePanel('savedSongs');
+                  }}
+                >
+                  <SiteIcon id="library" sizeRem={0.8} title="" />
+                  {savedSongs.length > 0 ? (
+                    <span className={songStyles.libraryBtn__count}>{savedSongs.length}</span>
+                  ) : null}
+                </button>
+              </div>
             </div>
             {!useExpandedMetaLayout ? (
               <div

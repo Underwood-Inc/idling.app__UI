@@ -20,7 +20,7 @@ pie title Documentation intent
   "Hand hub pages" : 50
 ```
 
-Exact stub counts change when bootstrap runs; see `src/documentation-coverage.mdx` for the live report link.
+Exact stub counts change when bootstrap runs; see the live HTML report at [/coverage/](https://docs.idling.app/coverage/) (synced from `doc-coverage-report.json`).
 
 ## Commands
 
@@ -32,7 +32,7 @@ pnpm docs:doctor               # automation health
 
 ## Honest badge language
 
-The homepage badge describes **neighbor coverage**, not editorial completeness. Adequate human docs are tracked in the [product inventory](/products/inventory) with `last_verified` dates.
+The homepage badge describes **adequate documentation** for in-scope files (`adequately_documented / total_code_files`), not editorial completeness of every hub page. Adequate human docs are tracked in the [product inventory](/products/inventory) with `last_verified` dates.
 
 ## When to edit what
 

@@ -14,7 +14,7 @@ description: 'Real App Router endpoints versus OpenAPI'
 | Development | `http://localhost:3000/api` |
 | Production | `https://idling.app/api` |
 
-**Handler count (audited):** 59 `route.ts` + 4 `route.tsx` files under `src/app/api/` (NextAuth catch-all counts as one module).
+**Handler count (audited):** 60 `route.ts` + 4 `route.tsx` files under `src/app/api/` (NextAuth catch-all counts as one module).
 
 ## Authentication
 
@@ -35,6 +35,7 @@ Admin routes use `requireAdminApiAccess` / `withPermissions` patterns — see co
 | Card generator / OG SVG | `GET /api/og-image`, `GET /api/og-image/[id]` | [/app/api/og-image/index](/app/api/og-image/index), [/app/api/og-image/services/OGImageService](/app/api/og-image/services/OGImageService) |
 | SVG → PNG | `GET`, `POST /api/svg-to-png` | [/app/api/svg-to-png/route](/app/api/svg-to-png/route) |
 | Radio catalog | `GET /api/radio/stations` | [/app/api/radio/stations/route](/app/api/radio/stations/route) |
+| Radio playlist resolve | `GET /api/radio/playlist` | [/app/api/radio/playlist/route](/app/api/radio/playlist/route) |
 | Radio now playing | `GET /api/radio/now-playing` | [/app/api/radio/now-playing/route](/app/api/radio/now-playing/route) |
 | Image upload | `POST /api/upload/image` | [/app/api/upload/image/index](/app/api/upload/image/index) |
 | Form options (admin) | `GET/POST/DELETE /api/form-options` | `src/app/api/form-options/route.ts` (neighbor stub may lag) |

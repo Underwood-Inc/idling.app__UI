@@ -2281,7 +2281,12 @@
       "findTrackTitle": "\" اعثر على \" {query}",
       "addFavorite": "يضاف {stationName} إلى المفضّلات",
       "removeFavorite": "نقل من المفضّلين {stationName} ",
-      "trackTitleTrigger": "الآن اللعب: اضغطي لتظهري العنوان الكامل. {track}"
+      "trackTitleTrigger": "الآن اللعب: اضغطي لتظهري العنوان الكامل. {track}",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "reset": "إعادة التوطين",
@@ -2327,7 +2332,9 @@
       "emptyUnreachable": "لا توجد محطات لا يمكن الوصول إليها تتطابق مع هذا المرشح.",
       "emptyFavorites": "لا توجد محطات مُفضّلة تُطابق هذا المرشح.",
       "emptySearchPrefix": "لا توجد مباريات",
-      "checkingStreamAvailability": "التحقق من توافر المجرى.."
+      "checkingStreamAvailability": "التحقق من توافر المجرى..",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "none": "لا",

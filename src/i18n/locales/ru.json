@@ -2281,7 +2281,12 @@
       "searchWebForTrack": "Поиск по сайту {query}",
       "findTrackTitle": "Найти «{query}»",
       "addFavorite": "Добавить {stationName} в избранное",
-      "removeFavorite": "Удалить {stationName} из избранных"
+      "removeFavorite": "Удалить {stationName} из избранных",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "reset": "Сброс",
@@ -2327,7 +2332,9 @@
       "emptyUnreachable": "Ни одна недосягаемая станция не соответствует этому фильтру.",
       "emptyFavorites": "Любимые станции не соответствуют этому фильтру.",
       "emptySearchPrefix": "Станции не совпадают",
-      "checkingStreamAvailability": "Проверка доступности потока.."
+      "checkingStreamAvailability": "Проверка доступности потока..",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "look": "Смотри",

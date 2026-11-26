@@ -2282,7 +2282,12 @@
       "searchWebForTrack": "Search the web for {query}",
       "findTrackTitle": "Find “{query}”",
       "addFavorite": "Add {stationName} to favorites",
-      "removeFavorite": "Remove {stationName} from favorites"
+      "removeFavorite": "Remove {stationName} from favorites",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "bar": {
       "pressPlayToStart": "Press play to start",
@@ -2296,7 +2301,9 @@
       "emptyUnreachable": "No unreachable stations match this filter.",
       "emptyFavorites": "No favorite stations match this filter.",
       "emptySearchPrefix": "No stations match",
-      "checkingStreamAvailability": "Checking stream availability…"
+      "checkingStreamAvailability": "Checking stream availability…",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "look": "Look",

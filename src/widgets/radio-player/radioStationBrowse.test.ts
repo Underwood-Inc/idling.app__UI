@@ -23,29 +23,29 @@ describe('radioStationBrowse', () => {
   });
 
   test('omits stations that are not available', () => {
-    const groups = groupRadioStationsByGenre(RADIO_STATION_DEFINITIONS, ['Jazz24']);
+    const groups = groupRadioStationsByGenre(RADIO_STATION_DEFINITIONS, ['WBGO Jazz']);
 
     expect(groups).toEqual([
       expect.objectContaining({
         genre: expect.objectContaining({ id: 'jazz' }),
-        stations: [expect.objectContaining({ name: 'Jazz24' })],
+        stations: [expect.objectContaining({ name: 'WBGO Jazz' })],
       }),
     ]);
   });
 
   test('lists available stations alphabetically', () => {
-    const available = ['Jazz24', 'FIP', 'Radio Paradise'];
+    const available = ['WBGO Jazz', 'FIP', 'Radio Paradise'];
     const stations = listAvailableRadioStations(RADIO_STATION_DEFINITIONS, available);
 
     expect(stations.map((station) => station.name)).toEqual([
       'FIP',
-      'Jazz24',
       'Radio Paradise',
+      'WBGO Jazz',
     ]);
   });
 
   test('lists genre filters for genres that have available stations', () => {
-    const available = ['Jazz24', 'FIP', 'Radio Paradise', 'My Jazz Stream'];
+    const available = ['WBGO Jazz', 'FIP', 'Radio Paradise', 'My Jazz Stream'];
     const definitions = [
       ...RADIO_STATION_DEFINITIONS,
       {
@@ -63,16 +63,16 @@ describe('radioStationBrowse', () => {
   });
 
   test('filters stations by genre when a genre is selected', () => {
-    const available = ['Jazz24', 'FIP', 'Radio Paradise'];
+    const available = ['WBGO Jazz', 'FIP', 'Radio Paradise'];
     const stations = listAvailableRadioStations(RADIO_STATION_DEFINITIONS, available);
     const jazzOnly = filterRadioStationsByGenre(stations, 'jazz');
 
-    expect(jazzOnly.map((station) => station.name)).toEqual(['Jazz24']);
+    expect(jazzOnly.map((station) => station.name)).toEqual(['WBGO Jazz']);
     expect(filterRadioStationsByGenre(stations, null)).toEqual(stations);
   });
 
   test('when the current station is hidden by a genre filter, the helper reports it as not visible', () => {
-    const available = ['Jazz24', 'FIP', 'Radio Paradise'];
+    const available = ['WBGO Jazz', 'FIP', 'Radio Paradise'];
     const stations = listAvailableRadioStations(RADIO_STATION_DEFINITIONS, available);
 
     expect(isRadioStationInGenreFilter(stations, 'FIP', 'jazz')).toBe(false);
@@ -81,20 +81,20 @@ describe('radioStationBrowse', () => {
   });
 
   test('when a listener searches with a hashtag and words, stations match name blurb or genre', () => {
-    const available = ['Jazz24', 'FIP Groove', 'Radio Paradise'];
+    const available = ['WBGO Jazz', 'FIP Groove', 'Radio Paradise'];
     const stations = listAvailableRadioStations(RADIO_STATION_DEFINITIONS, available);
     const query = parseHumanFriendlySearchQuery('#electronic groove');
 
     const matches = filterRadioStationsBySearch(stations, query).map((station) => station.name);
 
     expect(matches).toContain('FIP Groove');
-    expect(matches).not.toContain('Jazz24');
+    expect(matches).not.toContain('WBGO Jazz');
   });
 
   test('when initial probes fail, unreachable stations can still be listed for review', () => {
     const availability: Record<string, { name: string; url: string; status: 'unreachable' }> = {
-      Jazz24: {
-        name: 'Jazz24',
+      'WBGO Jazz': {
+        name: 'WBGO Jazz',
         url: 'https://example.com/jazz.mp3',
         status: 'unreachable',
       },
@@ -105,13 +105,13 @@ describe('radioStationBrowse', () => {
       availability
     );
 
-    expect(unreachable.map((station) => station.name)).toEqual(['Jazz24']);
+    expect(unreachable.map((station) => station.name)).toEqual(['WBGO Jazz']);
   });
 
   test('when probes are still running, browsable stations include pending entries', () => {
     const availability = {
-      Jazz24: {
-        name: 'Jazz24',
+      'WBGO Jazz': {
+        name: 'WBGO Jazz',
         url: 'https://example.com/jazz.mp3',
         status: 'pending' as const,
       },
@@ -126,6 +126,6 @@ describe('radioStationBrowse', () => {
       (station) => station.name
     );
 
-    expect(stations).toEqual(expect.arrayContaining(['Jazz24', 'FIP']));
+    expect(stations).toEqual(expect.arrayContaining(['WBGO Jazz', 'FIP']));
   });
 });

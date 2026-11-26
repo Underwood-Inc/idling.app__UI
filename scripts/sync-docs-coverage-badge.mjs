@@ -43,9 +43,14 @@ function main() {
 
   if (fs.existsSync(INDEX_MD)) {
     let content = fs.readFileSync(INDEX_MD, 'utf8');
+    const badgeMarkdown = `[![Documentation Coverage](${badgeUrl})](https://docs.idling.app/coverage/)`;
     content = content.replace(
-      /\[!\[Documentation Coverage\]\([^)]+\)\]\([^)]+\)/,
-      `[![Documentation Coverage](${badgeUrl})](https://docs.idling.app/coverage/)`,
+      /\[!\[[^\]]*\]\([^)]+\)\]\((?:https:\/\/docs\.idling\.app\/guides\/documentation-coverage|https:\/\/docs\.idling\.app\/coverage\/|\.\/documentation-coverage-report\.html)[^)]*\)/,
+      badgeMarkdown,
+    );
+    content = content.replace(
+      /The badge reflects \*\*files that have a markdown neighbor\*\* from the bootstrap script\. It does \*\*not\*\* mean every page is a full human guide\./,
+      `The badge reflects **adequately documented** in-scope source files (\`${adequate}/${total}\` at last sync). Neighbor stubs from bootstrap count only when they meet quality thresholds — see [Coverage honesty](/guides/documentation-coverage).`,
     );
     fs.writeFileSync(INDEX_MD, content, 'utf8');
   }

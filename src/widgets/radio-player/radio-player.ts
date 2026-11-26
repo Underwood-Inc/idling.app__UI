@@ -359,7 +359,6 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
   let stationLoadToken = 0;
   let suppressStreamReconnect = false;
   audio.crossOrigin = 'anonymous';
-  audio.preload = 'none';
 
   let syncVolumeUi: (() => void) | null = null;
 

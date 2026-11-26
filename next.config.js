@@ -22,13 +22,13 @@ const globalSecurityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://cdn.jsdelivr.net https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://cdn.jsdelivr.net https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.google.com https://adservice.google.com https://www.googleadservices.com https://partner.googleadservices.com https://www.googletagservices.com https://tpc.googlesyndication.com https://fundingchoicesmessages.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "connect-src 'self' https: wss:",
       "media-src 'self' https: blob:",
-      "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
+      "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv https://discord.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://www.google.com https://www.googletagservices.com https://fundingchoicesmessages.google.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"

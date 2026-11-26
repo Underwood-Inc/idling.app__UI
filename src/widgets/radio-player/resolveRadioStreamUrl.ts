@@ -14,6 +14,15 @@ import type {
 
 const DEFAULT_MAX_REDIRECTS = 5;
 
+export function browserPlaylistRequestUrl(playlistUrl: string): string {
+  return `/api/radio/playlist?url=${encodeURIComponent(playlistUrl)}`;
+}
+
+/** Browser playback proxies playlists. Vitest and the server fetch them directly. */
+export function playlistFetchUsesAppProxy(hasWindow: boolean, vitest: string | undefined): boolean {
+  return hasWindow && vitest !== 'true';
+}
+
 export class RadioStreamResolutionError extends Error {
   constructor(message: string) {
     super(message);
@@ -22,7 +31,10 @@ export class RadioStreamResolutionError extends Error {
 }
 
 async function defaultFetchText(url: string): Promise<string> {
-  const response = await fetch(url, {
+  const requestUrl = playlistFetchUsesAppProxy(typeof window !== 'undefined', process.env.VITEST)
+    ? browserPlaylistRequestUrl(url)
+    : url;
+  const response = await fetch(requestUrl, {
     headers: {
       Accept: 'application/vnd.apple.mpegurl, audio/x-mpegurl, audio/mpegurl, */*',
       'User-Agent': 'IdlingRadioResolver/1.0',
