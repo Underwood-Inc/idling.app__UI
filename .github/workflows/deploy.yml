@@ -19,6 +19,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASS }}
+          # appleboy/ssh-action defaults to 10m; VPS next build often exceeds that during TypeScript.
+          command_timeout: 30m
           envs: CI,NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN
           script: |
             #!/usr/bin/env bash
