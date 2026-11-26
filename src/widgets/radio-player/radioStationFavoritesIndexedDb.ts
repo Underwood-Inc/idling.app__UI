@@ -3,7 +3,8 @@ import type { RadioStationFavoriteRecord } from './radioStationFavorites.types';
 
 export const RADIO_PLAYER_INDEXED_DB_NAME = 'idling-radio-player';
 export const RADIO_STATION_FAVORITES_STORE_NAME = 'stationFavorites';
-export const RADIO_PLAYER_INDEXED_DB_VERSION = 2;
+export const RADIO_SONG_FAVORITES_STORE_NAME = 'songFavorites';
+export const RADIO_PLAYER_INDEXED_DB_VERSION = 3;
 
 let openDatabasePromise: Promise<IDBDatabase> | null = null;
 
@@ -31,6 +32,12 @@ export function openRadioPlayerIndexedDb(): Promise<IDBDatabase> {
           database.createObjectStore(RADIO_EQUALIZER_SETTINGS_STORE_NAME, {
             keyPath: 'id',
           });
+        }
+        if (!database.objectStoreNames.contains(RADIO_SONG_FAVORITES_STORE_NAME)) {
+          const songStore = database.createObjectStore(RADIO_SONG_FAVORITES_STORE_NAME, {
+            keyPath: 'id',
+          });
+          songStore.createIndex('byUser', 'userId', { unique: false });
         }
       };
 

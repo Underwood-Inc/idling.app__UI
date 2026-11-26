@@ -2,7 +2,6 @@ import {
   formatRadioTrackSearchAria,
   formatRadioTrackSearchTitle,
 } from '@molecules/i18n/idlingRadioI18n';
-import type { RadioPlayerHandle } from '@widgets/radio-player/radioPlayer.types';
 import { useRadioCopy } from './useRadioCopy';
 import {
   openRadioNowPlayingSearchInBrowser,
@@ -12,20 +11,21 @@ import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import styles from './RadioPlayerTrackSearchButton.module.css';
 
 export interface RadioPlayerTrackSearchButtonProps {
-  handle: RadioPlayerHandle;
   trackDisplay: string | null;
+  artist?: string | null;
+  title?: string | null;
 }
 
 export function RadioPlayerTrackSearchButton({
-  handle,
   trackDisplay,
+  artist = null,
+  title = null,
 }: RadioPlayerTrackSearchButtonProps) {
   const radioCopy = useRadioCopy();
-  const nowPlaying = handle.getNowPlaying();
   const searchQuery = resolveRadioNowPlayingSearchQuery({
     display: trackDisplay,
-    artist: nowPlaying.artist,
-    title: nowPlaying.title,
+    artist,
+    title,
   });
 
   if (!searchQuery) {

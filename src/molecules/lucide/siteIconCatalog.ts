@@ -10,6 +10,7 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  Bookmark,
   Building2,
   Calendar,
   Check,
@@ -125,6 +126,7 @@ export type SiteIconId =
   | 'barChart'
   | 'bell'
   | 'bookOpen'
+  | 'bookmark'
   | 'building'
   | 'calendar'
   | 'check'
@@ -242,6 +244,7 @@ export const SITE_ICON_CATALOG: Record<SiteIconId, SiteIconCatalogEntry> = {
   barChart: { id: 'barChart', icon: BarChart3, label: 'Analytics' },
   bell: { id: 'bell', icon: Bell, label: 'Notifications' },
   bookOpen: { id: 'bookOpen', icon: BookOpen, label: 'Documentation' },
+  bookmark: { id: 'bookmark', icon: Bookmark, label: 'Saved song' },
   building: { id: 'building', icon: Building2, label: 'System overview' },
   calendar: { id: 'calendar', icon: Calendar, label: 'Calendar' },
   check: { id: 'check', icon: Check, label: 'Enabled' },

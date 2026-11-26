@@ -2281,7 +2281,12 @@
       "searchWebForTrack": "Cerca nel web per {query}",
       "findTrackTitle": "Trova \"{query}\"",
       "addFavorite": "Aggiungi {stationName} ai preferiti",
-      "removeFavorite": "Rimuovi {stationName} dai preferiti"
+      "removeFavorite": "Rimuovi {stationName} dai preferiti",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "reset": "Ripristino",
@@ -2327,7 +2332,9 @@
       "emptyUnreachable": "Nessuna stazione irraggiungibile corrisponde a questo filtro.",
       "emptyFavorites": "Nessuna stazione preferita corrisponde a questo filtro.",
       "emptySearchPrefix": "Nessuna corrispondenza delle stazioni",
-      "checkingStreamAvailability": "Controllare la disponibilità del flusso.."
+      "checkingStreamAvailability": "Controllare la disponibilità del flusso..",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "look": "Guarda",

@@ -2281,7 +2281,12 @@
       "trackTitleTrigger": "再生: {track}. クリックして、フルタイトルを表示します.",
       "checkingStreamTitle": "ストリームのチェック",
       "changeStationTitle": "駅変更",
-      "playerSettingsTitle": "プレーヤーの設定"
+      "playerSettingsTitle": "プレーヤーの設定",
+      "saveSong": "Favorite this song",
+      "removeSavedSong": "Remove this song from saved songs",
+      "signInToFavoriteSongs": "Sign in to favorite songs",
+      "viewSavedSongs": "View saved songs",
+      "savedSongs": "Saved songs"
     },
     "equalizer": {
       "title": "エクアライザー",
@@ -2327,7 +2332,9 @@
       "emptyUnreachable": "到達不能な場所はこのフィルターに一致しません.",
       "emptyFavorites": "お気に入りのステーションがこのフィルターにマッチしません.",
       "emptySearchPrefix": "ステーションマッチなし",
-      "checkingStreamAvailability": "ストリームの可用性をチェック.."
+      "checkingStreamAvailability": "ストリームの可用性をチェック..",
+      "emptySavedSongs": "No saved songs yet. Favorite a song while it is playing.",
+      "savedSongsSignIn": "Sign in to favorite songs and look them up again later."
     },
     "settings": {
       "barFill": "棒の盛り土",

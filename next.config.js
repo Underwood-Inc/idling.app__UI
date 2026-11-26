@@ -28,7 +28,7 @@ const globalSecurityHeaders = [
       "font-src 'self' data:",
       "connect-src 'self' https: wss:",
       "media-src 'self' https: blob:",
-      "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://www.google.com https://www.googletagservices.com https://fundingchoicesmessages.google.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
+      "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv https://discord.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://www.google.com https://www.googletagservices.com https://fundingchoicesmessages.google.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"

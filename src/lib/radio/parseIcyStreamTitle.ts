@@ -1,21 +1,31 @@
 import type { RadioNowPlaying, SplitArtistTitleResult } from './radioNowPlaying.types';
 
+function readStreamTitleValue(metadataText: string, quote: "'" | '"'): string | null {
+  const open = new RegExp(`StreamTitle=${quote}`, 'i').exec(metadataText);
+  if (!open) {
+    return null;
+  }
+
+  const rest = metadataText.slice(open.index + open[0].length);
+  const terminatorAt = rest.indexOf(`${quote};`);
+  const raw =
+    terminatorAt === -1 ? rest.replace(new RegExp(`${quote}\\s*$`), '') : rest.slice(0, terminatorAt);
+  const title = raw.replaceAll(quote + quote, quote).trim();
+  return title.length > 0 ? title : null;
+}
+
 export function parseIcyStreamTitle(metadataText: string): string | null {
   const cleaned = metadataText.replace(/\0/g, '').trim();
   if (!cleaned) {
     return null;
   }
 
-  const singleQuoteMatch = cleaned.match(/StreamTitle='([^']*)'/i);
-  if (singleQuoteMatch?.[1] !== undefined) {
-    const title = singleQuoteMatch[1].trim();
-    return title.length > 0 ? title : null;
+  if (/streamtitle='/i.test(cleaned)) {
+    return readStreamTitleValue(cleaned, "'");
   }
 
-  const doubleQuoteMatch = cleaned.match(/StreamTitle="([^"]*)"/i);
-  if (doubleQuoteMatch?.[1] !== undefined) {
-    const title = doubleQuoteMatch[1].trim();
-    return title.length > 0 ? title : null;
+  if (/streamtitle="/i.test(cleaned)) {
+    return readStreamTitleValue(cleaned, '"');
   }
 
   return null;

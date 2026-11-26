@@ -6573,6 +6573,26 @@ type RootTranslation = {
 			 * @param {unknown} stationName
 			 */
 			removeFavorite: RequiredParams<'stationName'>
+			/**
+			 * F​a​v​o​r​i​t​e​ ​t​h​i​s​ ​s​o​n​g
+			 */
+			saveSong: string
+			/**
+			 * R​e​m​o​v​e​ ​t​h​i​s​ ​s​o​n​g​ ​f​r​o​m​ ​s​a​v​e​d​ ​s​o​n​g​s
+			 */
+			removeSavedSong: string
+			/**
+			 * S​i​g​n​ ​i​n​ ​t​o​ ​f​a​v​o​r​i​t​e​ ​s​o​n​g​s
+			 */
+			signInToFavoriteSongs: string
+			/**
+			 * V​i​e​w​ ​s​a​v​e​d​ ​s​o​n​g​s
+			 */
+			viewSavedSongs: string
+			/**
+			 * S​a​v​e​d​ ​s​o​n​g​s
+			 */
+			savedSongs: string
 		}
 		bar: {
 			/**
@@ -6624,6 +6644,14 @@ type RootTranslation = {
 			 * C​h​e​c​k​i​n​g​ ​s​t​r​e​a​m​ ​a​v​a​i​l​a​b​i​l​i​t​y​…
 			 */
 			checkingStreamAvailability: string
+			/**
+			 * N​o​ ​s​a​v​e​d​ ​s​o​n​g​s​ ​y​e​t​.​ ​F​a​v​o​r​i​t​e​ ​a​ ​s​o​n​g​ ​w​h​i​l​e​ ​i​t​ ​i​s​ ​p​l​a​y​i​n​g​.
+			 */
+			emptySavedSongs: string
+			/**
+			 * S​i​g​n​ ​i​n​ ​t​o​ ​f​a​v​o​r​i​t​e​ ​s​o​n​g​s​ ​a​n​d​ ​l​o​o​k​ ​t​h​e​m​ ​u​p​ ​a​g​a​i​n​ ​l​a​t​e​r​.
+			 */
+			savedSongsSignIn: string
 		}
 		settings: {
 			/**
@@ -13709,6 +13737,26 @@ export type TranslationFunctions = {
 			 * Remove {stationName} from favorites
 			 */
 			removeFavorite: (arg: { stationName: unknown }) => LocalizedString
+			/**
+			 * Favorite this song
+			 */
+			saveSong: () => LocalizedString
+			/**
+			 * Remove this song from saved songs
+			 */
+			removeSavedSong: () => LocalizedString
+			/**
+			 * Sign in to favorite songs
+			 */
+			signInToFavoriteSongs: () => LocalizedString
+			/**
+			 * View saved songs
+			 */
+			viewSavedSongs: () => LocalizedString
+			/**
+			 * Saved songs
+			 */
+			savedSongs: () => LocalizedString
 		}
 		bar: {
 			/**
@@ -13759,6 +13807,14 @@ export type TranslationFunctions = {
 			 * Checking stream availability…
 			 */
 			checkingStreamAvailability: () => LocalizedString
+			/**
+			 * No saved songs yet. Favorite a song while it is playing.
+			 */
+			emptySavedSongs: () => LocalizedString
+			/**
+			 * Sign in to favorite songs and look them up again later.
+			 */
+			savedSongsSignIn: () => LocalizedString
 		}
 		settings: {
 			/**
