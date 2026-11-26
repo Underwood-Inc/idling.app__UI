@@ -1,3 +1,4 @@
+import { buildPortfolioPageMetadata } from '@molecules/i18n/idlingMeta';
 import type { Metadata } from 'next';
 import { About } from '../components/about/About';
 import { AdUnit } from '../components/ad-unit';
@@ -10,10 +11,7 @@ import { ProjectShowcase } from '../components/project-showcase/ProjectShowcase'
 import { StatsDashboard } from '../components/stats-dashboard/StatsDashboard';
 import styles from '../page.module.css';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { buildPortfolioPageMetadata } = await import('@molecules/i18n/idlingMeta');
-  return buildPortfolioPageMetadata();
-}
+export const metadata: Metadata = buildPortfolioPageMetadata();
 
 export default function PortfolioPage() {
   return (

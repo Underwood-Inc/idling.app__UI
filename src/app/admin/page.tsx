@@ -1,4 +1,6 @@
+import { buildAdminPageMetadata } from '@molecules/i18n/idlingMeta';
 import { requireAdmin } from '@lib/permissions/permissions';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import Loader from '../components/loader/Loader';
@@ -8,10 +10,7 @@ import AdminDashboard from './AdminDashboard';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function generateMetadata() {
-  const { buildAdminPageMetadata } = await import('@molecules/i18n/idlingMeta');
-  return buildAdminPageMetadata();
-}
+export const metadata: Metadata = buildAdminPageMetadata();
 
 export default async function AdminPage() {
   // Check admin permissions

@@ -3,14 +3,13 @@ import 'server-only';
 import { cache } from 'react';
 
 import type { TranslationFunctions } from './i18n-types';
-import { getLL, initIdlingI18nAsync } from './idling-i18n';
-import { resolveServerIdlingLocale } from '@molecules/quotes/resolveIdlingLocale.server';
+import { getLL, initIdlingI18n } from './idling-i18n';
 
-async function loadServerLL(): Promise<TranslationFunctions> {
-  const locale = await resolveServerIdlingLocale();
-  await initIdlingI18nAsync(locale);
+/**
+ * RSC metadata uses sync bundled English only — never `loadLocaleAsync` or locale cookies
+ * (non-EN chunks on the server were stalling `generateMetadata` on prod).
+ */
+export const getServerLL = cache((): TranslationFunctions => {
+  initIdlingI18n('en');
   return getLL();
-}
-
-/** Cached per RSC request so layout + page metadata do not reload locale chunks twice. */
-export const getServerLL = cache(loadServerLL);
+});

@@ -3,9 +3,7 @@ import type { Metadata } from 'next';
 import { HomeLanding } from './components/home-landing/HomeLanding';
 import { PageContainer } from './components/page-container/PageContainer';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildHomePageMetadata();
-}
+export const metadata: Metadata = buildHomePageMetadata();
 
 export default function Home() {
   return (
