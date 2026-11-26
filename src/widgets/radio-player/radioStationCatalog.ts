@@ -291,13 +291,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'Classical music from Connecticut',
   },
   {
-    name: 'WBJC Classical',
-    url: 'https://ice64.securenetsystems.net/WBJC',
-    genre: 'classical',
-    regionFlag: '🇺🇸',
-    blurb: 'Classical from Baltimore City Community College',
-  },
-  {
     name: 'WQXR Q2',
     url: 'https://q2stream.wqxr.org/q2',
     genre: 'classical',
@@ -442,13 +435,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'Classic and contemporary jazz from San Diego',
   },
   {
-    name: 'KCSM Jazz 91.1',
-    url: 'https://ice7.securenetsystems.net/KCSM2',
-    genre: 'jazz',
-    regionFlag: '🇺🇸',
-    blurb: 'Full-time jazz from College of San Mateo',
-  },
-  {
     name: 'TSF Jazz',
     url: 'https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3',
     genre: 'jazz',
@@ -547,13 +533,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     genre: 'eclectic',
     regionFlag: '🇯🇲',
     blurb: 'Ska and rocksteady from Kingston',
-  },
-  {
-    name: 'CIUT Toronto',
-    url: 'https://ice23.securenetsystems.net/CIUT',
-    genre: 'community',
-    regionFlag: '🇨🇦',
-    blurb: 'Freeform from University of Toronto',
   },
   {
     name: 'CKUT Montreal',
@@ -859,13 +838,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'Underground music from Claremont Colleges',
   },
   {
-    name: 'WSUM Madison',
-    url: 'https://ice23.securenetsystems.net/WSUMFM',
-    genre: 'community',
-    regionFlag: '🇺🇸',
-    blurb: 'Student freeform from UW-Madison',
-  },
-  {
     name: 'Love Will Save The Day FM',
     url: 'https://lovewillsavetheday.out.airtime.pro/lovewillsavetheday_a',
     genre: 'community',
@@ -1140,13 +1112,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'New York\'s original alternative station',
   },
   {
-    name: 'KBON Louisiana',
-    url: 'https://ice64.securenetsystems.net/KBON',
-    genre: 'eclectic',
-    regionFlag: '🇺🇸',
-    blurb: 'Cajun, zydeco, and swamp pop from Louisiana',
-  },
-  {
     name: 'Ultimate Oldies Radio',
     url: 'https://puma.streemlion.com:1785/stream',
     genre: 'eclectic',
@@ -1159,13 +1124,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     genre: 'eclectic',
     regionFlag: '🇺🇸',
     blurb: 'Classic hits and nostalgia from Iowa',
-  },
-  {
-    name: 'SMRN5001 Oldies',
-    url: 'https://cast1.sql2.smrn.com/5001',
-    genre: 'eclectic',
-    regionFlag: '🇺🇸',
-    blurb: 'Golden oldies, doo-wop, and rock \'n\' roll',
   },
   {
     name: 'Pumpkin FM 1940s',

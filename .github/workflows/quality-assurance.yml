@@ -685,6 +685,8 @@ jobs:
 
       # Run unit tests with sharding
       - name: Run Vitest tests (Shard ${{ matrix.shard }}/3)
+        env:
+          RADIO_CATALOG_LIVE_AUDIT: ${{ matrix.shard == 1 && 'true' || '' }}
         run: |
           echo "::group::Running Vitest Tests (Shard ${{ matrix.shard }}/3)"
           FORCE_COLOR=1 pnpm test:coverage -- --shard=${{ matrix.shard }}/3 --reporter=json --outputFile="$GITHUB_WORKSPACE/vitest-results-${{ matrix.shard }}.json"

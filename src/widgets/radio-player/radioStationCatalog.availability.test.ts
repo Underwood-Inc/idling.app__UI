@@ -5,7 +5,10 @@ import { probeRadioStationCatalog } from './probeRadioStations';
 import { RADIO_STATIONS } from './radioStationCatalog';
 import { probeEqualizerRadioStream } from './radioEqualizerStreamAudit';
 
-const auditCatalogOnCi = process.env.GITHUB_ACTIONS === 'true';
+// One live probe per workflow run (shard 1 only) — see RADIO_CATALOG_LIVE_AUDIT in quality-assurance.yml.
+const auditCatalogOnCi =
+  process.env.GITHUB_ACTIONS === 'true' &&
+  process.env.RADIO_CATALOG_LIVE_AUDIT === 'true';
 
 describe('radio station catalog availability', () => {
   test.skipIf(!auditCatalogOnCi)(
