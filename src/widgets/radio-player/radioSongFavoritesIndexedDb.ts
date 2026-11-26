@@ -4,6 +4,7 @@ import {
 } from './radioStationFavoritesIndexedDb';
 import {
   buildRadioSongFavorite,
+  trimUnknownText,
   type RadioSongFavorite,
   type RadioSongFavoriteDraft,
 } from './radioSongFavorites';
@@ -58,7 +59,7 @@ function sortSavedSongs(records: RadioSongFavoriteRecord[]): RadioSongFavorite[]
 }
 
 export async function listRadioSongFavorites(userId: string): Promise<RadioSongFavorite[]> {
-  if (!userId.trim() || !isIndexedDbAvailable()) {
+  if (!trimUnknownText(userId) || !isIndexedDbAvailable()) {
     return [];
   }
 
@@ -78,7 +79,7 @@ export async function setRadioSongFavorite(
   saved: boolean
 ): Promise<RadioSongFavorite[]> {
   const song = buildRadioSongFavorite(draft, Date.now());
-  if (!userId.trim() || !song || !isIndexedDbAvailable()) {
+  if (!trimUnknownText(userId) || !song || !isIndexedDbAvailable()) {
     return listRadioSongFavorites(userId);
   }
 

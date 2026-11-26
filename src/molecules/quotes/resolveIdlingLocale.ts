@@ -31,6 +31,9 @@ export function resolveIdlingLocaleFromNavigator(): IdlingLocaleId {
     ? navigator.languages
     : [navigator.language ?? 'en'];
   for (const tag of tags) {
+    if (typeof tag !== 'string' || tag.length === 0) {
+      continue;
+    }
     return coerceIdlingLocaleId(tag);
   }
   return IDLING_BASE_LOCALE;

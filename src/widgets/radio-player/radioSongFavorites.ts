@@ -1,3 +1,22 @@
+/** Coerce JWT / adapter user ids that are not always typed as strings at runtime. */
+export function trimUnknownText(value: unknown): string {
+  if (value == null) {
+    return '';
+  }
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+  return String(value).trim();
+}
+
+function trimOptionalText(value: string | null | undefined): string | null {
+  if (value == null) {
+    return null;
+  }
+  const trimmed = trimUnknownText(value);
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export interface RadioSongFavoriteDraft {
   display: string;
   artist: string | null;
@@ -17,13 +36,13 @@ export function createRadioSongFavoriteKey(display: string): string | null {
 
 export function resolveRadioSongFavoriteUserId(
   status: string,
-  userId: string | null | undefined
+  userId: unknown
 ): string | null {
   if (status !== 'authenticated') {
     return null;
   }
 
-  const trimmed = userId?.trim() ?? '';
+  const trimmed = trimUnknownText(userId);
   return trimmed.length > 0 ? trimmed : null;
 }
 
@@ -39,8 +58,8 @@ export function buildRadioSongFavorite(
   return {
     songKey,
     display: draft.display.trim().replace(/\s+/g, ' '),
-    artist: draft.artist?.trim() || null,
-    title: draft.title?.trim() || null,
+    artist: trimOptionalText(draft.artist),
+    title: trimOptionalText(draft.title),
     stationName: draft.stationName.trim(),
     savedAt,
   };

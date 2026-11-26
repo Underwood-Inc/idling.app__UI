@@ -110,7 +110,7 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       // Use database internal ID as the primary ID for all app operations
       if (token.databaseId) {
-        session.user.id = token.databaseId as string;
+        session.user.id = String(token.databaseId);
         session.user.providerAccountId = token.providerAccountId as string;
       }
 

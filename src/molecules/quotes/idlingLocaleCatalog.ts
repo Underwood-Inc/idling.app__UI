@@ -21,8 +21,10 @@ export function isIdlingLocaleId(value: string): value is IdlingLocaleId {
   return IDLING_LOCALE_CATALOG.some((row) => row.id === value);
 }
 
-export function coerceIdlingLocaleId(tag: string): IdlingLocaleId {
-  const normalized = tag.trim().toLowerCase();
+export function coerceIdlingLocaleId(tag: unknown): IdlingLocaleId {
+  const normalized = (typeof tag === 'string' ? tag : String(tag ?? ''))
+    .trim()
+    .toLowerCase();
   if (isIdlingLocaleId(normalized)) {
     return normalized;
   }
