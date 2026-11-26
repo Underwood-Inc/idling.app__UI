@@ -283,6 +283,9 @@ jobs:
           echo "📊 Documentation Coverage Report:"
           python scripts/check-docs-coverage.py --format console
 
+          # Sync Docusaurus static/coverage badge + redirect (uses adequately_documented)
+          node scripts/sync-docs-coverage-badge.mjs || echo "Docusaurus badge sync skipped"
+
       # Run PR-specific documentation coverage analysis
       - name: Run PR-specific documentation coverage analysis
         if: github.event_name == 'pull_request'
@@ -344,6 +347,7 @@ jobs:
             doc-coverage-report.md
             documentation-coverage-report.html
             doc-coverage-report.csv
+            static/coverage/
             pr-doc-coverage-report.json
             pr-doc-coverage-report.md
             pr-documentation-coverage-report.html
@@ -413,11 +417,14 @@ jobs:
 
             // Format the comment
             const prNumber = context.issue.number;
-            const documentedFiles = jsonReport ? jsonReport.documented_files : 0;
             const totalFiles = jsonReport ? jsonReport.total_code_files : 0;
-            const prDocumentedFiles = prJsonReport ? prJsonReport.documented_files : 0;
+            const adequateFiles = jsonReport ? jsonReport.adequately_documented : 0;
             const prTotalFiles = prJsonReport ? prJsonReport.total_code_files : 0;
-            const prChangedFiles = prJsonReport ? prJsonReport.pr_files.length : 0;
+            const prAdequateFiles = prJsonReport ? prJsonReport.adequately_documented : 0;
+            const prChangedFiles = prJsonReport
+              ? (prJsonReport.files_changed_in_git ?? prJsonReport.pr_files?.length ?? 0)
+              : 0;
+            const prOutOfScope = prJsonReport?.files_out_of_doc_scope?.length ?? 0;
 
             // Generate PR-specific details if available
             let prDetailsSection = '';
@@ -427,7 +434,10 @@ jobs:
               const missingDocs = prGaps.filter(gap => gap.gap_type === 'missing');
               const inadequateDocs = prGaps.filter(gap => gap.gap_type === 'inadequate');
               
-              prDetailsSection = `<details>\n<summary>🔍 PR-Specific Analysis (${prFiles.length} files changed)</summary>\n\n`;
+              const scopeNote = prOutOfScope > 0
+                ? ` (${prTotalFiles} in documentation scope; ${prOutOfScope} changed files excluded by policy)`
+                : '';
+              prDetailsSection = `<details>\n<summary>🔍 PR-Specific Analysis (${prChangedFiles} git changes${scopeNote})</summary>\n\n`;
               
               if (prFiles.length > 0) {
                 prDetailsSection += `**Files Changed in this PR:**\n`;
@@ -476,9 +486,9 @@ jobs:
               `### 📊 Coverage Summary\n\n` +
               `| Metric | Coverage | Files |\n` +
               `|--------|----------|-------|\n` +
-              `| **Total Project** | ${coverage.toFixed(1)}% | ${documentedFiles}/${totalFiles} |\n` +
-              `| **This PR** | ${prCoverage.toFixed(1)}% | ${prDocumentedFiles}/${prTotalFiles} |\n` +
-              `| **Files Changed** | - | ${prChangedFiles} source files |\n\n` +
+              `| **Total Project** | ${coverage.toFixed(1)}% | ${adequateFiles}/${totalFiles} adequately documented |\n` +
+              `| **This PR (in scope)** | ${prCoverage.toFixed(1)}% | ${prAdequateFiles}/${prTotalFiles} adequately documented |\n` +
+              `| **PR file selection** | — | ${prChangedFiles} changed in git; ${prTotalFiles} in doc scope${prOutOfScope > 0 ? `; ${prOutOfScope} out of scope` : ''} |\n\n` +
               prDetailsSection +
               `<details>\n<summary>📥 Download Coverage Reports</summary>\n\n` +
               `#### 🌍 Total Project Coverage\n` +

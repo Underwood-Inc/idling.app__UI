@@ -27,9 +27,13 @@ def get_pr_changed_files(base_ref="origin/main", head_ref="HEAD"):
             ["git", "diff", "--name-only", "master...HEAD"],
             # Fallback - get recently changed files
             ["git", "diff", "--name-only", "HEAD~10..HEAD"],
-            # Last resort - get all tracked files (for testing)
-            ["git", "ls-files", "*.ts", "*.tsx", "*.js", "*.jsx"]
         ]
+
+        if os.environ.get("GITHUB_ACTIONS") != "true":
+            # Local testing only — never treat the whole repo as a PR in CI
+            git_commands.append(
+                ["git", "ls-files", "*.ts", "*.tsx", "*.js", "*.jsx"]
+            )
         
         changed_files = []
         
@@ -121,6 +125,13 @@ class PRDocumentationChecker(DocumentationChecker):
                 filtered_files.append(code_file)
         
         return filtered_files
+
+    def pr_files_out_of_doc_scope(self) -> list[str]:
+        """PR git changes that do not match documentation policy file discovery."""
+        if not self.pr_files:
+            return []
+        in_scope_abs = {os.path.abspath(cf.path) for cf in self.filter_code_files_for_pr(self.analyzer.find_code_files())}
+        return [f for f in self.pr_files if os.path.abspath(f) not in in_scope_abs]
     
     def check_coverage(self) -> CoverageReport:
         """Check documentation coverage for PR files only"""
@@ -324,9 +335,14 @@ def main():
     # Generate output
     if args.format == "json":
         # Custom JSON output with PR information
+        out_of_scope = checker.pr_files_out_of_doc_scope()
+
         pr_report = {
             "pr_info": get_pr_info(),
             "pr_files": pr_files,
+            "files_changed_in_git": len(pr_files),
+            "files_in_doc_scope": report.total_code_files,
+            "files_out_of_doc_scope": out_of_scope,
             "total_code_files": report.total_code_files,
             "documented_files": report.documented_files,
             "adequately_documented": report.adequately_documented,
