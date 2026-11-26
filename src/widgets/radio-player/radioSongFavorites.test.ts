@@ -39,4 +39,8 @@ describe('radioSongFavorites', () => {
     expect(resolveRadioSongFavoriteUserId('authenticated', '  ')).toBeNull();
     expect(resolveRadioSongFavoriteUserId('authenticated', '12')).toBe('12');
   });
+
+  test('when the session user id is numeric, it is coerced without throwing', () => {
+    expect(resolveRadioSongFavoriteUserId('authenticated', 42)).toBe('42');
+  });
 });

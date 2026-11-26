@@ -1,4 +1,5 @@
 import type { RadioNowPlayingInfo } from './radioPlayer.types';
+import { trimUnknownText } from './radioSongFavorites';
 
 export interface RadioMediaSessionArtwork {
   src: string;
@@ -42,9 +43,10 @@ export function buildRadioMediaSessionMetadata({
   stationBlurb,
   nowPlaying,
 }: RadioMediaSessionMetadataInput): RadioMediaSessionMetadataView {
-  const trackTitle = nowPlaying.title?.trim() || null;
-  const trackArtist = nowPlaying.artist?.trim() || null;
-  const streamTitle = nowPlaying.streamTitle?.trim() || nowPlaying.display?.trim() || null;
+  const trackTitle = trimUnknownText(nowPlaying.title) || null;
+  const trackArtist = trimUnknownText(nowPlaying.artist) || null;
+  const streamTitle =
+    trimUnknownText(nowPlaying.streamTitle) || trimUnknownText(nowPlaying.display) || null;
 
   const title = trackTitle ?? streamTitle ?? stationName;
   const artist = trackArtist ?? (trackTitle || streamTitle ? stationName : stationBlurb ?? 'Idling Radio');
