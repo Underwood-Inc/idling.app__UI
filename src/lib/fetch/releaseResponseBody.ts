@@ -25,11 +25,5 @@ export async function releaseResponseBody(response: Response): Promise<void> {
     }
   } catch {
     // Body already consumed, aborted, or connection closed — safe to ignore.
-  } finally {
-    try {
-      await reader.cancel();
-    } catch {
-      // Some runtimes reject cancel after partial drain; connection teardown is enough.
-    }
   }
 }

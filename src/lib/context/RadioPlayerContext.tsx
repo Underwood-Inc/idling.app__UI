@@ -13,6 +13,8 @@ import {
   RADIO_STATIONS,
 } from '@widgets/radio-player/radioStationCatalog';
 import {
+  mapRadioStationProbeResultToAvailability,
+  probeRadioStations,
   rerunStationAvailabilityChecks,
   runStationAvailabilityChecks,
   syncStationAvailabilityWithCatalog,
@@ -81,30 +83,59 @@ export function RadioPlayerProvider({ children }: RadioPlayerProviderProps) {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    let stopBrowserProbe: (() => void) | undefined;
     const mergedCatalog = buildProbeCatalog();
-    const { nextMap, catalogToProbe } = syncStationAvailabilityWithCatalog(
-      availabilityByNameRef.current,
-      mergedCatalog
-    );
 
-    const mapChanged =
-      Object.keys(catalogToProbe).length > 0 ||
-      Object.keys(nextMap).length !== Object.keys(availabilityByNameRef.current).length;
+    setStationAvailabilityByName((current) => {
+      const { nextMap } = syncStationAvailabilityWithCatalog(current, mergedCatalog);
+      const pendingMap: RadioStationAvailabilityMap = { ...nextMap };
 
-    if (mapChanged) {
-      setStationAvailabilityByName(nextMap);
-    }
+      Object.keys(mergedCatalog).forEach((name) => {
+        const url = mergedCatalog[name]!;
+        const row = pendingMap[name];
+        if (!row || row.url !== url) {
+          pendingMap[name] = { name, url, status: 'pending' };
+        } else if (row.status !== 'available') {
+          pendingMap[name] = { name, url: row.url, status: 'pending' };
+        }
+      });
 
-    if (Object.keys(catalogToProbe).length === 0) {
-      return undefined;
-    }
-
-    const stopProbe = runStationAvailabilityChecks(catalogToProbe, {
-      onUpdate: applyStationAvailabilityUpdate,
+      return pendingMap;
     });
 
+    void (async () => {
+      const result = await probeRadioStations(RADIO_STATIONS, {
+        includeLocalDevFallbacks: true,
+      });
+
+      if (cancelled) {
+        return;
+      }
+
+      const probed =
+        Object.keys(result.available).length > 0 || result.failures.length > 0;
+
+      if (probed) {
+        setStationAvailabilityByName(
+          mapRadioStationProbeResultToAvailability(mergedCatalog, result)
+        );
+        return;
+      }
+
+      const { catalogToProbe } = syncStationAvailabilityWithCatalog({}, mergedCatalog);
+      if (Object.keys(catalogToProbe).length === 0) {
+        return;
+      }
+
+      stopBrowserProbe = runStationAvailabilityChecks(catalogToProbe, {
+        onUpdate: applyStationAvailabilityUpdate,
+      });
+    })();
+
     return () => {
-      stopProbe();
+      cancelled = true;
+      stopBrowserProbe?.();
     };
   }, [applyStationAvailabilityUpdate]);
 
