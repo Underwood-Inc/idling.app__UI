@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     return { title: profile.metadata.productNotFoundTitle };
   }
 
-  const ll = await getServerLL();
+  const ll = getServerLL();
   const localized = withShowcaseCopy(project, ll);
 
   return {

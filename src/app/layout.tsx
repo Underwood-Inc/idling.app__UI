@@ -8,13 +8,11 @@ import React from 'react';
 import './globals.css';
 import '../css/mappy-cursors/cursors.css';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const base = await buildRootSiteMetadata();
-  return {
-    ...base,
-    manifest: RADIO_PWA_MANIFEST_HREF,
-  };
-}
+/** Static metadata — async `generateMetadata` + locale chunks blocked first byte on prod. */
+export const metadata: Metadata = {
+  ...buildRootSiteMetadata(),
+  manifest: RADIO_PWA_MANIFEST_HREF,
+};
 
 export const viewport: Viewport = {
   themeColor: RADIO_PWA_THEME_COLOR,

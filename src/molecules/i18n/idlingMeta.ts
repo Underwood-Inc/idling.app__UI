@@ -11,13 +11,13 @@ export function resolveMetaCopy(): MetaEnCopy {
   return META_EN;
 }
 
-export async function resolveCommonCopy(): Promise<CommonEnCopy> {
-  const ll = await getServerLL();
+export function resolveCommonCopy(): CommonEnCopy {
+  const ll = getServerLL();
   return resolveCatalogFromLl(COMMON_EN, ll.common as Record<string, unknown>);
 }
 
-export async function resolveProfileCopy(): Promise<ProfileEnCopy> {
-  const ll = await getServerLL();
+export function resolveProfileCopy(): ProfileEnCopy {
+  const ll = getServerLL();
   return resolveCatalogFromLl(PROFILE_EN, ll.profile as Record<string, unknown>);
 }
 
