@@ -53,7 +53,7 @@ describe('probeEqualizerRadioStream', () => {
 
     await expect(probeEqualizerRadioStream('https://stream.example.com/live.mp3')).resolves.toEqual({
       ok: false,
-      reason: 'Stream URL is not HTTPS',
+      reason: 'Stream redirects to HTTP',
     });
   });
 
