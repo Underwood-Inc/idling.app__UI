@@ -7,9 +7,8 @@ import type { Metadata } from 'next';
 import { getServerLL } from '$i18n/idling-server-i18n';
 import { resolveCatalogFromLl } from './resolveEnCatalog';
 
-export async function resolveMetaCopy(): Promise<MetaEnCopy> {
-  const ll = await getServerLL();
-  return resolveCatalogFromLl(META_EN, ll.meta as Record<string, unknown>);
+export function resolveMetaCopy(): MetaEnCopy {
+  return META_EN;
 }
 
 export async function resolveCommonCopy(): Promise<CommonEnCopy> {
@@ -26,8 +25,8 @@ export function formatProfileNamedCopy(template: string, name: string): string {
   return template.replace(/\{name\}/g, name);
 }
 
-export async function buildRootSiteMetadata(): Promise<Metadata> {
-  const meta = await resolveMetaCopy();
+export function buildRootSiteMetadata(): Metadata {
+  const meta = resolveMetaCopy();
   const site = meta.site;
 
   return {
@@ -72,23 +71,23 @@ export async function buildRootSiteMetadata(): Promise<Metadata> {
   };
 }
 
-export async function buildHomePageMetadata(): Promise<Metadata> {
-  const ll = await getServerLL();
+export function buildHomePageMetadata(): Metadata {
+  const site = resolveMetaCopy().site;
   return {
-    description: ll.home.masthead.line(),
+    description: site.description,
   };
 }
 
-export async function buildPortfolioPageMetadata(): Promise<Metadata> {
-  const meta = await resolveMetaCopy();
+export function buildPortfolioPageMetadata(): Metadata {
+  const meta = resolveMetaCopy();
   return {
     title: meta.pages.portfolioTitle,
     description: meta.pages.portfolioDescription,
   };
 }
 
-export async function buildAdminPageMetadata(): Promise<Metadata> {
-  const meta = await resolveMetaCopy();
+export function buildAdminPageMetadata(): Metadata {
+  const meta = resolveMetaCopy();
   return {
     title: meta.pages.adminTitle,
     description: meta.pages.adminDescription,

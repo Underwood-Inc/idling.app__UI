@@ -1,11 +1,9 @@
 /** @vitest-environment node */
 import { test, expect } from 'vitest';
 
-import { getLL, initIdlingI18nAsync } from './idling-i18n';
-import { loadLocaleAsync } from './i18n-util.async';
+import { getServerLL } from './idling-server-i18n';
 
-test('when metadata loads English like getServerLL fallback, home masthead line is defined', async () => {
-  await loadLocaleAsync('en');
-  await initIdlingI18nAsync('en');
-  expect(getLL().home.masthead.line().length).toBeGreaterThan(0);
+test('when getServerLL runs on the server, it uses sync English without async locale chunks', () => {
+  const ll = getServerLL();
+  expect(ll.home.masthead.line().length).toBeGreaterThan(0);
 });
