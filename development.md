@@ -6,6 +6,8 @@ sidebar_position: 2
 
 # 🛠️ Development Guide
 
+> **Deprecated for stack facts.** Use the docs hub: **[Getting started](/guides/getting-started)** and **[Stack & tooling](/guides/stack)** (pnpm, Node 22+, Next 16). Yarn/Jest references below may be wrong.
+
 Comprehensive development resources for contributing to Idling.app.
 
 ## 🎯 Development Overview

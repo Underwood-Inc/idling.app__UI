@@ -1,66 +1,63 @@
 ---
-title: 'Idling.app Documentation'
-description: 'Co-located documentation for Idling.app - API reference, components, and development guides'
+title: 'Documentation hub'
+description: 'Central hub for idling.app engineering, CLAD philosophy, and the Underwood-Inc product ensemble'
 sidebar_position: 1
+slug: /
 ---
 
-# 📚 Idling.app Documentation
+# Idling.app documentation hub
 
-[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100.0%25-brightgreen?style=flat&logo=gitbook&logoColor=white)](https://docs.idling.app/coverage/)
+Think of this site as the **map room** for the whole idling.app workspace: the social site itself, the Stream Suite services, desktop tools, and Minecraft plugins. Co-located markdown still lives next to source files for coverage tooling, but **humans start here** — curated guides, philosophy, and product families with working links.
 
-Welcome to the **co-located documentation** for Idling.app! This documentation lives right alongside the source code, ensuring it stays up-to-date and accurate.
+## What this page is about
 
-## 🚀 What You'll Find Here
+**Audience:** developers, operators, and curious contributors who need accurate stack facts (not bootstrap stubs that mention Jest or Yarn by mistake).
 
-### 📖 Co-located Documentation
+## Quick links
 
-All documentation files are stored directly with the relevant source code:
+| Section | What you get |
+| ------- | ------------ |
+| [Getting started](/guides/getting-started) | pnpm, Node 22+, Docker dev, docs on port 3001 |
+| [Stack & tooling](/guides/stack) | Next.js 16, Vitest, Playwright, CSS modules |
+| [Testing](/guides/testing) | Unit, coverage, and E2E commands |
+| [Internationalization](/guides/i18n) | typesafe-i18n, LibreTranslate, SSR metadata rules |
+| [CLAD philosophy](/philosophy/clad) | Composable Layered Agnostic Design (adapted hub edition) |
+| [Product ensemble](/products) | Every shipped or marketed product with repo pointers |
+| [Idling.app features](/idling) | Radio, PWA, quotes, real API surface |
+| [API Reference](/api/) | OpenAPI (Redoc) — source of truth for HTTP routes |
+| [Coverage honesty](/guides/documentation-coverage) | Stub neighbors vs hand-written hub pages |
 
-- API documentation lives in `src/app/api/*/index.md`
-- Component documentation is alongside each React component
-- Feature documentation is organized by functionality
+## Documentation coverage
 
-### 🔌 Interactive API Documentation
+[![Documentation Coverage](https://img.shields.io/badge/co--located%20neighbors-100%25-informational?style=flat&logo=gitbook)](https://docs.idling.app/guides/documentation-coverage)
 
-Explore our REST API with live examples and testing capabilities:
+The badge reflects **files that have a markdown neighbor** from the bootstrap script. It does **not** mean every page is a full human guide. Hub pages under `guides/`, `philosophy/`, `products/`, and `idling/` are maintained intentionally; code-adjacent stubs remain for search and traceability.
 
-- **Full OpenAPI specification** with interactive playground
-- **Live API testing** - try endpoints directly from the docs
-- **Authentication examples** and error handling
+```mermaid
+flowchart TB
+  hub[Curated hub] --> guides[Guides]
+  hub --> philosophy[Philosophy]
+  hub --> products[Products]
+  hub --> idling[Idling.app]
+  colocated[Code-adjacent autogen] -.-> app[src/app]
+  colocated -.-> lib[src/lib]
+```
 
-### 🎨 Design System
+## The ensemble at a glance
 
-Learn about our design patterns, components, and styling approach:
+```mermaid
+flowchart LR
+  site[idling.app Next.js]
+  stream[Stream Suite workers]
+  maps[Mappy / Overlane]
+  mc[Shirecraft plugins]
+  site --> stream
+  maps --> site
+  mc --> site
+```
 
-- **Component library** with live examples
-- **Color system** and brand guidelines
-- **Layout patterns** and responsive design
-
-## 🗂️ Navigation
-
-| Section           | Description                                               |
-| ----------------- | --------------------------------------------------------- |
-| **API Reference** | Complete REST API documentation with interactive examples |
-| **Components**    | React component documentation and usage examples          |
-| **Features**      | High-level feature documentation and user guides          |
-| **Development**   | Setup guides, architecture decisions, and contributing    |
-
-## 🔥 Features of This Documentation
-
-- **📍 Co-located**: Documentation lives with the code it describes
-- **🔄 Live Reload**: Updates automatically as you edit source files
-- **🧪 Interactive**: Test API endpoints directly in the browser
-- **🎯 Searchable**: Full-text search across all documentation
-- **📱 Responsive**: Works perfectly on mobile and desktop
-- **🎨 Themed**: Matches the main application's design system
-
-## 🛠️ Quick Start
-
-1. **Browse API docs**: Start with our [API Overview](/docs/api)
-2. **Explore components**: Check out the [Component Library](/docs/components)
-3. **Understand features**: Read about [Core Features](/docs/features)
-4. **Set up development**: Follow the [Setup Guide](/docs/development)
+Marketing cards on [idling.app](https://idling.app) list **20** showcase products (`PROJECT_SHOWCASE_PROJECTS`). The [living inventory](/products/inventory) also tracks sibling repos (Barrel PC, Streamkit, Chat Hub, shared libs) that extend beyond the homepage carousel.
 
 ---
 
-_This documentation is powered by [Docusaurus](https://docusaurus.io/) with co-located markdown files and live OpenAPI integration._
+_Hand-written hub docs · co-located stubs powered by [Docusaurus](https://docusaurus.io/) · OpenAPI at `/api/`_

@@ -3,7 +3,7 @@ import { themes as prismThemes } from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Idling.app Documentation',
-  tagline: 'Co-located Documentation for Idling.app',
+  tagline: 'Central hub for idling.app and the product ensemble',
   favicon: 'img/favicon.ico', // Commented out for co-located docs only
 
   // Set the production url of your site here
@@ -189,7 +189,15 @@ const config = {
             items: [
               {
                 label: 'Getting Started',
-                to: '/',
+                to: '/guides/getting-started',
+              },
+              {
+                label: 'Products',
+                to: '/products',
+              },
+              {
+                label: 'CLAD',
+                to: '/philosophy/clad',
               },
               // Temporarily removed until we have a proper API section
               // {

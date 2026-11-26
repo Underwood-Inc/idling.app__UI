@@ -6,6 +6,8 @@ sidebar_position: 4
 
 # 🧪 Testing Guide
 
+> **Deprecated for stack facts.** This file is not scanned as the docs hub source of truth. Use **[docs.idling.app — Testing](/guides/testing)** (Vitest + Playwright, pnpm). The Jest sections below are **stale**.
+
 Welcome to the comprehensive testing guide for this project! This document covers all testing frameworks, patterns, and best practices.
 
 ## 📋 Table of Contents

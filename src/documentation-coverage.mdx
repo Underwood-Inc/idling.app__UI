@@ -1,28 +1,38 @@
 ---
 title: Documentation coverage
-description: How the docs.idling.app coverage badge is measured and updated
+description: Mechanical neighbor coverage vs human-written hub docs
 ---
 
 # Documentation coverage
 
-The home page badge reflects **co-located markdown quality**, not unit-test coverage.
+The homepage badge measures **whether TypeScript neighbors have markdown files** that pass the coverage analyzer — not whether every page reads like a product guide.
 
-## What counts
+## Two different scores
 
-- TypeScript / TSX under `src/` in scope in [`scripts/docs-coverage-config.json`](../scripts/docs-coverage-config.json)
-- Each file needs a neighbor doc (`{basename}.md`, `index.md`, or `README.md`) with **Overview**, **Usage**, **API Reference**, and **Examples** (plus **Props** or **Configuration** where required)
-- Score ≥ **0.7** and minimum word count by priority
+| Metric | Meaning |
+| ------ | ------- |
+| **Neighbor coverage** | `scripts/check-docs-coverage.py` + optional bootstrap pass — file has `{basename}.md` with required sections and word count |
+| **Human quality** | Curated hub (`guides/`, `philosophy/`, `products/`, `idling/`) and hand-maintained co-located pages (e.g. radio, rate limits, testing) |
 
-## Update the badge locally
+Do not treat 100% neighbor coverage as “fully documented product.” Check [/guides/documentation-coverage](/guides/documentation-coverage) and [/products/inventory](/products/inventory) for editorial status.
+
+## Update the badge
 
 ```bash
-pnpm docs:coverage:refresh
+pnpm docs:coverage:analyze
+pnpm docs:coverage:bootstrap   # only creates missing neighbors — does not replace hand-written pages
+pnpm docs:coverage:refresh     # full analyze + badge sync
 ```
 
-Reports are copied to [`static/coverage/`](../static/coverage/) for [docs.idling.app/coverage/](https://docs.idling.app/coverage/).
+## Maintainer policy
 
-## Maintainer notes
+1. **Hub first** for stack truth (Vitest, pnpm, Node 22, Next 16).
+2. **Rewrite co-located pages from source** when touching a module — remove bootstrap footer lines and generic filler when you find them.
+3. **Protected pages:** `src/index.md`, hub indices, inventory — never overwrite via bootstrap.
+4. New showcase product ⇒ `projectShowcaseProjects.ts` **and** `src/products/showcase/<id>.md`.
 
-- Analyzer: [`scripts/docs_coverage/`](../scripts/docs_coverage/) (deduped globs, `fnmatch` excludes for tests/stories)
-- Bootstrap: [`scripts/bootstrap-co-located-docs.mjs`](../scripts/bootstrap-co-located-docs.mjs) — does not overwrite `src/index.md` or `src/lib/utils/index.md`
-- Full system write-up: [`scripts/docs_coverage/index.md`](../scripts/docs_coverage/index.md)
+## Reports
+
+HTML/JSON output lands in `static/coverage/` after refresh — linked from docs.idling.app/coverage/.
+
+Analyzer implementation: `scripts/docs_coverage/`.

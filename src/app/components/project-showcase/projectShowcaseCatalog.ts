@@ -34,4 +34,4 @@ export const PROJECT_SHOWCASE_CATEGORY_OPTIONS: ProjectShowcaseCategoryOption[] 
   { id: 'Infrastructure', label: 'Infrastructure', icon: Building2 },
 ];
 
-export const PROJECT_SHOWCASE_TOTAL_COUNT = 38;
+export const PROJECT_SHOWCASE_TOTAL_COUNT = 20;

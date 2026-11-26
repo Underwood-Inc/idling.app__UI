@@ -1,0 +1,8 @@
+{
+  "label": "Idling.app",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Features and APIs that ship inside this Next.js application."
+  }
+}
