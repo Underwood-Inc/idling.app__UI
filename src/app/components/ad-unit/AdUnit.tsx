@@ -77,24 +77,41 @@ export function AdUnit({
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    // Only initialize once and only in browser
-    if (typeof window === 'undefined' || isInitialized.current) {
+    const node = adRef.current;
+    if (typeof window === 'undefined' || !node || isInitialized.current) {
       return;
     }
 
-    // Check if adsbygoogle is available
-    if (adRef.current && !adRef.current.dataset.adStatus) {
+    const pushAd = (): boolean => {
+      if (isInitialized.current || node.dataset.adStatus) {
+        return true;
+      }
+      if (node.offsetWidth < 1) {
+        return false;
+      }
       try {
-        // Push ad to render
         ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push(
           {}
         );
         isInitialized.current = true;
       } catch (error) {
-        // Ad blocked or failed - silently handle
         console.debug('AdUnit: Failed to push ad', error);
+        isInitialized.current = true;
       }
+      return true;
+    };
+
+    if (pushAd()) {
+      return;
     }
+
+    const observer = new ResizeObserver(() => {
+      if (pushAd()) {
+        observer.disconnect();
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
   }, []);
 
   // Build the data attributes based on layout

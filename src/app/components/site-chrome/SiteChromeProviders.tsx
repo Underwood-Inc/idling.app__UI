@@ -9,7 +9,6 @@ import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { SessionProvider } from 'next-auth/react';
-import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { RadioPlayerMountWrapper } from '../radio-player/RadioPlayerMountWrapper';
 import { RadioPwaStandaloneVisualizerBootstrap } from '../radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
@@ -27,12 +26,6 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
   return (
     <AmbientStarfieldProvider>
       <AmbientBackgroundWrapper />
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1546133996920392"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
       <MicrosoftClarity />
       <SessionProvider>
         <ClarityUserIdentifier />
