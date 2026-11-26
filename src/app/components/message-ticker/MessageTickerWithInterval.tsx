@@ -54,14 +54,10 @@ export default function MessageTickerWithInterval() {
     return tickerLines(payload, ll);
   }, [localeId, ll, separator]);
 
-  const [activeQuote, setActiveQuote] = useState<MessageTickerQuotePayload | null>(() => {
-    const payload = pickMessageTickerQuote(localeId, separator);
-    return payload?.text ? payload : null;
-  });
-  const [message, setMessage] = useState<string[]>(() => tickerLines(
-    pickMessageTickerQuote(localeId, separator),
-    ll
-  ).lines);
+  /** Random quotes only after mount — SSR/hydration must not call `Math.random()`. */
+  const [activeQuote, setActiveQuote] = useState<MessageTickerQuotePayload | null>(null);
+  const [message, setMessage] = useState<string[] | null>(null);
+  const displayLines = message ?? [ll.messageTicker.empty()];
 
   const refreshRef = useRef(refreshQuote);
   refreshRef.current = refreshQuote;
@@ -133,13 +129,13 @@ export default function MessageTickerWithInterval() {
     });
   }, [activeQuote, closeOverlay, localeId, ll, openOverlay]);
 
-  if (message.length === 0) {
+  if (displayLines.length === 0) {
     return <span>{ll.messageTicker.empty()}</span>;
   }
 
   return (
     <MessageTicker
-      messages={message}
+      messages={displayLines}
       onQuoteOpen={activeQuote ? handleOpenQuote : undefined}
     />
   );

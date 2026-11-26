@@ -122,14 +122,35 @@ export function claritySetTag(key: string, value: string | number | boolean): vo
  * ```
  */
 export function clarityIdentify(
-  customUserId: string, 
-  customSessionId?: string, 
-  customPageId?: string, 
+  customUserId: string,
+  customSessionId?: string,
+  customPageId?: string,
   friendlyName?: string
 ): void {
-  if (typeof window !== 'undefined' && window.clarity) {
-    window.clarity('identify', customUserId, customSessionId, customPageId, friendlyName);
+  if (typeof window === 'undefined' || !window.clarity) {
+    return;
   }
+  const userId =
+    typeof customUserId === 'string' ? customUserId : String(customUserId ?? 'anonymous');
+  const sessionId =
+    customSessionId == null
+      ? customSessionId
+      : typeof customSessionId === 'string'
+        ? customSessionId
+        : String(customSessionId);
+  const pageId =
+    customPageId == null
+      ? customPageId
+      : typeof customPageId === 'string'
+        ? customPageId
+        : String(customPageId);
+  const name =
+    friendlyName == null
+      ? friendlyName
+      : typeof friendlyName === 'string'
+        ? friendlyName
+        : String(friendlyName);
+  window.clarity('identify', userId, sessionId, pageId, name);
 }
 
 /**
