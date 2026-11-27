@@ -1,0 +1,38 @@
+name: Prepare Strixun file dependencies
+description: >-
+  Clone Underwood-Inc/strixun-stream-suite next to the workspace (file:../strixun-stream-suite)
+  and build packages required by @strixun/* file: dependencies.
+inputs:
+  ref:
+    description: Git commit SHA or branch for strixun-stream-suite
+    required: false
+    default: '47441530507a6cfc913d2263bc8bab9140d40b0d'
+runs:
+  using: composite
+  steps:
+    - name: Clone and build strixun-stream-suite
+      shell: bash
+      env:
+        STRIXUN_REF: ${{ inputs.ref }}
+      run: |
+        set -euo pipefail
+        PARENT="$(dirname "$GITHUB_WORKSPACE")"
+        TARGET="$PARENT/strixun-stream-suite"
+        echo "Strixun target: $TARGET"
+
+        rm -rf "$TARGET"
+        git clone --filter=blob:none --no-checkout \
+          https://github.com/Underwood-Inc/strixun-stream-suite.git "$TARGET"
+        git -C "$TARGET" checkout "$STRIXUN_REF"
+
+        cd "$TARGET"
+        corepack enable
+        corepack prepare pnpm@10.30.1 --activate
+        pnpm install --frozen-lockfile
+        pnpm --filter @strixun/types --filter @strixun/error-utils \
+          --filter @strixun/oidc-jwt --filter @strixun/service-client \
+          --filter @strixun/api-framework run build
+
+        test -f "$TARGET/packages/api-framework/dist/index.js"
+        test -f "$TARGET/packages/types/dist/index.js"
+        echo "Strixun @strixun/api-framework build OK at $STRIXUN_REF"
