@@ -20,7 +20,6 @@
 }
 
 .hero__title {
-  font-size: clamp(var(--font-size-2xl), 7vw, var(--font-size-5xl));
   font-weight: 800;
   line-height: 1.2;
   margin: 0 0 1rem 0;
@@ -32,12 +31,10 @@
   display: block;
   color: var(--brand-primary);
   font-weight: 600;
-  font-size: clamp(var(--font-size-sm), 3vw, var(--font-size-md));
   margin-top: 0.5rem;
 }
 
 .hero__subtitle {
-  font-size: clamp(var(--font-size-md), 2.5vw, var(--font-size-base));
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
   line-height: 1.6;

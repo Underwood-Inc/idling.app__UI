@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -64,7 +65,7 @@ export function UserSearch({
       setIsLoading(true);
       setAuthError(null);
       try {
-        const response = await fetch(
+        const response = await OCE.fetch(
           `/api/users/search?q=${encodeURIComponent(searchQuery)}&limit=8`
         );
 

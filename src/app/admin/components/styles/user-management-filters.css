@@ -23,7 +23,6 @@
 .filter-panel-header h3 {
   margin: 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-lg);
   font-weight: 600;
 }
 
@@ -39,7 +38,6 @@
   border: 1px solid var(--error);
   border-radius: var(--border-radius-sm);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-xs);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -56,7 +54,6 @@
   border: 1px solid var(--dark-border--secondary);
   border-radius: var(--border-radius-sm);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
@@ -80,7 +77,6 @@
   display: block;
   margin-bottom: var(--spacing-sm-cozy);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -92,7 +88,6 @@
   border: 1px solid var(--dark-border--primary);
   border-radius: var(--border-radius-sm);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   cursor: var(--mappy-cursor-pointer, pointer);
 }
 
@@ -136,7 +131,6 @@
   border: 1px solid var(--dark-border--primary);
   border-radius: var(--border-radius-sm);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
 }
 
 .filter-column-select:focus,
@@ -184,7 +178,6 @@
 
 .checkbox-label {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-xs);
   font-weight: 500;
   user-select: none;
 }
@@ -195,7 +188,6 @@
   border: 1px solid var(--dark-border--secondary);
   border-radius: var(--border-radius-sm);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   min-width: 32px;
@@ -216,7 +208,6 @@
   padding: var(--spacing-xl-cozy);
   color: var(--dark-bg__text-color--tertiary);
   font-style: italic;
-  font-size: var(--font-size-sm);
 }
 
 /* Pagination updates for filter info */
@@ -239,13 +230,11 @@
 
 .pagination-info {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
 .results-info {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-xs);
 }
 
 .total-results {

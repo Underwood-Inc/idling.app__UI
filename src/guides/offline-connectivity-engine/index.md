@@ -1,97 +1,70 @@
 ---
 title: Offline Connectivity Engine
-description: Framework-agnostic connectivity hints from real fetch outcomes — signal, not promise, and never blocking
-sidebar_position: 10
+description: A page-wide network health signal that recovers automatically when requests get answers from the server again
+sidebar_position: 0
 ---
 
 # Offline Connectivity Engine (OCE)
 
-**In plain terms:** OCE watches what your HTTP transport actually did and publishes a single page-wide hint: `unavailable: boolean`. Any app attaches it to **whatever fetch it already uses**.
+## What OCE is and does
 
-**Idling.app (this site):** engine lives at **`src/lib/oce/connectivity`** — import via `@lib/oce/connectivity` or use the bootstrap `idlingFetch` from `@lib/oce/idlingFetch`. Same implementation as **`@strixun/api-framework/connectivity`** in the Strixun monorepo; vendored here so deploy needs no sibling `strixun-stream-suite` checkout.
+**OCE is a network health signal that recovers on its own.**
 
-**Strixun monorepo apps:** import **`@strixun/api-framework/connectivity`**; workers may use `secureFetch` from `@strixun/api-framework`.
+It publishes a **snapshot** (not a single hidden bit): chiefly **`unavailable`**, plus **`streak`**, **`failureThreshold`**, **`generation`**, and sometimes **`healthContractFailed`** when the health URL answered but failed your rules. **`useOceUnavailable()`** is the simple banner hook; **`useOceSnapshot()`** exposes the full row.
 
-The flag is a **best-effort guess**, not a promise. Wi‑Fi can be associated with no route. A captive portal can return HTML. CORS failures look like dropped packets. A cached service-worker response can look like the origin answered.
-
-## Signal vs promise
-
-| Concept | OCE contract |
-| ------- | ------------- |
-| **Signal** | `getSnapshot().unavailable` — use for banners, status text, metrics, background retry pacing |
-| **Promise** | Treating the flag as “the network will fail/succeed” — **out of contract** |
-
-[MDN `Navigator.onLine`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine) documents that the property is **inherently unreliable** (LAN association, virtual adapters, firewall quirks). MDN explicitly recommends you **should not disable features based on it, only hint**. OCE does not read `navigator.onLine`; it learns only from real transport outcomes and an optional same-origin health probe.
-
-## Non-blocking rule
-
-The wrapped fetch **always** calls the underlying `baseFetch`. The UI must **not** disable actions or skip the next request because `unavailable` is true.
-
-```tsx
-// Forbidden — do not gate user work on the flag
-if (snapshot.unavailable) {
-  return;
-}
-button.disabled = snapshot.unavailable;
-```
-
-```tsx
-// Allowed — hint only
-{snapshot.unavailable ? (
-  <StatusBanner>Connection may be unavailable. You can still try again.</StatusBanner>
-) : null}
-```
-
-`OfflineQueue` (and similar) may delay **background** flush while `unavailable`, but **must** still run user-initiated sends.
-
-## Down-path vs up-path
-
-Understanding when the flag turns **on** versus **off** avoids surprise UX.
-
-### Down-path (becoming unavailable)
-
-1. Transport failures (`TypeError`, DNS, connection drop, CORS/CSP/mixed content, `TimeoutError`) increment a **streak**.
-2. Below `failureThreshold` (default **2**), the streak is tracked but **`unavailable` stays false** and **no probe runs**.
-3. At the threshold, **one** shared health-check runs (single-flight). If that confirm step fails transport → `unavailable = true`.
-4. Any `Response` on ordinary traffic **does not** trigger a probe on that path.
-
-### Up-path (clearing unavailable)
-
-1. The **next real `Response`** (any status, including `opaque`) clears the flag: `unavailable = false`, streak `0`, generation bumps.
-2. **No** second health-check is required to “verify we are back.”
-3. A slow probe in flight is **discarded** if recovery already bumped **generation**.
+1. **Confirmed offline** — **`unavailable: true`** only after **`failureThreshold`** consecutive **connection failures** (default **2**) **and** a shared health GET fails (on idling: **`/api/version`**). One failure alone is a **blip**: higher **`streak`**, still **`unavailable: false`**, **no** health call.
+2. **How it learns** — HTTP through **`OCE.fetch`** or **`OCE.reporter`**. **`online`/`offline` events** trigger health verify; OCE does **not** trust **`navigator.onLine`** alone ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine)).
+3. **`lastHealthyAt`** — UTC ms in **`useOceSnapshot()`** / **`useOceLastHealthyAt()`** when connectivity was last **confirmed** healthy.
+4. **Gets better (automatic)** — Any tracked **`Response`** — including 404, 500, or a **successful health check after a streak** — sets **`unavailable: false`** and clears **`streak`**. No “reconnect” API.
+5. **UX** — Banners and `<OceProvider>` toasts (“Network trouble” / “Back online”; different copy when **`healthContractFailed`**). **Do not** disable actions when **`unavailable`** is true.
+6. **Timeouts** — **`TimeoutError`** on user traffic or on the health probe counts as **connection failed**; **`AbortError`** (cancel) does **not** increment **`streak`**.
 
 ```mermaid
 flowchart LR
-  subgraph down [Down-path]
-    F[Transport failures] --> S[Streak]
-    S --> T{At threshold?}
-    T -->|no| H1[Flag stays false]
-    T -->|yes| P[Single health probe]
-    P -->|probe fails| U[unavailable true]
+  subgraph learn [Each tracked request]
+    R[Got Response] --> OK[unavailable=false]
+    F[Connection failed] --> S[streak++]
+    I[User cancel] --> N[streak unchanged]
   end
-  subgraph up [Up-path]
-    R[Any Response] --> C[unavailable false]
-  end
+  S --> T{streak >= threshold?}
+  T -->|No| OK2[Still available]
+  T -->|Yes| H[One health check]
+  H -->|OK| OK
+  H -->|Fail| BAD[unavailable=true]
 ```
+
+**Scenario walkthroughs (single blip, double fail + probe, recovery, timeouts):** [Network flow](/guides/offline-connectivity-engine/network-flow).
+
+OCE does **not** save requests for later, retry your APIs, or replace your “not found / server error” messages.
+
+| Plain English | Snapshot |
+| ------------- | -------- |
+| **Server answered** | Recover: **`unavailable=false`**, **`streak=0`** |
+| **No response** (incl. timeout) | **`streak`** rises; may trigger health confirm |
+| **Health check failed** | **`unavailable=true`** |
+| **Health answered but wrong shape** (optional config) | **`unavailable=true`**, **`healthContractFailed=true`** |
+| **HTTP 4xx/5xx** | Still a **Response** — your UI handles it; OCE treats as connected |
+
+**Start here:** [Getting started](/guides/offline-connectivity-engine/getting-started) · **Tutorial with errors:** `src/lib/oce/README.md`
+
+**Idling.app:** import **`OCE`** from `@lib/oce` (`OfflineConnectivityEngine` is the same object).
+
+## Non-blocking rule
+
+`OCE.fetch` **always** runs the real request. Never block forms or hide buttons because `unavailable` is true.
 
 ## One engine per page
 
-Microfrontends and the host share **one** engine via `getPageConnectivityEngine()` and `globalThis[Symbol.for("@strixun/oce")]`. The host attaches fetch **once** before remotes render; remotes subscribe only.
+On idling.app, everyone shares **`OCE.engine`**. Other apps can host their own `ConnectivityEngine` the same way.
 
 ## Guide map
 
 | Page | Topic |
 | ---- | ----- |
-| [Architecture](/guides/offline-connectivity-engine/architecture) | CLAD seams, singleton, generation, single-flight probe |
-| [Configuration](/guides/offline-connectivity-engine/configuration) | `failureThreshold`, `healthCheckUrl`, probe presets, optional 204 |
-| [Attach fetch](/guides/offline-connectivity-engine/attach-fetch) | Host, microfrontends, `secureFetch` |
-| [Reporter](/guides/offline-connectivity-engine/reporter) | Non-fetch HTTP stacks |
-| [React](/guides/offline-connectivity-engine/react) | `useSyncExternalStore` hint pattern |
-| [Recipes](/guides/offline-connectivity-engine/recipes-fetch) | Fetch, Axios, TanStack Query, Apollo, SWR |
-| [Framework deadlocks](/guides/offline-connectivity-engine/framework-deadlocks) | Pause / continue / ignore swallowing |
-| [Edge cases](/guides/offline-connectivity-engine/edge-cases) | Wi‑Fi, portals, SW cache, CORS, parallel failures |
-
----
-
-**Sources (specified):** Offline Connectivity Engine plan — `getPageConnectivityEngine`, `attachFetch`, generation token, probe deadline presets, FR-OCE-001..010.
+| [**Getting started**](/guides/offline-connectivity-engine/getting-started) | Install, examples, recovery |
+| [**Network flow**](/guides/offline-connectivity-engine/network-flow) | Snapshot fields, mermaid scenarios, timeouts |
+| [**Framework recipes ×10**](/guides/offline-connectivity-engine/recipes-index) | Axios, TanStack Query, SWR, … |
+| [Market landscape](/guides/offline-connectivity-engine/market-landscape) | Compared to other tools |
+| [Architecture](/guides/offline-connectivity-engine/architecture) | How the engine works (technical) |
+| [Reporter](/guides/offline-connectivity-engine/reporter) | Audio / XHR / non-`fetch` |
+| [Edge cases](/guides/offline-connectivity-engine/edge-cases) | Caches, captive Wi‑Fi, etc. |

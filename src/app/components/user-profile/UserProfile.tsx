@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { UserProfileData } from '@lib/types/profile';
 import { getEffectiveCharacterCount } from '@lib/utils/string';
@@ -53,7 +54,7 @@ export function UserProfile({
       }
 
       try {
-        const response = await fetch('/api/test/admin-check', {
+        const response = await OCE.fetch('/api/test/admin-check', {
           headers: {
             'X-Background-Request': 'true' // Mark as background to skip global loader
           }

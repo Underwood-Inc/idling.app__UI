@@ -136,7 +136,6 @@ footer.footer .col,
 .footer__title {
   color: var(--brand-primary) !important;
   font-weight: var(--font-weight-semibold) !important;
-  font-size: var(--font-size-base) !important;
   margin-bottom: var(--spacing-sm) !important;
 }
 
@@ -150,7 +149,6 @@ footer.footer .col,
   color: var(--text-secondary) !important;
   transition: var(--transition-base) !important;
   text-decoration: none !important;
-  font-size: var(--font-size-sm) !important;
 }
 
 .footer__link-item:hover {
@@ -159,7 +157,6 @@ footer.footer .col,
 
 .footer__copyright {
   color: var(--text-muted) !important;
-  font-size: var(--font-size-sm) !important;
   text-align: center !important;
   margin: 0 !important;
   padding: var(--spacing-xs) 0 !important;

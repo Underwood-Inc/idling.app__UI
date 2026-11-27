@@ -148,12 +148,11 @@ export default function TimeoutBanner() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-        <div style={{ flexShrink: 0, fontSize: 'var(--font-size-lg)' }}>⏰</div>
+        <div style={{ flexShrink: 0, }}>⏰</div>
         <div style={{ flex: 1 }}>
           <h4
             style={{
               fontWeight: '600',
-              fontSize: 'var(--font-size-base)',
               color: '#9a3412',
               margin: '0 0 4px 0',
               lineHeight: '1.3'
@@ -163,7 +162,6 @@ export default function TimeoutBanner() {
           </h4>
           <p
             style={{
-              fontSize: 'var(--font-size-sm)',
               color: '#9a3412',
               opacity: 0.9,
               lineHeight: '1.4',
@@ -191,7 +189,6 @@ export default function TimeoutBanner() {
             />
             <span
               style={{
-                fontSize: 'var(--font-size-xs)',
                 fontWeight: '500',
                 color: '#9a3412'
               }}
@@ -202,7 +199,6 @@ export default function TimeoutBanner() {
           {timeoutInfo.reason && (
             <p
               style={{
-                fontSize: 'var(--font-size-xs)',
                 color: '#9a3412',
                 opacity: 0.75,
                 margin: '0'

@@ -16,7 +16,7 @@
  * @version 1.0.0
  */
 
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -166,7 +166,7 @@ export default function PermissionManagementPanel() {
         limit: pageSize.toString()
       });
 
-      const response = await noCacheFetch(`/api/admin/permissions?${params}`);
+      const response = await OCE.noCacheFetch(`/api/admin/permissions?${params}`);
       if (!response.ok) throw new Error('Failed to fetch permissions');
 
       const data = await response.json();
@@ -209,7 +209,7 @@ export default function PermissionManagementPanel() {
         limit: pageSize.toString()
       });
 
-      const response = await noCacheFetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/permissions/roles?${params}`
       );
       if (!response.ok) throw new Error('Failed to fetch roles');
@@ -349,7 +349,7 @@ export default function PermissionManagementPanel() {
           ? `/api/admin/permissions/${item.id}`
           : `/api/admin/permissions/roles/${item.id}`;
 
-      const response = await noCacheFetch(endpoint, {
+      const response = await OCE.noCacheFetch(endpoint, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

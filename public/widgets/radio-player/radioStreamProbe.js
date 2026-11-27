@@ -1,4 +1,4 @@
-import { getIdlingOceEngine, idlingFetch } from './embedIdlingFetch';
+import { IdlingOceEmbedRegistry } from './embedIdlingFetch';
 import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 /** Catalog reachability checks run in the visitor's browser only — not on the app server. */
 const DEFAULT_PROBE_TIMEOUT_MS = 8000;
@@ -6,7 +6,7 @@ async function probeHlsManifestUrl(url, timeoutMs) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-        const response = await idlingFetch(url, {
+        const response = await IdlingOceEmbedRegistry.fetch(url, {
             method: 'GET',
             signal: controller.signal,
             redirect: 'follow',
@@ -58,7 +58,7 @@ export async function probeNativeAudioElement(url, timeoutMs) {
         const timer = window.setTimeout(() => finish({ ok: false, reason: 'Timed out waiting for stream' }), timeoutMs);
         const onCanPlay = () => finish({ ok: true });
         const onError = () => {
-            getIdlingOceEngine().reporter.reportTransportFailure();
+            IdlingOceEmbedRegistry.engine().reporter.reportTransportFailure();
             finish({ ok: false, reason: 'Stream failed to load' });
         };
         audio.addEventListener('canplay', onCanPlay);

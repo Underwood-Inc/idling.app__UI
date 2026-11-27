@@ -3,7 +3,7 @@ const CACHE_VERSION = '__VERSION__'; // Will be replaced with package.json versi
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
-// OCE adoption: mark cache-served fetches (see src/lib/oce/idlingOceFetchAdoption.ts)
+// OCE adoption: mark cache-served fetches (see src/lib/oce/OCE.ts)
 const IDLING_SW_CACHE_SERVED_HEADER = 'x-idling-sw-cache-served';
 
 // Maximum cache age - NOTHING can be cached longer than 12 hours
@@ -488,11 +488,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Auth and live radio: never cache or serve stale offline copies
+  // Auth, live radio, OCE health: never cache or serve stale offline copies
   if (
     event.request.url.includes('/api/auth/') ||
-    event.request.url.includes('/api/radio/now-playing')
+    event.request.url.includes('/api/radio/now-playing') ||
+    event.request.url.includes('/api/version')
   ) {
+    return;
+  }
+
+  if (event.request.headers.get('x-idling-connectivity-probe') === '1') {
     return;
   }
 

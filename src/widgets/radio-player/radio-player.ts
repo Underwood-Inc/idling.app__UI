@@ -83,6 +83,7 @@ import {
   stationSupportsTrackMetadata,
 } from './radioStationMetadata';
 import type { RadioHlsPlaybackHandle } from './radioStreamProbe.types';
+import { IdlingOceEmbedRegistry } from './embedIdlingFetch';
 import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import { createSpectrumNormalizer } from './spectrumNormalization';
 
@@ -814,7 +815,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
     const stationAtFetch = activeName;
 
     try {
-      const response = await fetch(
+      const response = await IdlingOceEmbedRegistry.fetch(
         `${nowPlayingEndpoint}?station=${encodeURIComponent(stationAtFetch)}`,
         {
           cache: 'no-store',

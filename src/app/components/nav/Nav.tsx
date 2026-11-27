@@ -40,16 +40,20 @@ export default async function Nav() {
           </InstantLink>
         </Navbar.Content>
 
-        {/* Desktop Auth and Search - Hidden on mobile */}
-        <Navbar.Content
-          justify="flex-end"
-          className="nav--as-flex-end nav__desktop-only"
-        >
-          {session ? (
+        {/* Desktop search — hidden on mobile */}
+        {session ? (
+          <Navbar.Content
+            justify="flex-end"
+            className="nav--as-flex-end nav__desktop-only"
+          >
             <Navbar.Item className="nav__search">
               <LocalizedUserSearch />
             </Navbar.Item>
-          ) : null}
+          </Navbar.Content>
+        ) : null}
+
+        {/* Auth stays visible in the header on mobile (not inside nav__desktop-only) */}
+        <Navbar.Content justify="flex-end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
             <NavAuth session={session} />
           </Navbar.Item>

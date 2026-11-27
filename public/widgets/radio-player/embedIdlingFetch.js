@@ -1,19 +1,32 @@
 /**
  * Relative import target for the radio embed `tsc` bundle (no path aliases in emit).
- * Standalone embed uses plain `fetch`. The Next app registers OCE via `registerIdlingOce`.
+ * Standalone embed uses plain `fetch`. The Next app registers OCE via `IdlingOceEmbedRegistry`.
  */
-const noopReporter = {
-    reportResponse: () => undefined,
-    reportTransportFailure: () => undefined,
-    reportIgnored: () => undefined,
-};
-let fetchImpl = (input, init) => globalThis.fetch(input, init);
-let engineRef = null;
-export function registerIdlingOce(nextFetch, engine) {
-    fetchImpl = nextFetch;
-    engineRef = engine ?? null;
+class NoopOceConnectivityReporter {
+    reportResponse() {
+        return undefined;
+    }
+    reportTransportFailure() {
+        return undefined;
+    }
+    reportIgnored() {
+        return undefined;
+    }
 }
-export const idlingFetch = (input, init) => fetchImpl(input, init);
-export function getIdlingOceEngine() {
-    return engineRef ?? { reporter: noopReporter };
+/** Radio embed bridge — host registers the page `OceFetchClient` transport. */
+export class IdlingOceEmbedRegistry {
+    static register(nextFetch, engine) {
+        IdlingOceEmbedRegistry.fetchImpl = nextFetch;
+        IdlingOceEmbedRegistry.engineRef = engine ?? null;
+    }
+    static fetch(input, init) {
+        return IdlingOceEmbedRegistry.fetchImpl(input, init);
+    }
+    static engine() {
+        return (IdlingOceEmbedRegistry.engineRef ?? {
+            reporter: new NoopOceConnectivityReporter(),
+        });
+    }
 }
+IdlingOceEmbedRegistry.fetchImpl = (input, init) => globalThis.fetch(input, init);
+IdlingOceEmbedRegistry.engineRef = null;

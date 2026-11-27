@@ -12,4 +12,4 @@ Self-contained in-app toast stack (no npm runtime dependency). Vendored pattern 
 
 **Stacking:** max 5 per viewport; `dedupeKey` updates in place.
 
-**OCE:** `@lib/oce/oceConnectivityToasts` → `bindOceConnectivityToasts(engine)`; mounted via `OceConnectivityToastBridge`.
+**OCE:** network toasts bind inside `<OceProvider>` (`@lib/oce`).

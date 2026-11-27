@@ -5,16 +5,16 @@ description: fetcher wiring, shouldRetryOnError, refreshInterval, and OCE non-bl
 
 # Recipe — SWR
 
-**In plain terms:** SWR `shouldRetryOnError` and `onErrorRetry` **continue** polling after errors. That is good only if the fetcher actually calls `fetchWithOce`.
+**In plain terms:** SWR `shouldRetryOnError` and `onErrorRetry` **continue** polling after errors. That is good only if the fetcher actually calls `OCE.fetch`.
 
 ## Global fetcher
 
 ```tsx
 import useSWR, { SWRConfig } from 'swr';
-import { fetchWithOce } from '../oce-bootstrap';
+import { OCE } from '@lib/oce';
 
 async function swrFetcher<T>(url: string): Promise<T> {
-  const response = await fetchWithOce(url);
+  const response = await OCE.fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
@@ -44,7 +44,7 @@ useSWR('/api/feed', {
 });
 ```
 
-Each `revalidate` re-runs the fetcher → must use `fetchWithOce`.
+Each `revalidate` re-runs the fetcher → must use `OCE.fetch`.
 
 ## Do not zero `refreshInterval` when unavailable
 
@@ -68,7 +68,7 @@ useSWR('/api/status', { refreshInterval: 30_000 });
 // Forbidden
 const fetcher = async (url: string) => {
   try {
-    return await fetchWithOce(url).then((r) => r.json());
+    return await OCE.fetch(url).then((r) => r.json());
   } catch {
     return undefined; // OCE saw failure, but UI pretends success forever
   }
@@ -81,17 +81,16 @@ If you must return a fallback, **rethrow** after showing UI, or report explicitl
 
 ```ts
 import useSWR from 'swr';
-import { getPageConnectivityEngine } from '@lib/oce/connectivity';
+import { OCE } from '@lib/oce';
 
 async function xhrFetcher(url: string) {
   try {
     const data = await xhrGet(url);
-    getPageConnectivityEngine().reporter.reportResponse({ url });
+    OCE.reporter.reportResponse();
     return data;
   } catch (error) {
-    const engine = getPageConnectivityEngine();
-    if (isAbort(error)) engine.reporter.reportIgnored();
-    else engine.reporter.reportTransportFailure({ url });
+    if (isAbort(error)) OCE.reporter.reportIgnored();
+    else OCE.reporter.reportTransportFailure();
     throw error;
   }
 }

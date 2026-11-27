@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -109,7 +110,7 @@ export function SubscriptionBadgesList({
       // Check admin access
       const checkAdminAccess = async () => {
         try {
-          const response = await fetch('/api/test/admin-check');
+          const response = await OCE.fetch('/api/test/admin-check');
           if (response.ok) {
             const data = await response.json();
             setHasAdminAccess(data.hasAdminAccess);
@@ -136,7 +137,7 @@ export function SubscriptionBadgesList({
       setError(null);
 
       try {
-        const response = await fetch(
+        const response = await OCE.fetch(
           `/api/user-subscriptions?userId=${userId}&t=${Date.now()}`
         );
 

@@ -11,36 +11,36 @@ MDN states [`Navigator.onLine`](https://developer.mozilla.org/en-US/docs/Web/API
 
 | Case | Behavior |
 | ---- | -------- |
-| Wi‑Fi associated, no internet | Flag stays false until `failureThreshold` transport failures, then one probe. Probe fails transport → `unavailable`. `navigator.onLine` would still be `true`. |
+| Wi‑Fi associated, no internet | Flag stays false until `failureThreshold` **failed connections**, then one probe. Probe fails to connect → `unavailable`. `navigator.onLine` would still be `true`. |
 | Captive portal returns 200 HTML | Ordinary API `Response`s clear the flag. Default probe also sees a `Response` and does **not** set `unavailable`. Opt in to [204-only](/guides/offline-connectivity-engine/configuration#optional-204-contract-interprethealthresponse) for portal detection (Chrome-style). |
 | HTTP 500 / 404 | `Response`. Flag clears. App is unhealthy, not “offline.” |
-| Single transport blip | Streak `1`. No probe. `unavailable` stays false. |
+| Single connection blip | Streak `1`. No probe. `unavailable` stays false. |
 | Ten parallel failures | One probe. Streak reaches threshold once; mutex keeps streak consistent. |
 | Success while probe in flight | Generation bumps; probe result discarded (FR-OCE-004). |
 | User aborts request (`AbortError`) | Streak unchanged; `reportIgnored` / classify `ignored`. |
-| User request `TimeoutError` | Counts as transport failure; increments streak. |
+| User request `TimeoutError` | Counts as **failed connection**; increments streak. |
 | CORS / CSP / mixed content | Indistinguishable from offline (`TypeError`). Use **same-origin** `healthCheckUrl`. |
 | Service worker cache on health path | Can fake `Response`. Bypass cache for health URL; probe uses `cache: 'no-store'`. |
 | Wrong health URL 404 | Default: 404 is `Response` → suspicion clears. 204-only mode: non-204 can confirm `unavailable`. |
 | Quiet tab (no traffic) | No heartbeat timer in v1. Flag stays at last observation. |
 | Axios `timeout: 0` | Client request not aborted. Probe still uses preset deadline; never “wait forever.” |
 | Two remotes want different `probeDeadline` | Host preset wins — one engine, one probe budget. |
-| Second bundle calls `createConnectivityEngine` | `Symbol.for` singleton returns existing engine (FR-OCE-007). |
+| Second bundle calls `new ConnectivityEngine` | `Symbol.for` singleton returns existing engine (FR-OCE-007). |
 | Cross-origin iframe | Separate engine; cannot read parent flag. |
 | Another browser tab | Separate engine; each tab recovers from its own traffic. |
 | Lie-fi (TCP hang) | Probe `TimeoutError` ends confirm; counts as failed confirm (FR-OCE-009). |
 | `opaque` no-cors response | Still `response` — network answered. |
 | Portal on API route only | Default any-`Response` clears flag on that traffic even when health uses 204-only. |
-| Already `unavailable` | `attachFetch` still calls `baseFetch` (FR-OCE-006). |
+| Already `unavailable` | `engine.fetch` still calls `baseFetch` (FR-OCE-006). |
 | Health call in flight at threshold | Reuse that settlement; no duplicate health request (FR-OCE-008). |
 | User aborts in-flight health observation | `AbortError` ignored; engine-owned probe runs if needed. |
 | Electron / virtual NIC | Same as browser: rely on fetch outcomes, not OS “connected” icons. |
 | PWA offline shell | Cached shell is not reachability; health path must hit network. |
-| Intermittent DNS | Transport failures accumulate streak; recovery is next real `Response`. |
+| Intermittent DNS | Failed connections accumulate streak; recovery is next real `Response`. |
 
 ## Wi‑Fi with no upstream
 
-Association ≠ routing. Users see full Wi‑Fi bars while DNS or default route fails. OCE waits for **transport** evidence, then one shared probe — it does not trust link-local “online” heuristics ([Financial Times labs note on `navigator.onLine`](https://labs.ft.com/2012/08/navigator-online-here-be-dragons/)).
+Association ≠ routing. Users see full Wi‑Fi bars while DNS or default route fails. OCE waits for **real request outcomes**, then one shared probe — it does not trust link-local “online” heuristics ([Financial Times labs note on `navigator.onLine`](https://labs.ft.com/2012/08/navigator-online-here-be-dragons/)).
 
 ## Captive portal nuance
 

@@ -1,0 +1,363 @@
+﻿.\docusaurus.config.js:250:            fontSize: 14,
+.\docusaurus.config.js:319:            fontSize: 12,
+.\docusaurus.config.js:327:            fontSizeSection: 24,
+.\docusaurus.config.js:328:            fontSizeTask: 14,
+.\docusaurus.config.js:329:            fontSizeAxis: 12,
+.\docusaurus.config.js:335:            fontSize: 11,
+.\LANDING_PAGE_MODERNIZATION.md:185:    font-size: 1.75rem; /* Smaller hero */
+.\LANDING_PAGE_UPDATES.md:36:font-size: var(--font-size-lg)
+.\LANDING_PAGE_UPDATES.md:43:font-size: 1.25rem
+.\static\js\mermaid-viewer.js:333:      font-size: 14px;
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:149:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:168:            font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:200:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:211:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:232:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:273:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:316:            font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:340:            font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\filter_controls.py:380:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\content_generators.py:151:                    <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">{info['desc']}</p>
+.\scripts\generate-debrief.js:577:            font-size: 2.5em;
+.\scripts\generate-debrief.js:582:            font-size: 2em;
+.\scripts\generate-debrief.js:584:        h3 { font-size: 1.5em; }
+.\scripts\generate-debrief.js:585:        h4 { font-size: 1.2em; }
+.\scripts\generate-debrief.js:612:            font-size: 0.9em;
+.\scripts\generate-debrief.js:628:            font-size: 0.9em;
+.\public\offline.html:31:            font-size: 4rem;
+.\public\offline.html:38:            font-size: 2rem;
+.\public\offline.html:44:            font-size: 1.1rem;
+.\public\offline.html:55:            font-size: 1rem;
+.\public\offline.html:67:            font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\table_controls.py:86:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\table_controls.py:106:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\table_controls.py:125:            font-size: var(--font-size-md);
+.\scripts\docs_coverage\reports\html_components\table_controls.py:185:                font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\table_controls.py:189:                font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles.py:56:            font-size: 2rem;
+.\scripts\docs_coverage\reports\html_components\styles.py:103:            font-size: 2rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:30:  font-size: 1.2rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:56:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:74:  font-size: 1.2rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:83:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:120:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:132:  font-size: 0.8rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:168:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:178:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:234:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:302:  font-size: 0.75rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:322:  font-size: 0.75rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:366:  font-size: 0.85rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:402:  font-size: 0.8rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:418:  font-size: 0.7rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:436:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:452:  font-size: 0.8rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:486:  font-size: 0.8rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:497:  font-size: 3rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:502:  font-size: 1.1rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:507:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:571:  font-size: 14px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:705:  font-size: 13px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:754:  font-size: 11px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:783:  font-size: 12px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:799:  font-size: 11px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:825:  font-size: 10px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:909:    font-size: 0.8rem;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:945:    font-size: 13px;
+.\scripts\docs_coverage\reports\html_components\styles\table.css:956:    font-size: 12px;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:68:  font-size: 1.1rem;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:88:  font-size: 0.85rem;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:106:  font-size: 1.5rem;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:145:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:159:  font-size: inherit;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:180:  font-size: 0.9rem !important;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:214:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\modals.css:515:  font-size: 0.75rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:63:  --font-size-xs: 0.75rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:64:  --font-size-sm: 0.875rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:65:  --font-size-base: 1rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:66:  --font-size-lg: 1.125rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:67:  --font-size-xl: 1.25rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:68:  --font-size-2xl: 1.5rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:69:  --font-size-3xl: 1.875rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:181:  font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:229:  font-size: 2.5rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:234:  font-size: 1.1rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:258:  font-size: var(--font-size-xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:265:  font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:309:  font-size: var(--font-size-2xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:316:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:363:  font-size: 14px;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:655:  font-size: var(--font-size-2xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:665:  font-size: 1.5em;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:675:  font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:709:  font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:742:  font-size: var(--font-size-xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:754:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:791:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:796:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:830:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:835:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:874:  font-size: var(--font-size-xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:879:  font-size: var(--font-size-md);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:918:  font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:926:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:950:  font-size: var(--font-size-md);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:967:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:982:    font-size: var(--font-size-xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1055:    font-size: 1.8rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1081:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1087:  font-size: 2rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1188:  font-size: 1.5rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1248:  font-size: 0.75rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1270:  font-size: 0.9rem;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1294:  font-size: var(--font-size-3xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1298:  font-size: var(--font-size-2xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1302:  font-size: var(--font-size-xl);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1330:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1340:  font-size: 0.9em;
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1354:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1383:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1449:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1535:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1554:  font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1580:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1592:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1610:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1622:  font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1658:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1668:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1684:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1705:  font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1729:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1747:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1754:  font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1773:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1794:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1810:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1826:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1851:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\styles\main.css:1862:  font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:67:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:83:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:93:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:109:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:129:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:157:                font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\pagination_controls.py:161:                font-size: var(--font-size-xs);
+.\scripts\docs_coverage\reports\html_components\pagination.py:67:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:81:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:90:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:107:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:123:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:153:            font-size: var(--font-size-base);
+.\scripts\docs_coverage\reports\html_components\pagination.py:172:            font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\pagination.py:199:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:208:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:230:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:259:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:296:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:304:            font-size: var(--font-size-lg);
+.\scripts\docs_coverage\reports\html_components\pagination.py:330:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:346:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:374:            font-size: var(--font-size-sm);
+.\scripts\docs_coverage\reports\html_components\pagination.py:382:            font-size: var(--font-size-sm);
+.\scripts\typography\strip-component-font-size.mjs:2: * One-shot typography purge: remove font-size / fontSize outside allowlist.
+.\scripts\typography\strip-component-font-size.mjs:36:  let out = text.replace(/^\s*font-size\s*:[^;]*;\s*\r?\n/gm, '');
+.\scripts\typography\strip-component-font-size.mjs:37:  out = out.replace(/([{;]\s*)font-size\s*:[^;]*;\s*/g, '$1');
+.\scripts\typography\strip-component-font-size.mjs:42:  let out = text.replace(/\bfontSize\s*:\s*(?:'[^']*'|"[^"]*"|`[^`]*`|\{[^}]+\}|\d+(?:\.\d+)?(?:px|rem|em|%)?)\s*,?\s*/g, '');
+.\scripts\typography\strip-component-font-size.mjs:49:  `rg -l "font-size|fontSize" src public/widgets --glob "!node_modules/**"`,
+.\scripts\typography\strip-component-font-size.mjs:68:console.log(`strip-component-font-size: updated ${changed} files`);
+.\src\css\variables.scss:46:$font-size-xs: 1.2rem;
+.\src\css\variables.scss:47:$font-size-sm: 1.4rem;
+.\src\css\variables.scss:48:$font-size-base: 1.6rem;
+.\src\css\variables.scss:49:$font-size-md: 1.8rem;
+.\src\css\variables.scss:50:$font-size-lg: 2rem;
+.\src\css\variables.scss:51:$font-size-xl: 2.4rem;
+.\src\css\variables.scss:52:$font-size-2xl: 2.8rem;
+.\src\css\variables.scss:53:$font-size-3xl: 3.2rem;
+.\src\css\variables.scss:54:$font-size-4xl: 3.6rem;
+.\src\css\variables.scss:55:$font-size-5xl: 4.8rem;
+.\src\css\variables.scss:127:  --font-size-xs: #{$font-size-xs};
+.\src\css\variables.scss:128:  --font-size-sm: #{$font-size-sm};
+.\src\css\variables.scss:129:  --font-size-base: #{$font-size-base};
+.\src\css\variables.scss:130:  --font-size-md: #{$font-size-md};
+.\src\css\variables.scss:131:  --font-size-lg: #{$font-size-lg};
+.\src\css\variables.scss:132:  --font-size-xl: #{$font-size-xl};
+.\src\css\variables.scss:133:  --font-size-2xl: #{$font-size-2xl};
+.\src\css\variables.scss:134:  --font-size-3xl: #{$font-size-3xl};
+.\src\css\variables.scss:135:  --font-size-4xl: #{$font-size-4xl};
+.\src\css\variables.scss:136:  --font-size-5xl: #{$font-size-5xl};
+.\src\css\variables.css:46:  --font-size-xs: 1.2rem;
+.\src\css\variables.css:47:  --font-size-sm: 1.4rem;
+.\src\css\variables.css:48:  --font-size-base: 1.6rem;
+.\src\css\variables.css:49:  --font-size-md: 1.8rem;
+.\src\css\variables.css:50:  --font-size-lg: 2rem;
+.\src\css\variables.css:51:  --font-size-xl: 2.4rem;
+.\src\css\variables.css:52:  --font-size-2xl: 2.8rem;
+.\src\css\variables.css:53:  --font-size-3xl: 3.2rem;
+.\src\css\variables.css:54:  --font-size-4xl: 3.6rem;
+.\src\css\variables.css:55:  --font-size-5xl: 4.8rem;
+.\src\app\globals.css:173:  --font-size-xs: 1.2rem;
+.\src\app\globals.css:175:  --font-size-sm: 1.4rem;
+.\src\app\globals.css:177:  --font-size-base: 1.6rem;
+.\src\app\globals.css:179:  --font-size-md: 1.8rem;
+.\src\app\globals.css:181:  --font-size-lg: 2rem;
+.\src\app\globals.css:183:  --font-size-xl: 2.4rem;
+.\src\app\globals.css:185:  --font-size-2xl: 2.8rem;
+.\src\app\globals.css:187:  --font-size-3xl: 3.2rem;
+.\src\app\globals.css:189:  --font-size-4xl: 3.6rem;
+.\src\app\globals.css:191:  --font-size-5xl: 4.8rem;
+.\src\app\globals.css:308:  font-size: var(--font-size-base);
+.\src\app\globals.css:370:  font-size: var(--font-size-2xl);
+.\src\app\globals.css:374:  font-size: var(--font-size-xl);
+.\src\app\globals.css:378:  font-size: var(--font-size-lg);
+.\src\app\globals.css:382:  font-size: var(--font-size-md);
+.\src\app\globals.css:386:  font-size: var(--font-size-base);
+.\src\app\globals.css:390:  font-size: var(--font-size-base);
+.\src\app\globals.css:394:  font-size: var(--font-size-sm);
+.\src\app\globals.css:413:/* Typography canon: do not set font-size outside this file (and documented allowlist).
+.\src\app\globals.css:424:  font-size: var(--font-size-base);
+.\src\app\globals.css:442:  font-size: var(--font-size-base);
+.\src\app\globals.css:466:  font-size: var(--font-size-xs);
+.\src\app\globals.css:502:  font-size: 10px;
+.\src\app\globals.css:516:  font-size: var(--font-size-base);
+.\src\i18n\i18n-types.ts:5913:					fontSize: string
+.\src\i18n\i18n-types.ts:13082:					fontSize: () => LocalizedString
+.\src\css\swagger-ui\_variables.scss:54:  --font-size-xs: 0.75rem;
+.\src\css\swagger-ui\_variables.scss:55:  --font-size-sm: 0.875rem;
+.\src\css\swagger-ui\_variables.scss:56:  --font-size-base: 1rem;
+.\src\css\swagger-ui\_variables.scss:57:  --font-size-lg: 1.125rem;
+.\src\i18n\translation-meta.json:1322:    "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:2876:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:4113:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:5819:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:7254:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:8772:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:10227:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:11681:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:13223:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\i18n\translation-meta.json:14626:      "tools.cardGenerator.advancedControls.labels.fontSize": "4dd6ff92e0d9d761b43f497e2b9b1fc3b6251a9f631186cacac737e5d8182c4d",
+.\src\css\swagger-ui\_theming.scss:92:  font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_theming.scss:159:  font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_tables.scss:107:      font-size: var(--font-size-lg);
+.\src\css\swagger-ui\_tables.scss:133:      font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_tables.scss:187:    font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_tables.scss:231:  font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_tables.scss:247:  font-size: var(--font-size-xs);
+.\src\css\swagger-ui\_layout.scss:45:  font-size: var(--font-size-xs);
+.\src\css\swagger-ui\_layout.scss:132:      font-size: var(--font-size-lg);
+.\src\css\swagger-ui\_layout.scss:142:      font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_layout.scss:268:    font-size: var(--font-size-lg);
+.\src\css\swagger-ui\_layout.scss:277:      font-size: var(--font-size-lg);
+.\src\css\swagger-ui\_layout.scss:282:      font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_layout.scss:317:      font-size: var(--font-size-base);
+.\src\css\swagger-ui\_layout.scss:325:      font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_layout.scss:335:      font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_layout.scss:417:      font-size: var(--font-size-lg);
+.\src\css\swagger-ui\_layout.scss:450:      font-size: var(--font-size-lg);
+.\src\css\swagger-ui\_layout.scss:457:      font-size: var(--font-size-base);
+.\src\css\swagger-ui\_layout.scss:517:        font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_layout.scss:542:        font-size: var(--font-size-xs);
+.\src\css\swagger-ui\_layout.scss:578:        font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_forms.scss:25:  font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_forms.scss:113:  font-size: var(--font-size-sm);
+.\src\css\swagger-ui\_buttons.scss:125:  font-size: var(--font-size-xs);
+.\src\css\swagger-ui\_buttons.scss:170:  font-size: var(--font-size-xs);
+.\src\i18n\locales\de.json:2015:          "fontSize": "Schriftgröße",
+.\scripts\docs_coverage\reports\html_components\js\components\source-code-modal.js:105:                    <div style="font-size: 2rem; margin-bottom: 1rem;">📂</div>
+.\src\i18n\locales\ar.json:2025:          "fontSize": "Font Size",
+.\src\i18n\locales\zh.json:2019:          "fontSize": "字体大小",
+.\src\i18n\locales\ru.json:2015:          "fontSize": "Размер шрифта",
+.\src\i18n\locales\pt.json:2013:          "fontSize": "Tamanho da Fonte",
+.\src\i18n\locales\it.json:2013:          "fontSize": "Dimensione del carattere",
+.\src\i18n\locales\ko.json:2017:          "fontSize": "이름 *",
+.\src\i18n\locales\ja.json:2013:          "fontSize": "文字サイズ",
+.\src\i18n\locales\fr.json:2015:          "fontSize": "Taille de la police",
+.\src\i18n\locales\es.json:2024:          "fontSize": "Tamaño de la fuente",
+.\src\i18n\locales\en.json:2096:          "fontSize": "Font Size",
+.\src\css\base.css:36:  font-size: var(--font-size-5xl);
+.\src\css\base.css:46:  font-size: var(--font-size-3xl);
+.\src\css\base.css:66:  font-size: var(--font-size-xl);
+.\src\css\base.css:83:  font-size: var(--font-size-lg);
+.\src\css\base.css:131:  font-size: var(--font-size-sm);
+.\src\css\base.css:139:  font-size: var(--font-size-xs);
+.\src\lib\rich-input\core\WidthMeasurement.ts:215:    element.style.fontSize = containerStyles.fontSize;
+.\src\app\card-generator\types\generation.ts:25:  fontSize?: number;
+.\src\app\api\og-image\types.ts:17:  fontSize: number;
+.\src\app\api\og-image\types.ts:65:  fontSize?: number | null;
+.\src\app\api\og-image\types.ts:80:  fontSize: number;
+.\src\app\api\og-image\types.ts:159:    fontSize?: number;
+.\src\lib\rich-input\utils\cursorCalculations.ts:685:  const fontSize = parseFloat(computedStyle.fontSize) || 14;
+.\src\lib\rich-input\utils\cursorCalculations.ts:686:  const charWidth = fontSize * 0.6; // Rough estimate for monospace
+.\src\app\api\og-image\services\SVGGenerator.ts:24:      fontSize?: number;
+.\src\app\api\og-image\services\SVGGenerator.ts:64:      fontSize: number;
+.\src\app\api\og-image\services\SVGGenerator.ts:98:    const finalFontSize = allCustomOptions?.fontSize;
+.\src\app\api\og-image\services\SVGGenerator.ts:130:          fontSize: allCustomOptions.watermarkSize || 16, // Pro default: 16
+.\src\app\api\og-image\services\SVGGenerator.ts:169:        fontSize: textPositioning.fontSize,
+.\src\app\api\og-image\services\SVGGenerator.ts:210:    let fontSize = customFontSize || 36;
+.\src\app\api\og-image\services\SVGGenerator.ts:213:      fontSize = Math.floor(fontSize * aspectRatioFactor);
+.\src\app\api\og-image\services\SVGGenerator.ts:218:          fontSize = Math.floor(fontSize * 1.15); // 15% larger for square format
+.\src\app\api\og-image\services\SVGGenerator.ts:221:          fontSize = Math.floor(fontSize * 1.1); // 10% larger for 4:3 format
+.\src\app\api\og-image\services\SVGGenerator.ts:224:          fontSize = Math.floor(fontSize * 1.05); // 5% larger for YouTube format
+.\src\app\api\og-image\services\SVGGenerator.ts:227:          fontSize = Math.floor(fontSize * 1.08); // 8% larger for Facebook cover
+.\src\app\api\og-image\services\SVGGenerator.ts:230:          fontSize = Math.floor(fontSize * 1.12); // 12% larger for Twitter header
+.\src\app\api\og-image\services\SVGGenerator.ts:233:          fontSize = Math.floor(fontSize * 1.4); // 40% larger for LinkedIn banner (wide format needs bigger text)
+.\src\app\api\og-image\services\SVGGenerator.ts:240:      if (quote.text.length > 100) fontSize = Math.floor(fontSize * 0.9);
+.\src\app\api\og-image\services\SVGGenerator.ts:241:      else if (quote.text.length > 150) fontSize = Math.floor(fontSize * 0.8);
+.\src\app\api\og-image\services\SVGGenerator.ts:242:      else if (quote.text.length > 200) fontSize = Math.floor(fontSize * 0.7);
+.\src\app\api\og-image\services\SVGGenerator.ts:245:      fontSize = Math.max(fontSize, 20); // Increased minimum from 18 to 20
+.\src\app\api\og-image\services\SVGGenerator.ts:252:    const maxCharsPerLine = Math.floor(textMaxWidth / (fontSize * 0.6));
+.\src\app\api\og-image\services\SVGGenerator.ts:256:    const lineHeight = (customLineHeight || 1.4) * fontSize;
+.\src\app\api\og-image\services\SVGGenerator.ts:308:      fontSize,
+.\src\app\api\og-image\services\SVGGenerator.ts:326:    const approxCharWidth = textPositioning.fontSize * 0.45;
+.\src\app\api\og-image\services\SVGGenerator.ts:331:    const lineHeight = textPositioning.fontSize * 1.4;
+.\src\app\api\og-image\services\SVGGenerator.ts:365:      fontSize,
+.\src\app\api\og-image\services\SVGGenerator.ts:375:    const textWidth = text.length * (fontSize * 0.6);
+.\src\app\api\og-image\services\SVGGenerator.ts:376:    const textHeight = fontSize * 1.4;
+.\src\app\api\og-image\services\SVGGenerator.ts:478:    const lineHeight = textPositioning.fontSize * 1.4;
+.\src\app\api\og-image\services\SVGGenerator.ts:567:            const safeFontSize = isNaN(watermarkConfig?.fontSize || 24)
+.\src\app\api\og-image\services\SVGGenerator.ts:569:              : watermarkConfig?.fontSize || 24;
+.\src\app\api\og-image\services\SVGGenerator.ts:582:           font-size="${safeFontSize}px"
+.\src\app\api\og-image\services\SVGGenerator.ts:585:           style="font-size: ${safeFontSize}px !important; font-weight: 600; letter-spacing: 0.05em;">${escapeXml(watermarkConfig?.text || '')}</text>
+.\src\app\api\og-image\services\SVGGenerator.ts:600:           font-size="${textPositioning.fontSize}px"
+.\src\app\api\og-image\services\SVGGenerator.ts:601:           style="font-size: ${textPositioning.fontSize}px !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${escapeXml(line)}</text>`
+.\src\lib\rich-input\utils\clickPositioning.ts:489:        parseFloat(computedStyle.fontSize) * 1.4 ||
+.\src\lib\rich-input\utils\measurementHelpers.ts:13:  tempSpan.style.fontSize = computedStyle.fontSize;
+.\src\lib\rich-input\utils\measurementHelpers.ts:62:    tempSpan.style.fontSize = computedStyle.fontSize;
+.\src\app\components\ui\SmartInput.tsx:169:          const fontSize = parseFloat(style.fontSize);
+.\src\app\components\ui\SmartInput.tsx:176:          const charWidth = fontSize * 0.6;
+.\src\app\api\og-image\services\OGImageService.ts:39:  fontSize?: number;
+.\src\app\api\og-image\services\OGImageService.ts:81: * - Visual controls (fontSize, borderColor, borderOpacity, patternSeed, textPadding, lineHeight, glassBackground)
+.\src\app\api\og-image\services\OGImageService.ts:267:      fontSize: result.actualFontSize,
+.\src\app\api\og-image\services\OGImageService.ts:333:    const fontSize = searchParams.get('fontSize')
+.\src\app\api\og-image\services\OGImageService.ts:334:      ? parseFloat(searchParams.get('fontSize')!)
+.\src\app\api\og-image\services\OGImageService.ts:380:      fontSize,
+.\src\app\api\og-image\services\OGImageService.ts:540:                fontSize: validatedConfig.watermarkSize || 16,
+.\src\app\api\og-image\services\OGImageService.ts:579:          fontSize: validatedConfig.fontSize,
+.\src\app\api\og-image\services\OGImageService.ts:617:        actualFontSize: svgResult.actualValues.fontSize,
+.\src\app\api\og-image\services\OGImageService.ts:690:      fontSize: undefined,
+.\src\app\api\og-image\services\OGImageService.ts:715:      'fontSize',
+.\src\app\api\og-image\services\OGImageService.ts:790:            fontSize: config.fontSize,
+.\src\app\api\og-image\services\OGImageService.ts:868:        font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700"
+.\src\app\api\og-image\services\OGImageService.ts:869:        style="font-size: 72px !important; letter-spacing: -2px;">Idling.app</text>
+.\src\app\api\og-image\services\OGImageService.ts:873:        font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400"
+.\src\app\api\og-image\services\OGImageService.ts:874:        style="font-size: 28px !important;">Wisdom &amp; Community</text>
+.\src\app\api\og-image\services\OGImageService.ts:878:        font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="300"
+.\src\app\api\og-image\services\OGImageService.ts:879:        style="font-size: 20px !important;">Revisit often to see the latest changes and play!</text>
+.\src\app\card-generator\hooks\useImageGeneration.ts:158:            if (props.advancedOptions.fontSize !== undefined)
+.\src\app\card-generator\hooks\useImageGeneration.ts:159:              params.set('fontSize', props.advancedOptions.fontSize.toString());
+.\src\app\api\og-image\route.tsx:73: *         name: fontSize
+.\src\app\api\og-image\route.tsx:243:    const fontSize = searchParams.get('fontSize')
+.\src\app\api\og-image\route.tsx:244:      ? parseFloat(searchParams.get('fontSize')!)
+.\src\app\api\og-image\route.tsx:323:        'X-Font-Size': fontSize?.toString() || '',
+.\src\app\api\og-image\index.md:200:  <text x="600" y="280" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="48px">Idling.app</text>
+.\src\app\api\og-image\index.md:201:  <text x="600" y="350" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="system-ui, sans-serif" font-size="24px">Wisdom &amp; Community</text>
+.\src\app\api\og-image\config.ts:178:  fontSize: 24,
+.\src\app\api\og-image\config.ts:194:  fontSize: 24,
+.\src\app\card-generator\components\GenerationForm.tsx:57:    fontSize?: number;
+.\src\app\card-generator\components\AdvancedControls.tsx:20:    fontSize?: number;
+.\src\app\card-generator\components\AdvancedControls.tsx:252:                value={getNumericDisplayValue('fontSize') || ''}
+.\src\app\card-generator\components\AdvancedControls.tsx:255:                    'fontSize',
+.\src\app\components\skeleton\SmartSkeletonLoader.tsx:127:    fontSize: computedStyle.fontSize,
+.\src\app\components\skeleton\IntelligentSkeletonWrapper.tsx:107:  'fontSize',

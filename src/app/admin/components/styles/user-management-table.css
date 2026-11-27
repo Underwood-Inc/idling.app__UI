@@ -44,7 +44,6 @@
   position: absolute;
   top: -20px;
   right: 0;
-  font-size: var(--font-size-xs);
   color: var(--brand-primary);
   font-weight: 500;
   opacity: 0.8;
@@ -111,7 +110,6 @@
   border-collapse: collapse;
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   table-layout: fixed; /* Force table to respect width constraints */
 
   /* Remove conflicting scroll properties - let container handle scrolling */
@@ -147,7 +145,7 @@
   padding: var(--spacing-xl-cozy);
   border-bottom: 2px solid var(--dark-border--secondary);
   white-space: nowrap;
-  font-size: var(--font-size-lg); /* Increased from base to lg */
+  /* Increased from base to lg */
   position: sticky;
   top: 0;
   z-index: 10;
@@ -194,7 +192,7 @@
   border-bottom: 1px solid var(--dark-border--primary);
   vertical-align: top;
   background: var(--dark-background--primary);
-  font-size: var(--font-size-base); /* Ensure consistent sizing */
+  /* Ensure consistent sizing */
 }
 
 .user-row:hover {
@@ -231,11 +229,11 @@
 .user-name {
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-base); /* Increased from sm to base */
+  /* Increased from sm to base */
 }
 
 .user-id {
-  font-size: var(--font-size-sm); /* Increased from xs to sm */
+  /* Increased from xs to sm */
   color: var(--text-secondary);
   font-family: var(--font-mono);
 }
@@ -247,7 +245,6 @@
 
 .user-email {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   word-break: break-word;
 }
 
@@ -258,7 +255,6 @@
 
 .provider-name {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   font-weight: 500;
   text-transform: capitalize;
 }
@@ -279,7 +275,7 @@
   color: var(--dark-bg__text-color--primary);
   padding: var(--spacing-xs-compact) var(--spacing-sm-cozy);
   border-radius: 12px;
-  font-size: var(--font-size-sm); /* Increased from xs to sm */
+  /* Increased from xs to sm */
   font-weight: 600;
   white-space: nowrap;
 }
@@ -287,7 +283,7 @@
 .no-roles {
   color: var(--text-secondary);
   font-style: italic;
-  font-size: var(--font-size-sm); /* Increased from xs to sm */
+  /* Increased from xs to sm */
 }
 
 /* Status Cell */
@@ -299,7 +295,6 @@
   display: inline-block;
   padding: var(--spacing-xs-compact) var(--spacing-sm-cozy);
   border-radius: 12px;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   margin-bottom: var(--spacing-xs-compact);
 }
@@ -329,7 +324,6 @@
   display: inline-block;
   padding: var(--spacing-xs-compact) var(--spacing-sm-compact);
   border-radius: 8px;
-  font-size: var(--font-size-xs);
   font-weight: 500;
 }
 
@@ -355,7 +349,7 @@
 .date-cell {
   min-width: 120px;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base); /* Increased from xs to base */
+  /* Increased from xs to base */
 }
 
 /* Copy Button Rows */
@@ -409,7 +403,6 @@
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
-  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
@@ -420,11 +413,9 @@
 }
 
 .timeout-indicator {
-  font-size: var(--font-size-xs);
 }
 
 .timeout-reason {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--primary);
   font-weight: 500;
   word-break: break-word;
@@ -435,14 +426,12 @@
 }
 
 .timeout-expires {
-  font-size: var(--font-size-xs);
   color: var(--dark-bg__text-color--secondary);
 }
 
 .no-timeout {
   color: var(--text-secondary);
   font-style: italic;
-  font-size: var(--font-size-sm);
 }
 
 /* Actions Column Header */
@@ -493,7 +482,6 @@
   background: var(--dark-bg__background-color--tertiary);
   border-top: 1px solid var(--dark-bg__border-color--primary);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
 }
 
 .infinite-scroll-loading .loading-spinner {
@@ -513,14 +501,12 @@
   background: var(--dark-bg__background-color--tertiary);
   border-top: 1px solid var(--dark-bg__border-color--primary);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
   font-style: italic;
 }
 
 .scroll-hint {
   color: var(--accent-color--primary) !important;
   font-weight: 500;
-  font-size: var(--font-size-xs);
 }
 
 @keyframes spin {

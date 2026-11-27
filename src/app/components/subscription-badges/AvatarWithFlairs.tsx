@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { useEffect, useState } from 'react';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import './AvatarWithFlairs.css';
@@ -42,7 +43,7 @@ export function AvatarWithFlairs({
     const fetchSubscriptions = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
+        const response = await OCE.fetch(
           `/api/user-subscriptions?userId=${userId}`,
           {
             headers: {

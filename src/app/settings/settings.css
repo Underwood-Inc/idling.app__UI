@@ -82,7 +82,6 @@
 }
 
 .settings-page__title {
-  font-size: var(--font-size-5xl);
   font-weight: 800;
   margin-bottom: 1rem;
   background: linear-gradient(
@@ -99,7 +98,6 @@
 }
 
 .settings-page__description {
-  font-size: var(--font-size-lg);
   color: var(--brand-primary--dark);
   max-width: 600px;
   margin: 0 auto;
@@ -243,7 +241,6 @@
 }
 
 .settings-category__title {
-  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--text-on-light);
   margin-bottom: 0.5rem;
@@ -258,7 +255,6 @@
 }
 
 .settings-category__description {
-  font-size: var(--font-size-base);
   color: var(--brand-primary--dark);
   margin: 0;
   opacity: 0.8;
@@ -266,7 +262,6 @@
 }
 
 .settings-category__toggle {
-  font-size: var(--font-size-3xl);
   font-weight: 300;
   color: var(--text-on-light-muted);
   width: 3rem;
@@ -373,7 +368,6 @@
 }
 
 .settings-card__title {
-  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--brand-primary);
   margin: 0;
@@ -388,7 +382,6 @@
 }
 
 .settings-card__current {
-  font-size: var(--font-size-base);
   color: white;
   font-weight: 600;
   background: linear-gradient(
@@ -496,7 +489,6 @@
 }
 
 .settings-option__icon {
-  font-size: var(--font-size-xl);
   width: 3rem;
   height: 3rem;
   display: flex;
@@ -526,7 +518,6 @@
   font-weight: 600;
   color: var(--brand-primary--dark);
   margin-bottom: 0.25rem;
-  font-size: var(--font-size-base);
   line-height: 1.3;
 }
 
@@ -537,7 +528,6 @@
 
 .settings-option__desc {
   display: block;
-  font-size: var(--font-size-base);
   color: var(--brand-primary--dark);
   line-height: 1.4;
   opacity: 0.8;
@@ -617,7 +607,6 @@
 }
 
 .settings-toggle__icon {
-  font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
@@ -632,7 +621,6 @@
 }
 
 .settings-toggle__status {
-  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--brand-primary--dark);
   opacity: 0.7;
@@ -646,7 +634,6 @@
 .settings-card__hint {
   margin: 0 0 1rem;
   color: var(--text-secondary, #b0b0b0);
-  font-size: var(--font-size-md);
   line-height: 1.5;
 }
 
@@ -657,7 +644,6 @@
 }
 
 .settings-range__label {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--text-primary, #e0e0e0);
 }
@@ -676,7 +662,6 @@
 .settings-range__ticks {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-base);
   color: var(--text-secondary, #b0b0b0);
 }
 
@@ -689,7 +674,6 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   color: #dc2626;
-  font-size: var(--font-size-base);
   line-height: 1.5;
 }
 
@@ -744,7 +728,6 @@
 }
 
 .settings-account-status__icon {
-  font-size: var(--font-size-3xl);
   flex-shrink: 0;
   opacity: 0.8;
 }
@@ -754,14 +737,12 @@
 }
 
 .settings-account-status__status {
-  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--brand-primary);
   margin-bottom: 0.25rem;
 }
 
 .settings-account-status__note {
-  font-size: var(--font-size-base);
   color: var(--brand-primary--dark);
   opacity: 0.8;
 }
@@ -857,11 +838,9 @@
   }
 
   .settings-page__title {
-    font-size: var(--font-size-5xl);
   }
 
   .settings-page__description {
-    font-size: var(--font-size-md);
   }
 
   .settings-category__header {
@@ -880,7 +859,6 @@
   .settings-category__icon {
     width: 3rem;
     height: 3rem;
-    font-size: var(--font-size-xl);
   }
 
   .settings-category__content {
@@ -912,7 +890,6 @@
   .settings-option__icon {
     width: 2.5rem;
     height: 2.5rem;
-    font-size: var(--font-size-lg);
   }
 
   .settings-account-status {
@@ -928,11 +905,9 @@
 
 @media (max-width: 480px) {
   .settings-page__title {
-    font-size: var(--font-size-3xl);
   }
 
   .settings-page__description {
-    font-size: var(--font-size-base);
   }
 
   .settings-category__header {

@@ -37,7 +37,6 @@
   border-radius: calc(var(--border-radius) / 2);
   background: #E5E5E5;
   color: white;
-  font-size: var(--font-size-base);
   transition: border-color 0.2s ease;
 }
 
@@ -55,7 +54,6 @@
   background: none;
   border: none;
   color: #E5E5E5;
-  font-size: var(--font-size-xl);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: calc(var(--border-radius) / 2);
@@ -97,7 +95,6 @@
   padding: 0.5rem;
   border-radius: calc(var(--border-radius) / 2);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-lg);
   transition: all 0.2s ease;
   min-width: 2.25rem;
   height: 2.25rem;
@@ -142,7 +139,6 @@
   text-align: center;
   padding: 2rem 1rem;
   color: #E5E5E5;
-  font-size: var(--font-size-base);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -201,7 +197,6 @@
   padding: 0.5rem;
   border-radius: calc(var(--border-radius) / 2);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-xl);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -222,7 +217,6 @@
 }
 
 .emoji-picker__emoji-char {
-  font-size: var(--font-size-xl);
   line-height: 1;
   max-width: 100%;
   word-break: keep-all;
@@ -249,7 +243,6 @@
 }
 
 .emoji-picker__count {
-  font-size: var(--font-size-base);
   color: #E5E5E5;
   font-weight: 500;
 }
@@ -275,7 +268,6 @@
   border-radius: calc(var(--border-radius) / 2);
   color: white;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-md);
   font-weight: 600;
   transition: all 0.2s ease;
   width: 2.25rem;
@@ -307,7 +299,6 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: var(--font-size-base);
   color: white;
   font-weight: 500;
   min-width: 3rem;
@@ -340,7 +331,6 @@
   }
 
   .emoji-picker__search {
-    font-size: var(--font-size-base);
     padding: 0.4rem;
   }
 
@@ -352,7 +342,6 @@
     padding: 0.4rem;
     min-width: 2rem;
     height: 2rem;
-    font-size: var(--font-size-md);
   }
 
   .emoji-picker__content {
@@ -366,13 +355,11 @@
 
   .emoji-picker__emoji {
     padding: 0.4rem;
-    font-size: var(--font-size-lg);
     min-height: 2.5rem;
     min-width: 2.5rem;
   }
 
   .emoji-picker__emoji-char {
-    font-size: var(--font-size-lg);
   }
 
   .emoji-picker__emoji-image {
@@ -395,11 +382,9 @@
   .emoji-picker__pagination-btn {
     width: 2rem;
     height: 2rem;
-    font-size: var(--font-size-base);
   }
 
   .emoji-picker__pagination-info {
-    font-size: var(--font-size-base);
     min-width: 2.5rem;
   }
 }

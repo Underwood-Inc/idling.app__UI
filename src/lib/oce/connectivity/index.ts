@@ -1,20 +1,14 @@
-export { classifyFetchOutcome } from './classify';
-export { createConnectivityEngine } from './createConnectivityEngine';
-export {
-  getPageConnectivityEngine,
-  resetPageConnectivityEngineForTests,
-} from './getPageConnectivityEngine';
+/** Host-agnostic OCE core (engine + types). idling.app bootstraps via `../OCE.ts`. */
+export { ConnectivityEngine } from './ConnectivityEngine';
 export {
   OCE_PROBE_DEADLINE_PRESETS,
   OceProbeDeadline,
   SERVER_OCE_SNAPSHOT,
 } from './types';
-export { useConnectivitySnapshot, useOceUnavailable } from './useConnectivitySnapshot';
 export type {
-  ConnectivityEngine,
   ConnectivityEngineConfig,
-  ConnectivityReporter,
   ConnectivitySnapshot,
+  ConnectivityReporter,
   FetchLike,
   OceProbeDeadlinePreset,
   SettlementKind,

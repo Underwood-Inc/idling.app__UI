@@ -31,7 +31,6 @@
   justify-content: center;
   gap: 0.35em;
   width: 100%;
-  font-size: var(--font-size-5xl);
   font-weight: 700;
   color: var(--brand-primary);
   margin-bottom: 0.5rem;
@@ -39,7 +38,6 @@
 }
 
 .converter__description {
-  font-size: var(--font-size-md);
   color: var(--text-primary);
   max-width: 600px;
   margin: 0 auto;
@@ -88,7 +86,6 @@
   gap: 0.35em;
   color: var(--error-color);
   margin-bottom: 0.5rem;
-  font-size: var(--font-size-lg);
 }
 
 .error__content p {
@@ -103,7 +100,6 @@
   border-radius: var(--border-radius-sm);
   padding: 0.5rem 1rem;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-base);
   transition: var(--transition-base);
 }
 
@@ -128,7 +124,6 @@
 }
 
 .sidebar__title {
-  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--brand-primary);
   margin-bottom: 1rem;
@@ -153,7 +148,6 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--text-secondary);
-  font-size: var(--font-size-base);
   line-height: 1.5;
   padding: 0.25rem 0;
 }
@@ -171,7 +165,6 @@
 }
 
 .format__label {
-  font-size: var(--font-size-base);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -179,21 +172,18 @@
 }
 
 .format__value {
-  font-size: var(--font-size-base);
   color: var(--text-primary);
   font-weight: 600;
 }
 
 .user__info {
   color: var(--text-secondary);
-  font-size: var(--font-size-base);
   line-height: 1.5;
   margin: 0;
 }
 
 .user__info small {
   color: var(--text-muted);
-  font-size: var(--font-size-base);
 }
 
 /* Responsive Design */
@@ -203,11 +193,9 @@
   }
 
   .converter__title {
-    font-size: var(--font-size-3xl);
   }
 
   .converter__description {
-    font-size: var(--font-size-base);
   }
 
   .converter__interface,
@@ -226,7 +214,6 @@
 
 @media (max-width: 480px) {
   .converter__title {
-    font-size: var(--font-size-2xl);
   }
 
   .converter__interface,

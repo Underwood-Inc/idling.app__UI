@@ -5,22 +5,28 @@ description: CLAD layers, global singleton, generation tokens, and single-flight
 
 # Architecture
 
-**In plain terms:** OCE is a small **pure** connectivity engine with explicit seams (attach fetch, subscribe, reporter). It imports nothing from `APIClient`, React, or Axios.
+**In plain terms:** OCE is a small **pure** network-hint engine with clear plug-in points (observed `fetch`, subscribe, reporter). It imports nothing from `APIClient`, React, or Axios.
+
+| Everyday idea | Engine idea |
+| ------------- | ----------- |
+| Server sent a response | `reportResponse` / settlement `response` |
+| Request never got an answer | `reportTransportFailure` / settlement `transport-failure` (code name) |
+| User cancelled | `reportIgnored` / `ignored` |
 
 ## CLAD seams
 
 | Layer | Responsibility |
 | ----- | -------------- |
-| **Port (interface)** | `ConnectivityEngine` — `getSnapshot`, `subscribe`, `attachFetch`, `reporter` |
-| **Implementation** | `createConnectivityEngine(config)` — generation, streak, probe orchestration |
-| **Adapter** | `getPageConnectivityEngine()` — page singleton on `globalThis` |
-| **Recipe** | Host bootstrap, React hook, framework interceptors |
+| **Port (interface)** | `ConnectivityEngine` — `getSnapshot`, `subscribe`, `fetch(base)`, `reporter` |
+| **Implementation** | `new ConnectivityEngine(config)` — generation, streak, probe orchestration |
+| **Adapter** | Host `ConnectivityEngine` / explicit `ConnectivityEngine` reference (context or module) |
+| **Recipe** | `OCE.fetch`, `<OceProvider>`, data-library fetchers |
 
 ```text
-createConnectivityEngine(config) → engine
+new ConnectivityEngine(config) → engine
 engine.getSnapshot()
 engine.subscribe(listener) → unsubscribe
-engine.attachFetch(baseFetch) → wrappedFetch
+engine.fetch(baseFetch) → wrappedFetch
 engine.reporter.reportResponse()
 engine.reporter.reportTransportFailure()
 engine.reporter.reportIgnored()
@@ -29,7 +35,7 @@ engine.reporter.reportIgnored()
 ```mermaid
 flowchart TD
   callers[Any caller fetch or reporter]
-  attach[attachFetch wrapper]
+  attach[engine.fetch wrapper]
   engine[One engine per page]
   probe[Single-flight health check]
   callers --> attach
@@ -38,54 +44,33 @@ flowchart TD
   engine --> readers[Subscribers hints only]
 ```
 
-## Global singleton
+## Host ownership (not a global engine)
 
-`getPageConnectivityEngine` stores the engine on `globalThis[Symbol.for("@strixun/oce")]`.
+Agnostic OCE has **no** `globalThis` registry. The host constructs one `ConnectivityEngine` and passes that instance to microfrontends through **module scope** (`OCE` on idling.app) or an explicit export (`appFetch`).
 
-- **First caller** creates the engine with the provided config.
-- **Later callers** receive the **same** object and do **not** reset streak or flag.
-- If a later call passes a different `healthCheckUrl`, config does **not** override — log a warning.
-
-```ts
-declare const OCE_GLOBAL_KEY: unique symbol;
-
-const OCE_SYMBOL = Symbol.for('@strixun/oce') as typeof OCE_GLOBAL_KEY;
-
-export type PageConnectivityEngine = ReturnType<typeof createConnectivityEngine>;
-
-export function getPageConnectivityEngine(
-  config?: ConnectivityEngineConfig,
-): PageConnectivityEngine {
-  const g = globalThis as typeof globalThis & {
-    [OCE_SYMBOL]?: PageConnectivityEngine;
-  };
-  if (g[OCE_SYMBOL]) {
-    if (config?.healthCheckUrl && config.healthCheckUrl !== /* stored */) {
-      console.warn('[OCE] healthCheckUrl ignored — engine already created');
-    }
-    return g[OCE_SYMBOL];
-  }
-  const engine = createConnectivityEngine(config ?? defaultConfig);
-  g[OCE_SYMBOL] = engine;
-  return engine;
-}
-```
+- **First construction** owns config (`healthCheckUrl`, thresholds, attachment).
+- **Remotes** subscribe to the **same object reference** the host created — they do not call `new ConnectivityEngine` again.
+- **Never** replace `globalThis.fetch`; inject `client.fetch` into HTTP libraries.
 
 ### Scope limits (v1)
 
 | Scope | Sharing |
 | ----- | ------- |
-| Same-origin microfrontends on one page | One engine via symbol |
+| Same-origin microfrontends on one page | One engine reference from host bootstrap |
 | Cross-origin iframe | Separate engine — cannot see parent flag |
 | Another browser tab | Separate engine — no `BroadcastChannel` / `SharedWorker` in v1 |
 
 ## Snapshot fields
 
+`unavailable` is **not** set on the first failure alone. After `streak` reaches `failureThreshold`, **`confirm()`** runs a single health GET; only a **failed** probe (or rejected health contract) sets `unavailable: true`. Any ordinary **`Response`** recovers without calling health.
+
+Scenario diagrams: [Network flow](/guides/offline-connectivity-engine/network-flow).
+
 ```ts
 export type ConnectivitySnapshot = {
-  /** Best-effort hint — not a guarantee */
+  /** Confirmed after streak + failed health confirm — not the first blip */
   unavailable: boolean;
-  /** Consecutive transport failures at current generation */
+  /** Consecutive connection failures (no Response) at current generation */
   streak: number;
   failureThreshold: number;
   /** Bumped on each successful Response; stale probes compare against this */
@@ -115,7 +100,7 @@ function onSettled(token: { generation: number }, kind: SettlementKind): void {
     publish();
     return;
   }
-  // transport failure
+  // connection failure — no Response
   streak += 1;
   if (streak < failureThreshold || unavailable) {
     publish();
@@ -170,6 +155,7 @@ Parallel failures: ten `TypeError`s at the same generation increment streak unde
 ## Classification
 
 ```ts
+// `transport-failure` = connection failed before any Response (stable type name in code)
 export type SettlementKind = 'response' | 'transport-failure' | 'ignored';
 
 export function classify(value: unknown): SettlementKind {
@@ -186,11 +172,11 @@ export function classify(value: unknown): SettlementKind {
 }
 ```
 
-## Non-blocking `attachFetch`
+## Non-blocking `engine.fetch`
 
 ```ts
-export function attachFetch(
-  engine: PageConnectivityEngine,
+export function engine.fetch(
+  engine: ConnectivityEngine,
   baseFetch: typeof fetch,
 ): typeof fetch {
   return async function wrappedFetch(
@@ -210,8 +196,8 @@ export function attachFetch(
 }
 ```
 
-When `unavailable` is already true, `attachFetch` **still** calls `baseFetch` and returns or rethrows unchanged (FR-OCE-006).
+When `unavailable` is already true, `engine.fetch` **still** calls `baseFetch` and returns or rethrows unchanged (FR-OCE-006).
 
 ---
 
-**Sources (specified):** OCE plan — concurrency section, `getPageConnectivityEngine`, generation, single-flight probe, FR-OCE-001..008.
+**Sources (specified):** OCE plan — concurrency section, `host bootstrap (hold your ConnectivityEngine / ConnectivityEngine)`, generation, single-flight probe, FR-OCE-001..008.

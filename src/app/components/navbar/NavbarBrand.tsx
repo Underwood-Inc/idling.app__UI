@@ -41,7 +41,6 @@ export function NavbarBrand() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 'var(--font-size-xs)',
           color: 'white',
           flexShrink: 0,
           transition: 'all 0.2s ease'

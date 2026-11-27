@@ -66,17 +66,14 @@
 .modal-user-details h3 {
   margin: 0 0 var(--spacing-xs-compact) 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-lg);
 }
 
 .modal-user-details p {
   margin: 0 0 var(--spacing-xs-compact) 0;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
 }
 
 .user-id-display {
-  font-size: var(--font-size-xs);
   color: var(--text-secondary);
   font-family: var(--font-mono);
 }
@@ -93,7 +90,6 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  font-size: var(--font-size-sm);
 }
 
 .modal-close-btn:hover {
@@ -123,7 +119,6 @@
 .detail-section h4 {
   margin: 0 0 1rem 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-lg);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -145,12 +140,10 @@
 .detail-item label {
   font-weight: 500;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
 }
 
 .detail-item span {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-base);
   text-align: right;
   word-break: break-word;
 }
@@ -182,7 +175,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--primary);
 }
 
@@ -193,7 +185,6 @@
 }
 
 .subscription-service {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
 }
 
@@ -203,7 +194,6 @@
 }
 
 .timeout-date {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--primary);
   font-weight: 500;
 }
@@ -211,7 +201,6 @@
 .timeout-status {
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -230,7 +219,6 @@
   font-style: italic;
   text-align: center;
   padding: 1rem;
-  font-size: var(--font-size-base);
 }
 
 .modal-footer {
@@ -264,7 +252,6 @@
 .status-badge {
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -276,7 +263,6 @@
 .subscription-status {
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -300,7 +286,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
   margin-top: 4px;
 }

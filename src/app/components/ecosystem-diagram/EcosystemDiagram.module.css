@@ -14,7 +14,6 @@
   align-items: center;
   gap: 0.5em;
   margin: 0 0 0.5rem;
-  font-size: var(--font-size-xl);
   font-weight: 700;
   line-height: 1.25;
   color: var(--text-primary-color);
@@ -26,7 +25,6 @@
 
 .diagram__subtitle {
   margin: 0;
-  font-size: var(--font-size-base);
   color: var(--text-secondary-color);
   line-height: 1.5;
 }
@@ -45,7 +43,6 @@
   align-items: center;
   gap: 0.5em;
   padding: 0.75em 1.25em;
-  font-size: var(--font-size-sm, 1.4rem);
   font-weight: 500;
   line-height: 1.25;
   color: var(--text-secondary-color);
@@ -103,14 +100,12 @@
 
 .footer__text {
   margin: 0;
-  font-size: var(--font-size-base);
   line-height: 1.55;
   color: var(--text-secondary-color);
 }
 
 .footer__text strong {
   color: var(--text-primary-color);
-  font-size: var(--font-size-base);
   font-weight: 700;
 }
 
@@ -121,11 +116,9 @@
   }
 
   .diagram__title {
-    font-size: var(--font-size-lg);
   }
 
   .diagram__subtitle {
-    font-size: var(--font-size-sm);
   }
 
   .diagram__content {
@@ -145,19 +138,15 @@
   .legend__badge {
     width: 1.75rem;
     height: 1.75rem;
-    font-size: var(--font-size-sm);
   }
 
   .legend__label {
-    font-size: var(--font-size-sm);
   }
 
   .footer__text {
-    font-size: var(--font-size-md);
   }
 
   .footer__text strong {
-    font-size: var(--font-size-md);
   }
 }
 

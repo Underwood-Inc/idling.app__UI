@@ -35,7 +35,6 @@
 }
 
 .hero__title {
-  font-size: clamp(var(--font-size-5xl), 10vw, var(--font-size-5xl));
   font-weight: 900;
   margin: 0 0 2rem 0;
   color: var(--dark-bg__text-color--primary);
@@ -45,7 +44,6 @@
 }
 
 .hero__tagline {
-  font-size: clamp(var(--font-size-3xl), 5vw, var(--font-size-5xl));
   font-weight: 700;
   color: var(--brand-primary);
   margin: 0 0 2rem 0;
@@ -53,7 +51,6 @@
 }
 
 .hero__description {
-  font-size: clamp(var(--font-size-lg), 2.5vw, var(--font-size-3xl));
   line-height: 1.9;
   color: var(--dark-bg__text-color--secondary);
   max-width: 1100px;
@@ -138,7 +135,6 @@
 }
 
 .product__icon {
-  font-size: var(--font-size-5xl);
   filter: drop-shadow(0 16px 48px rgba(0, 0, 0, 0.5));
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -183,14 +179,12 @@
 }
 
 .stat__value {
-  font-size: var(--font-size-5xl);
   font-weight: 900;
   color: var(--brand-primary);
   line-height: 1;
 }
 
 .stat__label {
-  font-size: var(--font-size-base);
   font-weight: 700;
   color: var(--dark-bg__text-color--secondary);
   text-transform: uppercase;
@@ -213,7 +207,6 @@
 }
 
 .product__name {
-  font-size: clamp(var(--font-size-5xl), 6vw, var(--font-size-5xl));
   font-weight: 900;
   margin: 0 0 0.75rem 0;
   color: var(--dark-bg__text-color--primary);
@@ -222,7 +215,6 @@
 }
 
 .product__tagline {
-  font-size: clamp(var(--font-size-xl), 3vw, var(--font-size-4xl));
   font-weight: 700;
   color: var(--brand-primary);
   margin: 0;
@@ -232,7 +224,6 @@
 .badge {
   padding: 1rem 2rem;
   border-radius: 3rem;
-  font-size: var(--font-size-md);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -265,7 +256,6 @@
 }
 
 .product__description {
-  font-size: clamp(var(--font-size-lg), 2.5vw, var(--font-size-2xl));
   line-height: 1.8;
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
@@ -281,7 +271,6 @@
 }
 
 .product__features li {
-  font-size: var(--font-size-lg);
   line-height: 1.7;
   color: var(--dark-bg__text-color--secondary);
   padding-left: 3rem;
@@ -294,7 +283,6 @@
   left: 0;
   color: var(--brand-primary);
   font-weight: 900;
-  font-size: var(--font-size-3xl);
 }
 
 .product__actions {
@@ -314,7 +302,6 @@
   gap: 1.25rem;
   padding: 1.75rem 3.5rem;
   border-radius: 20px;
-  font-size: var(--font-size-xl);
   font-weight: 800;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -345,7 +332,6 @@
 }
 
 .cta__icon {
-  font-size: var(--font-size-4xl);
   color: inherit;
   -webkit-text-fill-color: currentColor;
 }
@@ -398,7 +384,6 @@
 }
 
 .footer__title {
-  font-size: clamp(var(--font-size-5xl), 7vw, var(--font-size-5xl));
   font-weight: 900;
   margin: 0 0 2rem 0;
   color: var(--dark-bg__text-color--primary);
@@ -406,7 +391,6 @@
 }
 
 .footer__description {
-  font-size: clamp(var(--font-size-lg), 2.5vw, var(--font-size-3xl));
   line-height: 1.8;
   color: var(--dark-bg__text-color--secondary);
   max-width: 900px;
@@ -470,7 +454,6 @@
   }
 
   .product__icon {
-    font-size: var(--font-size-5xl);
   }
 
   .product__image {
@@ -489,7 +472,6 @@
   }
 
   .product__features li {
-    font-size: var(--font-size-md);
   }
 
   .product__actions {
@@ -514,7 +496,6 @@
 
 @media (max-width: 480px) {
   .product__icon {
-    font-size: var(--font-size-5xl);
   }
 
   .product__image {
@@ -523,7 +504,6 @@
   }
 
   .stat__value {
-    font-size: var(--font-size-3xl);
   }
 }
 

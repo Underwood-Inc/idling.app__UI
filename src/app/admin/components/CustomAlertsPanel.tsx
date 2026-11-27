@@ -13,7 +13,7 @@
  * @author System Wizard 🧙‍♂️
  */
 
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, {
@@ -198,7 +198,7 @@ export default function CustomAlertsPanel() {
     try {
       setError(null);
 
-      const response = await noCacheFetch('/api/admin/alerts');
+      const response = await OCE.noCacheFetch('/api/admin/alerts');
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -403,7 +403,7 @@ export default function CustomAlertsPanel() {
 
       forceLog('🧙‍♂️ Submitting alert:', { url, method, payload });
 
-      const response = await noCacheFetch(url, {
+      const response = await OCE.noCacheFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json'
@@ -470,7 +470,7 @@ export default function CustomAlertsPanel() {
     }
 
     try {
-      const response = await noCacheFetch(`/api/admin/alerts/${alertId}`, {
+      const response = await OCE.noCacheFetch(`/api/admin/alerts/${alertId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -495,7 +495,7 @@ export default function CustomAlertsPanel() {
     field: 'is_active' | 'is_published'
   ) => {
     try {
-      const response = await noCacheFetch(`/api/admin/alerts/${alert.id}`, {
+      const response = await OCE.noCacheFetch(`/api/admin/alerts/${alert.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -570,7 +570,6 @@ export default function CustomAlertsPanel() {
           <p>Loading custom alerts...</p>
           <p
             style={{
-              fontSize: 'var(--font-size-sm)',
               color: 'var(--light-bg__text-color--secondary)',
               marginTop: '1rem'
             }}
@@ -587,7 +586,7 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: 'var(--font-size-5xl)', marginBottom: '1rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <SiteIcon id="circleX" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
@@ -608,7 +607,6 @@ export default function CustomAlertsPanel() {
             <pre
               style={{
                 whiteSpace: 'pre-wrap',
-                fontSize: 'var(--font-size-sm)',
                 margin: '0.5rem 0 0 0',
                 color: 'var(--error)'
               }}
@@ -649,7 +647,7 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: 'var(--font-size-5xl)', marginBottom: '1rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <SiteIcon id="lockKeyhole" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
@@ -672,7 +670,7 @@ export default function CustomAlertsPanel() {
     return (
       <div className="custom-alerts-panel">
         <div className="loading-state">
-          <div style={{ fontSize: 'var(--font-size-5xl)', marginBottom: '1rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <SiteIcon id="ban" sizeRem={3} />
           </div>
           <h3 style={{ color: 'var(--error)', marginBottom: '1rem' }}>
@@ -701,7 +699,6 @@ export default function CustomAlertsPanel() {
         {lastRefreshTime && (
           <p
             style={{
-              fontSize: 'var(--font-size-sm)',
               color: 'var(--light-bg__text-color--secondary)'
             }}
           >

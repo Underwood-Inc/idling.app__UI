@@ -39,7 +39,6 @@
 }
 
 .timeout-modal__title {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -48,7 +47,6 @@
 .timeout-modal__close {
   background: none;
   border: none;
-  font-size: var(--font-size-xl);
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;
@@ -71,7 +69,6 @@
   padding: 1rem 1.5rem;
   background: var(--dark-background--tertiary);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
   border-bottom: 1px solid var(--dark-border--primary);
 }
 
@@ -95,7 +92,6 @@
 .timeout-modal__label {
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
 }
 
 .required {
@@ -144,7 +140,6 @@
 }
 
 .timeout-modal__radio-description {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
 }
 
@@ -164,7 +159,6 @@
   border-radius: var(--border-radius);
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -213,7 +207,6 @@
 }
 
 .timeout-modal__duration-input label {
-  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--dark-bg__text-color--secondary);
   text-transform: uppercase;
@@ -226,7 +219,6 @@
   border-radius: var(--border-radius);
   background: var(--dark-background--primary);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   text-align: center;
 }
 
@@ -241,7 +233,6 @@
   padding: 0.75rem;
   background: var(--dark-background--tertiary);
   border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--primary);
 }
 
@@ -267,7 +258,6 @@
   border-radius: var(--border-radius-full);
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-xs);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
@@ -289,7 +279,6 @@
   border-radius: var(--border-radius);
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   font-family: inherit;
   resize: vertical;
   min-height: 80px;
@@ -316,7 +305,6 @@
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: var(--border-radius);
   color: #ef4444;
-  font-size: var(--font-size-sm);
 }
 
 /* ================================
@@ -336,7 +324,6 @@
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;

@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -193,7 +194,7 @@ export const UserSubscriptionManagementModal: React.FC<
   // Fetch current subscriptions for the user
   const fetchCurrentSubscriptions = useCallback(async () => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}/subscriptions`);
+      const response = await OCE.noCacheFetch(`/api/admin/users/${userId}/subscriptions`);
       if (!response.ok) {
         throw new Error('Failed to fetch user subscriptions');
       }
@@ -208,7 +209,7 @@ export const UserSubscriptionManagementModal: React.FC<
   // Fetch available subscription plans
   const fetchSubscriptionPlans = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/subscription-plans');
+      const response = await OCE.noCacheFetch('/api/admin/subscription-plans');
       if (!response.ok) {
         throw new Error('Failed to fetch subscription plans');
       }
@@ -269,7 +270,7 @@ export const UserSubscriptionManagementModal: React.FC<
         reactivate: 'active'
       };
 
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/user-subscriptions/${subscription.id}`,
         {
           method: 'PATCH',
@@ -325,7 +326,7 @@ export const UserSubscriptionManagementModal: React.FC<
           : undefined
       };
 
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/${userId}/assign-subscription`,
         {
           method: 'POST',
@@ -366,7 +367,7 @@ export const UserSubscriptionManagementModal: React.FC<
   const handleEditSubscription = async (subscriptionId: string) => {
     setActionLoading(true);
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/user-subscriptions/${subscriptionId}`,
         {
           method: 'PATCH',

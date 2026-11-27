@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect, useState } from 'react';
 import './AdminUserTooltip.css';
@@ -48,7 +49,7 @@ export function AdminUserTooltip({
   const checkTimeoutStatus = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/timeout?userId=${userId}&type=general`
       );
       if (response.ok) {

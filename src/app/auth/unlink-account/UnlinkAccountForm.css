@@ -10,14 +10,12 @@
 }
 
 .unlink-account-form__section h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 1rem 0;
 }
 
 .unlink-account-form__section p {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0 0 0.5rem 0;
@@ -38,7 +36,6 @@
 
 .unlink-account-form__error p {
   margin: 0;
-  font-size: var(--font-size-base);
 }
 
 .unlink-account-form__success {
@@ -51,7 +48,6 @@
 
 .unlink-account-form__success p {
   margin: 0 0 1rem 0;
-  font-size: var(--font-size-base);
 }
 
 .unlink-account-form__success-actions {
@@ -75,14 +71,12 @@
 }
 
 .unlink-account-form__action-group h4 {
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 0.75rem 0;
 }
 
 .unlink-account-form__action-group p {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0 0 1rem 0;
@@ -91,7 +85,6 @@
 .unlink-account-form__button {
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
   font-weight: 500;
   text-decoration: none;
   text-align: center;
@@ -149,14 +142,12 @@
 }
 
 .unlink-account-form__help h4 {
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 0.75rem 0;
 }
 
 .unlink-account-form__help p {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0 0 1rem 0;

@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { useEffect, useState } from 'react';
 import { APP_VERSION_SELECTORS } from 'src/lib/test-selectors/components/app-version.selectors';
 
@@ -12,7 +13,7 @@ export default function AppVersion({
   useEffect(() => {
     setMounted(true);
     // Get version from package.json via API or fetch
-    fetch('/api/version')
+    OCE.fetch('/api/version')
       .then((res) => res.json())
       .then((data) => setVersion(data.version || '0.0.0'))
       .catch(() => setVersion('ERROR'));

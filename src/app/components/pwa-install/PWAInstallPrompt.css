@@ -42,7 +42,6 @@
 }
 
 .pwa-install-prompt__icon {
-  font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
@@ -55,14 +54,12 @@
 }
 
 .pwa-install-prompt__title {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   line-height: 1.2;
 }
 
 .pwa-install-prompt__subtitle {
-  font-size: var(--font-size-xs);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.2;
 }
@@ -80,7 +77,6 @@
   border: none;
   border-radius: var(--border-radius-sm);
   padding: 4px 8px;
-  font-size: var(--font-size-xs);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -103,7 +99,6 @@
   border: none;
   border-radius: var(--border-radius-sm);
   padding: 4px;
-  font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -162,20 +157,16 @@
   }
 
   .pwa-install-prompt__icon {
-    font-size: var(--font-size-md);
   }
 
   .pwa-install-prompt__title {
-    font-size: var(--font-size-xs);
   }
 
   .pwa-install-prompt__subtitle {
-    font-size: var(--font-size-xs);
   }
 
   .pwa-install-prompt__install-btn {
     padding: 3px 6px;
-    font-size: var(--font-size-xs);
   }
 }
 

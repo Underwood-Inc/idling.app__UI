@@ -113,7 +113,7 @@ export class Logger implements LoggerInstance {
       INFO: 'color: #3b82f6;',
       WARN: 'color: #f59e0b; font-weight: bold;',
       ERROR:
-        'color: #ef4444; font-weight: bold; font-size: 16px; background: #fef2f2; padding: 2px 6px; border-radius: 4px;',
+        'color: #ef4444; font-weight: bold; background: #fef2f2; padding: 2px 6px; border-radius: 4px;',
       PERF: 'color: #10b981;'
     };
     return styles[level] || '';

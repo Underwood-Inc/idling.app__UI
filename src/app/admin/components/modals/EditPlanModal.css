@@ -27,7 +27,6 @@
 
 .edit-plan-modal__header h2 {
   margin: 0;
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary) !important;
   text-transform: none;
@@ -60,7 +59,6 @@
 
 /* Labels */
 .edit-plan-modal__label {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary) !important;
   margin-bottom: 0.25rem;
@@ -75,7 +73,6 @@
   border-radius: var(--border-radius);
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   transition: all 0.2s ease;
 }
 
@@ -124,7 +121,6 @@
   align-items: center;
   gap: 0.75rem;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--dark-bg__text-color--primary) !important;
 }
@@ -153,7 +149,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: var(--font-color--primary);
-  font-size: var(--font-size-xs);
   font-weight: bold;
 }
 
@@ -177,7 +172,6 @@
   padding: 1rem;
   border-radius: var(--border-radius);
   margin-bottom: 1.5rem;
-  font-size: var(--font-size-sm);
 }
 
 /* Actions */
@@ -192,7 +186,6 @@
 .edit-plan-modal__btn {
   padding: 1rem 2rem;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-md);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;

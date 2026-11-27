@@ -10,7 +10,7 @@
  * @author System
  */
 
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -104,7 +104,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
       setLoading(true);
       setError(null);
 
-      const response = await noCacheFetch('/api/admin/quotas/global', {
+      const response = await OCE.noCacheFetch('/api/admin/quotas/global', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -141,7 +141,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
 
   const handleCreateQuota = async (): Promise<void> => {
     try {
-      const response = await noCacheFetch('/api/admin/quotas/global', {
+      const response = await OCE.noCacheFetch('/api/admin/quotas/global', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -181,7 +181,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
         is_active: editingQuota.is_active
       };
 
-      const response = await noCacheFetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/quotas/global/${quotaId}`,
         {
           method: 'PUT',
@@ -219,7 +219,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
     }
 
     try {
-      const response = await noCacheFetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/quotas/global/${quotaId}`,
         {
           method: 'DELETE',
@@ -398,7 +398,6 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
           <small
             style={{
               color: '#ccc',
-              fontSize: 'var(--font-size-xs)',
               marginTop: '2px',
               display: 'block'
             }}
@@ -586,7 +585,6 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                       <small
                         style={{
                           color: '#666',
-                          fontSize: 'var(--font-size-xs)',
                           marginTop: '2px',
                           display: 'block'
                         }}
@@ -738,8 +736,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           padding: '5px 10px',
                           borderRadius: '4px',
                           cursor: 'pointer',
-                          fontSize: 'var(--font-size-xs)'
-                        }}
+                          }}
                       >
                         <IconText iconId="pencil">Edit</IconText>
                       </button>
@@ -752,8 +749,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           padding: '5px 10px',
                           borderRadius: '4px',
                           cursor: 'pointer',
-                          fontSize: 'var(--font-size-xs)'
-                        }}
+                          }}
                       >
                         <IconText iconId="trash">Delete</IconText>
                       </button>
@@ -766,8 +762,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                       gridTemplateColumns:
                         'repeat(auto-fit, minmax(150px, 1fr))',
                       gap: '10px',
-                      fontSize: 'var(--font-size-sm)'
-                    }}
+                      }}
                   >
                     <div>
                       <strong>Quota:</strong>{' '}

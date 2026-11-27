@@ -10,7 +10,6 @@
 }
 
 .emoji-approval-panel__header h2 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin-bottom: 1rem;
@@ -76,7 +75,6 @@
   text-align: center;
   padding: 3rem;
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-base);
 }
 
 .emoji-approval-panel__list {
@@ -113,7 +111,6 @@
 }
 
 .emoji-card__placeholder {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   text-align: center;
 }
@@ -132,7 +129,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -144,7 +140,6 @@
   display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: var(--font-size-base);
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -174,7 +169,6 @@
   padding: 0.5rem 1rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;

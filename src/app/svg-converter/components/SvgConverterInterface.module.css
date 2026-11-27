@@ -10,7 +10,6 @@
 }
 
 .interface__title {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
@@ -18,7 +17,6 @@
 
 .interface__subtitle {
   color: var(--text-secondary);
-  font-size: var(--font-size-base);
 }
 
 .interface__content {
@@ -50,7 +48,6 @@
   color: var(--text-primary);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
-  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -96,17 +93,14 @@
 }
 
 .upload__icon {
-  font-size: var(--font-size-3xl);
 }
 
 .upload__text {
   color: var(--text-primary);
-  font-size: var(--font-size-base);
 }
 
 .upload__hint {
   color: var(--text-muted);
-  font-size: var(--font-size-base);
 }
 
 .upload__preview {
@@ -119,7 +113,6 @@
   border: 1px solid var(--success-green);
   border-radius: var(--border-radius-md);
   color: var(--success-green);
-  font-size: var(--font-size-base);
 }
 
 /* Text Input */
@@ -132,7 +125,6 @@
 .text__label {
   font-weight: 500;
   color: var(--text-primary);
-  font-size: var(--font-size-base);
 }
 
 .text__area {
@@ -143,7 +135,6 @@
   background: transparent;
   color: var(--text-primary);
   font-family: 'Fira Code', monospace;
-  font-size: var(--font-size-base);
   line-height: 1.5;
   resize: vertical;
   min-height: 200px;
@@ -157,7 +148,6 @@
 
 .text__hint {
   color: var(--text-muted);
-  font-size: var(--font-size-base);
 }
 
 /* Conversion Options */
@@ -169,7 +159,6 @@
 }
 
 .options__title {
-  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--brand-primary);
   margin-bottom: 1rem;
@@ -188,7 +177,6 @@
 }
 
 .option__label {
-  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--text-primary);
   display: flex;
@@ -202,7 +190,6 @@
   border-radius: var(--border-radius-sm);
   background: transparent;
   color: var(--text-primary);
-  font-size: var(--font-size-base);
 }
 
 .option__input:focus {
@@ -250,7 +237,6 @@
   border-radius: var(--border-radius-sm);
   background: transparent;
   color: var(--text-primary);
-  font-size: var(--font-size-base);
   cursor: var(--mappy-cursor-pointer, pointer);
 }
 
@@ -271,7 +257,6 @@
   color: var(--dark-bg-primary);
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
@@ -297,7 +282,6 @@
 
 .button__icon,
 .button__spinner {
-  font-size: var(--font-size-md);
 }
 
 .button__spinner {
@@ -330,7 +314,6 @@
 
 .progress__text {
   text-align: center;
-  font-size: var(--font-size-base);
   color: var(--text-muted);
 }
 

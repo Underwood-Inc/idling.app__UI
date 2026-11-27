@@ -24,7 +24,6 @@
 }
 
 .panel-header h2 {
-  font-size: var(--font-size-3xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 0.5rem 0;
@@ -32,7 +31,6 @@
 
 .panel-header p {
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-lg);
   line-height: 1.5;
   margin: 0;
 }
@@ -86,7 +84,6 @@
   border: none;
   color: var(--error);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-lg);
   padding: 0;
   width: 24px;
   height: 24px;
@@ -154,11 +151,9 @@
 }
 
 .alert-icon {
-  font-size: var(--font-size-lg);
 }
 
 .alert-card__title h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0;
@@ -178,7 +173,6 @@
 
 .alert-message {
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-md);
   line-height: 1.4;
   margin: 0;
 }
@@ -187,7 +181,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-base);
 }
 
 .meta-item {
@@ -212,7 +205,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
 }
@@ -261,7 +253,6 @@
 }
 
 .empty-state h3 {
-  font-size: var(--font-size-xl);
   margin-bottom: var(--spacing-cozy);
   color: var(--light-bg__text-color--primary);
 }
@@ -308,7 +299,6 @@
 }
 
 .modal-header h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0;
@@ -317,7 +307,6 @@
 .modal-close {
   background: none;
   border: none;
-  font-size: var(--font-size-xl);
   cursor: var(--mappy-cursor-pointer, pointer);
   color: var(--light-bg__text-color--secondary);
   width: 32px;
@@ -368,7 +357,6 @@
 }
 
 .form-group label {
-  font-size: var(--font-size-md);
   font-weight: 500;
   color: var(--light-bg__text-color--primary);
 }
@@ -379,7 +367,6 @@
   padding: var(--spacing-xs);
   border: 1px solid var(--brand-tertiary--light);
   border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
   background: var(--light-background--primary);
   color: var(--light-bg__text-color--primary);
   transition: border-color 0.2s ease;
@@ -395,7 +382,6 @@
 }
 
 .form-group small {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -403,7 +389,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
 }
@@ -433,7 +418,6 @@
   padding: var(--spacing-xs) var(--spacing-cozy);
   border: 1px solid transparent;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
   font-weight: 500;
   text-decoration: none;
   cursor: var(--mappy-cursor-pointer, pointer);
@@ -483,7 +467,6 @@
 
 .btn-sm {
   padding: var(--spacing-xs-cozy) var(--spacing-xs);
-  font-size: var(--font-size-base);
 }
 
 /* ================================

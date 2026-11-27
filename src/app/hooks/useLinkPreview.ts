@@ -1,4 +1,4 @@
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { useEffect, useState } from 'react';
 
 export interface LinkPreviewData {
@@ -28,7 +28,7 @@ export function useLinkPreview(url: string | null) {
       setError(null);
 
       try {
-        const response = await noCacheFetch(
+        const response = await OCE.noCacheFetch(
           `/api/link-preview?url=${encodeURIComponent(url)}`
         );
         if (!response.ok) throw new Error('Failed to fetch preview');

@@ -28,7 +28,7 @@ export function LucideIcon({ icon, sizeRem = 1, className, title }: LucideIconPr
   return (
     <span
       className={lucideIconClassName(className)}
-      style={{ fontSize: `${sizeRem}em` }}
+      
       aria-hidden={title ? undefined : true}
       title={title}
       role={title ? 'img' : undefined}

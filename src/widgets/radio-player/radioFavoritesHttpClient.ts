@@ -1,4 +1,4 @@
-import { idlingFetch } from '@lib/oce/idlingFetch';
+import { OCE } from '@lib/oce';
 import type { RadioSongFavorite, RadioSongFavoriteDraft } from './radioSongFavorites';
 import type { RadioStationFavoriteCloud } from './radioFavoritesRepository';
 
@@ -10,7 +10,7 @@ async function parseJson<T>(response: Response): Promise<T> {
 }
 
 export async function fetchRadioStationFavoritesCloud(): Promise<RadioStationFavoriteCloud[]> {
-  const response = await idlingFetch('/api/radio/favorites/stations', {
+  const response = await OCE.fetch('/api/radio/favorites/stations', {
     method: 'GET',
     credentials: 'same-origin',
     headers: { Accept: 'application/json' },
@@ -23,7 +23,7 @@ export async function putRadioStationFavoriteCloud(
   stationName: string,
   saved: boolean
 ): Promise<RadioStationFavoriteCloud[]> {
-  const response = await idlingFetch('/api/radio/favorites/stations', {
+  const response = await OCE.fetch('/api/radio/favorites/stations', {
     method: 'PUT',
     credentials: 'same-origin',
     headers: {
@@ -37,7 +37,7 @@ export async function putRadioStationFavoriteCloud(
 }
 
 export async function fetchRadioSongFavoritesCloud(): Promise<RadioSongFavorite[]> {
-  const response = await idlingFetch('/api/radio/favorites/songs', {
+  const response = await OCE.fetch('/api/radio/favorites/songs', {
     method: 'GET',
     credentials: 'same-origin',
     headers: { Accept: 'application/json' },
@@ -50,7 +50,7 @@ export async function putRadioSongFavoriteCloud(
   draft: RadioSongFavoriteDraft,
   saved: boolean
 ): Promise<RadioSongFavorite[]> {
-  const response = await idlingFetch('/api/radio/favorites/songs', {
+  const response = await OCE.fetch('/api/radio/favorites/songs', {
     method: 'PUT',
     credentials: 'same-origin',
     headers: {

@@ -22,13 +22,11 @@
 .subscription-flair--sm {
   width: 24px;
   height: 24px;
-  font-size: var(--font-size-base);
 }
 
 .subscription-flair--md {
   width: 32px;
   height: 32px;
-  font-size: var(--font-size-base);
   gap: 2px;
 }
 
@@ -137,7 +135,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-base);
   border: 1px solid #E5E5E5;
 }
 
@@ -167,13 +164,11 @@
   .subscription-flair--sm {
     width: 20px;
     height: 20px;
-    font-size: var(--font-size-base);
   }
   
   .subscription-flair--md {
     width: 28px;
     height: 28px;
-    font-size: var(--font-size-base);
   }
   
   .subscription-flair--top-right,

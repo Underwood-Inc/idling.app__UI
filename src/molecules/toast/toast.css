@@ -1,6 +1,6 @@
 .idling-toast-viewport {
   position: fixed;
-  z-index: 1100;
+  z-index: calc(var(--z-header) - 1);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -9,14 +9,14 @@
 }
 
 .idling-toast-viewport--top-right {
-  top: max(1rem, env(safe-area-inset-top));
+  top: calc(var(--site-chrome-top-inset) + 0.75rem);
   right: max(1rem, env(safe-area-inset-right));
   bottom: auto;
   left: auto;
 }
 
 .idling-toast-viewport--top-left {
-  top: max(1rem, env(safe-area-inset-top));
+  top: calc(var(--site-chrome-top-inset) + 0.75rem);
   left: max(1rem, env(safe-area-inset-left));
   bottom: auto;
   right: auto;
@@ -112,14 +112,12 @@
 }
 
 .idling-toast__title {
-  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.35;
   margin: 0;
 }
 
 .idling-toast__description {
-  font-size: 0.8125rem;
   line-height: 1.4;
   margin: 0.25rem 0 0;
   opacity: 0.9;

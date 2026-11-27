@@ -17,7 +17,6 @@
 }
 
 .panel-header h2 {
-  font-size: var(--font-size-3xl);
   font-weight: 700;
   color: var(--light-bg__text-color--primary);
   margin-bottom: 0.5rem;
@@ -25,7 +24,6 @@
 
 .panel-header p {
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   margin: 0;
 }
 
@@ -54,7 +52,6 @@
   border: none;
   color: var(--error);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-lg);
   padding: 0.25rem;
 }
 
@@ -71,7 +68,6 @@
 
 .loading-spinner,
 .error-icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 1rem;
   animation: spin 2s linear infinite;
 }
@@ -109,7 +105,6 @@
   background: none;
   border: none;
   padding: 0.75rem 1.5rem;
-  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--light-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
@@ -195,7 +190,6 @@
 }
 
 .stat-card h3 {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--font-color--primary);
   margin: 0 0 1rem 0;
@@ -205,7 +199,6 @@
 }
 
 .stat-value {
-  font-size: var(--font-size-5xl);
   font-weight: 700;
   color: var(--brand-primary);
   margin: 0 0 0.75rem 0;
@@ -217,7 +210,6 @@
 }
 
 .stat-subtitle {
-  font-size: var(--font-size-base);
   color: var(--font-color--secondary);
   position: relative;
   z-index: 1;
@@ -233,7 +225,6 @@
 }
 
 .plan-distribution h3 {
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin-bottom: 1rem;
@@ -302,7 +293,6 @@
 }
 
 .subscriber-count {
-  font-size: var(--font-size-base);
   color: #E5E5E5;
   position: relative;
   z-index: 1;
@@ -334,7 +324,6 @@
 }
 
 .plans-header h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0;
@@ -374,14 +363,12 @@
 }
 
 .plan-header h4 {
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
 }
 
 .plan-type {
-  font-size: var(--font-size-base);
   font-weight: 500;
   text-transform: uppercase;
   padding: 0.25rem 0.5rem;
@@ -407,24 +394,20 @@
 }
 
 .price {
-  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--brand-primary);
 }
 
 .period {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
 }
 
 .price-free {
-  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--success);
 }
 
 .plan-description {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   margin-bottom: 1rem;
   line-height: 1.4;
@@ -453,7 +436,6 @@
 }
 
 .subscriptions-header h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0;
@@ -473,7 +455,6 @@
   border-radius: 6px;
   background: var(--light-background--secondary);
   color: var(--light-bg__text-color--primary);
-  font-size: var(--font-size-base);
 }
 
 .search-input {
@@ -504,12 +485,10 @@
   background: var(--light-background--tertiary);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
-  font-size: var(--font-size-base);
 }
 
 .subscriptions-table td {
   color: var(--light-bg__text-color--primary);
-  font-size: var(--font-size-base);
 }
 
 .user-info,
@@ -526,7 +505,6 @@
 
 .user-email,
 .plan-type {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -542,7 +520,6 @@
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
-  font-size: var(--font-size-base);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -586,7 +563,6 @@
 }
 
 .pagination-info {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -600,7 +576,6 @@
 }
 
 .subscription-analytics h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin-bottom: 1rem;
@@ -615,7 +590,6 @@
 }
 
 .analytics-placeholder p {
-  font-size: var(--font-size-md);
   color: var(--light-bg__text-color--primary);
   margin-bottom: 1.5rem;
 }
@@ -630,7 +604,6 @@
 .analytics-placeholder li {
   padding: 0.5rem 0;
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-base);
 }
 
 /* ================================
@@ -641,7 +614,6 @@
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 6px;
-  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -658,7 +630,6 @@
 
 .btn-sm {
   padding: 0.25rem 0.5rem;
-  font-size: var(--font-size-base);
 }
 
 .btn-primary {
@@ -732,7 +703,6 @@
 
 .loading-state p {
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-md);
   margin: 0;
 }
 
@@ -751,7 +721,6 @@
 }
 
 .error-icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 1rem;
   color: var(--error);
 }
@@ -783,7 +752,6 @@
   border: none;
   color: var(--error);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-lg);
   padding: 0.25rem;
   border-radius: 4px;
   transition: background 0.2s ease;
@@ -855,7 +823,6 @@
 }
 
 .modal-header h2 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--font-color--primary);
   margin: 0;
@@ -874,7 +841,6 @@
   justify-content: center;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
-  font-size: var(--font-size-lg);
 }
 
 .modal-close:hover {
@@ -916,7 +882,6 @@
 .form-group label {
   font-weight: 600;
   color: var(--dark-text-primary);
-  font-size: var(--font-size-base);
   text-shadow: 0 1px 2px transparent;
 }
 
@@ -928,7 +893,6 @@
   border: 1px solid #E5E5E5;
   border-radius: 8px;
   color: var(--font-color--primary);
-  font-size: var(--font-size-base);
   font-family: inherit;
   transition: all 0.2s ease;
 }
@@ -950,7 +914,6 @@
 }
 
 .form-help {
-  font-size: var(--font-size-base);
   color: var(--font-color--secondary);
   margin-top: 0.25rem;
 }
@@ -971,7 +934,6 @@
 }
 
 .checkbox-text {
-  font-size: var(--font-size-base);
 }
 
 .modal-actions {

@@ -12,9 +12,7 @@
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  
-  // Set CSS variable for height calculations elsewhere
-  --header-height: 11rem;
+  min-height: var(--header-height);
 }
 
 /* Mobile header improvements */
@@ -33,7 +31,6 @@
 
 .header h2 {
   margin: 0 auto;
-  font-size: var(--font-size-xl);
 }
 
 .header__auth {
@@ -44,7 +41,6 @@
 
 .header__user-name {
   margin-right: 0;
-  font-size: var(--font-size-base);
 }
 
 .header__nav {

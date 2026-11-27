@@ -22,7 +22,6 @@
 }
 
 .web-preview-url {
-  font-size: var(--font-size-sm);
   color: #495057;
   white-space: nowrap;
   overflow: hidden;
@@ -39,7 +38,6 @@
   background: none;
   border: none;
   color: #6c757d;
-  font-size: var(--font-size-lg);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0 4px;
   line-height: 1;
@@ -62,7 +60,6 @@
   align-items: center;
   gap: 12px;
   color: #6c757d;
-  font-size: var(--font-size-sm);
 }
 
 .web-preview-spinner {

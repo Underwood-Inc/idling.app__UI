@@ -32,7 +32,6 @@ const GalaxyModalContent = ({ onClose }: { onClose?: () => void }) => {
             background: 'none',
             border: 'none',
             color: 'var(--text-secondary)',
-            fontSize: 'var(--font-size-xl)',
             cursor: 'pointer'
           }}
           aria-label="Close Galaxy modal"

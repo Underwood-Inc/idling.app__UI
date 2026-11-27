@@ -3,6 +3,7 @@
  * Handles state management, text operations, and parsing
  */
 
+import { OCE } from '@lib/oce';
 import { ContentParser } from '../../utils/content-parsers';
 import { RichTextParser } from '../../utils/parsers/rich-text-parser';
 import type {
@@ -801,7 +802,7 @@ export class RichInputEngine implements RichInputAPI {
 
     try {
       // Fetch emojis from the API
-      const response = await fetch(
+      const response = await OCE.fetch(
         '/api/emojis?per_page=1000&include_custom=true'
       );
       if (!response.ok) {

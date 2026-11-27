@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { NAV_PATHS } from '@lib/routes';
 import { signIn, signOut } from 'next-auth/react';
@@ -76,7 +77,7 @@ export function UnlinkAccountForm({
 
     try {
       // Call the API to unlink the account
-      const response = await fetch('/api/auth/unlink-account', {
+      const response = await OCE.fetch('/api/auth/unlink-account', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

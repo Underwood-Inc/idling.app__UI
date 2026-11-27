@@ -15,7 +15,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--success-green);
   margin: 0;
@@ -32,7 +31,6 @@
   color: var(--text-primary);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
-  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -59,7 +57,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 1rem 0;
@@ -98,13 +95,11 @@
 }
 
 .loading__spinner {
-  font-size: var(--font-size-xl);
   animation: pulse 2s infinite;
 }
 
 .loading__text {
   color: var(--text-muted);
-  font-size: var(--font-size-base);
 }
 
 .preview__image {
@@ -143,7 +138,6 @@
 }
 
 .info__label {
-  font-size: var(--font-size-base);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -151,7 +145,6 @@
 }
 
 .info__value {
-  font-size: var(--font-size-base);
   color: var(--text-primary);
   font-weight: 600;
 }
@@ -172,7 +165,6 @@
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
@@ -185,7 +177,6 @@
 }
 
 .button__icon {
-  font-size: var(--font-size-md);
 }
 
 .action__stats {
@@ -207,14 +198,12 @@
 }
 
 .stat__label {
-  font-size: var(--font-size-base);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .stat__value {
-  font-size: var(--font-size-base);
   font-weight: 600;
 }
 

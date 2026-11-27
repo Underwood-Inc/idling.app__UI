@@ -1,0 +1,130 @@
+/**
+ * Brand highlight surfaces: selection, marks, TOC, code lines, local search.
+ */
+
+/* Text selection */
+::selection {
+  background: rgba(237, 174, 73, 0.45);
+  color: var(--text-primary);
+}
+
+::-moz-selection {
+  background: rgba(237, 174, 73, 0.45);
+  color: var(--text-primary);
+}
+
+/* Markdown links (override any residual Infima blue) */
+.markdown a,
+.theme-doc-markdown a,
+article a:not(.card):not(.pagination-nav__link):not(.navbar__link):not(
+    .menu__link
+  ):not(.footer__link-item) {
+  color: var(--brand-primary);
+}
+
+.markdown a:hover,
+.theme-doc-markdown a:hover,
+article
+  a:not(.card):not(.pagination-nav__link):not(.navbar__link):not(.menu__link):not(
+    .footer__link-item
+  ):hover {
+  color: var(--brand-primary-light);
+}
+
+/* Inline <mark> in prose */
+.markdown mark,
+.theme-doc-markdown mark,
+article mark {
+  background: rgba(237, 174, 73, 0.25);
+  color: var(--brand-primary-light);
+  padding: 0.1em 0.25em;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Table of contents — active / hover */
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: var(--brand-primary);
+}
+
+.table-of-contents__link--active {
+  font-weight: var(--font-weight-semibold);
+}
+
+html[data-theme='dark'] .table-of-contents__link--active {
+  color: var(--brand-primary-light);
+}
+
+/* Breadcrumb current page */
+.breadcrumbs__item--active .breadcrumbs__link {
+  color: var(--brand-primary);
+}
+
+/* Paginator labels */
+.pagination-nav__label {
+  color: var(--brand-primary);
+}
+
+/* Prism / Docusaurus code line highlight */
+.theme-code-block-highlighted-line,
+.token-line.theme-code-block-highlighted-line {
+  background-color: var(--docusaurus-highlighted-code-line-bg) !important;
+  border-left: 3px solid var(--brand-primary);
+  margin-left: -3px;
+  padding-left: calc(var(--ifm-pre-padding) - 3px);
+  display: block;
+}
+
+/* docusaurus-plugin-search-local (CSS modules — match stable suffix patterns) */
+[class*='hitWrapper'] mark {
+  background: none !important;
+  color: var(--brand-primary) !important;
+  text-decoration: underline;
+  text-decoration-color: var(--brand-primary-light);
+  text-underline-offset: 2px;
+}
+
+html[data-theme='dark'] [class*='hitWrapper'] mark {
+  color: var(--brand-primary-light) !important;
+  text-decoration-color: var(--brand-primary);
+}
+
+/* Selected search hit (keyboard): plugin sets .cursor with --ifm-color-primary */
+[class*='searchResult'][class*='cursor'] {
+  background-color: var(--brand-primary) !important;
+}
+
+html[data-theme='dark'] [class*='searchResult'][class*='cursor'] [class*='hitWrapper'] mark {
+  color: var(--dark-bg-primary) !important;
+  text-decoration-color: var(--dark-bg-code);
+}
+
+/* Search box focus ring uses --ifm-color-primary via plugin; reinforce modal */
+[class*='searchInput']:focus {
+  outline: none;
+}
+
+[class*='searchInputContainer']:focus-within {
+  box-shadow: inset 0 0 0 2px var(--brand-primary);
+}
+
+/* Infima admonition icons that still key off primary */
+.alert--primary {
+  --ifm-alert-background-color: rgba(237, 174, 73, 0.08);
+  --ifm-alert-border-color: var(--brand-primary);
+}
+
+.alert--secondary {
+  --ifm-alert-border-color: var(--brand-primary-dark);
+}
+
+/* Tabs */
+.tabs__item--active {
+  border-bottom-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+html[data-theme='dark'] .tabs__item--active {
+  color: var(--brand-primary-light);
+  border-bottom-color: var(--brand-primary-light);
+}

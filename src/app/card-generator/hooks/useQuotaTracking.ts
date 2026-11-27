@@ -1,3 +1,4 @@
+import { OCE } from '@lib/oce';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { QuotaState } from '../types/generation';
@@ -70,7 +71,7 @@ export function useQuotaTracking(): QuotaState & {
       const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
       const url = `/api/og-image?format=json&dry-run=true&_t=${cacheBuster}&_nocache=true`;
 
-      const response = await fetch(url, {
+      const response = await OCE.fetch(url, {
         method: 'GET',
         credentials: 'include',
         headers: {

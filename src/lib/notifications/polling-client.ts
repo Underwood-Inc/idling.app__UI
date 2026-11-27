@@ -6,7 +6,7 @@
  */
 
 import { logger } from '@lib/logging';
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 
 export interface NotificationData {
   id: string;
@@ -117,7 +117,7 @@ export class PollingNotificationClient {
    */
   private async checkNotifications(): Promise<void> {
     try {
-      const response = await noCacheFetch(
+      const response = await OCE.noCacheFetch(
         `/api/notifications/poll?since=${this.lastCheck}`,
         {
           method: 'GET',

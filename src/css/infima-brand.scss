@@ -1,0 +1,64 @@
+/**
+ * Infima / Docusaurus primary palette — full brand gold scale.
+ * Infima ships a computed blue primary-* ladder on :root; partial overrides
+ * leave link, search mark, TOC, breadcrumb, and contrast surfaces on Facebook blue.
+ */
+
+@mixin infima-brand-tokens {
+  --ifm-color-primary: var(--brand-primary);
+  --ifm-color-primary-dark: #d89a3a;
+  --ifm-color-primary-darker: var(--brand-primary-dark);
+  --ifm-color-primary-darkest: #8a5a0f;
+  --ifm-color-primary-light: #f2be6a;
+  --ifm-color-primary-lighter: var(--brand-primary-light);
+  --ifm-color-primary-lightest: #fdf0b8;
+
+  --ifm-link-color: var(--brand-primary);
+  --ifm-link-hover-color: var(--brand-primary-light);
+  --ifm-link-hover-decoration: underline;
+
+  --ifm-breadcrumb-color-active: var(--brand-primary);
+  --ifm-menu-color-active: var(--brand-primary);
+  --ifm-navbar-link-hover-color: var(--brand-primary);
+
+  --ifm-tabs-color-active: var(--brand-primary);
+  --ifm-tabs-color-active-border: var(--brand-primary);
+
+  --ifm-pagination-page-active-background-color: var(--brand-primary);
+  --ifm-pagination-page-active-color: var(--dark-bg-primary);
+  --ifm-pagination-page-hover-background-color: rgba(237, 174, 73, 0.2);
+
+  --ifm-color-info: var(--cornflower-blue);
+
+  --docusaurus-highlighted-code-line-bg: rgba(237, 174, 73, 0.12);
+}
+
+@mixin infima-brand-tokens-light {
+  @include infima-brand-tokens;
+
+  --ifm-color-primary-contrast-background: #fdf4dc;
+  --ifm-color-primary-contrast-foreground: #3d2e10;
+  --docusaurus-highlighted-code-line-bg: rgba(237, 174, 73, 0.18);
+}
+
+@mixin infima-brand-tokens-dark {
+  @include infima-brand-tokens;
+
+  --ifm-color-primary-contrast-background: rgba(237, 174, 73, 0.14);
+  --ifm-color-primary-contrast-foreground: var(--brand-primary-light);
+
+  --ifm-background-color: var(--dark-bg-primary);
+  --ifm-background-surface-color: var(--dark-bg-secondary);
+
+  --docusaurus-highlighted-code-line-bg: rgba(237, 174, 73, 0.2);
+}
+
+/* Base + explicit light: replace Infima :root blue before theme attribute resolves */
+:root,
+html[data-theme='light'] {
+  @include infima-brand-tokens-light;
+}
+
+html[data-theme='dark'] {
+  @include infima-brand-tokens-dark;
+}

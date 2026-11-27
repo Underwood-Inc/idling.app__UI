@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { FlairPreference } from '@lib/actions/subscription.actions';
 import { useFlairPreference } from '@lib/context/UserPreferencesContext';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
@@ -71,7 +72,7 @@ export function SubscriptionFlairToggle({
 
       setLoading(true);
       try {
-        const response = await fetch(
+        const response = await OCE.fetch(
           `/api/user-subscriptions?userId=${userId}`
         );
         if (response.ok) {

@@ -136,7 +136,6 @@
 
 .fader__label {
   text-align: center;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--text-secondary, #a8a096);
@@ -145,7 +144,6 @@
 .fader__gain {
   min-height: 0.85rem;
   text-align: center;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: rgb(255 255 255 / 62%);

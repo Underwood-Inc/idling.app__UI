@@ -17,7 +17,6 @@
   border: 1px solid var(--light-border--primary);
   border-radius: 12px;
   color: var(--light-bg__text-color--primary);
-  font-size: var(--font-size-base);
   font-family: var(--font-family--primary);
   transition: all 0.3s ease;
 }
@@ -49,7 +48,6 @@
   height: 24px;
   color: var(--light-bg__text-color--tertiary);
   pointer-events: none;
-  font-size: var(--font-size-base);
 }
 
 .user-search__spinner {
@@ -143,13 +141,11 @@
 .user-search__result-name {
   font-weight: 600;
   color: #ffffff;
-  font-size: var(--font-size-sm);
   text-shadow: 0 1px 2px transparent;
   line-height: 1.2;
 }
 
 .user-search__result-email {
-  font-size: var(--font-size-xs);
   color: var(--dark-bg__text-color--tertiary);
   text-shadow: 0 1px 2px transparent;
   line-height: 1.2;
@@ -163,7 +159,6 @@
 
 .user-search__result-arrow {
   color: var(--dark-bg__text-color--tertiary);
-  font-size: var(--font-size-sm);
   transition: all 0.2s ease;
 }
 
@@ -184,12 +179,10 @@
 }
 
 .user-search__no-results-icon {
-  font-size: var(--font-size-lg);
   color: var(--brand-primary);
 }
 
 .user-search__no-results-text {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
 }
 
@@ -208,12 +201,10 @@
 }
 
 .user-search__auth-error-icon {
-  font-size: var(--font-size-xl);
   color: var(--brand-primary);
 }
 
 .user-search__auth-error-text {
-  font-size: var(--font-size-sm);
   line-height: 1.4;
   color: var(--dark-bg__text-color--secondary);
 }
@@ -224,7 +215,6 @@
   color: #000;
   border: none;
   border-radius: 6px;
-  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -244,7 +234,6 @@
   padding: 16px;
   text-align: center;
   color: var(--brand-primary);
-  font-size: var(--font-size-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -258,7 +247,7 @@
   }
 
   .user-search__input {
-    font-size: var(--font-size-base); /* Prevent zoom on iOS */
+    /* Prevent zoom on iOS */
   }
 
   .user-search__dropdown {

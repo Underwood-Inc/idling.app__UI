@@ -22,7 +22,6 @@
 .subscription-badges-list__container .subscription-badges-list__title,
 .subscription-badges-list .subscription-badges-list__title,
 h3.subscription-badges-list__title {
-  font-size: var(--font-size-md);
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 1rem 0;
@@ -101,7 +100,6 @@ h3.subscription-badges-list__title {
   padding: 0.75rem;
   color: #5a5a5a;
   font-style: italic;
-  font-size: var(--font-size-base);
   border-top: 1px solid #c0c0c0;
 }
 
@@ -116,7 +114,6 @@ h3.subscription-badges-list__title {
 
 .subscription-badges-list__admin-title {
   color: #6b21a8;
-  font-size: var(--font-size-base);
   font-weight: 600;
   margin: 0 0 0.75rem 0;
   display: flex;
@@ -136,7 +133,6 @@ h3.subscription-badges-list__title {
   color: #581c87;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
-  font-size: var(--font-size-base);
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }

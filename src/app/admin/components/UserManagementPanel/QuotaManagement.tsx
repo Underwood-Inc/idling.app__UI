@@ -8,6 +8,7 @@
  * - Simplified interface focused on administrative overrides
  */
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useEffect, useState } from 'react';
@@ -82,7 +83,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/${user.id}/effective-quotas`,
         {
           credentials: 'include'
@@ -164,7 +165,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     setSavingQuota(`${serviceName}.${featureName}`);
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/${user.id}/quota-overrides`,
         {
           method: 'PUT',
@@ -211,7 +212,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     }
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/${user.id}/quota-overrides`,
         {
           method: 'DELETE',
@@ -247,7 +248,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     }
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/${user.id}/quota-usage/reset`,
         {
           method: 'POST',
@@ -320,7 +321,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
         .quota-source-badge {
           padding: 0.25rem 0.5rem;
           border-radius: 12px;
-          font-size: 0.75rem;
           font-weight: 600;
           text-transform: uppercase;
         }
@@ -391,7 +391,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                 style={{
                   margin: 0,
                   color: 'var(--dark-bg__text-color--primary)',
-                  fontSize: 'var(--font-size-lg)',
                   fontWeight: '600'
                 }}
               >
@@ -401,8 +400,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                 style={{
                   margin: '4px 0 0 0',
                   color: 'var(--dark-bg__text-color--secondary)',
-                  fontSize: 'var(--font-size-sm)'
-                }}
+                  }}
               >
                 {user.name || user.email} - Subscription + Override Integration
               </p>
@@ -413,7 +411,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                 background: 'none',
                 border: 'none',
                 color: 'var(--dark-bg__text-color--secondary)',
-                fontSize: 'var(--font-size-xl)',
                 cursor: 'pointer',
                 padding: '8px',
                 borderRadius: '8px',
@@ -510,7 +507,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                       <SiteIcon id="barChart" sizeRem={2} />
                     </div>
                     <p>No quota data available for this user.</p>
-                    <p style={{ fontSize: 'var(--font-size-sm)', marginTop: '8px' }}>
+                    <p style={{ marginTop: '8px' }}>
                       User may need a subscription plan or quota override.
                     </p>
                   </div>
@@ -543,7 +540,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                             style={{
                               margin: 0,
                               color: 'var(--dark-bg__text-color--primary)',
-                              fontSize: 'var(--font-size-base)',
                               fontWeight: '600'
                             }}
                           >
@@ -559,7 +555,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                               color: quota.effective_is_unlimited
                                 ? '#10b981'
                                 : 'var(--dark-bg__text-color--primary)',
-                              fontSize: 'var(--font-size-xl)',
                               fontWeight: '700'
                             }}
                           >
@@ -570,8 +565,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                           <div
                             style={{
                               color: 'var(--dark-bg__text-color--secondary)',
-                              fontSize: 'var(--font-size-xs)'
-                            }}
+                              }}
                           >
                             {quota.reset_period} limit
                           </div>
@@ -585,8 +579,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr',
                             gap: '12px',
-                            fontSize: 'var(--font-size-sm)'
-                          }}
+                            }}
                         >
                           <div>
                             <strong
@@ -627,7 +620,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                               {quota.override_reason && (
                                 <div
                                   style={{
-                                    fontSize: 'var(--font-size-xs)',
                                     fontStyle: 'italic'
                                   }}
                                 >
@@ -652,15 +644,13 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                           <span
                             style={{
                               color: 'var(--dark-bg__text-color--secondary)',
-                              fontSize: 'var(--font-size-sm)'
-                            }}
+                              }}
                           >
                             Current Usage:
                           </span>
                           <span
                             style={{
                               color: 'var(--dark-bg__text-color--primary)',
-                              fontSize: 'var(--font-size-base)',
                               fontWeight: '600'
                             }}
                           >
@@ -701,7 +691,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                       <div
                         style={{
                           marginBottom: '16px',
-                          fontSize: 'var(--font-size-sm)',
                           color: 'var(--dark-bg__text-color--secondary)'
                         }}
                       >
@@ -730,7 +719,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                 style={{
                                   display: 'block',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500',
                                   marginBottom: '8px'
                                 }}
@@ -759,14 +747,12 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   background:
                                     'var(--glass-overlay-light, var(--glass-bg-light))',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)'
-                                }}
+                                  }}
                               />
                               <small
                                 style={{
                                   color:
                                     'var(--dark-bg__text-color--secondary)',
-                                  fontSize: 'var(--font-size-xs)',
                                   display: 'block',
                                   marginTop: '4px'
                                 }}
@@ -783,7 +769,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   alignItems: 'center',
                                   gap: '8px',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500',
                                   cursor: 'pointer'
                                 }}
@@ -809,7 +794,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                 style={{
                                   display: 'block',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500',
                                   marginBottom: '8px'
                                 }}
@@ -835,8 +819,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   background:
                                     'var(--glass-overlay-light, var(--glass-bg-light))',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)'
-                                }}
+                                  }}
                               >
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
@@ -849,7 +832,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                 style={{
                                   display: 'block',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500',
                                   marginBottom: '8px'
                                 }}
@@ -871,8 +853,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   background:
                                     'var(--glass-overlay-light, var(--glass-bg-light))',
                                   color: 'var(--dark-bg__text-color--primary)',
-                                  fontSize: 'var(--font-size-sm)'
-                                }}
+                                  }}
                               />
                             </div>
 
@@ -892,7 +873,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   padding: '10px 20px',
                                   borderRadius: '8px',
                                   cursor: 'pointer',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500',
                                   opacity:
                                     savingQuota ===
@@ -920,7 +900,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   padding: '10px 20px',
                                   borderRadius: '8px',
                                   cursor: 'pointer',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500'
                                 }}
                               >
@@ -955,7 +934,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   padding: '8px 16px',
                                   borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500'
                                 }}
                               >
@@ -978,7 +956,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   padding: '8px 16px',
                                   borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500'
                                 }}
                               >
@@ -1002,7 +979,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   padding: '8px 16px',
                                   borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500'
                                 }}
                               >
@@ -1026,7 +1002,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                   padding: '8px 16px',
                                   borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '500'
                                 }}
                               >
@@ -1056,7 +1031,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
           >
             <div
               style={{
-                fontSize: 'var(--font-size-xs)',
                 color: 'var(--dark-bg__text-color--secondary)'
               }}
             >
@@ -1075,7 +1049,6 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                 padding: '12px 24px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: 'var(--font-size-sm)',
                 fontWeight: '500'
               }}
             >

@@ -1,4 +1,4 @@
-import { idlingFetch } from './embedIdlingFetch';
+import { IdlingOceEmbedRegistry } from './embedIdlingFetch';
 import { parseRadioPlaylist } from './parseRadioPlaylist';
 import { detectRadioStreamFormat, getRadioStreamPlaybackKind, radioStreamFormatRequiresResolution, } from './radioStreamFormatCatalog';
 const DEFAULT_MAX_REDIRECTS = 5;
@@ -19,7 +19,7 @@ async function defaultFetchText(url) {
     const requestUrl = playlistFetchUsesAppProxy(typeof window !== 'undefined', process.env.VITEST)
         ? browserPlaylistRequestUrl(url)
         : url;
-    const response = await idlingFetch(requestUrl, {
+    const response = await IdlingOceEmbedRegistry.fetch(requestUrl, {
         headers: {
             Accept: 'application/vnd.apple.mpegurl, audio/x-mpegurl, audio/mpegurl, */*',
             'User-Agent': 'IdlingRadioResolver/1.0',

@@ -1,5 +1,6 @@
 'use client';
 
+import { OceProvider } from '@lib/oce/OceProvider';
 import { GlobalLoadingProvider } from '@lib/context/GlobalLoadingContext';
 import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '@lib/context/OverlayContext';
@@ -14,7 +15,6 @@ import type { ReactNode } from 'react';
 import { AuthClientSessionGuard } from '../auth/AuthClientSessionGuard';
 import { AmbientStarfieldProvider } from '../ambient-background';
 import { IdlingLocaleProvider } from '../locale/IdlingLocaleProvider';
-import { OceConnectivityToastBridge } from '../oce/OceConnectivityToastBridge';
 import { RadioPlayerMountWrapper } from '../radio-player/RadioPlayerMountWrapper';
 import { RadioPwaStandaloneVisualizerBootstrap } from '../radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
 import { ServiceWorkerRegistration } from '../service-worker/ServiceWorkerRegistration';
@@ -27,6 +27,7 @@ export interface SiteChromeProvidersProps {
 
 export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
   return (
+    <OceProvider>
     <AmbientStarfieldProvider>
       <AmbientBackgroundWrapper />
       <MicrosoftClarity />
@@ -59,7 +60,7 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
       </SessionProvider>
       <div id="overlay-portal"></div>
       <ToastViewport />
-      <OceConnectivityToastBridge />
     </AmbientStarfieldProvider>
+    </OceProvider>
   );
 }

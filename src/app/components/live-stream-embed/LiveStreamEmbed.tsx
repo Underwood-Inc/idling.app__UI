@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useEffect, useState } from 'react';
 import './LiveStreamEmbed.css';
@@ -39,7 +40,7 @@ export function LiveStreamEmbed({
   useEffect(() => {
     const checkLiveStatus = async () => {
       try {
-        const response = await fetch(
+        const response = await OCE.fetch(
           `/api/streams/live-status?twitch=${twitchChannel}&youtube=${youtubeChannel}`,
           {
             headers: { 'X-Background-Request': 'true' } // Don't trigger loader

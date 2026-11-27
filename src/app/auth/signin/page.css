@@ -15,7 +15,6 @@
 }
 
 .signin__title {
-  font-size: var(--font-size-3xl);
   font-weight: 700;
   color: var(--light-bg__text-color--primary, #ffffff);
   margin-bottom: 1rem;
@@ -26,7 +25,6 @@
 }
 
 .signin__subtitle {
-  font-size: var(--font-size-md);
   color: var(--light-bg__text-color--secondary, #cccccc);
   line-height: 1.5;
   margin-bottom: 0;
@@ -45,7 +43,6 @@
   justify-content: center;
   padding: 1rem 1.5rem;
   color: black;
-  font-size: var(--font-size-base);
   font-weight: 500;
   border-radius: var(--border-radius, 6px);
   transition: all 0.3s ease;
@@ -81,11 +78,9 @@
   }
 
   .signin__title {
-    font-size: var(--font-size-xl);
   }
 
   .signin__subtitle {
-    font-size: var(--font-size-base);
   }
 
   .signin__header {
@@ -105,12 +100,10 @@
 }
 
 .signin__error-icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 1.5rem;
 }
 
 .signin__error-title {
-  font-size: var(--font-size-5xl);
   font-weight: 700;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 1rem 0;
@@ -121,7 +114,6 @@
 }
 
 .signin__error-message p {
-  font-size: var(--font-size-md);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0 0 1rem 0;
@@ -132,7 +124,6 @@
 }
 
 .signin__error-solutions h2 {
-  font-size: var(--font-size-3xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 1.5rem 0;
@@ -160,14 +151,12 @@
 }
 
 .signin__error-solution-option h3 {
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 0.75rem 0;
 }
 
 .signin__error-solution-option p {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0 0 1rem 0;
@@ -176,7 +165,6 @@
 .signin__error-button {
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
   font-weight: 500;
   text-decoration: none;
   text-align: center;
@@ -234,11 +222,9 @@
   }
   
   .signin__error-title {
-    font-size: var(--font-size-3xl);
   }
   
   .signin__error-solutions h2 {
-    font-size: var(--font-size-xl);
   }
   
   .signin__error-solution-options {
