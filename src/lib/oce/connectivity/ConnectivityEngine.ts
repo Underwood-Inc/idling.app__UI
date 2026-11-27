@@ -45,6 +45,24 @@ function requestUrl(input: RequestInfo | URL): string {
   return input.url;
 }
 
+/** Combine abort sources for a single `fetch` (timeout + engine cancel). */
+function mergeAbortSignals(...parts: AbortSignal[]): AbortSignal {
+  const active = parts.filter((s) => s.aborted);
+  if (active.length > 0) {
+    const ctrl = new AbortController();
+    ctrl.abort(active[0].reason);
+    return ctrl.signal;
+  }
+  if (typeof AbortSignal.any === 'function') {
+    return AbortSignal.any(parts);
+  }
+  const merged = new AbortController();
+  for (const part of parts) {
+    part.addEventListener('abort', () => merged.abort(part.reason), { once: true });
+  }
+  return merged.signal;
+}
+
 function urlsMatchHealthCheck(requestUrlValue: string, healthCheckUrl: string): boolean {
   if (requestUrlValue === healthCheckUrl) {
     return true;
@@ -59,7 +77,8 @@ function urlsMatchHealthCheck(requestUrlValue: string, healthCheckUrl: string): 
 }
 
 /**
- * Offline Connectivity Engine — failure streaks, health confirm, and observed fetch.
+ * Offline Connectivity Engine — **network-traffic** settlements, failure streaks, and
+ * a single engine-owned health GET (AbortController + shared in-flight promise).
  *
  * Constructed once per host runtime (`OCE.ts` on idling.app). Call sites use the returned
  * `fetch` wrapper, not this class directly, except for snapshots and `subscribe`.
@@ -90,6 +109,10 @@ export class ConnectivityEngine {
   /** Shared engine-owned GET; concurrent callers await the same promise. */
   private healthProbeFlight: Promise<HealthFlightResult> | null = null;
   private healthProbeCached: { at: number; result: HealthFlightResult } | null = null;
+  /** Cancels the lone engine health `fetch` (tests, teardown). */
+  private engineHealthAbort: AbortController | null = null;
+  /** Discards late probe settlements after abort or supersede. */
+  private engineHealthEpoch = 0;
   private navigatorVerifyTimer: ReturnType<typeof setTimeout> | null = null;
   private navigatorVerifyEvent: 'online' | 'offline' | null = null;
   private recoveryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -210,6 +233,7 @@ export class ConnectivityEngine {
     this.navigatorOnLineDetach = null;
     this.clearNavigatorVerifySchedule();
     this.navigatorVerifyEvent = null;
+    this.abortEngineHealthProbe();
   }
 
   /**
@@ -312,6 +336,7 @@ export class ConnectivityEngine {
     this.unavailable = false;
     this.healthContractFailed = false;
     this.lastHealthyAt = null;
+    this.abortEngineHealthProbe();
     this.observedHealthFlight = null;
     this.healthProbeFlight = null;
     this.healthProbeCached = null;
@@ -348,8 +373,11 @@ export class ConnectivityEngine {
     }
     this.clearPendingRecovery();
     this.streak += 1;
-    if (this.streak < this.failureThreshold || this.unavailable) {
-      this.publish();
+    this.publish();
+    if (this.unavailable || this.streak < this.failureThreshold) {
+      return;
+    }
+    if (this.streak > this.failureThreshold) {
       return;
     }
     void this.healthProbe({ fresh: true }).then((result) =>
@@ -386,7 +414,10 @@ export class ConnectivityEngine {
     );
   }
 
-  /** One health GET — cache, join in-flight app traffic, or issue a single engine probe. */
+  /**
+   * One health outcome — cached recent traffic, join observed app GET, or await the
+   * single engine `fetch` (never more than one engine GET at a time).
+   */
   private healthProbe(options?: { fresh?: boolean }): Promise<HealthFlightResult> {
     const fresh = options?.fresh ?? false;
     if (!fresh && this.healthProbeCached) {
@@ -474,24 +505,47 @@ export class ConnectivityEngine {
     }
   }
 
+  private abortEngineHealthProbe(): void {
+    this.engineHealthEpoch += 1;
+    this.engineHealthAbort?.abort();
+    this.engineHealthAbort = null;
+  }
+
   private async runEngineOwnedProbe(): Promise<HealthFlightResult> {
+    const epoch = this.engineHealthEpoch;
+    const owner = new AbortController();
+    this.engineHealthAbort = owner;
+    const signal = mergeAbortSignals(
+      owner.signal,
+      AbortSignal.timeout(OceProbeDeadline[this.probeDeadline])
+    );
     try {
       const response = await this.probeBaseFetch(this.healthCheckUrl, {
         method: 'GET',
         cache: 'no-store',
         credentials: 'omit',
-        signal: AbortSignal.timeout(OceProbeDeadline[this.probeDeadline]),
+        signal,
       });
+      if (epoch !== this.engineHealthEpoch) {
+        return { kind: 'ignored' };
+      }
       if (this.interpretHealthResponse(response)) {
         return { kind: 'response', response };
       }
       return { kind: 'transport-failure', contractFailed: true };
     } catch (error) {
+      if (epoch !== this.engineHealthEpoch || owner.signal.aborted) {
+        return { kind: 'ignored' };
+      }
       const kind = ConnectivityEngine.classifyOutcome(error);
       if (kind === 'ignored') {
         return { kind: 'ignored' };
       }
       return { kind: 'transport-failure' };
+    } finally {
+      if (this.engineHealthAbort === owner) {
+        this.engineHealthAbort = null;
+      }
     }
   }
 

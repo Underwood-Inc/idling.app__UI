@@ -535,6 +535,36 @@ describe('Offline Connectivity Engine', () => {
    * @description Debounced recovery from unavailable
    * @linked FR-OCE-013
    */
+  test('[FR-OCE-014] engine health fetch uses AbortSignal and reset aborts in-flight probe', async () => {
+    const baseFetch = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(abortError()), { once: true });
+        });
+      }
+      throw transportError();
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
+
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
+    await vi.waitFor(() =>
+      expect(baseFetch).toHaveBeenCalledWith(
+        HEALTH,
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      )
+    );
+
+    engine.resetForTests();
+    expect(baseFetch.mock.calls.filter((c) => c[0] === HEALTH).length).toBe(1);
+  });
+
   test('[FR-OCE-013] recovery from unavailable debounces before clearing flag', async () => {
     vi.useFakeTimers();
     const baseFetch = vi.fn(async (input: RequestInfo | URL) => {

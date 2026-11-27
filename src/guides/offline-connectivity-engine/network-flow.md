@@ -32,7 +32,7 @@ Idling default health URL: **`/api/version`**. Default health rule: **any `Respo
 
 [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine) warns **`navigator.onLine` is unreliable** (especially when `true`). OCE **does not** poll or trust that property.
 
-On idling.app the host attaches **`online`** and **`offline`** listeners. Events are **debounced** (600ms) and health GETs are **single-flight** with a **4s reuse cache** so `/api/version` is not hammered while the browser flickers. Outcomes update **`unavailable`**, **`lastHealthyAt`**, and related fields:
+On idling.app the host attaches **`online`** and **`offline`** listeners. Events are **debounced** (600ms). Health is **network-first**: reuse a recent or in-flight app GET to `/api/version` when possible, otherwise **one** engine-owned GET at a time (`AbortController` + shared promise + 4s reuse cache) — never parallel confirm storms. Outcomes update **`unavailable`**, **`lastHealthyAt`**, and related fields:
 
 | Event | Health probe succeeds | Health probe fails |
 | ----- | --------------------- | ------------------ |
