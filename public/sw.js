@@ -3,6 +3,9 @@ const CACHE_VERSION = '__VERSION__'; // Will be replaced with package.json versi
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
+// OCE adoption: mark cache-served fetches (see src/lib/oce/idlingOceFetchAdoption.ts)
+const IDLING_SW_CACHE_SERVED_HEADER = 'x-idling-sw-cache-served';
+
 // Maximum cache age - NOTHING can be cached longer than 12 hours
 const MAX_CACHE_AGE = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 const DAILY_REFRESH_KEY = 'sw-daily-refresh';
@@ -255,6 +258,19 @@ function createResponseWithMetadata(response, ttl) {
   });
 }
 
+function markIdlingSwCacheServed(response) {
+  if (!response) {
+    return response;
+  }
+  const headers = new Headers(response.headers);
+  headers.set(IDLING_SW_CACHE_SERVED_HEADER, '1');
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 // Enhanced cache validation with strict 12-hour limit
 function isCacheValid(cachedResponse, ttl) {
   const cacheTimestamp = cachedResponse.headers.get('Cache-Timestamp');
@@ -472,18 +488,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Auth, live radio, OCE health: never cache or serve stale offline copies
+  // Auth and live radio: never cache or serve stale offline copies
   if (
     event.request.url.includes('/api/auth/') ||
-    event.request.url.includes('/api/radio/now-playing') ||
-    event.request.url.includes('/api/version')
+    event.request.url.includes('/api/radio/now-playing')
   ) {
-    return;
-  }
-
-  const isOceProbe =
-    event.request.headers.get('x-idling-connectivity-probe') === '1';
-  if (isOceProbe) {
     return;
   }
 
@@ -528,7 +537,7 @@ self.addEventListener('fetch', (event) => {
           }
         }
         
-        return cachedResponse;
+        return markIdlingSwCacheServed(cachedResponse);
       }
 
       // Fetch fresh response
@@ -556,7 +565,7 @@ self.addEventListener('fetch', (event) => {
         // Return cached response even if expired, or offline page
         if (cachedResponse) {
           logger.info('Returning stale cached response due to network error');
-          return cachedResponse;
+          return markIdlingSwCacheServed(cachedResponse);
         }
         
         logger.info('Returning offline page');

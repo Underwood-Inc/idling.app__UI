@@ -1,5 +1,4 @@
 import { classifyFetchOutcome } from './classify';
-import { oceConnectivityProbeHeaders } from './oceHealthProbe';
 import {
   OCE_PROBE_DEADLINE_PRESETS,
   OceProbeDeadline,
@@ -112,7 +111,6 @@ export function createConnectivityEngine(
         method: 'GET',
         cache: 'no-store',
         credentials: 'omit',
-        headers: oceConnectivityProbeHeaders(),
         signal: AbortSignal.timeout(OceProbeDeadline[probeDeadline]),
       });
       if (interpretHealthResponse(response)) {

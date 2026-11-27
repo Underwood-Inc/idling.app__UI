@@ -2,20 +2,25 @@ import {
   getPageConnectivityEngine,
   type ConnectivityEngine,
 } from './connectivity';
-import {
-  IDLING_OCE_HEALTH_CHECK_URL,
-  interpretOceHealthResponse,
-} from './connectivity/oceHealthProbe';
 import { registerIdlingOce } from '../../widgets/radio-player/embedIdlingFetch';
+import {
+  createIdlingOceInstrumentedFetch,
+  wireIdlingOceFetch,
+} from './idlingOceFetchAdoption';
 
-export { IDLING_OCE_HEALTH_CHECK_URL } from './connectivity/oceHealthProbe';
+export const IDLING_OCE_HEALTH_CHECK_URL = '/api/version';
+
+const globalFetch = (input: RequestInfo | URL, init?: RequestInit) =>
+  globalThis.fetch(input, init);
+
+const instrumentedGlobalFetch = createIdlingOceInstrumentedFetch(globalFetch);
 
 const engine = getPageConnectivityEngine({
   healthCheckUrl: IDLING_OCE_HEALTH_CHECK_URL,
-  interpretHealthResponse: interpretOceHealthResponse,
+  baseFetch: instrumentedGlobalFetch,
 });
 
-export const idlingFetch = engine.attachFetch((input, init) => globalThis.fetch(input, init));
+export const idlingFetch = wireIdlingOceFetch(engine, globalFetch);
 
 registerIdlingOce(idlingFetch, engine);
 

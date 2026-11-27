@@ -11,7 +11,7 @@ Vendored copy of `strixun-stream-suite/packages/api-framework/src/connectivity` 
 
 UI wiring: `ToastViewport` + `OceConnectivityToastBridge` in `SiteChromeProviders`.
 
-**Health probe:** `GET /api/version` with `x-idling-connectivity-probe: 1`. The service worker bypasses cache for that URL and header so offline mode cannot return `200 (from service worker)` and falsely clear `unavailable`.
+**SW cache + OCE:** Cache-served responses get `x-idling-sw-cache-served: 1`. `idlingOceFetchAdoption.ts` wraps `idlingFetch` so those flights settle as **ignored** (not online, not failure); UI still receives the cached body.
 
 Keep parity with upstream when OCE changes; run `src/lib/oce/connectivity/connectivity.engine.test.ts` (FR-OCE-001–010).
 
