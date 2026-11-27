@@ -599,13 +599,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'Alternative sounds from Rotterdam',
   },
   {
-    name: 'Palanga Street Radio',
-    url: 'https://stream.palanga.live:8443/palanga128.mp3',
-    genre: 'community',
-    regionFlag: '🇱🇹',
-    blurb: 'DIY community radio from Lithuania',
-  },
-  {
     name: 'Le Mellotron',
     url: 'https://listen.radioking.com/radio/477719/stream/534044',
     genre: 'eclectic',
