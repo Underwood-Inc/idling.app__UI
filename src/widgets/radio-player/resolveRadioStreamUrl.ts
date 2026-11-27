@@ -1,3 +1,4 @@
+import { idlingFetch } from './embedIdlingFetch';
 import { parseRadioPlaylist } from './parseRadioPlaylist';
 import {
   detectRadioStreamFormat,
@@ -34,7 +35,7 @@ async function defaultFetchText(url: string): Promise<string> {
   const requestUrl = playlistFetchUsesAppProxy(typeof window !== 'undefined', process.env.VITEST)
     ? browserPlaylistRequestUrl(url)
     : url;
-  const response = await fetch(requestUrl, {
+  const response = await idlingFetch(requestUrl, {
     headers: {
       Accept: 'application/vnd.apple.mpegurl, audio/x-mpegurl, audio/mpegurl, */*',
       'User-Agent': 'IdlingRadioResolver/1.0',

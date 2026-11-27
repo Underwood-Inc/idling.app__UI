@@ -129,6 +129,7 @@
     "@opentelemetry/sdk-node": "^0.219.0",
     "@opentelemetry/semantic-conventions": "^1.41.1",
     "@release-it/conventional-changelog": "^11.0.1",
+    "@strixun/api-framework": "file:../strixun-stream-suite/packages/api-framework",
     "@vercel/analytics": "^2.0.1",
     "@vercel/og": "^0.11.1",
     "@vercel/speed-insights": "^2.0.0",

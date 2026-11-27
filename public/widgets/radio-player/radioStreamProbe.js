@@ -1,53 +1,12 @@
+import { getIdlingOceEngine, idlingFetch } from './embedIdlingFetch';
 import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
+/** Catalog reachability checks run in the visitor's browser only — not on the app server. */
 const DEFAULT_PROBE_TIMEOUT_MS = 8000;
-async function probeDirectStreamUrl(url, timeoutMs) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        let response = await fetch(url, {
-            method: 'HEAD',
-            signal: controller.signal,
-            redirect: 'follow',
-            headers: {
-                'User-Agent': 'IdlingRadioProbe/1.0',
-                'Icy-MetaData': '1',
-            },
-        });
-        if (response.status === 405 || response.status === 501) {
-            response = await fetch(url, {
-                method: 'GET',
-                signal: controller.signal,
-                redirect: 'follow',
-                headers: {
-                    'User-Agent': 'IdlingRadioProbe/1.0',
-                    'Icy-MetaData': '1',
-                    Range: 'bytes=0-0',
-                },
-            });
-        }
-        await response.body?.cancel();
-        if (response.ok) {
-            return { ok: true };
-        }
-        return { ok: false, reason: `HTTP ${response.status}` };
-    }
-    catch (error) {
-        const reason = error instanceof Error && error.name === 'AbortError'
-            ? 'Timed out waiting for stream'
-            : error instanceof Error
-                ? error.message
-                : 'Request failed';
-        return { ok: false, reason };
-    }
-    finally {
-        clearTimeout(timer);
-    }
-}
 async function probeHlsManifestUrl(url, timeoutMs) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-        const response = await fetch(url, {
+        const response = await idlingFetch(url, {
             method: 'GET',
             signal: controller.signal,
             redirect: 'follow',
@@ -77,25 +36,9 @@ async function probeHlsManifestUrl(url, timeoutMs) {
         clearTimeout(timer);
     }
 }
-export async function probeRadioStreamUrl(url, options = {}) {
-    const timeoutMs = options.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
-    try {
-        const resolved = await resolveRadioStreamUrl({ url });
-        if (resolved.playbackKind === 'hls') {
-            return probeHlsManifestUrl(resolved.sourceUrl, timeoutMs);
-        }
-        return probeDirectStreamUrl(resolved.sourceUrl, timeoutMs);
-    }
-    catch (error) {
-        return {
-            ok: false,
-            reason: error instanceof Error ? error.message : 'Stream resolution failed',
-        };
-    }
-}
 export async function probeNativeAudioElement(url, timeoutMs) {
     if (typeof window === 'undefined' || typeof Audio === 'undefined') {
-        return probeDirectStreamUrl(url, timeoutMs);
+        return { ok: false, reason: 'Stream probes require a browser.' };
     }
     return new Promise((resolve) => {
         const audio = new Audio();
@@ -114,7 +57,10 @@ export async function probeNativeAudioElement(url, timeoutMs) {
         };
         const timer = window.setTimeout(() => finish({ ok: false, reason: 'Timed out waiting for stream' }), timeoutMs);
         const onCanPlay = () => finish({ ok: true });
-        const onError = () => finish({ ok: false, reason: 'Stream failed to load' });
+        const onError = () => {
+            getIdlingOceEngine().reporter.reportTransportFailure();
+            finish({ ok: false, reason: 'Stream failed to load' });
+        };
         audio.addEventListener('canplay', onCanPlay);
         audio.addEventListener('error', onError);
         audio.preload = 'auto';

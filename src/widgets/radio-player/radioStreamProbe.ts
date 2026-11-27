@@ -1,3 +1,4 @@
+import { getIdlingOceEngine, idlingFetch } from './embedIdlingFetch';
 import { resolveRadioStreamUrl } from './resolveRadioStreamUrl';
 import type { ProbeRadioStreamOptions, ProbeRadioStreamResult } from './radioStreamProbe.types';
 
@@ -13,7 +14,7 @@ async function probeHlsManifestUrl(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(url, {
+    const response = await idlingFetch(url, {
       method: 'GET',
       signal: controller.signal,
       redirect: 'follow',
@@ -79,7 +80,10 @@ export async function probeNativeAudioElement(
     );
 
     const onCanPlay = () => finish({ ok: true });
-    const onError = () => finish({ ok: false, reason: 'Stream failed to load' });
+    const onError = () => {
+      getIdlingOceEngine().reporter.reportTransportFailure();
+      finish({ ok: false, reason: 'Stream failed to load' });
+    };
 
     audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('error', onError);

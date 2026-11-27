@@ -1,3 +1,4 @@
+import { idlingFetch } from './embedIdlingFetch';
 import { releaseResponseBody } from '@lib/fetch/releaseResponseBody';
 import {
   equalizerStreamRejection,
@@ -24,7 +25,7 @@ async function fetchEqualizerStream(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(url, {
+    return await idlingFetch(url, {
       method: 'GET',
       signal: controller.signal,
       redirect: 'follow',

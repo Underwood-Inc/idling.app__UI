@@ -5,6 +5,10 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@strixun/error-utils': file:../strixun-stream-suite/packages/error-utils
+  '@strixun/oidc-jwt': file:../strixun-stream-suite/packages/oidc-jwt
+  '@strixun/service-client': file:../strixun-stream-suite/packages/service-client
+  '@strixun/types': file:../strixun-stream-suite/packages/types
   tough-cookie@<4.1.3: '>=4.1.3'
   braces@<3.0.3: '>=3.0.3'
   undici: 7.28.0
@@ -98,6 +102,9 @@ importers:
       '@release-it/conventional-changelog':
         specifier: ^11.0.1
         version: 11.0.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(release-it@20.2.0(@types/node@26.0.0)(magicast@0.3.5))
+      '@strixun/api-framework':
+        specifier: file:../strixun-stream-suite/packages/api-framework
+        version: file:../strixun-stream-suite/packages/api-framework
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1(next@16.2.9(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0))(react@19.2.7)
@@ -3969,6 +3976,21 @@ packages:
 
   '@slorber/remark-comment@1.0.0':
     resolution: {integrity: sha512-RCE24n7jsOj1M0UPvIQCHTe7fI0sFL4S2nwKVWwHyVr/wI/H8GosgsJGyhnsZoGFnD/P2hLf1mSbrrgSLN93NA==}
+
+  '@strixun/api-framework@file:../strixun-stream-suite/packages/api-framework':
+    resolution: {directory: ../strixun-stream-suite/packages/api-framework, type: directory}
+
+  '@strixun/error-utils@file:../strixun-stream-suite/packages/error-utils':
+    resolution: {directory: ../strixun-stream-suite/packages/error-utils, type: directory}
+
+  '@strixun/oidc-jwt@file:../strixun-stream-suite/packages/oidc-jwt':
+    resolution: {directory: ../strixun-stream-suite/packages/oidc-jwt, type: directory}
+
+  '@strixun/service-client@file:../strixun-stream-suite/packages/service-client':
+    resolution: {directory: ../strixun-stream-suite/packages/service-client, type: directory}
+
+  '@strixun/types@file:../strixun-stream-suite/packages/types':
+    resolution: {directory: ../strixun-stream-suite/packages/types, type: directory}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0':
     resolution: {integrity: sha512-b9MIk7yhdS1pMCZM8VeNfUlSKVRhsHZNMl5O9SfaX0l0t5wjdgu4IDzGB8bpnGBBOjGST3rRFVsaaEtI4W6f7g==}
@@ -16100,6 +16122,21 @@ snapshots:
       micromark-util-character: 1.2.0
       micromark-util-symbol: 1.1.0
 
+  '@strixun/api-framework@file:../strixun-stream-suite/packages/api-framework':
+    dependencies:
+      '@strixun/error-utils': file:../strixun-stream-suite/packages/error-utils
+      '@strixun/oidc-jwt': file:../strixun-stream-suite/packages/oidc-jwt
+      '@strixun/service-client': file:../strixun-stream-suite/packages/service-client
+      '@strixun/types': file:../strixun-stream-suite/packages/types
+
+  '@strixun/error-utils@file:../strixun-stream-suite/packages/error-utils': {}
+
+  '@strixun/oidc-jwt@file:../strixun-stream-suite/packages/oidc-jwt': {}
+
+  '@strixun/service-client@file:../strixun-stream-suite/packages/service-client': {}
+
+  '@strixun/types@file:../strixun-stream-suite/packages/types': {}
+
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.29.7)':
     dependencies:
       '@babel/core': 7.29.7
@@ -21310,7 +21347,7 @@ snapshots:
       d3-sankey: 0.12.3
       dagre-d3-es: 7.0.14
       dayjs: 1.11.21
-      dompurify: 3.4.11
+      dompurify: 3.5.0
       es-toolkit: 1.47.1
       katex: 0.16.47
       khroma: 2.1.0

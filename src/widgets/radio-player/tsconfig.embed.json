@@ -12,7 +12,8 @@
     "moduleResolution": "bundler",
     "ignoreDeprecations": "6.0",
     "isolatedModules": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["node"]
   },
   "include": [
     "radio-player.ts",
@@ -27,6 +28,7 @@
     "radioStreamFormat.types.ts",
     "radioStreamFormatCatalog.ts",
     "parseRadioPlaylist.ts",
+    "embedIdlingFetch.ts",
     "resolveRadioStreamUrl.ts",
     "radioStreamProbe.types.ts",
     "radioStreamProbe.ts",
