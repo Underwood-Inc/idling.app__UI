@@ -34,8 +34,6 @@ on:
         default: '30'
         type: string
 
-env:
-
 jobs:
   generate-debrief:
     runs-on: ubuntu-latest
