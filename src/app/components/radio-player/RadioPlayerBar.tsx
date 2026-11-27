@@ -7,6 +7,7 @@ import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics'
 import { useRadioDockInlineVisualizer } from '@lib/hooks/useRadioDockInlineVisualizer';
 import { useRadioMediaSession } from '@lib/hooks/useRadioMediaSession';
 import { useRadioStationFavorites } from '@lib/hooks/useRadioStationFavorites';
+import { useRadioFavoritesAuthLifecycle } from '@lib/hooks/useRadioFavoritesAuthLifecycle';
 import { useRadioSongFavorites } from '@lib/hooks/useRadioSongFavorites';
 import { resolveRadioSongFavoriteUserId } from '@widgets/radio-player/radioSongFavorites';
 import { useSession } from 'next-auth/react';
@@ -209,6 +210,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const { data: session, status: sessionStatus } = useSession();
   const signedInUserId = resolveRadioSongFavoriteUserId(sessionStatus, session?.user?.id);
+
+  const handleRadioFavoritesSignedOut = useCallback(() => {
+    setActivePanel((panel) => (panel === 'savedSongs' ? null : panel));
+  }, []);
+
+  useRadioFavoritesAuthLifecycle(signedInUserId, handleRadioFavoritesSignedOut);
+
   const {
     favoriteStationNames,
     favoriteStationNameSet,

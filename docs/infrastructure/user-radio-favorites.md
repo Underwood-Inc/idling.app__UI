@@ -9,6 +9,10 @@ Migration `migrations/0062-create-user-radio-favorites.sql`:
 - `user_radio_station_favorites` — `user_id`, `station_name`, `stream_url`, `favorited_at`
 - `user_radio_song_favorites` — `user_id`, `song_key`, display metadata, `station_name`, `station_genre`, `saved_at`
 
+## Sign-out
+
+Secure sign-out and session drop clear **song** and **station** favorite rows inside the preserved `idling-radio-player` IndexedDB (`clearRadioAccountFavoritesOnLogout`). Cloud-backed lists are not left on the device for the next visitor.
+
 ## Run migrations manually
 
 ### Windows PowerShell (local `.env.local`)

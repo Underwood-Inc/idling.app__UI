@@ -47,6 +47,7 @@ export function useRadioStationFavorites(
         }
       })();
     } else {
+      setFavoriteStationNames([]);
       void (async () => {
         const names = await listRadioStationFavoriteNames();
         if (!cancelled) {

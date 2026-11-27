@@ -8,6 +8,7 @@
  * SECURITY CRITICAL: This utility prevents cache-based permission leakage
  */
 
+import { clearRadioAccountFavoritesOnLogout } from '@widgets/radio-player/radioFavoritesLogoutCleanup';
 import { deleteNonPreservedIndexedDatabases } from '@widgets/radio-player/radioPlayerPersistence';
 
 // Simple console logger for client-side operations
@@ -399,9 +400,13 @@ export async function performSecureLogout(
         result.itemsCleared.serviceWorkers = await clearServiceWorkers();
       }
 
-      // 6. Clear IndexedDB (unless skipped)
+      // 6. Clear account-scoped radio favorites (preserved DB; song + station stores)
+      logger.debug('Step 6a: Clearing radio account favorites in IndexedDB');
+      await clearRadioAccountFavoritesOnLogout();
+
+      // 7. Clear other IndexedDB (unless skipped)
       if (!skipIndexedDB) {
-        logger.debug('Step 6: Clearing IndexedDB');
+        logger.debug('Step 6b: Clearing non-radio IndexedDB');
         result.itemsCleared.indexedDB = await clearSecureIndexedDB();
       }
 
