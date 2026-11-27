@@ -44,18 +44,31 @@ function runSongStore<T>(
   );
 }
 
+function readSavedAt(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
 function sortSavedSongs(records: RadioSongFavoriteRecord[]): RadioSongFavorite[] {
   return records
     .slice()
-    .sort((left, right) => right.savedAt - left.savedAt)
-    .map(({ songKey, display, artist, title, stationName, savedAt }) => ({
-      songKey,
-      display,
-      artist,
-      title,
-      stationName,
-      savedAt,
-    }));
+    .sort((left, right) => readSavedAt(right.savedAt) - readSavedAt(left.savedAt))
+    .map((record) => {
+      const savedAt = readSavedAt(record.savedAt);
+      const favoritedAt =
+        typeof record.favoritedAt === 'string' && record.favoritedAt.trim().length > 0
+          ? record.favoritedAt
+          : null;
+      return {
+        songKey: record.songKey,
+        display: record.display,
+        artist: record.artist ?? null,
+        title: record.title ?? null,
+        stationName: typeof record.stationName === 'string' ? record.stationName : '',
+        stationGenre: record.stationGenre ?? null,
+        savedAt,
+        favoritedAt,
+      };
+    });
 }
 
 export async function listRadioSongFavorites(userId: string): Promise<RadioSongFavorite[]> {
@@ -76,9 +89,10 @@ export async function listRadioSongFavorites(userId: string): Promise<RadioSongF
 export async function setRadioSongFavorite(
   userId: string,
   draft: RadioSongFavoriteDraft,
-  saved: boolean
+  saved: boolean,
+  savedAt: number = Date.now()
 ): Promise<RadioSongFavorite[]> {
-  const song = buildRadioSongFavorite(draft, Date.now());
+  const song = buildRadioSongFavorite(draft, savedAt);
   if (!trimUnknownText(userId) || !song || !isIndexedDbAvailable()) {
     return listRadioSongFavorites(userId);
   }

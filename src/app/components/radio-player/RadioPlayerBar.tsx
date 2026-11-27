@@ -103,7 +103,7 @@ import { RadioPlayerOverflowText } from './RadioPlayerOverflowText';
 import { RadioPlayerTrackSearchButton } from './RadioPlayerTrackSearchButton';
 import { RadioPlayerSongSaveButton } from './RadioPlayerSongSaveButton';
 import { RadioPlayerSavedSongsPanel } from './RadioPlayerSavedSongsPanel';
-import songStyles from './RadioPlayerSongControls.module.css';
+import { RadioPlayerViewSavedSongsButton } from './RadioPlayerViewSavedSongsButton';
 
 export interface RadioPlayerBarPlaybackState {
   isPlaying: boolean;
@@ -207,14 +207,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const [stationSearchQuery, setStationSearchQuery] = useState('');
   const [showUnreachableOnly, setShowUnreachableOnly] = useState(false);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const { data: session, status: sessionStatus } = useSession();
+  const signedInUserId = resolveRadioSongFavoriteUserId(sessionStatus, session?.user?.id);
   const {
     favoriteStationNames,
     favoriteStationNameSet,
     isFavorite,
     toggleFavorite,
-  } = useRadioStationFavorites();
-  const { data: session, status: sessionStatus } = useSession();
-  const signedInUserId = resolveRadioSongFavoriteUserId(sessionStatus, session?.user?.id);
+  } = useRadioStationFavorites(signedInUserId);
   const { savedSongs, isSongSaved, toggleSavedSong } = useRadioSongFavorites(signedInUserId);
 
   const applyStationGenreFilter = useCallback((genreId: RadioStationGenreId | null) => {
@@ -1854,6 +1854,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                           artist: nowPlaying.artist,
                           title: nowPlaying.title,
                           stationName: playback.stationName,
+                          stationGenre: activeStation?.genre ?? null,
                         });
                       }}
                     />
@@ -1874,22 +1875,12 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                     as="p"
                   />
                 ) : null}
-                <button
-                  type="button"
-                  className={`${songStyles.libraryBtn} no-glass`}
-                  aria-expanded={activePanel === 'savedSongs'}
-                  aria-label={radioAria.viewSavedSongs}
-                  title={radioAria.viewSavedSongs}
-                  data-testid="radio-view-saved-songs"
+                <RadioPlayerViewSavedSongsButton
+                  expanded={activePanel === 'savedSongs'}
                   onClick={() => {
                     togglePanel('savedSongs');
                   }}
-                >
-                  <SiteIcon id="library" sizeRem={0.8} title="" />
-                  {savedSongs.length > 0 ? (
-                    <span className={songStyles.libraryBtn__count}>{savedSongs.length}</span>
-                  ) : null}
-                </button>
+                />
               </div>
             </div>
             {!useExpandedMetaLayout ? (

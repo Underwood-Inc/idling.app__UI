@@ -1,6 +1,6 @@
 ---
 title: useRadioStationFavorites
-description: React hook for persisted radio station favorites (IndexedDB)
+description: React hook for cloud-backed radio station favorites with IndexedDB cache
 ---
 
 # useRadioStationFavorites
@@ -19,7 +19,7 @@ Client hook backing favorite stars in the radio player.
 
 ## Lifecycle
 
-On mount, `listRadioStationFavoriteNames()` loads IDs; effect supports cancellation on unmount. `toggleFavorite` optimistically updates local state then writes through `@widgets/radio-player/radioStationFavoritesIndexedDb`.
+When signed in, loads from `/api/radio/favorites/stations` and refreshes IndexedDB cache. Guests still use IndexedDB only. `toggleFavorite` optimistically updates local state then writes through the cloud API (or IndexedDB for guests).
 
 ---
 

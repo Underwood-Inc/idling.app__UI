@@ -66,29 +66,21 @@
   border-style: solid;
 }
 
-.libraryBtn__count {
-  position: absolute;
-  top: -0.28rem;
-  right: -0.28rem;
-  min-width: 0.85rem;
-  height: 0.85rem;
-  padding: 0 0.18rem;
-  border-radius: 999px;
-  background: #1b3a42;
-  color: #d5eef4;
-  font-size: 0.6rem;
-  font-weight: 700;
-  line-height: 0.85rem;
-  text-align: center;
+.search {
+  padding: 0.35rem 0.75rem 0;
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  position: relative;
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 0.65rem 0.75rem 0.85rem;
+  padding: 0.35rem 0.75rem 0.85rem;
+}
+
+.window {
+  position: relative;
+  width: 100%;
 }
 
 .row {
@@ -96,6 +88,25 @@
   align-items: center;
   gap: 0.4rem;
   min-width: 0;
+}
+
+.rowWindowed {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 44px;
+  box-sizing: border-box;
+}
+
+.meta {
+  flex: 0 1 46%;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary, #a8a096);
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .title {
