@@ -1,203 +1,97 @@
 ---
 title: OCE architecture
-description: CLAD layers, global singleton, generation tokens, and single-flight health probes
+description: CLAD layers, settlements, generation tokens, and network-first health probes
 ---
 
 # Architecture
 
-**In plain terms:** OCE is a small **pure** network-hint engine with clear plug-in points (observed `fetch`, subscribe, reporter). It imports nothing from `APIClient`, React, or Axios.
+**In plain terms:** OCE is a **traffic-driven** hint engine. Settlements come from real `fetch` outcomes (or `reporter`); health confirm is **one network GET at a time**, coordinated with `AbortController` and a shared in-flight promise.
 
 | Everyday idea | Engine idea |
 | ------------- | ----------- |
-| Server sent a response | `reportResponse` / settlement `response` |
-| Request never got an answer | `reportTransportFailure` / settlement `transport-failure` (code name) |
-| User cancelled | `reportIgnored` / `ignored` |
+| Server sent a response | `response` settlement |
+| Request never got an answer | `transport-failure` settlement |
+| User cancelled | `ignored` settlement |
 
 ## CLAD seams
 
 | Layer | Responsibility |
 | ----- | -------------- |
 | **Port (interface)** | `ConnectivityEngine` — `getSnapshot`, `subscribe`, `fetch(base)`, `reporter` |
-| **Implementation** | `new ConnectivityEngine(config)` — generation, streak, probe orchestration |
-| **Adapter** | Host `ConnectivityEngine` / explicit `ConnectivityEngine` reference (context or module) |
-| **Recipe** | `OCE.fetch`, `<OceProvider>`, data-library fetchers |
-
-```text
-new ConnectivityEngine(config) → engine
-engine.getSnapshot()
-engine.subscribe(listener) → unsubscribe
-engine.fetch(baseFetch) → wrappedFetch
-engine.reporter.reportResponse()
-engine.reporter.reportTransportFailure()
-engine.reporter.reportIgnored()
-```
+| **Implementation** | `new ConnectivityEngine(config)` — generation, streak, `healthProbe()` |
+| **Adapter** | idling.app `OCE` module + `<OceProvider>` |
+| **Recipe** | `OCE.fetch`, data-library fetchers wired to same `fetch` |
 
 ```mermaid
 flowchart TD
-  callers[Any caller fetch or reporter]
-  attach[engine.fetch wrapper]
-  engine[One engine per page]
-  probe[Single-flight health check]
-  callers --> attach
-  attach --> engine
-  engine --> probe
-  engine --> readers[Subscribers hints only]
+  traffic[App + remotes OCE.fetch / reporter]
+  settle[Settlements synchronous per microtask]
+  engine[ConnectivityEngine snapshot]
+  health[healthProbe — at most one engine GET]
+  traffic --> settle --> engine
+  engine -->|streak === threshold| health
+  health --> engine
+  engine --> ui[subscribe / toasts]
 ```
 
-## Host ownership (not a global engine)
+## Host ownership
 
-Agnostic OCE has **no** `globalThis` registry. The host constructs one `ConnectivityEngine` and passes that instance to microfrontends through **module scope** (`OCE` on idling.app) or an explicit export (`appFetch`).
-
-- **First construction** owns config (`healthCheckUrl`, thresholds, attachment).
-- **Remotes** subscribe to the **same object reference** the host created — they do not call `new ConnectivityEngine` again.
-- **Never** replace `globalThis.fetch`; inject `client.fetch` into HTTP libraries.
-
-### Scope limits (v1)
-
-| Scope | Sharing |
-| ----- | ------- |
-| Same-origin microfrontends on one page | One engine reference from host bootstrap |
-| Cross-origin iframe | Separate engine — cannot see parent flag |
-| Another browser tab | Separate engine — no `BroadcastChannel` / `SharedWorker` in v1 |
+- **One** `ConnectivityEngine` per page (`OCE.ts` on idling.app).
+- Remotes use the **same** `OCE.fetch` reference (`IdlingOceEmbedRegistry` for radio).
+- **Never** patch `globalThis.fetch`.
 
 ## Snapshot fields
 
-`unavailable` is **not** set on the first failure alone. After `streak` reaches `failureThreshold`, **`confirm()`** runs a single health GET; only a **failed** probe (or rejected health contract) sets `unavailable: true`. Any ordinary **`Response`** recovers without calling health.
+See [Network flow](/guides/offline-connectivity-engine/network-flow) for the full table. Highlights:
 
-Scenario diagrams: [Network flow](/guides/offline-connectivity-engine/network-flow).
+- **`unavailable`** — after threshold failures **and** failed health confirm (or strict health contract).
+- **`generation`** — bumps on each recovery; stale settlements and late probe results are ignored.
+- **`lastHealthyAt`** — last confirmed healthy observation (UTC ms).
 
-```ts
-export type ConnectivitySnapshot = {
-  /** Confirmed after streak + failed health confirm — not the first blip */
-  unavailable: boolean;
-  /** Consecutive connection failures (no Response) at current generation */
-  streak: number;
-  failureThreshold: number;
-  /** Bumped on each successful Response; stale probes compare against this */
-  generation: number;
-  /** True when interpretHealthResponse rejected the probe Response */
-  healthContractFailed?: boolean;
-};
-```
-
-## Generation and stale results
-
-Concurrent failures from many microfrontends must not let a **slow** wave undo a **newer** recovery.
+## Settlement loop (pseudocode)
 
 ```ts
-// Pseudocode — settlement handler
-function onSettled(token: { generation: number }, kind: SettlementKind): void {
-  if (token.generation !== generation) {
-    return; // stale wave — discard
-  }
-  if (kind === 'ignored') {
-    return; // AbortError — no streak change
-  }
+function onSettled(token, kind) {
+  if (token.generation !== generation) return;
+  if (kind === 'ignored') return;
   if (kind === 'response') {
-    generation += 1;
-    streak = 0;
-    unavailable = false;
-    publish();
+    if (unavailable) scheduleDebouncedRecovery(token.generation);
+    else markHealthy(token.generation);
     return;
   }
-  // connection failure — no Response
   streak += 1;
-  if (streak < failureThreshold || unavailable) {
-    publish();
-    return;
-  }
-  void confirm();
+  publish();
+  if (unavailable || streak < failureThreshold || streak > failureThreshold) return;
+  void healthProbe({ fresh: true }).then((r) => applyHealthResult(token.generation, r, 'confirm'));
 }
 ```
 
-Success while a probe is in flight bumps generation; the probe result is **discarded** when it settles (FR-OCE-004).
+Confirm runs only when **`streak === failureThreshold`** (not on every failure after that).
 
-## Single-flight probe
+## Network-first `healthProbe()`
 
-At `failureThreshold`, `confirm()`:
+One outcome path for navigator verify, streak confirm, and cached reads:
 
-1. **Reuses** `inflightProbe` if one already exists.
-2. **Reuses** an observed in-flight call to `healthCheckUrl` instead of duplicating the request.
-3. Otherwise starts an engine-owned `GET` with `cache: 'no-store'`, `credentials: 'omit'`, and `AbortSignal.timeout(presetMs)` (probe controller is **not** the user's `AbortController`).
+1. **Cache** — reuse last result within `healthProbeReuseMs` (4s idling default), unless `{ fresh: true }` (confirm).
+2. **Observed traffic** — join an in-flight app `GET` to `healthCheckUrl` (e.g. `/api/version` via `OCE.fetch`).
+3. **Engine GET** — single shared promise; `AbortController` merged with `AbortSignal.timeout(probeDeadline)`.
 
-```ts
-async function confirm(): Promise<void> {
-  if (inflightProbe) {
-    return inflightProbe;
-  }
-  const capturedGeneration = generation;
+Concurrent callers `await` the **same** promise. Teardown (`resetForTests`, `detachNavigatorOnLine`) **aborts** the engine controller; stale completions use `engineHealthEpoch` and return `ignored`.
 
-  inflightProbe = (async () => {
-  try {
-    const result = await runHealthCheck(); // shared or engine-owned
-    if (generation !== capturedGeneration) {
-      return; // recovery already happened
-    }
-    if (isResponse(result) && interpretHealthResponse(result)) {
-      generation += 1;
-      streak = 0;
-      unavailable = false;
-    } else {
-      unavailable = true;
-    }
-    publish();
-  } finally {
-    inflightProbe = null;
-  }
-  })();
-
-  return inflightProbe;
-}
-```
-
-Parallel failures: ten `TypeError`s at the same generation increment streak under a mutex; only the transition to threshold calls `confirm`, and `confirm` single-flights (FR-OCE-003, FR-OCE-008).
+Navigator `online` / `offline` handlers are **debounced** (`navigatorVerifyDebounceMs`, 600ms idling) before calling `healthProbe()`.
 
 ## Classification
 
-```ts
-// `transport-failure` = connection failed before any Response (stable type name in code)
-export type SettlementKind = 'response' | 'transport-failure' | 'ignored';
-
-export function classify(value: unknown): SettlementKind {
-  if (value instanceof Response) {
-    return 'response'; // status ignored; opaque included
-  }
-  if (value instanceof Error && value.name === 'AbortError') {
-    return 'ignored';
-  }
-  if (value instanceof Error && value.name === 'TimeoutError') {
-    return 'transport-failure';
-  }
-  return 'transport-failure'; // TypeError, DNS, CORS, CSP, mixed content
-}
-```
+| Outcome | `SettlementKind` | Streak |
+| ------- | ---------------- | ------ |
+| `Response` (any status) | `response` | Cleared on recovery path |
+| `AbortError` | `ignored` | Unchanged |
+| `TimeoutError`, `TypeError`, … | `transport-failure` | `++` |
 
 ## Non-blocking `engine.fetch`
 
-```ts
-export function engine.fetch(
-  engine: ConnectivityEngine,
-  baseFetch: typeof fetch,
-): typeof fetch {
-  return async function wrappedFetch(
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ): Promise<Response> {
-    const token = engine.onStart(input);
-    try {
-      const response = await baseFetch(input, init); // always
-      engine.onSettled(token, classify(response));
-      return response;
-    } catch (error) {
-      engine.onSettled(token, classify(error));
-      throw error;
-    }
-  };
-}
-```
-
-When `unavailable` is already true, `engine.fetch` **still** calls `baseFetch` and returns or rethrows unchanged (FR-OCE-006).
+When `unavailable` is already true, wrapped `fetch` **still** calls `baseFetch` (FR-OCE-006).
 
 ---
 
-**Sources (specified):** OCE plan — concurrency section, `host bootstrap (hold your ConnectivityEngine / ConnectivityEngine)`, generation, single-flight probe, FR-OCE-001..008.
+**Tests:** `src/lib/oce/connectivity/connectivity.engine.test.ts` (FR-OCE-001 … FR-OCE-014).
