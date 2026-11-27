@@ -89,10 +89,6 @@ export function ClientSignOut({
 
   return (
     <button
-      style={{
-        top: '0.25rem',
-        position: 'relative'
-      }}
       type="button"
       onClick={handleSignOut}
       data-testid={dataTestId || AUTH_BUTTON_SELECTORS.SIGN_OUT}
