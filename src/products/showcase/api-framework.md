@@ -9,9 +9,11 @@ description: Shared HTTP client and router utilities for Cloudflare Workers and 
 
 :::tip Offline Connectivity Engine (OCE)
 
-Browser apps that use `secureFetch` inherit the **Offline Connectivity Engine** — a page-wide connectivity **hint** from real fetch outcomes (not `navigator.onLine`). The flag must not block UI or skip requests.
+**On idling.app:** OCE is vendored under `src/lib/oce/connectivity`; the app uses `idlingFetch` from `@lib/oce/idlingFetch`. **In the Strixun monorepo:** browser apps that use `secureFetch` inherit the same engine from `@strixun/api-framework/connectivity`.
 
-**Start here:** [Offline Connectivity Engine guide](/guides/offline-connectivity-engine/) — architecture, attach fetch, `secureFetch` wiring, framework recipes, and deadlock avoidance.
+The engine publishes a page-wide connectivity **hint** from real fetch outcomes (not `navigator.onLine`); it must not block UI or skip requests.
+
+**Start here:** [Offline Connectivity Engine guide](/guides/offline-connectivity-engine/) — architecture, attach fetch, framework recipes, and deadlock avoidance.
 
 :::
 

@@ -11,7 +11,7 @@ description: Interceptors, validateStatus, timeout 0, and reporter classificatio
 
 ```ts
 import axios from 'axios';
-import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
+import { getPageConnectivityEngine } from '@lib/oce/connectivity';
 
 const engine = getPageConnectivityEngine();
 const fetchWithOce = engine.attachFetch(globalThis.fetch.bind(globalThis));
@@ -31,7 +31,7 @@ Swallow point: interceptors that `return` fallback objects or `.catch(() => ({ d
 
 ```ts
 import axios from 'axios';
-import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
+import { getPageConnectivityEngine } from '@lib/oce/connectivity';
 
 const client = axios.create({ timeout: 10000 });
 

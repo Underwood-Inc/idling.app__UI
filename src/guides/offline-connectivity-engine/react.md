@@ -15,7 +15,7 @@ import {
   getPageConnectivityEngine,
   type ConnectivitySnapshot,
   SERVER_OCE_SNAPSHOT,
-} from '@strixun/api-framework/connectivity';
+} from '@lib/oce/connectivity';
 
 function subscribe(onStoreChange: () => void): () => void {
   const engine = getPageConnectivityEngine();

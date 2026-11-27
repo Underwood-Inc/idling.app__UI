@@ -1,6 +1,7 @@
 import type { TranslationFunctions } from '$i18n/i18n-types';
 import enCatalog from '$i18n/locales/en.json';
 import {
+  resolveHomeLinkLabel,
   resolveOutboundLinkLabel,
   resolveProductMarketingAudienceLine,
   resolveProductMarketingHook,
@@ -108,21 +109,22 @@ function primaryHomeLinkLabel(
     if (fieldKey === 'live' && external) {
       return ll.home.homeLinks.open();
     }
-    const homeLinks = ll.home.homeLinks as Record<string, () => string>;
-    const fn = homeLinks[fieldKey];
-    if (typeof fn === 'function') {
-      return String(fn());
+    const homeKey = fieldKey as keyof TranslationFunctions['home']['homeLinks'];
+    if (homeKey in ll.home.homeLinks) {
+      return resolveHomeLinkLabel(homeKey, ll);
     }
+    return resolveOutboundLinkLabel({ fieldKey, href, external }, ll);
   }
 
   const enLinks = enCatalog.home.homeLinks as Record<string, string>;
+  const enOutbound = enCatalog.home.outboundLinks as Record<string, string>;
   if (fieldKey === 'demo' && !external) {
     return enLinks.tour;
   }
   if (fieldKey === 'live' && external) {
     return enLinks.open;
   }
-  return enLinks[fieldKey] ?? fieldKey;
+  return enOutbound[fieldKey] ?? enLinks[fieldKey] ?? fieldKey;
 }
 
 export function getHomeProductPrimaryLink(

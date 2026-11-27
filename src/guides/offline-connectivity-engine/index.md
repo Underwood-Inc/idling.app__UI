@@ -6,7 +6,11 @@ sidebar_position: 10
 
 # Offline Connectivity Engine (OCE)
 
-**In plain terms:** OCE watches what your HTTP transport actually did and publishes a single page-wide hint: `unavailable: boolean`. Any app attaches it to **whatever fetch it already uses**. Import the engine from **`@strixun/api-framework/connectivity`** (not a separate package). `@strixun/api-framework`'s `secureFetch` is one such attachment, not the owner of the idea.
+**In plain terms:** OCE watches what your HTTP transport actually did and publishes a single page-wide hint: `unavailable: boolean`. Any app attaches it to **whatever fetch it already uses**.
+
+**Idling.app (this site):** engine lives at **`src/lib/oce/connectivity`** — import via `@lib/oce/connectivity` or use the bootstrap `idlingFetch` from `@lib/oce/idlingFetch`. Same implementation as **`@strixun/api-framework/connectivity`** in the Strixun monorepo; vendored here so deploy needs no sibling `strixun-stream-suite` checkout.
+
+**Strixun monorepo apps:** import **`@strixun/api-framework/connectivity`**; workers may use `secureFetch` from `@strixun/api-framework`.
 
 The flag is a **best-effort guess**, not a promise. Wi‑Fi can be associated with no route. A captive portal can return HTML. CORS failures look like dropped packets. A cached service-worker response can look like the origin answered.
 

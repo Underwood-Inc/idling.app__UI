@@ -7,13 +7,27 @@ description: Host bootstrap, microfrontend consumers, and api-framework secureFe
 
 **In plain terms:** observation belongs on the **transport**. The host wraps `fetch` once; every user-initiated call that should inform OCE must go through that wrapper (or the reporter port).
 
+## Idling.app entry (`idlingFetch`)
+
+This repo bundles OCE at `src/lib/oce/connectivity` and bootstraps on import:
+
+```ts
+import { idlingFetch, getIdlingOceEngine } from '@lib/oce/idlingFetch';
+
+// idlingFetch is attachFetch(globalThis.fetch); probe URL is /api/version
+await idlingFetch('/api/radio/favorites/stations');
+const snap = getIdlingOceEngine().getSnapshot();
+```
+
+Radio embed sources import `./embedIdlingFetch`, which delegates to the same engine when the Next app has loaded `@lib/oce/idlingFetch`.
+
 ## Host attach (before remotes render)
 
 ```ts
 import {
   getPageConnectivityEngine,
   type PageConnectivityEngine,
-} from '@strixun/api-framework/connectivity';
+} from '@lib/oce/connectivity';
 
 let fetchWithOce: typeof fetch;
 
@@ -58,7 +72,7 @@ Rules:
 ```tsx
 // remote/src/ConnectivityHint.tsx
 import { useEffect, useState } from 'react';
-import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
+import { getPageConnectivityEngine } from '@lib/oce/connectivity';
 
 export function ConnectivityHint() {
   const engine = getPageConnectivityEngine();
@@ -99,9 +113,9 @@ export const api = createRestClient({
 
 For TanStack Query, Apollo `HttpLink`, SWR `fetcher`, axios adapter — see [Recipes](/guides/offline-connectivity-engine/recipes-fetch).
 
-## `@strixun/api-framework` `secureFetch`
+## `@strixun/api-framework` `secureFetch` (monorepo workers / hubs)
 
-`secureFetch` is `attachFetch` around the HTTPS-safe base fetch. `APIClient` call shape does not change. Apps already on the client inherit observation.
+In **strixun-stream-suite**, `secureFetch` is `attachFetch` around the HTTPS-safe base fetch. **Idling.app** uses `idlingFetch` instead (see above); it does not install the full api-framework package.
 
 ```ts
 import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
