@@ -8,6 +8,7 @@
  * @version 1.0.0
  */
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -185,7 +186,7 @@ export default function CreatePermissionModal({
 
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/permissions', {
+      const response = await OCE.noCacheFetch('/api/admin/permissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

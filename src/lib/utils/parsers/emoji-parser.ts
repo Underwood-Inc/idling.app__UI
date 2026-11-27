@@ -20,7 +20,7 @@
  * - ":custom_emoji:" → "🎨" (or fallback if not found)
  */
 
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 
 // ================================
 // TYPES AND INTERFACES
@@ -780,7 +780,7 @@ export class EmojiParser {
         ...(options.category && { category: options.category })
       });
 
-      const response = await noCacheFetch(`/api/emojis?${params}`);
+      const response = await OCE.noCacheFetch(`/api/emojis?${params}`);
       if (!response.ok) {
         throw new Error('Failed to load emojis from API');
       }

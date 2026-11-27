@@ -11,12 +11,12 @@ description: React Query networkMode always, onlineManager, retries, and Backgro
 
 ```tsx
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { fetchWithOce } from '../oce-bootstrap';
+import { OCE } from '@lib/oce';
 
 export function useSaveProfile() {
   return useMutation({
     mutationFn: async (body: Profile) => {
-      const res = await fetchWithOce('/api/profile', {
+      const res = await OCE.fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -32,7 +32,7 @@ export function useDashboard() {
   return useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
-      const res = await fetchWithOce('/api/dashboard');
+      const res = await OCE.fetch('/api/dashboard');
       if (!res.ok) throw new Error('Load failed');
       return res.json();
     },
@@ -50,28 +50,28 @@ export function useDashboard() {
 import { onlineManager } from '@tanstack/react-query';
 
 onlineManager.setEventListener((setOnline) => {
-  const engine = getPageConnectivityEngine();
+  const engine = OCE.engine;
   return engine.subscribe(() => {
     setOnline(!engine.getSnapshot().unavailable);
   });
 });
 ```
 
-Leave `onlineManager` assuming online; let `attachFetch` see each attempt. TanStack [stopped reading `navigator.onLine`](https://tanstack.com/query/latest/docs/reference/onlineManager) in v5 for similar false-negative reasons — align with that stance.
+Leave `onlineManager` assuming online; let `OCE.fetch` see each attempt. TanStack [stopped reading `navigator.onLine`](https://tanstack.com/query/latest/docs/reference/onlineManager) in v5 for similar false-negative reasons — align with that stance.
 
 ## `refetchOnReconnect`
 
 With `networkMode: 'always'`, `refetchOnReconnect` defaults false in this mode. **Leave it false** — browser `online` events are not proof of reachability.
 
-## Retries must use `fetchWithOce`
+## Retries must use `OCE.fetch`
 
-Default `retry` (3) and `retryDelay` (1s, 2s, 4s, cap 30s) re-enter `queryFn`. Each attempt must go through `attachFetch`.
+Default `retry` (3) and `retryDelay` (1s, 2s, 4s, cap 30s) re-enter `queryFn`. Each attempt must go through `OCE.fetch`.
 
 ```ts
-// Forbidden inside queryFn — swallows failure for OCE unless attachFetch already ran
+// Forbidden inside queryFn — swallows failure for OCE unless engine.fetch already ran
 queryFn: async () => {
   try {
-    return await fetchWithOce('/api/x').then((r) => r.json());
+    return await OCE.fetch('/api/x').then((r) => r.json());
   } catch {
     return cachedX;
   }
@@ -85,7 +85,7 @@ queryFn: async () => {
 ```tsx
 useQuery({
   queryKey: ['heartbeat'],
-  queryFn: () => fetchWithOce('/api/ping').then((r) => r.ok),
+  queryFn: () => OCE.fetch('/api/ping').then((r) => r.ok),
   refetchInterval: 30_000,
   networkMode: 'always',
 });
@@ -103,9 +103,9 @@ If retries run out to 30s, host config should use `probeDeadline: 'Background'` 
 
 ```tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { bootstrapOce } from './oce-bootstrap';
+import { bootstrapEngine } from './oce-bootstrap';
 
-bootstrapOce();
+bootstrapEngine();
 
 const queryClient = new QueryClient({
   defaultOptions: {

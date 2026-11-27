@@ -64,7 +64,8 @@ module.exports = {
     'coverage/**',
     '**/*.js',
     '**/*.ts',
-    '**/*.tsx'
+    '**/*.tsx',
+    'src/css/swagger-ui/**'
   ],
 
   // Override rules for specific files
@@ -78,6 +79,17 @@ module.exports = {
         'color-function-notation': null,
         'color-function-alias-notation': null,
         'value-keyword-case': null
+      }
+    },
+    {
+      files: ['src/app/globals.css', 'src/css/base.css'],
+      rules: {
+        'declaration-property-value-disallowed-list': {
+          '/^(margin|padding)/': ['/^\\d+px$/', '/^\\d+rem$/'],
+          'border-radius': ['/^\\d+px$/'],
+          'transition': ['/^\\d+\\.?\\d*s/'],
+          'z-index': ['/^\\d+$/']
+        }
       }
     }
   ]

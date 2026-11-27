@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -84,7 +85,7 @@ export const AssignSubscriptionModal: React.FC<
         'AssignSubscriptionModal: Starting fetch to /api/admin/subscription-plans'
       );
 
-      const response = await fetch('/api/admin/subscription-plans');
+      const response = await OCE.noCacheFetch('/api/admin/subscription-plans');
 
       // eslint-disable-next-line no-console
       console.log('AssignSubscriptionModal: Response received:', {
@@ -442,8 +443,7 @@ export const AssignSubscriptionModal: React.FC<
                     style={{
                       marginLeft: '10px',
                       padding: '4px 8px',
-                      fontSize: 'var(--font-size-xs)'
-                    }}
+                      }}
                   >
                     <IconText iconId="refresh">Retry</IconText>
                   </button>

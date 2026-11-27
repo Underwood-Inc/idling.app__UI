@@ -41,7 +41,6 @@
   color: inherit;
   cursor: var(--mappy-cursor-pointer, pointer);
   text-decoration: none;
-  font-size: inherit;
   font-family: inherit;
   transition: all 0.15s ease;
   position: relative;
@@ -91,7 +90,6 @@
   color: var(--text-primary);
   text-decoration: none;
   transition: all 0.2s ease;
-  font-size: var(--font-size-base);
   white-space: nowrap;
 }
 
@@ -176,7 +174,6 @@
 .nav__auth .nav__font-picker .font-picker__trigger {
   min-width: 100px;
   height: 2.5rem;
-  font-size: var(--font-size-base);
 }
 
 .active {
@@ -224,7 +221,6 @@ a:hover .nav__header {
 
 .nav__user-profile .header__user-name {
   margin: 0;
-  font-size: var(--font-size-lg);
   font-weight: 500;
   line-height: 1.2;
   display: flex;
@@ -239,7 +235,6 @@ a:hover .nav__header {
 
 .nav__search .user-search__input {
   height: 2.5rem;
-  font-size: var(--font-size-sm);
   padding: 0.5rem 0.75rem;
   background: #E5E5E5;
   border: 1px solid #E5E5E5;
@@ -259,7 +254,6 @@ a:hover .nav__header {
   }
 
   .nav__header {
-    font-size: var(--font-size-lg);
   }
 
   .nav__profile-link {
@@ -267,7 +261,6 @@ a:hover .nav__header {
   }
 
   .nav__user-profile .header__user-name {
-    font-size: var(--font-size-base);
   }
 
   .nav__links--as-flex-end,
@@ -283,7 +276,6 @@ a:hover .nav__header {
   .nav__auth .nav__font-picker .font-picker__trigger {
     min-width: 90px;
     height: 2.25rem;
-    font-size: var(--font-size-sm);
   }
 
   .nav__group-dropdown {
@@ -314,7 +306,6 @@ a:hover .nav__header {
   }
 
   .nav__header {
-    font-size: var(--font-size-md);
     margin-bottom: 0.25rem;
   }
 
@@ -509,7 +500,6 @@ a:hover .nav__header {
 
 .mobile-nav-drawer__title {
   margin: 0;
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--brand-primary);
 }
@@ -517,7 +507,6 @@ a:hover .nav__header {
 .mobile-nav-drawer__close {
   background: transparent;
   border: none;
-  font-size: var(--font-size-xl);
   cursor: var(--mappy-cursor-pointer, pointer);
   color: var(--text-secondary);
   padding: 0.25rem;
@@ -562,7 +551,6 @@ a:hover .nav__header {
 }
 
 .mobile-nav-drawer__group-title {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;

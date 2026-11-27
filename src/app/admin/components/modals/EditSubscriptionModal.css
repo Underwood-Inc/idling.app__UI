@@ -27,7 +27,6 @@
 
 .edit-subscription-modal__header h2 {
   margin: 0;
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   text-transform: none;
@@ -42,7 +41,6 @@
 
 .edit-subscription-modal__user-info h3 {
   margin: 0 0 0.5rem 0;
-  font-size: var(--font-size-md);
   color: var(--dark-bg__text-color--primary);
   font-weight: 600;
 }
@@ -50,7 +48,6 @@
 .edit-subscription-modal__user-info p {
   margin: 0.25rem 0;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
 }
 
 .edit-subscription-modal__user-info p strong {
@@ -84,7 +81,6 @@
 
 /* Labels */
 .edit-subscription-modal__label {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary) !important; /* Force white text */
   margin-bottom: 0.25rem;
@@ -99,7 +95,6 @@
   border-radius: var(--border-radius);
   background: var(--dark-background--secondary);
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   transition: all 0.2s ease;
 }
 
@@ -137,7 +132,6 @@
 
 /* Help Text */
 .edit-subscription-modal__help {
-  font-size: var(--font-size-xs);
   color: var(
     --dark-bg__text-color--tertiary
   ) !important; /* Force light gray text */
@@ -156,7 +150,6 @@
   padding: 1rem;
   border-radius: var(--border-radius);
   margin-bottom: 1.5rem;
-  font-size: var(--font-size-sm);
 }
 
 /* Actions */
@@ -171,7 +164,6 @@
 .edit-subscription-modal__btn {
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;

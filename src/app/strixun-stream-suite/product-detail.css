@@ -49,7 +49,6 @@
 }
 
 .product-hero__icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 2rem;
   filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.4));
   animation: float 3s ease-in-out infinite;
@@ -76,7 +75,6 @@
 }
 
 .product-hero__title {
-  font-size: clamp(var(--font-size-5xl), 8vw, var(--font-size-5xl));
   font-weight: 900;
   margin: 0 0 1.5rem 0;
   color: var(--dark-bg__text-color--primary);
@@ -85,7 +83,6 @@
 }
 
 .product-hero__tagline {
-  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-5xl));
   font-weight: 700;
   color: var(--brand-primary);
   margin: 0 0 1.5rem 0;
@@ -94,7 +91,6 @@
 
 .product-hero__status {
   margin: 0 0 2.5rem 0;
-  font-size: var(--font-size-md);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.4;
@@ -123,7 +119,6 @@
   gap: 1.25rem;
   padding: 1.5rem 3.5rem;
   border-radius: 16px;
-  font-size: var(--font-size-xl);
   font-weight: 800;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -213,7 +208,6 @@
 }
 
 .product-section__title {
-  font-size: clamp(var(--font-size-5xl), 5vw, var(--font-size-5xl));
   font-weight: 900;
   margin: 0 0 3rem 0;
   color: var(--dark-bg__text-color--primary);
@@ -222,7 +216,6 @@
 }
 
 .product-section__description {
-  font-size: clamp(var(--font-size-lg), 2.5vw, var(--font-size-2xl));
   line-height: 1.8;
   color: var(--dark-bg__text-color--secondary);
   max-width: none;
@@ -315,7 +308,6 @@
   align-items: center;
   justify-content: center;
   /* FeatureIcon uses sizeRem={5} (5em); scale parent so the glyph ≈ 2.5–3rem */
-  font-size: clamp(0.45rem, 0.85vw, 0.6rem);
   color: var(--brand-primary);
   transition: transform 0.3s ease;
 }
@@ -328,7 +320,6 @@
   grid-column: 2;
   grid-row: 1;
   align-self: center;
-  font-size: clamp(var(--font-size-xl), 2.5vw, var(--font-size-3xl));
   font-weight: 800;
   margin: 0;
   line-height: 1.2;
@@ -338,7 +329,6 @@
 .product-feature__description {
   grid-column: 1 / -1;
   grid-row: 2;
-  font-size: clamp(var(--font-size-md), 2vw, var(--font-size-xl));
   line-height: 1.7;
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
@@ -370,7 +360,6 @@ a.product-tech__tag:focus-visible .product-tech__tagExternal {
 
 .product-tech__tagExternal {
   flex-shrink: 0;
-  font-size: 0.85em;
   line-height: 1;
   opacity: 0.75;
   transition: color 0.2s ease, opacity 0.2s ease;
@@ -396,7 +385,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
   );
   border: 2px solid var(--dark-border--primary);
   border-radius: 16px;
-  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--dark-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -438,7 +426,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
   }
 
   .product-hero__icon {
-    font-size: var(--font-size-5xl);
   }
 
   .product-hero__mascot {
@@ -479,7 +466,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 
 @media (max-width: 480px) {
   .product-hero__icon {
-    font-size: var(--font-size-5xl);
   }
 
   .product-hero__mascot {
@@ -488,7 +474,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
   }
 
   .product-feature__icon {
-    font-size: var(--font-size-5xl);
   }
 }
 
@@ -531,7 +516,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
   display: inline-block;
   margin-block-end: 2rem;
   color: var(--brand-primary);
-  font-size: var(--font-size-base);
   font-weight: 700;
   text-decoration: none;
 }
@@ -544,7 +528,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 .product-marketing-meta {
   margin: 0 0 1rem;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -559,7 +542,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 .product-marketing-note {
   margin-block-start: 1.25rem;
   color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
 }
 
 .product-marketing-more,
@@ -575,13 +557,11 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 
 .detail__showcase[data-testid='product-detail'] .product-hero__icon {
   animation: none;
-  font-size: 4.5rem;
   line-height: 1;
   margin-bottom: 1.25rem;
 }
 
 .detail__showcase[data-testid='product-detail'] .product-hero__icon--lucide .lucide-icon {
-  font-size: 1em;
 }
 
 .detail__showcase[data-testid='product-detail'] .product-hero__visual {
@@ -608,7 +588,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 
 .detail__showcase[data-testid='product-detail'] .product-hero__tagline--marketing {
   margin-bottom: 2rem;
-  font-size: clamp(var(--font-size-lg), 2.5vw, var(--font-size-2xl));
   font-weight: 700;
   line-height: 1.35;
   color: var(--brand-primary);
@@ -621,14 +600,12 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 
 .detail__showcase[data-testid='product-detail'] .product-section__title {
   margin-bottom: 0.75rem;
-  font-size: clamp(var(--font-size-xl), 3vw, var(--font-size-2xl));
   text-align: left;
 }
 
 .detail__showcase[data-testid='product-detail'] .product-section__description {
   margin: 0;
   max-width: none;
-  font-size: var(--font-size-md);
   line-height: 1.6;
   text-align: left;
 }
@@ -637,7 +614,6 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
   margin: 0 0 1.5rem;
   max-width: none;
   color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
   line-height: 1.5;
   text-align: left;
 }
@@ -660,14 +636,12 @@ a.product-tech__tag:focus-visible .product-tech__tagLabel {
 .detail__showcase[data-testid='product-detail'] .product-marketing-highlight__title {
   margin: 0 0 0.4rem;
   color: var(--text-primary);
-  font-size: var(--font-size-md);
   font-weight: 800;
 }
 
 .detail__showcase[data-testid='product-detail'] .product-marketing-highlight__body {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
   line-height: 1.55;
 }
 

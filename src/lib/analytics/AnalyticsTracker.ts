@@ -7,6 +7,8 @@
  * @version 2.0.0 - Balanced & Useful
  */
 
+import { OCE } from '@lib/oce';
+
 // Simple ID generator without external dependencies
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -516,7 +518,7 @@ export class AnalyticsTracker {
     this.eventQueue = [];
 
     try {
-      const response = await fetch(this.config.endpoint, {
+      const response = await OCE.fetch(this.config.endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

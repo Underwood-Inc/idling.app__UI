@@ -6,7 +6,7 @@
  * management system.
  */
 
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { USERS_PER_LOAD, USERS_PER_PAGE } from './constants';
 import type {
@@ -36,7 +36,7 @@ export const useUsersData = () => {
     setError(null);
 
     try {
-      const response = await noCacheFetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users?page=${page}&limit=20`
       );
       if (!response.ok) {
@@ -101,7 +101,7 @@ export const useSmartSearch = () => {
     setShowSearchResults(true);
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/search?q=${encodeURIComponent(value.trim())}`
       );
       if (response.ok) {

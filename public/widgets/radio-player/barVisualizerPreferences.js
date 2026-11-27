@@ -11,6 +11,8 @@ export const DEFAULT_BAR_VISUALIZER_PREFERENCES = {
     barTrail: 'none',
     glow: 'off',
     scopeSmoothing: 0.62,
+    dockOpacity: 0.28,
+    dockLayoutMode: 'backdrop',
 };
 export const BAR_COUNT_BY_DENSITY = {
     compact: 24,
@@ -69,6 +71,19 @@ export const SCOPE_SMOOTHING_RANGE = {
 };
 export function clampScopeSmoothing(value) {
     return Math.min(SCOPE_SMOOTHING_RANGE.max, Math.max(SCOPE_SMOOTHING_RANGE.min, value));
+}
+/** Dock backdrop opacity — lower ceiling than fullscreen spectrum. */
+export const DOCK_OPACITY_RANGE = {
+    min: 0.05,
+    max: 0.45,
+    step: 0.05,
+    default: 0.28,
+};
+export function clampDockOpacity(value) {
+    return Math.min(DOCK_OPACITY_RANGE.max, Math.max(DOCK_OPACITY_RANGE.min, value));
+}
+export function normalizeDockLayoutMode(value) {
+    return value === 'inline' ? 'inline' : 'backdrop';
 }
 function migrateLegacyVisualizerStyle(legacyPresetId) {
     switch (legacyPresetId) {
@@ -152,6 +167,10 @@ export function loadBarVisualizerPreferences() {
             scopeSmoothing: typeof parsed.scopeSmoothing === 'number'
                 ? clampScopeSmoothing(parsed.scopeSmoothing)
                 : DEFAULT_BAR_VISUALIZER_PREFERENCES.scopeSmoothing,
+            dockOpacity: typeof parsed.dockOpacity === 'number'
+                ? clampDockOpacity(parsed.dockOpacity)
+                : DEFAULT_BAR_VISUALIZER_PREFERENCES.dockOpacity,
+            dockLayoutMode: normalizeDockLayoutMode(parsed.dockLayoutMode),
         };
     }
     catch {

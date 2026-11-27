@@ -219,7 +219,6 @@
   background: transparent;
   color: var(--text-primary, #ece8e0);
   font: inherit;
-  font-size: var(--font-size-sm);
 }
 
 .stationSearch__input::placeholder {
@@ -252,7 +251,6 @@
 
 .stationSearchEmpty {
   margin: 0.35rem 0.15rem 0.5rem;
-  font-size: var(--font-size-sm);
   line-height: 1.45;
   color: var(--text-secondary, #a8a096);
 }
@@ -288,7 +286,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -303,7 +300,6 @@
   border-radius: 999px;
   background: rgb(255 255 255 / 10%);
   color: var(--text-secondary, #a8a096);
-  font-size: var(--font-size-xs);
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
@@ -358,7 +354,6 @@
 
 .stationProbeStatus {
   margin: 0;
-  font-size: var(--font-size-xs);
   line-height: 1.35;
   color: var(--text-secondary, #a8a096);
 }
@@ -462,7 +457,6 @@
 
 .stationRow__flag {
   font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-  font-size: var(--font-size-md);
   line-height: 1;
 }
 
@@ -475,7 +469,6 @@
 }
 
 .stationRow__name {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   line-height: 1.25;
   color: var(--text-primary, #ece8e0);
@@ -488,7 +481,6 @@
 .stationRow__blurb {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: var(--font-size-xs);
   line-height: 1.3;
   color: var(--text-secondary, #a8a096);
   white-space: nowrap;
@@ -505,7 +497,6 @@
 .stationRow__genre {
   align-self: center;
   padding-inline: 0.35rem;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-secondary, #a8a096);
   white-space: nowrap;
@@ -522,7 +513,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   appearance: none;
 }
@@ -587,7 +577,6 @@
 
 .panelSection__title {
   margin: 0 0 0.5rem;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -599,7 +588,6 @@
   padding: 0.65rem 0.75rem;
   border-radius: 4px;
   background: rgb(255 255 255 / 4%);
-  font-size: var(--font-size-sm);
   line-height: 1.45;
   color: rgb(255 255 255 / 72%);
 }
@@ -632,7 +620,6 @@
   color: var(--text-primary, #ece8e0);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-sm);
   font-weight: 500;
   text-align: left;
   box-shadow: none;
@@ -671,7 +658,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -785,7 +771,6 @@
 
 .opacityControl__pct {
   min-width: 2rem;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -1177,14 +1162,12 @@
 .station__flag {
   flex-shrink: 0;
   font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-  font-size: var(--font-size-base);
   line-height: 1;
 }
 
 .station__name {
   min-width: 0;
   flex: 1 1 auto;
-  font-size: var(--font-size-base);
   font-weight: 700;
   line-height: 1.25;
   color: var(--brand-primary, #e5c185);
@@ -1192,7 +1175,6 @@
 
 .subtitle {
   margin: 0;
-  font-size: var(--font-size-sm);
   font-weight: 500;
   line-height: 1.35;
   color: var(--text-secondary, #a8a096);
@@ -1447,7 +1429,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-sm);
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
@@ -1466,7 +1447,6 @@
 
 .volume__pct {
   min-width: 1.75rem;
-  font-size: var(--font-size-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -1499,7 +1479,6 @@
   border: 1px solid rgb(255 255 255 / 12%);
   border-radius: 999px;
   background: rgb(0 0 0 / 28%);
-  font-size: var(--font-size-xs);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0.01em;
@@ -1852,7 +1831,6 @@
 
   .textBtnSpectrum .textBtn__label {
     display: inline;
-    font-size: var(--font-size-xs);
   }
 
   .textBtn {
@@ -1876,7 +1854,6 @@
 
   .textBtnSpectrum .textBtn__label {
     display: inline;
-    font-size: var(--font-size-xs);
   }
 
   .textBtn {

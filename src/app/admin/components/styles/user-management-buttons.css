@@ -9,7 +9,6 @@
   padding: var(--spacing-xs-compact) var(--spacing-sm-cozy);
   border: 1px solid transparent;
   border-radius: 6px;
-  font-size: var(--font-size-xs);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -19,7 +18,6 @@
 
 .btn--small {
   padding: var(--spacing-xs-compact) var(--spacing-sm-compact);
-  font-size: var(--font-size-xs);
 }
 
 .btn--secondary {
@@ -82,7 +80,6 @@
   border-radius: 6px;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
-  font-size: var(--font-size-base);
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -97,7 +94,6 @@
 
 .pagination-info {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -130,7 +126,6 @@
 }
 
 .hamburger-icon {
-  font-size: var(--font-size-base);
   font-weight: bold;
   line-height: 1;
 }
@@ -161,7 +156,6 @@
   cursor: var(--mappy-cursor-pointer, pointer) !important;
   transition: all 0.2s ease !important;
   color: var(--dark-bg__text-color--primary) !important;
-  font-size: var(--font-size-base) !important;
   text-align: left !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
@@ -182,7 +176,6 @@
 
 /* Force gap on action icons and labels */
 .user-actions-menu .action-icon {
-  font-size: var(--font-size-base) !important;
   width: 20px !important;
   text-align: center !important;
   flex-shrink: 0 !important;

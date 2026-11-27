@@ -46,7 +46,6 @@
 
 .trigger__label,
 .trigger__navLabel {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -237,7 +236,6 @@
 
 .overlay__title {
   margin: 0;
-  font-size: var(--font-size-sm);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--text-primary, #e0e0e0);

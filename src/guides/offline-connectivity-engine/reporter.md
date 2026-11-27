@@ -1,111 +1,91 @@
 ---
 title: OCE reporter port
-description: Report transport outcomes for non-fetch HTTP stacks with the same generation rules
+description: Tell OCE what happened when your code does not use fetch — same rules as OCE.fetch
 ---
 
 # Reporter port
 
-**In plain terms:** if your framework does not go through `attachFetch`, you still must tell the engine what the transport did — **before** interceptors turn errors into resolved fallbacks.
+**In plain terms:** **`OCE.fetch`** (and **`noCacheFetch` / `apiFetch`**) **already report** — you do **not** call the reporter in `catch` after those calls. Use this page only when HTTP is **not** going through observed fetch (prefer **`OCE.bindHtmlMediaElement`** for media first).
 
-## API (specified)
+## API (code names stay stable)
+
+| Plain English | Call in code |
+| ------------- | ------------ |
+| Server sent an answer (any status) | `reportResponse()` |
+| Request failed before any answer (offline, DNS, timeout, reset) | `reportTransportFailure()` |
+| User cancelled — not an outage | `reportIgnored()` |
 
 ```ts
-export type ConnectivityReporter = {
-  /** HTTP message received (any status, including 4xx/5xx) */
-  reportResponse: (meta?: { url?: string }) => void;
-  /** No Response — network, timeout, DNS, etc. */
-  reportTransportFailure: (meta?: { url?: string }) => void;
-  /** User or navigation cancel — AbortError equivalent */
-  reportIgnored: (meta?: { url?: string }) => void;
-};
+import { OCE } from '@lib/oce';
 
-// On the engine instance:
-const { reporter } = getPageConnectivityEngine();
+const { reporter } = OCE;
+
+reporter.reportResponse();         // Got an answer
+reporter.reportTransportFailure(); // No answer — connection problem
+reporter.reportIgnored();          // Cancelled on purpose
 ```
 
-Reporter calls use the **same** generation, streak, threshold, and confirm rules as `attachFetch`. They are the adapter for:
+Reporter calls use the **same** streak, threshold, and health-check rules as **`OCE.fetch`**.
 
-- Axios with a custom adapter not wired to `fetch`
-- Native mobile WebView bridges
-- Electron `net` module wrappers
-- gRPC-Web or other transports
+Use reporter for:
+
+- `<audio>` / `<video>` stream probes
+- Axios without the fetch adapter
+- XHR, WebSocket signaling, Electron `net`, native WebView bridges
 
 ## When to call what
 
-| Outcome | Call |
-| ------- | ---- |
-| Got a `Response` (or framework equivalent with status) | `reportResponse()` |
-| No response object — timeout, offline, connection reset | `reportTransportFailure()` |
+| What happened | Call |
+| ------------- | ---- |
+| Got a `Response` or framework equivalent with status | `reportResponse()` |
+| No response — timeout, offline, connection reset | `reportTransportFailure()` |
 | User canceled — `AbortError`, axios cancel | `reportIgnored()` |
 
 ```ts
-function onXhrLoad(xhr: XMLHttpRequest, url: string): void {
-  const engine = getPageConnectivityEngine();
+function onXhrLoad(xhr: XMLHttpRequest): void {
+  const { reporter } = OCE;
   if (xhr.status !== 0) {
-    engine.reporter.reportResponse({ url });
+    reporter.reportResponse();
   } else {
-    engine.reporter.reportTransportFailure({ url });
+    reporter.reportTransportFailure();
   }
 }
 ```
 
-## Order: report before continue
-
-Framework interceptors that **resolve** with fallback data must report **first**:
+## Prefer `OCE.fetch` when possible
 
 ```ts
-axios.interceptors.response.use(
-  (response) => {
-    getPageConnectivityEngine().reporter.reportResponse();
-    return response;
-  },
-  (error) => {
-    const engine = getPageConnectivityEngine();
-    if (axios.isCancel(error)) {
-      engine.reporter.reportIgnored();
-    } else if (error.response) {
-      engine.reporter.reportResponse();
-    } else {
-      engine.reporter.reportTransportFailure();
-    }
-    return Promise.reject(error); // do not swallow after report
-  },
-);
-```
+// Axios — fetch adapter (recommended)
+import { OCE } from '@lib/oce';
 
-Swallowing without reporting loses the signal and blocks recovery:
-
-```ts
-// Forbidden — failure never reaches OCE
-axios.interceptors.response.use(undefined, () => ({ data: null }));
-```
-
-## Pairing with custom `attachFetch` stacks
-
-Preferred path: point the HTTP layer at `fetchWithOce` so classification stays automatic. Use reporter only where fetch is not the bottom of the stack.
-
-```ts
-// Hybrid: graphql over fetch — use attachFetch, not reporter
-import { getFetchWithOce } from './oce-bootstrap';
-
-const link = new HttpLink({
-  uri: '/graphql',
-  fetch: getFetchWithOce(),
+export const http = axios.create({
+  adapter: 'fetch',
+  fetch: OCE.fetch,
 });
 ```
 
-## Explicit cancel
+If you cannot use the fetch adapter, mirror outcomes in interceptors — see [Recipe — Axios](/guides/offline-connectivity-engine/recipes-axios).
 
-If your stack distinguishes cancel from failure:
+## Forbidden
 
 ```ts
-function onUserAbort(): void {
-  getPageConnectivityEngine().reporter.reportIgnored();
-}
+// Failure never reaches OCE
+axios.interceptors.response.use(undefined, () => ({ data: null }));
 ```
 
-`reportIgnored` must not increment streak or change `unavailable` (FR-OCE-005).
+Hiding connection failures stops the network hint from updating and slows “back online” messages.
+
+## Audio example (idling radio)
+
+```ts
+import { IdlingOceEmbedRegistry } from 'widgets/radio-player/embedIdlingFetch';
+
+const { reporter } = IdlingOceEmbedRegistry.engine();
+
+audio.addEventListener('canplay', () => reporter.reportResponse());
+audio.addEventListener('error', () => reporter.reportTransportFailure());
+```
 
 ---
 
-**Sources (specified):** OCE plan — agnostic core reporter methods, framework swallow points, FR-OCE-010.
+**Related:** [Getting started](/guides/offline-connectivity-engine/getting-started) · FR-OCE-005 (`reportIgnored`).

@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { IDLING_PURGE_USER_SCOPED_STORAGE_EVENT } from '@lib/security/purgeUserScopedClientStorage';
 import React, {
   createContext,
@@ -84,7 +85,7 @@ export function UserDataBatchProvider({
 
     try {
       // Make batch request
-      const response = await fetch('/api/users/batch-decorations', {
+      const response = await OCE.fetch('/api/users/batch-decorations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ export function UserDataBatchProvider({
       }
 
       try {
-        const response = await fetch('/api/users/batch-decorations', {
+        const response = await OCE.fetch('/api/users/batch-decorations', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -46,7 +46,6 @@ export default function Error({ error, reset }: ErrorProps) {
     >
       <h2
         style={{
-          fontSize: 'var(--font-size-lg)',
           marginBottom: '1rem',
           color: 'var(--brand-primary, #edae49)',
           display: 'inline-flex',
@@ -59,7 +58,6 @@ export default function Error({ error, reset }: ErrorProps) {
       </h2>
       <p
         style={{
-          fontSize: 'var(--font-size-base)',
           marginBottom: '1.5rem',
           color: 'var(--text-secondary, #b8b8b8)',
           maxWidth: '500px',
@@ -70,7 +68,6 @@ export default function Error({ error, reset }: ErrorProps) {
       {error.digest && (
         <p
           style={{
-            fontSize: 'var(--font-size-sm)',
             color: 'var(--text-muted, #888)',
             marginBottom: '1rem',
           }}
@@ -82,7 +79,6 @@ export default function Error({ error, reset }: ErrorProps) {
         onClick={reset}
         style={{
           padding: '0.75rem 1.5rem',
-          fontSize: 'var(--font-size-base)',
           fontWeight: 600,
           backgroundColor: 'var(--brand-primary, #edae49)',
           color: 'var(--dark-bg-primary, #1a1611)',

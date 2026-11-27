@@ -65,7 +65,6 @@
 }
 
 .youtube-modal__title {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -134,7 +133,6 @@
   }
 
   .youtube-modal__title {
-    font-size: var(--font-size-sm);
     margin-right: 12px;
   }
 
@@ -161,7 +159,6 @@
   }
 
   .youtube-modal__title {
-    font-size: var(--font-size-sm);
     margin-right: 8px;
   }
 

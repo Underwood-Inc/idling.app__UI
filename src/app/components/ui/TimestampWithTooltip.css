@@ -1,7 +1,6 @@
 /* Timestamp with Tooltip Styling */
 .timestamp-with-tooltip {
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
   font-weight: 400;
   transition: color 0.2s ease;
   /* Ensure proper positioning for tooltip alignment */
@@ -76,7 +75,6 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .timestamp-with-tooltip {
-    font-size: var(--font-size-xs);
   }
 }
 

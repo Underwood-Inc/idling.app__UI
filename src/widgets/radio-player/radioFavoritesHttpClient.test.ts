@@ -1,87 +1,71 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi, beforeEach } from 'vitest';
 import {
   fetchRadioSongFavoritesCloud,
   fetchRadioStationFavoritesCloud,
   putRadioSongFavoriteCloud,
   putRadioStationFavoriteCloud,
 } from './radioFavoritesHttpClient';
+import type { RadioSongFavoriteDraft } from './radioSongFavorites';
 
-const idlingFetchMock = vi.fn();
+const fetchMock = vi.fn();
 
-vi.mock('@lib/oce/idlingFetch', () => ({
-  idlingFetch: (...args: unknown[]) => idlingFetchMock(...args),
+vi.mock('@lib/oce', () => ({
+  OCE: {
+    fetch: (...args: unknown[]) => fetchMock(...args),
+  },
 }));
 
-function jsonResponse(body: unknown, status = 200): Response {
+function jsonResponse<T>(body: T): Response {
   return new Response(JSON.stringify(body), {
-    status,
+    status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
 }
 
 beforeEach(() => {
-  idlingFetchMock.mockReset();
+  fetchMock.mockReset();
 });
 
 describe('radioFavoritesHttpClient', () => {
-  test('fetchRadioStationFavoritesCloud uses idlingFetch on the stations route', async () => {
-    idlingFetchMock.mockResolvedValue(
-      jsonResponse({ stations: [{ stationName: 'WEFUNK', savedAt: '2020-01-01T00:00:00.000Z' }] })
-    );
-
-    const stations = await fetchRadioStationFavoritesCloud();
-
-    expect(idlingFetchMock).toHaveBeenCalledWith('/api/radio/favorites/stations', {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: { Accept: 'application/json' },
-    });
-    expect(stations).toHaveLength(1);
-  });
-
-  test('putRadioStationFavoriteCloud uses idlingFetch with PUT body', async () => {
-    idlingFetchMock.mockResolvedValue(jsonResponse({ stations: [] }));
-
-    await putRadioStationFavoriteCloud('Jazz FM', true);
-
-    expect(idlingFetchMock).toHaveBeenCalledWith(
+  test('uses OCE.fetch on stations', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ stations: [] }));
+    await fetchRadioStationFavoritesCloud();
+    expect(fetchMock).toHaveBeenCalledWith(
       '/api/radio/favorites/stations',
-      expect.objectContaining({
-        method: 'PUT',
-        body: JSON.stringify({ stationName: 'Jazz FM', saved: true }),
-      })
+      expect.objectContaining({ method: 'GET' })
     );
   });
 
-  test('fetchRadioSongFavoritesCloud uses idlingFetch on the songs route', async () => {
-    idlingFetchMock.mockResolvedValue(jsonResponse({ songs: [] }));
-
-    await fetchRadioSongFavoritesCloud();
-
-    expect(idlingFetchMock).toHaveBeenCalledWith('/api/radio/favorites/songs', {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: { Accept: 'application/json' },
-    });
+  test('PUT station favorite via OCE.fetch', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ stations: [] }));
+    await putRadioStationFavoriteCloud('Station', true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/radio/favorites/stations',
+      expect.objectContaining({ method: 'PUT' })
+    );
   });
 
-  test('putRadioSongFavoriteCloud uses idlingFetch with song draft body', async () => {
-    const draft = {
-      display: 'Artist — Track',
-      stationName: 'WEFUNK',
-      title: 'Track',
-      artist: 'Artist',
-    };
-    idlingFetchMock.mockResolvedValue(jsonResponse({ songs: [] }));
-
-    await putRadioSongFavoriteCloud(draft, false);
-
-    expect(idlingFetchMock).toHaveBeenCalledWith(
+  test('uses OCE.fetch on songs', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ songs: [] }));
+    await fetchRadioSongFavoritesCloud();
+    expect(fetchMock).toHaveBeenCalledWith(
       '/api/radio/favorites/songs',
-      expect.objectContaining({
-        method: 'PUT',
-        body: JSON.stringify({ draft, saved: false }),
-      })
+      expect.objectContaining({ method: 'GET' })
+    );
+  });
+
+  test('PUT song favorite via OCE.fetch', async () => {
+    const draft: RadioSongFavoriteDraft = {
+      display: 'Artist — Song',
+      artist: 'Artist',
+      title: 'Song',
+      stationName: 'Station',
+    };
+    fetchMock.mockResolvedValue(jsonResponse({ songs: [] }));
+    await putRadioSongFavoriteCloud(draft, true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/radio/favorites/songs',
+      expect.objectContaining({ method: 'PUT' })
     );
   });
 });

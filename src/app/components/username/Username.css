@@ -24,17 +24,17 @@
 
 /* Size Variants */
 .username--sm {
-  font-size: var(--font-size-base); /* 14px */
+  /* 14px */
   line-height: 1.25;
 }
 
 .username--md {
-  font-size: var(--font-size-base); /* 16px */
+  /* 16px */
   line-height: 1.375;
 }
 
 .username--lg {
-  font-size: var(--font-size-md); /* 18px */
+  /* 18px */
   line-height: 1.5;
 }
 
@@ -95,7 +95,6 @@ button.username {
   padding: 0;
   margin: 0;
   font-family: inherit;
-  font-size: inherit;
   line-height: inherit;
   cursor: var(--mappy-cursor-pointer, pointer);
 }

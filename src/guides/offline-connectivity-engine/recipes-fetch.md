@@ -1,108 +1,61 @@
 ---
 title: OCE recipe — Fetch
-description: attachFetch wrapper usage and forbidden deadlock patterns with native fetch
+description: OCE.fetch usage and forbidden deadlock patterns with native fetch
 ---
 
-# Recipe — Fetch
+# Recipe — Fetch (1/10)
 
-**In plain terms:** `fetch` does not throw on HTTP status. `attachFetch` treats any `Response` as available and a rejection as transport failure, except `AbortError`. No extra framework config.
+[Framework recipes index](/guides/offline-connectivity-engine/recipes-index)
 
-## Attach once
+**In plain terms:** `fetch` does not throw on HTTP status. `OCE.fetch` treats any `Response` as **the server answered** and a rejection as **could not connect**, except `AbortError` (and idling SW cache hits — see [Edge cases](/guides/offline-connectivity-engine/edge-cases)).
+
+## Idling.app
 
 ```ts
-const engine = getPageConnectivityEngine({
-  failureThreshold: 2,
-  healthCheckUrl: '/health',
-  probeDeadline: 'Interactive',
-});
+import { OCE } from '@lib/oce';
 
-export const fetchWithOce = engine.attachFetch(globalThis.fetch.bind(globalThis));
+const response = await OCE.fetch('/api/profile', { credentials: 'include' });
+```
+
+No bootstrap, no wrapper factory — import and call.
+
+## Agnostic host
+
+```ts
+const observed = engine.fetch(globalThis.fetch.bind(globalThis));
+await observed('/api/profile', { credentials: 'include' });
 ```
 
 ## Caller pattern
 
 ```ts
 export async function loadProfile(): Promise<Profile> {
-  try {
-    const response = await fetchWithOce('/api/profile', {
-      credentials: 'include',
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return (await response.json()) as Profile;
-  } catch (error) {
-    showInlineError(error);
-    throw error; // transport failure already recorded
+  const response = await OCE.fetch('/api/profile', {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
   }
+  return (await response.json()) as Profile;
 }
 ```
 
-Allowed: catch for UI, then rethrow or return — the **fetch already ran**.
+Connection failures reject the promise; HTTP `4xx`/`5xx` still return a `Response` and clear `unavailable`.
 
-## Forbidden patterns
-
-### Skip fetch when flag is true
+## Forbidden
 
 ```ts
-// Forbidden — recovery never happens
-const snap = engine.getSnapshot();
-if (snap.unavailable) {
-  return cachedProfile;
-}
-return fetchWithOce('/api/profile');
+// Do not block on the hint
+if (OCE.engine.getSnapshot().unavailable) return;
+
+// Do not bypass OCE for UI-critical same-origin API if hints should update
+await fetch('/api/profile');
 ```
 
-The only recovery path is **performing the call** in both branches:
+## Parallel requests
 
-```ts
-// Correct — always hit the network
-return fetchWithOce('/api/profile');
-```
-
-### Stub without attachFetch
-
-```ts
-// Forbidden — call bypassed OCE
-try {
-  return await rawFetch(url);
-} catch {
-  return new Response('{}', { status: 200 });
-}
-```
-
-### try/catch that returns fake success
-
-```ts
-// Forbidden
-try {
-  return await fetchWithOce(url);
-} catch {
-  return { ok: true, data: null };
-}
-```
-
-Use a hint banner instead of faking success.
-
-## Opaque responses
-
-Cross-origin `no-cors` may yield `opaque` responses. OCE still classifies them as **`response`** — the network answered.
-
-```ts
-const opaque = await fetchWithOce('https://cdn.example/asset', {
-  mode: 'no-cors',
-});
-// opaque.type === 'opaque' → clears unavailable on success path
-```
-
-## Related recipes
-
-- [Axios](/guides/offline-connectivity-engine/recipes-axios)
-- [TanStack Query (React Query)](/guides/offline-connectivity-engine/recipes-tanstack-query)
-- [Apollo Client](/guides/offline-connectivity-engine/recipes-apollo)
-- [SWR](/guides/offline-connectivity-engine/recipes-swr)
-- [Framework deadlocks](/guides/offline-connectivity-engine/framework-deadlocks)
+Each call settles independently; generation tokens drop stale settlements after recovery.
 
 ---
 
-**Sources (specified):** OCE plan — Fetch recipe, forbidden consumers, non-blocking contract.
+**Sources:** FR-OCE-006 (non-blocking fetch), FR-OCE-001..003 (streak + confirm).

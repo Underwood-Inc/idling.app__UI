@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -60,7 +61,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     }
 
     try {
-      const response = await fetch(
+      const response = await OCE.fetch(
         `/api/link-preview?url=${encodeURIComponent(url)}`
       );
 
@@ -95,7 +96,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     state.setLoading(true);
     state.setError(null);
     try {
-      const response = await fetch(
+      const response = await OCE.fetch(
         `/api/link-preview?url=${encodeURIComponent(url)}`
       );
 

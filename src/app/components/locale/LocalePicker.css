@@ -2,7 +2,6 @@
 .locale-picker__label {
   display: block;
   margin-bottom: 0.35rem;
-  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text-secondary, rgba(255, 255, 255, 0.72));
 }
@@ -66,7 +65,6 @@
   min-width: 9rem;
   min-height: 2.25rem;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
-  font-size: var(--font-size-sm);
   font-family: inherit;
   font-weight: 500;
   line-height: 1.25;

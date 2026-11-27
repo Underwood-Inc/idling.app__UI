@@ -42,8 +42,8 @@ export const defaultConnectivityConfig: Required<
 
 | Value | Behavior |
 | ----- | -------- |
-| `1` | First transport failure triggers confirm (aggressive; use sparingly) |
-| **`2` (default)** | One blip does not probe; two consecutive transport failures at same generation do |
+| `1` | First **failed connection** triggers confirm (aggressive; use sparingly) |
+| **`2` (default)** | One blip does not probe; two consecutive **failed connections** at same generation do |
 | `n > 2` | More tolerance for flaky mobile links before probing |
 
 Below threshold: `unavailable` stays **false**, health URL is **not** called for confirm.
@@ -57,11 +57,7 @@ Requirements:
 - **Service worker:** do not answer this path from Cache Storage (see [Edge cases](/guides/offline-connectivity-engine/edge-cases)).
 
 ```ts
-const engine = getPageConnectivityEngine({
-  failureThreshold: 2,
-  healthCheckUrl: '/health',
-  probeDeadline: 'Interactive',
-});
+const engine = OCE.engine;
 ```
 
 If your health route returns **404** with a body: default contract treats 404 as a **Response** → suspicion clears. With 204-only mode, 404 can confirm `unavailable`.
@@ -112,10 +108,7 @@ Chrome-style captive portal detection treats **204** (or empty 200) as internet 
 Opt in when portal detection matters:
 
 ```ts
-const engine = getPageConnectivityEngine({
-  healthCheckUrl: '/generate_204', // or your captive probe path
-  probeDeadline: 'Interactive',
-  interpretHealthResponse: (response) => response.status === 204,
+const engine = OCE.engine => response.status === 204,
 });
 ```
 

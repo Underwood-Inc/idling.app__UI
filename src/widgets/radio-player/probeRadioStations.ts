@@ -356,7 +356,7 @@ export async function probeRadioStations(
 export function logRadioPlayerUnavailable(failures: RadioStationProbeFailure[]): void {
   console.error(
     '%c IDLING RADIO — PLAYER NOT SHOWN ',
-    'background:#8b0000;color:#fff;font-size:14px;font-weight:700;padding:6px 10px;border-radius:4px;'
+    'background:#8b0000;color:#fff;font-weight:700;padding:6px 10px;border-radius:4px;'
   );
   console.error(
     '[Idling Radio] No stations responded during the availability check. ' +

@@ -1,9 +1,5 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { createConnectivityEngine } from './createConnectivityEngine';
-import {
-  getPageConnectivityEngine,
-  resetPageConnectivityEngineForTests,
-} from './getPageConnectivityEngine';
+import { ConnectivityEngine } from './ConnectivityEngine';
 import { OceProbeDeadline } from './types';
 
 const HEALTH = '/health';
@@ -20,8 +16,29 @@ function timeoutError(): DOMException {
   return new DOMException('Timeout', 'TimeoutError');
 }
 
+function mockNavigatorWindow(): {
+  win: Window;
+  emit: (type: 'online' | 'offline') => void;
+} {
+  const handlers = new Map<string, Set<() => void>>();
+  const win = {
+    addEventListener(type: string, fn: () => void) {
+      if (!handlers.has(type)) handlers.set(type, new Set());
+      handlers.get(type)!.add(fn);
+    },
+    removeEventListener(type: string, fn: () => void) {
+      handlers.get(type)?.delete(fn);
+    },
+  } as unknown as Window;
+  return {
+    win,
+    emit(type: 'online' | 'offline') {
+      handlers.get(type)?.forEach((fn) => fn());
+    },
+  };
+}
+
 afterEach(() => {
-  resetPageConnectivityEngineForTests();
   vi.useRealTimers();
 });
 
@@ -39,16 +56,17 @@ describe('Offline Connectivity Engine', () => {
       return new Response('ok', { status: 500 });
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await fetch('/api/widgets');
+    await attachedFetch('/api/widgets');
     const snap = engine.getSnapshot();
     expect(snap.unavailable).toBe(false);
     expect(snap.streak).toBe(0);
+    expect(snap.lastHealthyAt).not.toBeNull();
     expect(baseFetch).not.toHaveBeenCalledWith(HEALTH, expect.anything());
   });
 
@@ -65,14 +83,14 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       failureThreshold: 2,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await expect(fetch('/a')).rejects.toThrow();
+    await expect(attachedFetch('/a')).rejects.toThrow();
     const snap = engine.getSnapshot();
     expect(snap.streak).toBe(1);
     expect(snap.unavailable).toBe(false);
@@ -97,14 +115,14 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await expect(fetch('/one')).rejects.toThrow();
-    await expect(fetch('/two')).rejects.toThrow();
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
     await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
 
     expect(probeCount).toBe(1);
@@ -135,13 +153,13 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await Promise.allSettled([fetch('/a'), fetch('/b')]);
+    await Promise.allSettled([attachedFetch('/a'), attachedFetch('/b')]);
     await vi.waitFor(() => expect(probeCount).toBe(1));
     probeResolvers.forEach((r) => r());
     await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
@@ -168,20 +186,20 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await expect(fetch('/one')).rejects.toThrow();
-    await expect(fetch('/two')).rejects.toThrow();
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
 
     await vi.waitFor(() =>
       expect(baseFetch).toHaveBeenCalledWith(HEALTH, expect.anything())
     );
 
-    await fetch('/recover');
+    await attachedFetch('/recover');
     releaseProbe?.();
     await new Promise((r) => setTimeout(r, 20));
     expect(engine.getSnapshot().unavailable).toBe(false);
@@ -203,25 +221,25 @@ describe('Offline Connectivity Engine', () => {
       return new Response('ok');
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       failureThreshold: 2,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await expect(fetch('/abort')).rejects.toThrow();
+    await expect(attachedFetch('/abort')).rejects.toThrow();
     expect(engine.getSnapshot().streak).toBe(0);
 
-    await expect(fetch('/timeout')).rejects.toThrow();
+    await expect(attachedFetch('/timeout')).rejects.toThrow();
     expect(engine.getSnapshot().streak).toBe(1);
   });
 
   /**
-   * @description attachFetch stays non-blocking
+   * @description fetch stays non-blocking
    * @linked FR-OCE-006
    */
-  test('[FR-OCE-006] attachFetch calls base when already unavailable', async () => {
+  test('[FR-OCE-006] fetch calls base when already unavailable', async () => {
     const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : String(input);
       if (url === HEALTH) {
@@ -233,29 +251,19 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await expect(fetch('/one')).rejects.toThrow();
-    await expect(fetch('/two')).rejects.toThrow();
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
     await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
 
-    const response = await fetch('/user');
+    const response = await attachedFetch('/user');
     expect(response.status).toBe(200);
     expect(baseFetch).toHaveBeenCalledWith('/user', undefined);
-  });
-
-  /**
-   * @description Page singleton
-   * @linked FR-OCE-007
-   */
-  test('[FR-OCE-007] getPageConnectivityEngine returns the same instance', () => {
-    const a = getPageConnectivityEngine();
-    const b = getPageConnectivityEngine();
-    expect(a).toBe(b);
   });
 
   /**
@@ -277,15 +285,15 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    void fetch(HEALTH);
-    await expect(fetch('/one')).rejects.toThrow();
-    await expect(fetch('/two')).rejects.toThrow();
+    void attachedFetch(HEALTH);
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
 
     const healthCalls = baseFetch.mock.calls.filter((c) => c[0] === HEALTH).length;
     expect(healthCalls).toBe(1);
@@ -301,16 +309,16 @@ describe('Offline Connectivity Engine', () => {
    */
   test('[FR-OCE-009] rejects numeric probeDeadline and defaults Interactive', () => {
     expect(() =>
-      createConnectivityEngine({
+      new ConnectivityEngine({
         healthCheckUrl: HEALTH,
         // @ts-expect-error intentional invalid config in test
         probeDeadline: 5000,
       })
     ).toThrow(/preset name/);
 
-    const engine = createConnectivityEngine({ healthCheckUrl: HEALTH });
-    const wrapped = engine.attachFetch(vi.fn() as typeof fetch);
-    expect(wrapped).toBeDefined();
+    const engine = new ConnectivityEngine({ healthCheckUrl: HEALTH });
+    const attachedFetch = engine.fetch(vi.fn() as typeof fetch);
+    expect(attachedFetch).toBeDefined();
     expect(OceProbeDeadline.Interactive).toBe(5000);
   });
 
@@ -327,14 +335,14 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       probeDeadline: 'Snappy',
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
-    await Promise.allSettled([fetch('/one'), fetch('/two')]);
+    await Promise.allSettled([attachedFetch('/one'), attachedFetch('/two')]);
     await vi.advanceTimersByTimeAsync(OceProbeDeadline.Snappy + 200);
     await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
   });
@@ -352,11 +360,11 @@ describe('Offline Connectivity Engine', () => {
       throw transportError();
     });
 
-    const engine = createConnectivityEngine({
+    const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
     });
-    const fetch = engine.attachFetch(baseFetch as typeof fetch);
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
 
     engine.reporter.reportTransportFailure();
     engine.reporter.reportTransportFailure();
@@ -366,14 +374,76 @@ describe('Offline Connectivity Engine', () => {
       if (unavailable) {
         return undefined;
       }
-      return fetch('/user');
+      return attachedFetch('/user');
     };
 
     const pausedResult = await simulatePausedQuery(true);
     expect(pausedResult).toBeUndefined();
 
-    const alwaysResult = await fetch('/user');
+    const alwaysResult = await attachedFetch('/user');
     expect(alwaysResult).toBeInstanceOf(Response);
     expect(baseFetch).toHaveBeenCalledWith('/user', undefined);
+  });
+
+  test('[FR-OCE-011] navigator online runs health verify and sets lastHealthyAt', async () => {
+    const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        return new Response('ok', { status: 200 });
+      }
+      throw transportError();
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const { win, emit } = mockNavigatorWindow();
+    engine.attachNavigatorOnLine(win);
+
+    emit('online');
+    await vi.waitFor(() => expect(engine.getSnapshot().lastHealthyAt).not.toBeNull());
+    expect(baseFetch).toHaveBeenCalledWith(
+      HEALTH,
+      expect.objectContaining({ cache: 'no-store' })
+    );
+    engine.detachNavigatorOnLine();
+  });
+
+  test('[FR-OCE-011] navigator offline verifies with health; probe fail sets unavailable', async () => {
+    const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        throw transportError();
+      }
+      return new Response('ok');
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const { win, emit } = mockNavigatorWindow();
+    engine.attachNavigatorOnLine(win);
+
+    emit('offline');
+    await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
+    engine.detachNavigatorOnLine();
+  });
+
+  test('[FR-OCE-011] navigator offline with successful probe stays available', async () => {
+    const baseFetch = vi.fn(async () => new Response('ok', { status: 200 }));
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const { win, emit } = mockNavigatorWindow();
+    engine.attachNavigatorOnLine(win);
+
+    emit('offline');
+    await vi.waitFor(() => expect(engine.getSnapshot().lastHealthyAt).not.toBeNull());
+    expect(engine.getSnapshot().unavailable).toBe(false);
+    engine.detachNavigatorOnLine();
   });
 });

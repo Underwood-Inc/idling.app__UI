@@ -42,7 +42,6 @@ function GlobalErrorBody({ error, reset }: GlobalErrorProps) {
     >
       <h1
         style={{
-          fontSize: 'var(--font-size-5xl)',
           marginBottom: '1rem',
           background: 'linear-gradient(135deg, #edae49, #f9df74)',
           WebkitBackgroundClip: 'text',
@@ -58,7 +57,6 @@ function GlobalErrorBody({ error, reset }: GlobalErrorProps) {
       </h1>
       <p
         style={{
-          fontSize: 'var(--font-size-lg)',
           marginBottom: '1.5rem',
           color: '#b8b8b8',
           maxWidth: '600px',
@@ -68,7 +66,6 @@ function GlobalErrorBody({ error, reset }: GlobalErrorProps) {
       </p>
       <p
         style={{
-          fontSize: 'var(--font-size-base)',
           marginBottom: '1.5rem',
           color: '#888',
           maxWidth: '500px',
@@ -79,7 +76,6 @@ function GlobalErrorBody({ error, reset }: GlobalErrorProps) {
       {error.digest && (
         <p
           style={{
-            fontSize: 'var(--font-size-sm)',
             color: '#666',
             marginBottom: '1.5rem',
           }}
@@ -92,7 +88,6 @@ function GlobalErrorBody({ error, reset }: GlobalErrorProps) {
           onClick={reset}
           style={{
             padding: '0.75rem 1.5rem',
-            fontSize: 'var(--font-size-base)',
             fontWeight: 600,
             backgroundColor: '#edae49',
             color: '#1a1611',
@@ -109,7 +104,6 @@ function GlobalErrorBody({ error, reset }: GlobalErrorProps) {
           }}
           style={{
             padding: '0.75rem 1.5rem',
-            fontSize: 'var(--font-size-base)',
             fontWeight: 600,
             backgroundColor: 'transparent',
             color: '#edae49',

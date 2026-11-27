@@ -77,7 +77,6 @@
   border-radius: 8px;
   color: var(--dark-bg__text-color--primary);
   text-decoration: none;
-  font-size: var(--font-size-base);
   font-weight: 600;
   /* Optimized transitions - GPU accelerated */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -178,12 +177,10 @@
 }
 
 .loading__spinner {
-  font-size: var(--font-size-3xl);
   animation: spin 1s linear infinite;
 }
 
 .loading__message {
-  font-size: var(--font-size-md);
   color: var(--dark-bg__text-color--secondary);
   text-align: center;
 }
@@ -221,13 +218,11 @@
 
 .download__button {
   padding: 0.875rem 1rem;
-  font-size: var(--font-size-base);
   flex: 1;
 }
 
 .download__info p,
 .url__info p {
-  font-size: var(--font-size-base);
 }
 
 /* Responsive layout - hide aside on tablets and below */
@@ -276,7 +271,6 @@
 
   .header__button {
     padding: 0.625rem 1rem;
-    font-size: var(--font-size-base);
   }
 
   .download__buttons {
@@ -286,13 +280,11 @@
 
   .download__button {
     padding: 0.875rem 1rem;
-    font-size: var(--font-size-base);
     flex: 1;
   }
 
   .download__info p,
   .url__info p {
-    font-size: var(--font-size-base);
   }
 }
 
@@ -452,7 +444,6 @@
 }
 
 .features__section h3 {
-  font-size: var(--font-size-xl);
   margin: 0 0 1rem 0;
   color: var(--dark-bg__text-color--primary);
   text-align: center;
@@ -492,14 +483,12 @@
 }
 
 .feature__icon {
-  font-size: var(--font-size-2xl);
   margin-right: 0.5rem;
   display: inline;
   vertical-align: middle;
 }
 
 .feature__card h4 {
-  font-size: var(--font-size-xl);
   margin: 0 0 0.5rem 0;
   color: var(--light-bg__text-color--primary);
   font-weight: 600;
@@ -511,7 +500,6 @@
   color: var(--light-bg__text-color--secondary);
   line-height: 1.5;
   margin: 0;
-  font-size: var(--font-size-base);
 }
 
 /* Mobile Quota Display - Hidden by default when aside is visible */

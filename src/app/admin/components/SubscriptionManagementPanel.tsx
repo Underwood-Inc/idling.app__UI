@@ -1,7 +1,7 @@
 'use client';
 
 import { useOverlay } from '@lib/context/OverlayContext';
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -142,7 +142,7 @@ export default function SubscriptionManagementPanel() {
 
   const fetchSubscriptionPlans = useCallback(async () => {
     try {
-      const response = await noCacheFetch('/api/admin/subscription-plans');
+      const response = await OCE.noCacheFetch('/api/admin/subscription-plans');
       if (!response.ok) {
         if (response.status === 503) {
           throw new Error('Subscription system not available');
@@ -214,7 +214,7 @@ export default function SubscriptionManagementPanel() {
 
   const fetchUserSubscriptions = useCallback(async () => {
     try {
-      const response = await noCacheFetch('/api/admin/user-subscriptions');
+      const response = await OCE.noCacheFetch('/api/admin/user-subscriptions');
       if (!response.ok) {
         if (response.status === 503) {
           throw new Error('Subscription system not available');
@@ -247,7 +247,7 @@ export default function SubscriptionManagementPanel() {
 
   const fetchSubscriptionStats = useCallback(async () => {
     try {
-      const response = await noCacheFetch('/api/admin/subscription-stats');
+      const response = await OCE.noCacheFetch('/api/admin/subscription-stats');
       if (!response.ok) {
         if (response.status === 503) {
           throw new Error('Subscription system not available');
@@ -353,7 +353,7 @@ export default function SubscriptionManagementPanel() {
         plan,
         onSave: async (planId: string, updates: Partial<SubscriptionPlan>) => {
           try {
-            const response = await fetch(
+            const response = await OCE.noCacheFetch(
               `/api/admin/subscription-plans/${planId}`,
               {
                 method: 'PATCH',
@@ -385,7 +385,7 @@ export default function SubscriptionManagementPanel() {
     updates: Partial<SubscriptionPlan>
   ) => {
     try {
-      const response = await fetch(`/api/admin/subscription-plans/${planId}`, {
+      const response = await OCE.noCacheFetch(`/api/admin/subscription-plans/${planId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -409,7 +409,7 @@ export default function SubscriptionManagementPanel() {
   const handleTogglePlan = async (plan: SubscriptionPlan) => {
     try {
       const newStatus = !plan.is_active;
-      const response = await fetch(`/api/admin/subscription-plans/${plan.id}`, {
+      const response = await OCE.noCacheFetch(`/api/admin/subscription-plans/${plan.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -444,7 +444,7 @@ export default function SubscriptionManagementPanel() {
     if (!selectedUser) return;
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/users/${selectedUser.id}/assign-subscription`,
         {
           method: 'POST',
@@ -492,7 +492,7 @@ export default function SubscriptionManagementPanel() {
           updates: Partial<UserSubscription>
         ) => {
           try {
-            const response = await fetch(
+            const response = await OCE.noCacheFetch(
               `/api/admin/user-subscriptions/${subscriptionId}`,
               {
                 method: 'PATCH',
@@ -531,7 +531,7 @@ export default function SubscriptionManagementPanel() {
     }
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/user-subscriptions/${subscription.id}`,
         {
           method: 'PATCH',

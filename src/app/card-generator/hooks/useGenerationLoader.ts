@@ -1,3 +1,4 @@
+import { OCE } from '@lib/oce';
 import { useState } from 'react';
 import { GenerationFormState, GenerationOptions } from '../types/generation';
 
@@ -41,7 +42,7 @@ export function useGenerationLoader({
       setLoadedOptions(null);
 
       // Allow 30-day caching for existing generations since they don't change
-      const response = await fetch(`/api/og-image/${id}?format=json`, {
+      const response = await OCE.fetch(`/api/og-image/${id}?format=json`, {
         method: 'GET',
         credentials: 'include',
         headers: {

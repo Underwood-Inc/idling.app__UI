@@ -3,7 +3,7 @@
  * React hook for fetching and managing emojis with OS detection
  */
 
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { useOSDetection } from '@lib/utils/os-detection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -211,7 +211,7 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
         });
 
         // Create the fetch promise
-        const fetchPromise = noCacheFetch(`/api/emojis?${params}`).then(
+        const fetchPromise = OCE.noCacheFetch(`/api/emojis?${params}`).then(
           async (response) => {
             if (!response.ok) {
               const errorData = await response.json();
@@ -337,7 +337,7 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
   const trackEmojiUsage = useCallback(
     async (emojiId: string, emojiType: 'windows' | 'mac' | 'custom') => {
       try {
-        await noCacheFetch('/api/emojis/usage', {
+        await OCE.noCacheFetch('/api/emojis/usage', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

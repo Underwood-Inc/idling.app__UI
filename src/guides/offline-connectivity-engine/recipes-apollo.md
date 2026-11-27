@@ -5,18 +5,18 @@ description: HttpLink fetch, errorPolicy, and networkError classification for OC
 
 # Recipe — Apollo Client
 
-**In plain terms:** `errorPolicy` changes what the UI sees, not what the socket did. Observation belongs on `HttpLink` (or your transport) via `attachFetch` or `reporter`.
+**In plain terms:** `errorPolicy` changes what the UI sees, not whether HTTP ran. Observation belongs on `HttpLink` via `OCE.fetch` or `reporter`.
 
 ## HttpLink with `fetchWithOce`
 
 ```tsx
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
-import { fetchWithOce } from '../oce-bootstrap';
+import { OCE } from '@lib/oce';
 
 const link = new HttpLink({
   uri: '/graphql',
   credentials: 'same-origin',
-  fetch: fetchWithOce,
+  fetch: OCE.fetch,
 });
 
 export const apollo = new ApolloClient({
@@ -25,13 +25,13 @@ export const apollo = new ApolloClient({
 });
 ```
 
-With this wiring, `attachFetch` classifies every GraphQL HTTP round trip automatically.
+With this wiring, `engine.fetch` classifies every GraphQL HTTP round trip automatically.
 
 ## `errorPolicy` matrix
 
 | Policy | What the app sees | OCE requirement |
 | ------ | ----------------- | --------------- |
-| `none` (default) | Promise rejects, `error` set | Transport ran via `fetchWithOce` |
+| `none` (default) | Promise rejects, `error` set | HTTP ran via `OCE.fetch` |
 | `all` | Resolves with `data` and `error` | Same — resolved promise ≠ no HTTP |
 | `ignore` | Errors dropped for rendering | **Not** allowed to skip `HttpLink` |
 
@@ -39,15 +39,15 @@ With this wiring, `attachFetch` classifies every GraphQL HTTP round trip automat
 
 ## `onError` link — split `networkError`
 
-Apollo's `networkError` covers transport failure **and** non-200 HTTP (`ServerError`). Split before reporting:
+Apollo's `networkError` covers **failed connection** **and** non-200 HTTP (`ServerError`). Split before reporting:
 
 ```tsx
 import { onError } from '@apollo/client/link/error';
-import { getPageConnectivityEngine } from '@lib/oce/connectivity';
+import { OCE } from '@lib/oce';
 
 const errorLink = onError(({ networkError }) => {
   if (!networkError) return;
-  const engine = getPageConnectivityEngine();
+  const engine = OCE.engine;
   const code =
     'statusCode' in networkError
       ? (networkError as { statusCode?: number }).statusCode
@@ -61,7 +61,7 @@ const errorLink = onError(({ networkError }) => {
 });
 ```
 
-Use `attachFetch` on `HttpLink` when possible — then `onError` reporting is redundant unless you have split links.
+Use `engine.fetch` on `HttpLink` when possible — then `onError` reporting is redundant unless you have split links.
 
 ## User mutation (non-blocking)
 
@@ -101,7 +101,7 @@ export function SaveButton() {
 
 ```tsx
 // Forbidden — skip HttpLink when flag set
-const snap = getPageConnectivityEngine().getSnapshot();
+const snap = OCE.engine.getSnapshot();
 if (snap.unavailable) {
   return { data: cachedQuery };
 }

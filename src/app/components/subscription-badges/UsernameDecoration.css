@@ -32,7 +32,6 @@
   top: -0.25rem;
   right: -0.25rem;
   color: #f59e0b;
-  font-size: var(--font-size-base);
   z-index: 11;
   opacity: 0.7;
   pointer-events: none;
@@ -64,7 +63,6 @@
   position: absolute;
   top: -0.5rem;
   left: -0.25rem;
-  font-size: var(--font-size-base);
   animation: username-crown-bounce 2s ease-in-out infinite;
   z-index: 3;
 }
@@ -135,7 +133,6 @@
 
 .username-decoration__particle {
   position: absolute;
-  font-size: var(--font-size-base);
   animation: username-particle-float 3s ease-in-out infinite;
 }
 
@@ -307,12 +304,10 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .username-decoration__crown {
-    font-size: var(--font-size-base);
     top: -0.375rem;
   }
 
   .username-decoration__particle {
-    font-size: var(--font-size-base);
   }
 
   .username-decoration__particles {

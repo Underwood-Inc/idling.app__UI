@@ -44,13 +44,11 @@
 
 .loading__text {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   font-weight: 500;
   text-align: center;
 }
 
 .loading__message {
-  font-size: var(--font-size-md);
   color: #E5E5E5;
   font-style: italic;
   max-width: 400px;
@@ -85,7 +83,6 @@
   }
 
   .loading__message {
-    font-size: var(--font-size-base);
     max-width: 320px;
   }
 }
@@ -97,7 +94,6 @@
   }
 
   .loading__message {
-    font-size: var(--font-size-base);
     max-width: 280px;
   }
 }

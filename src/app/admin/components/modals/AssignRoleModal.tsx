@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useEffect, useState } from 'react';
@@ -49,7 +50,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
   const loadAvailableRoles = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/roles');
+      const response = await OCE.noCacheFetch('/api/admin/roles');
       if (response.ok) {
         const roles = await response.json();
         // Filter out roles the user already has
@@ -109,8 +110,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
               style={{
                 margin: '4px 0 0 0',
                 color: 'var(--text-secondary)',
-                fontSize: 'var(--font-size-sm)'
-              }}
+                }}
             >
               ID: {userId}
             </p>
@@ -171,8 +171,7 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       padding: '12px',
                       background: 'var(--light-background--secondary)',
                       borderRadius: '6px',
-                      fontSize: 'var(--font-size-sm)'
-                    }}
+                      }}
                   >
                     <strong>Role Description:</strong>
                     <br />
@@ -194,7 +193,6 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       padding: '8px 12px',
                       border: '2px solid var(--light-background--tertiary)',
                       borderRadius: '6px',
-                      fontSize: 'var(--font-size-sm)',
                       width: '100%'
                     }}
                   />
@@ -216,7 +214,6 @@ export const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       padding: '8px 12px',
                       border: '2px solid var(--light-background--tertiary)',
                       borderRadius: '6px',
-                      fontSize: 'var(--font-size-sm)',
                       width: '100%',
                       resize: 'vertical',
                       fontFamily: 'inherit'

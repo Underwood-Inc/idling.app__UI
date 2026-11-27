@@ -8,13 +8,11 @@
 }
 
 .id__label {
-  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--secondary);
   font-weight: 500;
 }
 
 .id__value {
-  font-size: var(--font-size-base);
   color: var(--brand-primary);
   background-color: var(--dark-background--secondary);
   padding: 0.375rem 0.75rem;
@@ -30,7 +28,6 @@
   border-radius: 6px;
   padding: 0.375rem 0.75rem;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--secondary);
   transition: all 0.2s ease;
   font-weight: 500;
@@ -86,7 +83,6 @@
   background-color: var(--dark-background--secondary);
   border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: var(--font-size-base);
   color: var(--color-primary);
   word-break: break-all;
   overflow-wrap: break-word;
@@ -114,7 +110,6 @@
 }
 
 .generation__title {
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -175,7 +170,6 @@
 
 .generation__display__overlay h3 {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-xl);
   font-weight: 700;
   text-align: center;
   margin: 0;
@@ -229,7 +223,6 @@
 
   .url__link {
     padding: 0.75rem;
-    font-size: var(--font-size-base);
   }
 
   .generation__header {

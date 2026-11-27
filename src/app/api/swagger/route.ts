@@ -67,17 +67,14 @@ async function swaggerHandler(request: NextRequest) {
       color: white;
       font-weight: bold;
       text-decoration: none;
-      font-size: 1.2rem;
     }
     .swagger-ui .info .title {
       color: #3b4151;
-      font-size: 2rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
     }
     .swagger-ui .info .description {
       color: #3b4151;
-      font-size: 1.1rem;
       line-height: 1.6;
       margin-bottom: 1rem;
     }
@@ -111,12 +108,10 @@ async function swaggerHandler(request: NextRequest) {
     }
     .custom-header h1 {
       margin: 0;
-      font-size: 2.5rem;
       font-weight: 700;
     }
     .custom-header p {
       margin: 0.5rem 0 0 0;
-      font-size: 1.2rem;
       opacity: 0.9;
     }
     .environment-banner {

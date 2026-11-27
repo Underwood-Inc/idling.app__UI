@@ -16,7 +16,6 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -52,7 +51,6 @@
 
 /* Icon Styling */
 .subscription-badge__icon {
-  font-size: var(--font-size-lg);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -80,7 +78,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: var(--font-size-base);
   color: var(--color-text-secondary);
 }
 
@@ -92,12 +89,10 @@
 }
 
 .subscription-badge__status-icon {
-  font-size: var(--font-size-base);
   flex-shrink: 0;
 }
 
 .subscription-badge__expiration {
-  font-size: var(--font-size-base);
   color: var(--color-text-tertiary);
   margin-top: 0.25rem;
   text-align: right;
@@ -107,7 +102,6 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  font-size: var(--font-size-base);
   background: rgba(249, 223, 116, 0.9);
   border-radius: 50%;
   width: 20px;
@@ -265,17 +259,14 @@
 /* Compact Variant */
 .subscription-badge--compact {
   padding: 0.5rem 0.75rem;
-  font-size: var(--font-size-base);
   border-radius: 8px;
   gap: 0.5rem;
 }
 
 .subscription-badge--compact .subscription-badge__icon {
-  font-size: var(--font-size-base);
 }
 
 .subscription-badge--compact .subscription-badge__name {
-  font-size: var(--font-size-base);
 }
 
 /* Detailed Variant */
@@ -298,7 +289,6 @@
 }
 
 .subscription-badge__type {
-  font-size: var(--font-size-base);
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -317,7 +307,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--font-size-base);
 }
 
 .subscription-badge__detail-label {
@@ -346,7 +335,6 @@
 .subscription-badge--trial .subscription-badge__name::after {
   content: '🆕';
   margin-left: 0.25rem;
-  font-size: var(--font-size-base);
 }
 
 /* Dark Mode Support */
@@ -390,11 +378,9 @@
 @media (max-width: 768px) {
   .subscription-badge {
     padding: 0.75rem;
-    font-size: var(--font-size-base);
   }
 
   .subscription-badge__icon {
-    font-size: var(--font-size-md);
   }
 
   .subscription-badge--detailed {

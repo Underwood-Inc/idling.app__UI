@@ -153,7 +153,6 @@
 }
 
 .link-tooltip-title {
-  font-size: var(--font-size-md);
   font-weight: 700;
   color: #ffffff;
   line-height: 1.4;
@@ -163,7 +162,6 @@
 }
 
 .link-tooltip-description {
-  font-size: var(--font-size-base);
   color: #e8e8e8;
   line-height: 1.5;
   margin: 0;
@@ -176,7 +174,6 @@
 }
 
 .link-tooltip-url {
-  font-size: var(--font-size-base);
   color: var(--brand-primary);
   font-weight: 500;
   white-space: nowrap;
@@ -198,7 +195,6 @@
   padding: 24px 20px;
   color: #f0f0f0;
   justify-content: center;
-  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -206,7 +202,6 @@
   padding: 24px 20px;
   color: #ff6b6b;
   text-align: center;
-  font-size: var(--font-size-base);
   font-weight: 500;
   background: rgba(255, 107, 107, 0.1);
   border-radius: var(--border-radius);
@@ -214,7 +209,6 @@
 }
 
 .link-tooltip-ctrl-message {
-  font-size: var(--font-size-base);
   color: #c0c0c0;
   background: #E5E5E5;
   padding: 6px 10px;
@@ -256,17 +250,14 @@
 
   /* Adjust typography for mobile */
   .link-tooltip-title {
-    font-size: var(--font-size-base);
     line-height: 1.3;
   }
 
   .link-tooltip-description {
-    font-size: var(--font-size-base);
     line-height: 1.4;
   }
 
   .link-tooltip-url {
-    font-size: var(--font-size-base);
     padding: 6px 8px;
   }
 

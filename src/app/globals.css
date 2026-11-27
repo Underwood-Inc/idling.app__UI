@@ -202,6 +202,15 @@
   --z-overlay: 500;
   --z-content: 1;
 
+  /* Site chrome layout — shared by toasts, banners, sticky offsets */
+  --header-height: 11rem;
+  --message-ticker-height: 4rem;
+  --message-ticker-height-mobile: 3.5rem;
+  --site-chrome-top-inset: calc(
+    var(--header-height) + var(--message-ticker-height) +
+      env(safe-area-inset-top, 0px)
+  );
+
   --ambient-audio-bass: 0;
   --ambient-audio-mid: 0;
   --ambient-audio-treble: 0;
@@ -216,6 +225,15 @@
     --color-tertiary: #d0b476;
     --color-quaternary: #8c9760;
     --color-quinary: #647a67; */
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --site-chrome-top-inset: calc(
+      var(--header-height) + var(--message-ticker-height-mobile) +
+        env(safe-area-inset-top, 0px)
+    );
   }
 }
 
@@ -372,6 +390,10 @@ h6 {
   font-size: var(--font-size-base);
 }
 
+small {
+  font-size: var(--font-size-sm);
+}
+
 h1,
 h2,
 h3,
@@ -388,11 +410,13 @@ h6 {
   font-style: italic;
 }
 
-/* Removed global font-size rule to prevent specificity conflicts */
-/* Components should set their own font-size using CSS variables */
+/* Typography canon: do not set font-size outside this file (and documented allowlist).
+   Use semantic HTML plus weight, transform, and line-height for emphasis. */
 
 button,
 input,
+select,
+textarea,
 caption {
   padding: 0.375rem;
   border-radius: var(--border-radius);

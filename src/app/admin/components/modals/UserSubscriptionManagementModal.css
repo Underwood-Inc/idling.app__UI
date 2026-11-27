@@ -27,7 +27,6 @@
 
 .user-subscription-modal .modal-header h3 {
   margin: 0;
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
 }
@@ -37,7 +36,6 @@
   border: none;
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-lg);
   padding: 0.5rem;
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
@@ -68,13 +66,11 @@
 .user-subscription-modal .user-info h4 {
   margin: 0 0 0.5rem 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-md);
 }
 
 .user-subscription-modal .user-info p {
   margin: 0.25rem 0;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
 }
 
 .user-subscription-modal .user-info strong {
@@ -83,7 +79,6 @@
 
 .user-subscription-modal .user-id {
   font-family: var(--font-family--monospace);
-  font-size: var(--font-size-xs);
   color: var(--dark-bg__text-color--tertiary);
 }
 
@@ -105,7 +100,6 @@
   border: none;
   color: var(--error);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-xs);
   padding: 0.25rem;
   border-radius: var(--border-radius);
   transition: background 0.2s ease;
@@ -126,7 +120,6 @@
 .user-subscription-modal .section-header h4 {
   margin: 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-md);
 }
 
 /* Current Subscriptions */
@@ -180,13 +173,11 @@
 
 .user-subscription-modal .subscription-plan strong {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-md);
   font-weight: 600;
 }
 
 .user-subscription-modal .plan-type {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-sm);
   opacity: 0.7;
   background: var(--dark-background--tertiary);
   padding: 0.125rem 0.375rem;
@@ -196,7 +187,6 @@
 .user-subscription-modal .subscription-meta {
   display: flex;
   gap: 1rem;
-  font-size: var(--font-size-sm);
   align-items: center;
   color: var(--dark-bg__text-color--secondary);
 }
@@ -209,7 +199,6 @@
 .user-subscription-modal .subscription-status {
   padding: 0.25rem 0.5rem;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -265,7 +254,6 @@
   border-radius: var(--border-radius);
   border: 1px solid transparent;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease;
   text-decoration: none;
@@ -342,7 +330,6 @@
 .user-subscription-modal .form-header h4 {
   margin: 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-md);
 }
 
 .user-subscription-modal .form-header .btn-text {
@@ -350,7 +337,6 @@
   border: none;
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-sm);
   padding: 0.5rem;
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
@@ -380,7 +366,6 @@
 
 .user-subscription-modal .form-group label {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -395,7 +380,6 @@
   border-radius: var(--border-radius);
   color: var(--dark-bg__text-color--primary);
   padding: 0.75rem;
-  font-size: var(--font-size-sm);
   transition: all 0.2s ease;
 }
 
@@ -435,7 +419,6 @@
   border-radius: var(--border-radius);
   border: 1px solid transparent;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease;
   text-decoration: none;
@@ -485,7 +468,6 @@
 
 .user-subscription-modal .loading-state p {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-md);
   margin: 0;
 }
 

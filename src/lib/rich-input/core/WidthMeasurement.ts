@@ -144,7 +144,7 @@ export class WidthMeasurementUtility {
           // URL pills in edit mode might have behavior controls
           element.innerHTML = `
             <span class="url-content">${token.content}</span>
-            <select class="url-behavior-select" style="margin-left: 4px; font-size: 0.75em;">
+            <select class="url-behavior-select" style="margin-left: 4px;">
               <option>link</option>
               <option>embed</option>
               <option>modal</option>

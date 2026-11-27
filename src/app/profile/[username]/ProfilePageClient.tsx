@@ -3,6 +3,7 @@
 import { PROFILE_EN } from '$i18n-source/profile.en';
 import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { updateBioAction } from '@lib/actions/profile.actions';
+import { OCE } from '@lib/oce';
 import { useSession } from 'next-auth/react';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
@@ -81,7 +82,7 @@ export function ProfilePageClient({
       }
 
       try {
-        const response = await fetch('/api/test/admin-check');
+        const response = await OCE.noCacheFetch('/api/test/admin-check');
         if (response.ok) {
           const data = await response.json();
           setHasAdminAccess(data.hasAdminAccess);
@@ -161,7 +162,7 @@ export function ProfilePageClient({
       userId={userProfile.id}
       forceDecoration={selectedDecoration || undefined}
     >
-      <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'bold' }}>
+      <span style={{ fontWeight: 'bold' }}>
         {userProfile.username || userProfile.name || pageUi.demoUserFallback}
       </span>
     </UserDecorationWrapper>

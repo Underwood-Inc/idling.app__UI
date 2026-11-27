@@ -35,7 +35,6 @@
 }
 
 .quota__beautiful h3 {
-  font-size: var(--font-size-base);
   margin: 0 0 0.75rem 0;
   color: var(--dark-bg__text-color--primary);
   font-weight: 700;
@@ -82,7 +81,6 @@
 }
 
 .quota__beautiful .quota__text {
-  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--primary);
   font-weight: 600;
   text-align: center;
@@ -90,7 +88,6 @@
 }
 
 .quota__beautiful .quota__upgrade {
-  font-size: var(--font-size-base);
   padding: 0.5rem 1rem;
   background: linear-gradient(
     135deg,
@@ -145,7 +142,6 @@
 }
 
 .quota__mobile h3 {
-  font-size: var(--font-size-base);
   margin: 0 0 0.75rem 0;
   color: var(--dark-bg__text-color--secondary);
   font-weight: 600;
@@ -187,7 +183,6 @@
 }
 
 .quota__mobile .quota__text {
-  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--secondary);
   font-weight: 500;
   text-align: center;
@@ -203,7 +198,6 @@
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -252,7 +246,6 @@
 }
 
 .quota__text {
-  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--secondary);
   font-weight: 500;
 }
@@ -266,7 +259,6 @@
   color: white;
   text-decoration: none;
   border-radius: 4px;
-  font-size: var(--font-size-base);
   font-weight: 600;
   transition: all 0.2s ease;
 }
@@ -323,7 +315,6 @@
 }
 
 .quota__section h3 {
-  font-size: var(--font-size-md);
   margin: 0 0 1rem 0;
   color: var(--dark-bg__text-color--primary);
   text-align: center;
@@ -362,14 +353,12 @@
 }
 
 .quota__section .quota__text {
-  font-size: var(--font-size-base);
   color: var(--dark-bg__text-color--primary);
   font-weight: 600;
   text-align: center;
 }
 
 .quota__section .quota__upgrade {
-  font-size: var(--font-size-base);
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #f59e0b, #d97706);
   border-radius: 10px;
@@ -404,7 +393,6 @@
   }
 
   .quota__mobile h3 {
-    font-size: var(--font-size-base);
     margin-bottom: 0.5rem;
   }
 
@@ -456,7 +444,6 @@
 }
 
 .quota__welcome h3 {
-  font-size: var(--font-size-5xl);
   margin: 0 0 1.5rem 0;
   color: var(--dark-bg__text-color--primary);
   font-weight: 700;
@@ -506,7 +493,6 @@
 }
 
 .quota__welcome .quota__text {
-  font-size: var(--font-size-xl);
   color: var(--dark-bg__text-color--secondary);
   line-height: 1.7;
   margin: 0 auto;
@@ -531,7 +517,6 @@
   text-decoration: none;
   border-radius: 10px;
   font-weight: 700;
-  font-size: var(--font-size-md);
   transition: all 0.2s ease;
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
   border: none;
@@ -554,12 +539,10 @@
   }
 
   .quota__welcome h3 {
-    font-size: var(--font-size-3xl);
     margin: 0 0 1.5rem 0;
   }
 
   .quota__welcome .quota__text {
-    font-size: var(--font-size-lg);
   }
 
   .quota__welcome .quota__bar {
@@ -567,7 +550,6 @@
   }
 
   .quota__welcome .quota__upgrade {
-    font-size: var(--font-size-base);
     padding: 0.875rem 1.75rem;
   }
 }
@@ -579,12 +561,10 @@
   }
 
   .quota__welcome h3 {
-    font-size: var(--font-size-xl);
     margin: 0 0 1.25rem 0;
   }
 
   .quota__welcome .quota__text {
-    font-size: var(--font-size-md);
   }
 
   .quota__welcome .quota__bar {
@@ -592,7 +572,6 @@
   }
 
   .quota__welcome .quota__upgrade {
-    font-size: var(--font-size-base);
     padding: 0.75rem 1.5rem;
   }
 }

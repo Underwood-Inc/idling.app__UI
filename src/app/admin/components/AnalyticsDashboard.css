@@ -15,15 +15,6 @@
   --analytics-space-xl: 2rem;
   --analytics-space-2xl: 3rem;
 
-  /* Analytics-specific typography tokens */
-  --analytics-font-size-xs: 0.875rem;
-  --analytics-font-size-sm: 1rem;
-  --analytics-font-size-md: 1.125rem;
-  --analytics-font-size-lg: 1.25rem;
-  --analytics-font-size-xl: 1.5rem;
-  --analytics-font-size-2xl: 2rem;
-  --analytics-font-size-3xl: 2.5rem;
-
   /* Analytics-specific colors */
   --analytics-primary-color: var(--color-primary);
   --analytics-text-primary: var(--light-bg__text-color--primary);
@@ -89,7 +80,6 @@
 }
 
 .analytics-header h2 {
-  font-size: var(--analytics-font-size-2xl);
   font-weight: 700;
   color: var(--analytics-text-primary);
   margin: 0;
@@ -111,7 +101,6 @@
 }
 
 .date-range-selector label {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   color: var(--analytics-text-primary);
 }
@@ -122,7 +111,6 @@
   border-radius: var(--analytics-space-sm);
   background-color: var(--analytics-card-background);
   color: var(--analytics-text-primary);
-  font-size: var(--analytics-font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -140,7 +128,6 @@
   padding: var(--analytics-space-sm) var(--analytics-space-md);
   border-radius: var(--analytics-space-sm);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   transition: all 0.2s ease;
   display: flex;
@@ -175,7 +162,6 @@
   background: none;
   border: none;
   padding: var(--analytics-space-md) var(--analytics-space-lg);
-  font-size: var(--analytics-font-size-md);
   font-weight: 600;
   color: var(--analytics-text-secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
@@ -237,19 +223,16 @@
 }
 
 .error-icon {
-  font-size: var(--analytics-font-size-3xl);
   margin-block-end: var(--analytics-space-md);
 }
 
 .analytics-error h3 {
-  font-size: var(--analytics-font-size-xl);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin-block-end: var(--analytics-space-sm);
 }
 
 .analytics-error p {
-  font-size: var(--analytics-font-size-md);
   color: var(--analytics-text-secondary);
   margin-block-end: var(--analytics-space-lg);
 }
@@ -261,7 +244,6 @@
   padding: var(--analytics-space-md) var(--analytics-space-lg);
   border-radius: var(--analytics-space-sm);
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--analytics-font-size-md);
   font-weight: 600;
   transition: all 0.2s ease;
 }
@@ -317,7 +299,6 @@
 }
 
 .metric-icon {
-  font-size: var(--analytics-font-size-xl);
   margin-block-end: var(--analytics-space-sm);
 }
 
@@ -327,7 +308,6 @@
 }
 
 .metric-content h3 {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   color: var(--analytics-metric-label-color);
   margin: 0;
@@ -337,7 +317,6 @@
 }
 
 .metric-value {
-  font-size: var(--analytics-font-size-3xl);
   font-weight: 700;
   color: var(--analytics-metric-value-color);
   margin: 0;
@@ -346,7 +325,6 @@
 }
 
 .metric-change {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -373,7 +351,6 @@
 }
 
 .chart-container h3 {
-  font-size: var(--analytics-font-size-lg);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin: 0;
@@ -389,13 +366,11 @@
   align-items: center;
   justify-content: center;
   color: var(--analytics-text-secondary);
-  font-size: var(--analytics-font-size-md);
   font-weight: 500;
 }
 
 .chart-info {
   margin-block-start: var(--analytics-space-md);
-  font-size: var(--analytics-font-size-sm);
   color: var(--analytics-text-secondary);
 }
 
@@ -410,7 +385,6 @@
   display: flex;
   align-items: center;
   gap: var(--analytics-space-sm);
-  font-size: var(--analytics-font-size-sm);
   font-weight: 500;
   color: var(--analytics-text-primary);
 }
@@ -458,7 +432,6 @@
 }
 
 .geography-section h3 {
-  font-size: var(--analytics-font-size-lg);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin: 0;
@@ -486,7 +459,6 @@
 }
 
 .geography-rank {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 700;
   color: var(--analytics-text-primary);
   min-width: 24px;
@@ -498,14 +470,12 @@
 }
 
 .geography-name {
-  font-size: var(--analytics-font-size-md);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin-block-end: var(--analytics-space-xs);
 }
 
 .geography-code {
-  font-size: var(--analytics-font-size-xs);
   color: var(--analytics-text-secondary);
   text-transform: uppercase;
   font-weight: 500;
@@ -516,14 +486,12 @@
 }
 
 .geography-sessions {
-  font-size: var(--analytics-font-size-lg);
   font-weight: 700;
   color: var(--analytics-metric-value-color);
   margin-block-end: var(--analytics-space-xs);
 }
 
 .geography-percentage {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   color: var(--analytics-text-secondary);
 }
@@ -547,19 +515,16 @@
 }
 
 .vpn-label {
-  font-size: var(--analytics-font-size-md);
   font-weight: 600;
   color: var(--analytics-text-primary);
 }
 
 .vpn-value {
-  font-size: var(--analytics-font-size-xl);
   font-weight: 700;
   color: var(--analytics-metric-value-color);
 }
 
 .vpn-providers h4 {
-  font-size: var(--analytics-font-size-md);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin: 0;
@@ -586,7 +551,6 @@
 }
 
 .provider-name {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   color: var(--analytics-text-primary);
 }
@@ -596,14 +560,12 @@
 }
 
 .provider-sessions {
-  font-size: var(--analytics-font-size-md);
   font-weight: 700;
   color: var(--analytics-metric-value-color);
   margin-block-end: var(--analytics-space-xs);
 }
 
 .provider-percentage {
-  font-size: var(--analytics-font-size-xs);
   font-weight: 600;
   color: var(--analytics-text-secondary);
 }
@@ -632,7 +594,6 @@
 }
 
 .device-section h3 {
-  font-size: var(--analytics-font-size-lg);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin: 0;
@@ -683,7 +644,6 @@
 }
 
 .device-name {
-  font-size: var(--analytics-font-size-md);
   font-weight: 600;
   color: var(--analytics-text-primary);
   margin-block-end: var(--analytics-space-xs);
@@ -696,13 +656,11 @@
 }
 
 .device-sessions {
-  font-size: var(--analytics-font-size-lg);
   font-weight: 700;
   color: var(--analytics-metric-value-color);
 }
 
 .device-percentage {
-  font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   color: var(--analytics-text-secondary);
 }
@@ -722,7 +680,6 @@
   }
 
   .analytics-header h2 {
-    font-size: var(--analytics-font-size-xl);
   }
 
   .header-controls {
@@ -737,7 +694,6 @@
 
   .tab-button {
     padding: var(--analytics-space-sm) var(--analytics-space-md);
-    font-size: var(--analytics-font-size-sm);
     top: 0;
     border-bottom: none;
     border-left: 3px solid transparent;
@@ -759,7 +715,6 @@
   }
 
   .metric-value {
-    font-size: var(--analytics-font-size-2xl);
   }
 
   .geography-item,
@@ -781,11 +736,9 @@
   }
 
   .analytics-header h2 {
-    font-size: var(--analytics-font-size-lg);
   }
 
   .metric-value {
-    font-size: var(--analytics-font-size-xl);
   }
 
   .chart-placeholder {

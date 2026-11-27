@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import React, { useEffect, useState } from 'react';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CacheStatus.css';
@@ -228,7 +229,7 @@ const CacheStatus: React.FC = () => {
         }, 500);
       } else {
         // Fallback to manual cache refresh
-        const response = await fetch(window.location.href, {
+        const response = await OCE.fetch(window.location.href, {
           cache: 'no-cache',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate'

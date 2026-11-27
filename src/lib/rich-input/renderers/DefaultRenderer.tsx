@@ -301,7 +301,7 @@ export class DefaultRenderer implements RichInputRenderer {
               }}
             >
               {/* Invisible character for cursor positioning */}
-              <span style={{ opacity: 0, fontSize: 0, lineHeight: 0 }}>
+              <span style={{ opacity: 0, lineHeight: 0 }}>
                 &nbsp;
               </span>
             </span>
@@ -545,7 +545,6 @@ export class DefaultRenderer implements RichInputRenderer {
           overflowWrap: 'break-word',
           lineHeight: 'inherit',
           padding: 'inherit',
-          fontSize: 'inherit',
           fontFamily: 'inherit'
         }}
       >

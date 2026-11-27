@@ -5,87 +5,64 @@ description: Host bootstrap, microfrontend consumers, and api-framework secureFe
 
 # Attach fetch
 
-**In plain terms:** observation belongs on the **transport**. The host wraps `fetch` once; every user-initiated call that should inform OCE must go through that wrapper (or the reporter port).
+**In plain terms:** OCE only learns from requests you **route through it**. Call **`OCE.fetch`** (idling.app) or **`engine.fetch(base)`** once per host; user traffic that should update the network hint must use that function (or `reporter` when you are not using `fetch`).
 
-## Idling.app entry (`idlingFetch`)
+## Idling.app entry
 
-This repo bundles OCE at `src/lib/oce/connectivity` and bootstraps on import:
+The site uses **`OCE`** from `@lib/oce`. **Do not** patch `globalThis.fetch`.
 
-```ts
-import { idlingFetch, getIdlingOceEngine } from '@lib/oce/idlingFetch';
-
-// idlingFetch is attachFetch(globalThis.fetch); probe URL is /api/version
-await idlingFetch('/api/radio/favorites/stations');
-const snap = getIdlingOceEngine().getSnapshot();
-```
-
-Radio embed sources import `./embedIdlingFetch`, which delegates to the same engine when the Next app has loaded `@lib/oce/idlingFetch`.
-
-## Host attach (before remotes render)
-
-```ts
-import {
-  getPageConnectivityEngine,
-  type PageConnectivityEngine,
-} from '@lib/oce/connectivity';
-
-let fetchWithOce: typeof fetch;
-
-export function bootstrapOce(): PageConnectivityEngine {
-  const engine = getPageConnectivityEngine({
-    failureThreshold: 2,
-    healthCheckUrl: '/health',
-    probeDeadline: 'Interactive',
-  });
-  const base = globalThis.fetch.bind(globalThis);
-  fetchWithOce = engine.attachFetch(base);
-  return engine;
-}
-
-/** Pass to apps that accept a custom fetch implementation */
-export function getFetchWithOce(): typeof fetch {
-  if (!fetchWithOce) {
-    throw new Error('Call bootstrapOce() at host entry before remotes load');
-  }
-  return fetchWithOce;
-}
-```
-
-Entry bootstrap (Next.js, Vite host shell, etc.):
+Mount `<OceProvider>` at host chrome (`SiteChromeProviders`):
 
 ```tsx
-// host/src/main.tsx
-import { bootstrapOce } from './oce-bootstrap';
+import { OceProvider } from '@lib/oce';
 
-bootstrapOce();
-// then render microfrontends
+<OceProvider>{children}</OceProvider>
+```
+
+Client consumption:
+
+```ts
+import { OCE, useOceReporter } from '@lib/oce';
+
+await OCE.fetch('/api/foo').then((r) => r.json());
+await OCE.noCacheFetch('/api/admin/alerts');
+const data = await OCE.apiFetchJson('/api/...');
+
+// Media streams — auto-report (not manual reporter)
+OCE.bindHtmlMediaElement(audioElement);
+```
+
+Radio embed sources import `./embedIdlingFetch`, which delegates to the same **`OCE.fetch`** when the Next app loads `@lib/oce` (`IdlingOceEmbedRegistry.register`).
+
+## Generic host (agnostic)
+
+```ts
+import { ConnectivityEngine } from '@your-scope/connectivity';
+
+const native = globalThis.fetch.bind(globalThis);
+const engine = new ConnectivityEngine({
+  healthCheckUrl: '/api/version',
+  baseFetch: native,
+});
+
+/** Observed fetch — same signature as `fetch`. */
+export const appFetch = engine.fetch(native);
 ```
 
 Rules:
 
-1. Call `getPageConnectivityEngine` **once** with config at host startup.
-2. Replace or inject `fetchWithOce` into shared clients **before** remote bundles execute.
-3. Remotes call `getPageConnectivityEngine()` **without** `createConnectivityEngine`.
+1. Construct **one** `ConnectivityEngine` at host startup.
+2. Export **one** observed `fetch` (`appFetch` / `OCE.fetch`).
+3. Remotes subscribe to the **same engine reference** — do not call `new ConnectivityEngine` again.
+4. **Never** replace `globalThis.fetch`.
 
 ## Microfrontend remotes (subscribe only)
 
 ```tsx
-// remote/src/ConnectivityHint.tsx
-import { useEffect, useState } from 'react';
-import { getPageConnectivityEngine } from '@lib/oce/connectivity';
+import { useOceSnapshot, useOceUnavailable } from '@lib/oce';
 
 export function ConnectivityHint() {
-  const engine = getPageConnectivityEngine();
-  const [unavailable, setUnavailable] = useState(
-    () => engine.getSnapshot().unavailable,
-  );
-
-  useEffect(() => {
-    return engine.subscribe(() => {
-      setUnavailable(engine.getSnapshot().unavailable);
-    });
-  }, [engine]);
-
+  const unavailable = useOceUnavailable();
   if (!unavailable) return null;
   return (
     <p role="status">We could not reach the network recently. You can still retry.</p>
@@ -93,96 +70,47 @@ export function ConnectivityHint() {
 }
 ```
 
-Remotes **must not**:
+Remotes **must not** swap in a different `healthCheckUrl` or patch `globalThis.fetch` after attach.
 
-- Call `createConnectivityEngine` again
-- Pass a different `healthCheckUrl` expecting it to apply
-- Swap `globalThis.fetch` after the host attached
+## Wiring HTTP clients
 
-## Wiring HTTP clients to the wrapper
+Pass `OCE.fetch` or `appFetch` as the `fetch` implementation:
 
 ```ts
-// Example: pass custom fetch into a thin client
-import { getFetchWithOce } from '../host/oce-bootstrap';
+// TanStack Query
+useQuery({ queryKey: ['x'], queryFn: () => OCE.fetch('/api/x').then((r) => r.json()) });
 
-export const api = createRestClient({
-  baseUrl: '/api',
-  fetch: getFetchWithOce(),
-});
+// SWR
+useSWR('/api/x', (url) => OCE.fetch(url).then((r) => r.json()));
 ```
 
-For TanStack Query, Apollo `HttpLink`, SWR `fetcher`, axios adapter — see [Recipes](/guides/offline-connectivity-engine/recipes-fetch).
+See [Recipes](/guides/offline-connectivity-engine/recipes-fetch).
 
-## `@strixun/api-framework` `secureFetch` (monorepo workers / hubs)
+## `@strixun/api-framework` (monorepo)
 
-In **strixun-stream-suite**, `secureFetch` is `attachFetch` around the HTTPS-safe base fetch. **Idling.app** uses `idlingFetch` instead (see above); it does not install the full api-framework package.
-
-```ts
-import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
-
-const engine = getPageConnectivityEngine();
-
-function upgradeToHttps(input: RequestInfo | URL): RequestInfo | URL {
-  // existing secureFetch policy — before or inside attach; observation sees final call
-  return input;
-}
-
-const base = globalThis.fetch.bind(globalThis);
-
-async function secureBaseFetch(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<Response> {
-  const safeInput = upgradeToHttps(input);
-  return base(safeInput, init);
-}
-
-export const secureFetch = engine.attachFetch(secureBaseFetch);
-```
-
-```ts
-// api-framework consumer — unchanged call site
-import { secureFetch } from '@strixun/api-framework';
-
-const response = await secureFetch('/api/me', { credentials: 'include' });
-```
-
-See also the [API Framework](/products/showcase/api-framework) product page for package entry points.
+Workers may use `secureFetch` from `@strixun/api-framework` — same idea as `engine.fetch(secureBase)`. **Idling.app** uses `OCE.fetch` only.
 
 ## Subscribe API (read the hint)
 
 ```ts
-const engine = getPageConnectivityEngine();
+const engine = OCE.engine;
 
 const unsubscribe = engine.subscribe(() => {
   const snap = engine.getSnapshot();
-  // { unavailable, streak, failureThreshold, generation, healthContractFailed? }
   showHint(snap.unavailable);
 });
 
-// cleanup
 unsubscribe();
 ```
 
 ## Apps without fetch
 
-Stacks that use XHR, WebSocket-only signaling, or native bridges must use [`reporter`](/guides/offline-connectivity-engine/reporter) at the transport boundary. There is no dedicated axios or TanStack package — those call `attachFetch` or `reporter`.
+Use [`reporter`](/guides/offline-connectivity-engine/reporter) at the **lowest layer** where you know if the server answered (XHR-only, native bridges).
 
 ## Service worker note
 
-Host documentation should include a one-line worker bypass for `healthCheckUrl`. OCE does not ship a worker. Example pattern:
-
-```js
-// sw.js — do not cache the health probe
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  if (url.pathname === '/health') {
-    return; // network only
-  }
-  // ... normal strategies
-});
-```
+Do not cache the health probe path. OCE idling uses `/api/version` with `cache: 'no-store'` on engine-owned probes.
 
 ---
 
-**Sources (specified):** OCE plan — attach recipes, secureFetch, one writer on the page, service worker advisory.
+**See also:** [Market landscape](/guides/offline-connectivity-engine/market-landscape) — how this differs from Query, SWR, and queue products.

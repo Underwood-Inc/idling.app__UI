@@ -1,4 +1,4 @@
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -38,7 +38,7 @@ export function useSubscriptionStatus() {
 
       // Don't cache subscription status - always get fresh data
       const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
-      const response = await noCacheFetch(
+      const response = await OCE.noCacheFetch(
         `/api/subscription/status?_t=${cacheBuster}`,
         {
           headers: {

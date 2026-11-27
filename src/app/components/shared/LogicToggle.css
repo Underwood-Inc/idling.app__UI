@@ -19,7 +19,6 @@
   justify-content: center;
   min-width: 3rem;
   padding: 0.4rem 0.7rem;
-  font-size: var(--font-size-base);
   font-weight: 600;
   background-color: var(--brand-tertiary);
   color: var(--light-bg__text-color--secondary);

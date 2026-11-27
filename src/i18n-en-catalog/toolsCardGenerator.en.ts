@@ -331,7 +331,6 @@ export const TOOLS_CARD_GENERATOR_EN = {
       textMaxWidth: 'Text Max Width',
       textStartY: 'Text Start Y',
       textPadding: 'Text Padding',
-      fontSize: 'Font Size',
       lineHeight: 'Line Height',
       borderOpacity: 'Border Opacity',
       borderColor: 'Border Color',

@@ -150,7 +150,6 @@
 
 /* Name and Info Enhancement */
 .profile-page__main-card .user-profile__name {
-  font-size: var(--font-size-4xl);
   font-weight: 700;
   /* FIXED: Use solid color instead of transparent gradient text */
   color: var(--brand-primary);
@@ -195,7 +194,6 @@
 }
 
 .profile-page__main-card .user-profile__bio-content {
-  font-size: var(--font-size-md);
   line-height: 1.6;
   color: var(--brand-primary--dark);
 }
@@ -250,7 +248,6 @@
 }
 
 .profile-page__main-card .user-profile__stat-number {
-  font-size: var(--font-size-4xl);
   font-weight: 800;
   color: var(--brand-primary);
   display: block;
@@ -259,7 +256,6 @@
 }
 
 .profile-page__main-card .user-profile__stat-label {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--brand-primary--dark);
   text-transform: uppercase;
@@ -269,7 +265,6 @@
 /* Aside Styles */
 .profile-page__aside-title {
   color: var(--light-bg__text-color--primary);
-  font-size: var(--font-size-md);
   font-weight: 700;
   margin: 0 0 2rem 0;
   text-align: center;
@@ -419,7 +414,6 @@
 
 /* Icon styles */
 .profile-page__info-item span.profile-page__info-icon {
-  font-size: var(--font-size-md);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -443,7 +437,6 @@
 }
 
 .profile-page__info-label {
-  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--light-bg__text-color--tertiary);
   text-transform: uppercase;
@@ -455,7 +448,6 @@
 }
 
 .profile-page__info-value {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--brand-primary--dark);
   white-space: nowrap;
@@ -481,13 +473,11 @@
 }
 
 .profile-page__owner-icon {
-  font-size: var(--font-size-lg);
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
 
 .profile-page__owner-note p {
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--secondary);
   margin: 0;
   line-height: 1.5;
@@ -501,7 +491,6 @@
   }
 
   .profile-page__aside-title {
-    font-size: var(--font-size-base);
     margin-bottom: 1.5rem;
   }
 
@@ -526,7 +515,6 @@
   .profile-page__info-item span.profile-page__info-icon {
     width: 32px;
     height: 32px;
-    font-size: var(--font-size-lg);
   }
 }
 
@@ -813,7 +801,6 @@
 
 .user-not-found-help-title {
   margin: 0 0 1rem 0;
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -832,7 +819,6 @@
 }
 
 .user-not-found__icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 2rem;
   opacity: 0.9;
   display: block;
@@ -892,7 +878,6 @@
 }
 
 .user-not-found__title {
-  font-size: var(--font-size-4xl);
   font-weight: 700;
   color: var(--dark-bg__text-color--primary);
   margin: 0 0 1.5rem 0;
@@ -909,7 +894,6 @@
 }
 
 .user-not-found__message {
-  font-size: var(--font-size-lg);
   color: var(--dark-bg__text-color--secondary);
   margin: 0 0 2rem 0;
   line-height: 1.6;
@@ -956,7 +940,6 @@
   padding-left: 2rem;
   margin-bottom: 1rem;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   line-height: 1.5;
   z-index: 2;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -972,7 +955,6 @@
   left: 0.5rem;
   color: var(--brand-primary--light);
   font-weight: bold;
-  font-size: var(--font-size-xl);
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   z-index: 2;
 }
@@ -988,7 +970,6 @@
 .user-not-found__action {
   padding: 1rem 2rem;
   border-radius: calc(var(--border-radius) * 1.2);
-  font-size: var(--font-size-base);
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1108,7 +1089,6 @@
 .user-not-found__suggestion p {
   margin: 0;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   line-height: 1.6;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   position: relative;
@@ -1168,7 +1148,6 @@
 }
 
 .user-not-found__help-icon {
-  font-size: var(--font-size-xl);
   flex-shrink: 0;
   margin-top: 0.125rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -1186,7 +1165,6 @@
 }
 
 .user-not-found__help-label {
-  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   line-height: 1.3;
@@ -1194,7 +1172,6 @@
 }
 
 .user-not-found__help-description {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
   line-height: 1.4;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -1222,16 +1199,13 @@
   }
 
   .user-not-found__icon {
-    font-size: var(--font-size-5xl);
     margin-bottom: 1.5rem;
   }
 
   .user-not-found__title {
-    font-size: var(--font-size-3xl);
   }
 
   .user-not-found__message {
-    font-size: var(--font-size-base);
   }
 
   .user-not-found__actions {
@@ -1260,11 +1234,9 @@
   }
 
   .user-not-found__icon {
-    font-size: var(--font-size-5xl);
   }
 
   .user-not-found__title {
-    font-size: var(--font-size-2xl);
   }
 
   .user-not-found__reasons,
@@ -1286,20 +1258,17 @@
 }
 
 .profile-page__private-icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 1.5rem;
   opacity: 0.8;
 }
 
 .profile-page__private-title {
-  font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--light-bg__text-color--primary);
   margin: 0 0 1rem 0;
 }
 
 .profile-page__private-message {
-  font-size: var(--font-size-md);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   margin: 0 0 2rem 0;
@@ -1354,21 +1323,17 @@
   }
 
   .profile-page__private-icon {
-    font-size: var(--font-size-5xl);
     margin-bottom: 1rem;
   }
 
   .profile-page__private-title {
-    font-size: var(--font-size-xl);
   }
 
   .profile-page__private-message {
-    font-size: var(--font-size-base);
   }
 
   .profile-page__private-link {
     padding: 0.6rem 1.2rem;
-    font-size: var(--font-size-sm);
   }
 }
 
@@ -1410,7 +1375,6 @@
 
 .user-not-found__search-title {
   margin: 0 0 1rem 0;
-  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   text-align: center;
@@ -1430,7 +1394,6 @@
 .user-not-found__search-description {
   margin: 0 0 1.5rem 0;
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   line-height: 1.5;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -1451,11 +1414,9 @@
   }
 
   .user-not-found__search-title {
-    font-size: var(--font-size-lg);
   }
 
   .user-not-found__search-description {
-    font-size: var(--font-size-sm);
   }
 }
 
@@ -1530,7 +1491,6 @@
 
 .profile-page__aside-title {
   color: var(--brand-primary--dark);
-  font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0 0 2rem 0;
   text-align: center;
@@ -1615,7 +1575,6 @@
 }
 
 .profile-page__info-icon {
-  font-size: var(--font-size-xl);
   width: 48px;
   height: 48px;
   display: flex;
@@ -1647,7 +1606,6 @@
 }
 
 .profile-page__info-label {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--brand-primary--dark);
   text-transform: uppercase;
@@ -1656,7 +1614,6 @@
 }
 
 .profile-page__info-value {
-  font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--brand-primary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -1695,14 +1652,12 @@
 }
 
 .profile-page__private-icon {
-  font-size: var(--font-size-5xl);
   margin-bottom: 1.5rem;
   opacity: 0.8;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .profile-page__private-title {
-  font-size: var(--font-size-3xl);
   font-weight: 700;
   color: var(--brand-primary--dark);
   margin: 0 0 1rem 0;
@@ -1717,7 +1672,6 @@
 }
 
 .profile-page__private-message {
-  font-size: var(--font-size-md);
   color: var(--brand-primary--dark);
   line-height: 1.6;
   margin: 0 0 2rem 0;
@@ -1774,7 +1728,6 @@
   }
 
   .profile-page__main-card .user-profile__name {
-    font-size: var(--font-size-3xl);
   }
 
   .profile-page__main-card .user-profile__stats {
@@ -1789,7 +1742,6 @@
   }
 
   .profile-page__main-card .user-profile__name {
-    font-size: var(--font-size-3xl);
   }
 
   .profile-page__main-card .user-profile__bio {
@@ -1807,11 +1759,9 @@
   }
 
   .profile-page__main-card .user-profile__name {
-    font-size: var(--font-size-2xl);
   }
 
   .profile-page__main-card .user-profile__stat-number {
-    font-size: var(--font-size-3xl);
   }
 }
 
@@ -1880,7 +1830,6 @@
 }
 
 .profile-page__aside-title {
-  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--brand-primary);
   margin-bottom: 1.5rem;
@@ -1975,7 +1924,6 @@
   justify-content: center;
   background: rgba(237, 174, 73, 0.15);
   border-radius: 50%;
-  font-size: var(--font-size-xl);
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
@@ -1994,7 +1942,6 @@
 }
 
 .profile-page__info-label {
-  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--brand-primary--dark);
   text-transform: uppercase;
@@ -2003,7 +1950,6 @@
 }
 
 .profile-page__info-value {
-  font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--brand-primary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -2029,14 +1975,12 @@
 }
 
 .profile-page__owner-icon {
-  font-size: var(--font-size-lg);
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
 
 .profile-page__owner-note p {
   margin: 0;
-  font-size: var(--font-size-base);
   line-height: 1.5;
   color: var(--brand-primary--dark);
   font-weight: 500;
@@ -2095,11 +2039,9 @@
   .profile-page__info-icon {
     width: 2.5rem;
     height: 2.5rem;
-    font-size: var(--font-size-lg);
   }
 
   .profile-page__info-value {
-    font-size: var(--font-size-base);
   }
 }
 
@@ -2112,11 +2054,9 @@
   .profile-page__info-icon {
     width: 2.25rem;
     height: 2.25rem;
-    font-size: var(--font-size-md);
   }
 
   .profile-page__aside-title {
-    font-size: var(--font-size-lg);
   }
 }
 
@@ -2154,7 +2094,6 @@
 
   h4 {
     margin: 0 0 0.5rem 0;
-    font-size: var(--font-size-sm);
     color: #666;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -2167,7 +2106,6 @@
   border: none;
   border-radius: 8px;
   padding: 12px 20px;
-  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -2193,14 +2131,12 @@
   max-width: 450px;
 
   &__title {
-    font-size: var(--font-size-md);
     font-weight: bold;
     margin-bottom: 8px;
     color: #333;
   }
 
   &__description {
-    font-size: var(--font-size-sm);
     color: #666;
     margin-bottom: 16px;
     line-height: 1.4;
@@ -2217,7 +2153,6 @@
     border: 2px solid transparent;
     border-radius: 8px;
     padding: 10px 14px;
-    font-size: var(--font-size-sm);
     cursor: var(--mappy-cursor-pointer, pointer);
     transition: all 0.2s ease;
     text-align: left;
@@ -2235,7 +2170,6 @@
   }
 
   &__note {
-    font-size: var(--font-size-xs);
     color: #888;
     font-style: italic;
     text-align: center;

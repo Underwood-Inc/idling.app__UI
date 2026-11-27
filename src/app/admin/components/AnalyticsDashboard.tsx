@@ -8,6 +8,7 @@
 
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import type { SiteIconId } from '@molecules/lucide/siteIconCatalog';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -89,7 +90,7 @@ export default function AnalyticsDashboard({
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/analytics/dashboard?dateRange=${dateRange}`
       );
 

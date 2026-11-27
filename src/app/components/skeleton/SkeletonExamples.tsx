@@ -240,14 +240,13 @@ export const SkeletonExamples: React.FC = () => {
               }}
             >
               <span style={{ fontWeight: 500 }}>John Doe</span>
-              <span style={{ color: '#666', fontSize: 'var(--font-size-sm)' }}>
+              <span style={{ color: '#666', }}>
                 2 hours ago
               </span>
             </div>
             <h3
               style={{
                 margin: '0 0 0.5rem 0',
-                fontSize: 'var(--font-size-md)',
                 fontWeight: 600
               }}
             >
@@ -268,7 +267,6 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}
@@ -279,7 +277,6 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}
@@ -290,7 +287,6 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}
@@ -341,14 +337,13 @@ export const SkeletonExamples: React.FC = () => {
               }}
             >
               <span style={{ fontWeight: 500 }}>Jane Smith</span>
-              <span style={{ color: '#666', fontSize: 'var(--font-size-sm)' }}>
+              <span style={{ color: '#666', }}>
                 4 hours ago
               </span>
             </div>
             <h3
               style={{
                 margin: '0 0 0.5rem 0',
-                fontSize: 'var(--font-size-md)',
                 fontWeight: 600
               }}
             >
@@ -365,7 +360,6 @@ export const SkeletonExamples: React.FC = () => {
                 style={{
                   background: '#e0f2fe',
                   color: '#0369a1',
-                  fontSize: 'var(--font-size-xs)',
                   padding: '0.25rem 0.5rem',
                   borderRadius: '0.25rem'
                 }}

@@ -1,5 +1,7 @@
 'use client';
 
+import { OCE } from '@lib/oce';
+
 /**
  * User Management Panel - Main Component
  *
@@ -157,7 +159,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
     async (roleId: string, expiresAt?: string, reason?: string) => {
       if (!roleAssignmentUser) return;
       try {
-        const response = await fetch(
+        const response = await OCE.noCacheFetch(
           `/api/admin/users/${roleAssignmentUser.id}/roles`,
           {
             method: 'POST',
@@ -194,7 +196,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
   const handleRevokeTimeout = useCallback(
     async (user: ManagementUser) => {
       try {
-        const response = await fetch(`/api/admin/users/${user.id}/timeout`, {
+        const response = await OCE.noCacheFetch(`/api/admin/users/${user.id}/timeout`, {
           method: 'DELETE'
         });
         if (response.ok) {
@@ -378,7 +380,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
           }}
           onTimeout={async (userId: string, options: TimeoutOptions) => {
             try {
-              const response = await fetch(
+              const response = await OCE.noCacheFetch(
                 `/api/admin/users/${userId}/timeout`,
                 {
                   method: 'POST',

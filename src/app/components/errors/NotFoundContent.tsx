@@ -25,7 +25,6 @@ export function NotFoundContent() {
     >
       <h1
         style={{
-          fontSize: 'var(--font-size-5xl)',
           marginBottom: '0.5rem',
           background:
             'linear-gradient(135deg, var(--brand-primary, #edae49), var(--brand-primary-light, #f9df74))',
@@ -38,7 +37,6 @@ export function NotFoundContent() {
       </h1>
       <h2
         style={{
-          fontSize: 'var(--font-size-xl)',
           marginBottom: '1rem',
           color: 'var(--text-primary, #f9f9f9)',
           display: 'inline-flex',
@@ -51,7 +49,6 @@ export function NotFoundContent() {
       </h2>
       <p
         style={{
-          fontSize: 'var(--font-size-base)',
           marginBottom: '2rem',
           color: 'var(--text-secondary, #b8b8b8)',
           maxWidth: '500px',
@@ -63,7 +60,6 @@ export function NotFoundContent() {
         href="/"
         style={{
           padding: '0.75rem 1.5rem',
-          fontSize: 'var(--font-size-base)',
           fontWeight: 600,
           backgroundColor: 'var(--brand-primary, #edae49)',
           color: 'var(--dark-bg-primary, #1a1611)',

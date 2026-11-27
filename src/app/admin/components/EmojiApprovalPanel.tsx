@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { useAdminCopy } from '../AdminCopyContext';
 import { useEffect, useState } from 'react';
 import './EmojiApprovalPanel.css';
@@ -56,7 +57,7 @@ export default function EmojiApprovalPanel() {
         search: searchTerm
       });
 
-      const response = await fetch(`/api/admin/emojis?${params}`);
+      const response = await OCE.noCacheFetch(`/api/admin/emojis?${params}`);
       if (response.ok) {
         const data = await response.json();
         setEmojis(data.emojis || []);
@@ -84,7 +85,7 @@ export default function EmojiApprovalPanel() {
   // Handle emoji approval
   const handleApproveEmoji = async (emojiId: number) => {
     try {
-      const response = await fetch('/api/admin/emojis', {
+      const response = await OCE.noCacheFetch('/api/admin/emojis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,7 +107,7 @@ export default function EmojiApprovalPanel() {
   // Handle emoji rejection
   const handleRejectEmoji = async (emojiId: number, reason: string) => {
     try {
-      const response = await fetch('/api/admin/emojis', {
+      const response = await OCE.noCacheFetch('/api/admin/emojis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,7 +140,7 @@ export default function EmojiApprovalPanel() {
     }
 
     try {
-      const response = await fetch(
+      const response = await OCE.noCacheFetch(
         `/api/admin/emojis?id=${emojiId}&reason=${encodeURIComponent(reason)}`,
         {
           method: 'DELETE'

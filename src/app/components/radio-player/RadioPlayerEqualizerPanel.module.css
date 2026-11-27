@@ -18,7 +18,6 @@
 
 .title {
   margin: 0;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -33,7 +32,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
@@ -47,7 +45,6 @@
   margin: 0;
   padding: 0.55rem 0.7rem;
   border-radius: 8px;
-  font-size: var(--font-size-xs);
   line-height: 1.45;
 }
 
@@ -78,7 +75,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
@@ -115,7 +111,6 @@
   background: rgb(0 0 0 / 22%);
   color: var(--text-primary, #ece8e0);
   font: inherit;
-  font-size: var(--font-size-xs);
 }
 
 .customPresetName::placeholder {
@@ -137,7 +132,6 @@
   color: rgb(255 170 170 / 92%);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -169,7 +163,6 @@
   color: rgb(255 205 205 / 96%);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -190,7 +183,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -211,7 +203,6 @@
   color: var(--text-secondary, #a8a096);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -242,7 +233,6 @@
   color: var(--text-primary, #ece8e0);
   cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;

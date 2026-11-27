@@ -338,7 +338,6 @@ const AvatarsBackground: React.FC = () => {
             color: 'white',
             padding: '8px',
             borderRadius: '4px',
-            fontSize: 'var(--font-size-xs)',
             zIndex: 1001,
             pointerEvents: 'none'
           }}

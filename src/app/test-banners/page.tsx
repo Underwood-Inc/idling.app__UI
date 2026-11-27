@@ -1,5 +1,7 @@
 'use client';
 
+import { OCE } from '@lib/oce';
+
 /**
  * Test Banner System Page
  *
@@ -48,7 +50,7 @@ export default function TestBannersPage() {
     try {
       addResult('flask', 'Testing rate limit notification...');
 
-      const response = await fetch('/api/admin/test-rate-limit', {
+      const response = await OCE.fetch('/api/admin/test-rate-limit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ testType: 'normal' })
@@ -70,7 +72,7 @@ export default function TestBannersPage() {
     try {
       addResult('siren', 'Testing security attack notification...');
 
-      const response = await fetch('/api/admin/test-rate-limit', {
+      const response = await OCE.fetch('/api/admin/test-rate-limit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ testType: 'attack' })
@@ -92,7 +94,7 @@ export default function TestBannersPage() {
     try {
       addResult('hardDrive', 'Testing database alerts...');
 
-      const response = await fetch('/api/alerts/active');
+      const response = await OCE.fetch('/api/alerts/active');
 
       if (response.ok) {
         const alerts = await response.json();

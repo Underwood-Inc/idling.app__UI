@@ -1,4 +1,4 @@
-import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import { OCE } from '@lib/oce';
 import { formatRetryAfter } from '@lib/utils/timeFormatting';
 import { useCallback, useRef, useState } from 'react';
 import { GenerationOptions } from '../types/generation';
@@ -223,7 +223,7 @@ export function useImageGeneration(props: UseImageGenerationProps) {
         params.set('_t', cacheBuster);
         params.set('_nocache', 'true');
 
-        const response = await noCacheFetch(
+        const response = await OCE.noCacheFetch(
           `/api/og-image?${params.toString()}`
         );
 

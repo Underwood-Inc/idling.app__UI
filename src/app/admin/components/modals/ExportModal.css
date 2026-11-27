@@ -40,7 +40,6 @@
 }
 
 .export-modal__title {
-  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -56,7 +55,6 @@
 .export-modal__close {
   background: none;
   border: none;
-  font-size: var(--font-size-xl);
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;
@@ -94,7 +92,6 @@
 }
 
 .export-modal__section-title {
-  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   margin: 0;
@@ -158,17 +155,14 @@
 }
 
 .export-format-icon {
-  font-size: var(--font-size-lg);
 }
 
 .export-format-label {
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-base);
 }
 
 .export-format-description {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
   line-height: 1.4;
 }
@@ -227,16 +221,13 @@
 .export-scope-label {
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-base);
 }
 
 .export-scope-description {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
 }
 
 .export-scope-count {
-  font-size: var(--font-size-xs);
   color: var(--brand-primary);
   font-weight: 600;
 }
@@ -263,7 +254,6 @@
   border-radius: var(--border-radius);
   background: var(--dark-background--tertiary);
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-xs);
   font-weight: 500;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -318,7 +308,6 @@
   flex: 1;
   font-weight: 500;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-sm);
 }
 
 .export-field-default {
@@ -326,7 +315,6 @@
   border-radius: var(--border-radius-full);
   background: var(--brand-secondary);
   color: white;
-  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
@@ -344,7 +332,6 @@
 }
 
 .export-info-item {
-  font-size: var(--font-size-sm);
   color: var(--dark-bg__text-color--secondary);
 }
 
@@ -372,7 +359,6 @@
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -467,13 +453,11 @@
 .export-preview-header h3 {
   margin: 0;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-lg);
 }
 
 .export-preview-header button {
   background: none;
   border: none;
-  font-size: var(--font-size-lg);
   color: var(--dark-bg__text-color--secondary);
   cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
@@ -495,7 +479,6 @@
 .export-preview-content pre {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
   line-height: 1.5;
   color: var(--dark-bg__text-color--primary);
   background: var(--dark-background--tertiary);

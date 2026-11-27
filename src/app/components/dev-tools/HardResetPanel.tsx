@@ -94,7 +94,7 @@ const HardResetPanel: React.FC = () => {
 
       {/* Reset Statistics */}
       <div style={{ marginBottom: '1rem' }}>
-        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: 'var(--font-size-base)' }}>
+        <h4 style={{ margin: '0 0 0.5rem 0', }}>
           📊 Reset Statistics
         </h4>
         {resetStats ? (
@@ -103,8 +103,7 @@ const HardResetPanel: React.FC = () => {
               backgroundColor: '#fff',
               padding: '0.75rem',
               borderRadius: '4px',
-              fontSize: 'var(--font-size-sm)'
-            }}
+              }}
           >
             <div>
               <strong>Last Reset Version:</strong>{' '}
@@ -130,7 +129,7 @@ const HardResetPanel: React.FC = () => {
       {/* Last Reset Result */}
       {lastResetResult && (
         <div style={{ marginBottom: '1rem' }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', fontSize: 'var(--font-size-base)' }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', }}>
             📋 Last Reset Result
           </h4>
           <div
@@ -140,7 +139,6 @@ const HardResetPanel: React.FC = () => {
                 : '#f8d7da',
               padding: '0.75rem',
               borderRadius: '4px',
-              fontSize: 'var(--font-size-sm)',
               border: `1px solid ${lastResetResult.resetPerformed ? '#c3e6cb' : '#f5c6cb'}`
             }}
           >
@@ -207,7 +205,7 @@ const HardResetPanel: React.FC = () => {
 
       {/* Reset Actions */}
       <div style={{ marginBottom: '1rem' }}>
-        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: 'var(--font-size-base)' }}>
+        <h4 style={{ margin: '0 0 0.5rem 0', }}>
           🔧 Reset Actions
         </h4>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -221,8 +219,7 @@ const HardResetPanel: React.FC = () => {
               border: 'none',
               borderRadius: '4px',
               cursor: isResetting ? 'not-allowed' : 'pointer',
-              fontSize: 'var(--font-size-sm)'
-            }}
+              }}
           >
             {isResetting ? 'Resetting...' : '🔄 Manual Hard Reset'}
           </button>
@@ -237,8 +234,7 @@ const HardResetPanel: React.FC = () => {
               border: 'none',
               borderRadius: '4px',
               cursor: isResetting ? 'not-allowed' : 'pointer',
-              fontSize: 'var(--font-size-sm)'
-            }}
+              }}
           >
             {isResetting ? 'Resetting...' : '🧪 Test Reset'}
           </button>
@@ -252,8 +248,7 @@ const HardResetPanel: React.FC = () => {
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer',
-              fontSize: 'var(--font-size-sm)'
-            }}
+              }}
           >
             🔄 Refresh Stats
           </button>
@@ -263,7 +258,6 @@ const HardResetPanel: React.FC = () => {
       {/* Instructions */}
       <div
         style={{
-          fontSize: 'var(--font-size-xs)',
           color: '#6c757d',
           backgroundColor: '#e9ecef',
           padding: '0.5rem',

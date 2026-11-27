@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -64,7 +65,7 @@ export function useClientAdminGuard() {
 
       // Step 2: Validate admin permissions via API (cache-busted)
       const timestamp = Date.now();
-      const response = await fetch(`/api/test/admin-check?t=${timestamp}`, {
+      const response = await OCE.noCacheFetch(`/api/test/admin-check?t=${timestamp}`, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',

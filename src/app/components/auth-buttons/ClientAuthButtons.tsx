@@ -90,7 +90,6 @@ export function ClientSignOut({
   return (
     <button
       style={{
-        fontSize: 'var(--font-size-lg)',
         top: '0.25rem',
         position: 'relative'
       }}

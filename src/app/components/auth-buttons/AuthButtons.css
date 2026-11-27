@@ -8,5 +8,4 @@
   cursor: var(--mappy-cursor-pointer, pointer);
   display: inline-block;
   font-family: inherit;
-  font-size: inherit;
 }

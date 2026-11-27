@@ -20,7 +20,6 @@ th {
   font-weight: var(--font-weight-semibold) !important;
   padding: var(--spacing-md) !important;
   text-align: left !important;
-  font-size: var(--font-size-sm) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
 }
@@ -38,7 +37,6 @@ td code {
   color: var(--brand-primary-light) !important;
   padding: 0.2rem 0.4rem !important;
   border-radius: var(--border-radius-sm) !important;
-  font-size: var(--font-size-sm) !important;
   font-weight: var(--font-weight-medium) !important;
   border: 1px solid var(--glass-border-light) !important;
 }
@@ -98,7 +96,6 @@ td code {
   color: var(--dark-bg-primary);
   padding: 0.2rem 0.8rem;
   border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -129,7 +126,6 @@ ul li:has(strong) {
 ul li:has(strong)::before {
   content: '';
   left: -var(--spacing-md);
-  font-size: var(--font-size-base);
 }
 
 /* Alerts/Admonitions */

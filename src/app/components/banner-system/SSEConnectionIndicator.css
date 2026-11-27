@@ -24,7 +24,6 @@
   background: transparent;
   color: white;
   border-radius: 20px;
-  font-size: var(--font-size-xs);
   font-weight: 500;
   
   border: 1px solid #E5E5E5;
@@ -32,7 +31,6 @@
 }
 
 .status-icon {
-  font-size: var(--font-size-xs);
   line-height: 1;
   animation: pulse 2s infinite;
 }
@@ -50,7 +48,6 @@
 }
 
 .last-update {
-  font-size: var(--font-size-xs);
   opacity: 0.7;
   line-height: 1.2;
 }
@@ -116,11 +113,9 @@
 
   .indicator-content {
     padding: 6px 10px;
-    font-size: var(--font-size-xs);
   }
 
   .last-update {
-    font-size: var(--font-size-base);
   }
 }
 

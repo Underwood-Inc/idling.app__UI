@@ -10,7 +10,6 @@
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  font-size: var(--font-size-sm);
   line-height: 1;
 }
 

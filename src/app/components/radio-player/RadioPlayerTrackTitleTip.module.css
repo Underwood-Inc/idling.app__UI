@@ -83,7 +83,6 @@
 
 .tip__text {
   margin: 0;
-  font-size: var(--font-size-base);
   font-weight: 500;
   line-height: 1.45;
   color: var(--text-primary, #ece8e0);

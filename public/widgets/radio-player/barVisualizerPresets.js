@@ -1,4 +1,5 @@
 import { advanceAudioStreamTempoPhase } from './audioStreamTempo';
+import { drawRoundedBarPeakCap } from './barVisualizerPeakCap';
 function mixRgb(from, to, t) {
     const clamped = Math.max(0, Math.min(1, t));
     return {
@@ -38,9 +39,9 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 function paintCanvasBg(drawContext) {
-    const { ctx, width, height, theme, fullscreen } = drawContext;
+    const { ctx, width, height, theme, fullscreen, dockBackdrop } = drawContext;
     ctx.clearRect(0, 0, width, height);
-    if (fullscreen) {
+    if (fullscreen || dockBackdrop) {
         return;
     }
     ctx.fillStyle = theme.canvasBg;
@@ -108,9 +109,16 @@ function drawFrequencyBars(drawContext) {
         }
         if (barTrail === 'peaks') {
             const peakY = height - state.peaks[index] * height * 0.88;
-            ctx.fillStyle = rgba(theme.secondary, 0.95);
-            roundRect(ctx, x, peakY, barW, 2, 1);
-            ctx.fill();
+            const headroom = (state.peaks[index] - level) / Math.max(state.peaks[index], 0.001);
+            drawRoundedBarPeakCap({
+                ctx,
+                x,
+                barWidth: barW,
+                peakY,
+                fillStyle: resolveBarFill(drawContext, state.peaks[index], index, drawContext.data.length),
+                alpha: 0.35 + Math.max(0, Math.min(1, headroom)) * 0.6,
+                maxCornerRadius: Math.min(barW / 2, 4),
+            });
         }
     });
     if (useGlow) {
@@ -357,41 +365,6 @@ function drawDriftMist(drawContext) {
     ctx.globalCompositeOperation = 'source-over';
     ctx.restore();
 }
-function drawOrbitSwarm(drawContext) {
-    paintCanvasBg(drawContext);
-    const { ctx, data, theme, state } = drawContext;
-    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
-    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.007 + (data[0] ?? 0) * 0.012, drawContext.deltaSeconds);
-    let energy = 0;
-    for (let index = 0; index < data.length; index += 1) {
-        energy += data[index] ?? 0;
-    }
-    energy /= Math.max(1, data.length);
-    const baseR = extent * 0.14;
-    ctx.strokeStyle = rgba(theme.primary, 0.12 + energy * 0.2);
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(cx, cy, baseR + energy * extent * 0.18, 0, Math.PI * 2);
-    ctx.stroke();
-    for (let index = 0; index < data.length; index += 3) {
-        const level = data[index] ?? 0;
-        if (level < 0.06) {
-            continue;
-        }
-        const angle = (index / data.length) * Math.PI * 2 + state.phase;
-        const orbitR = baseR + level * extent * 0.34;
-        const px = cx + Math.cos(angle) * orbitR;
-        const py = cy + Math.sin(angle) * orbitR;
-        const dotR = 1.2 + level * 4.5;
-        const glow = ctx.createRadialGradient(px, py, 0, px, py, dotR * 2.2);
-        glow.addColorStop(0, rgba(theme.primary, 0.45 + level * 0.4));
-        glow.addColorStop(1, rgba(theme.secondary, 0));
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(px, py, dotR * 2.2, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
 function fadeOrganicCanvas(drawContext, fadeAlpha) {
     const { ctx, width, height, fullscreen } = drawContext;
     if (!fullscreen) {
@@ -509,71 +482,6 @@ function drawArcSpectrum(drawContext) {
     ctx.arc(cx, dockCy, inner * 0.92, 0, Math.PI * 2);
     ctx.fill();
 }
-function drawPulseBlob(drawContext) {
-    paintCanvasBg(drawContext);
-    const { ctx, data, theme, state } = drawContext;
-    let energy = 0;
-    for (let i = 0; i < data.length; i += 1) {
-        energy += data[i] ?? 0;
-    }
-    energy /= Math.max(1, data.length);
-    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.014 + energy * 0.028, drawContext.deltaSeconds);
-    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
-    const baseR = extent * 0.18;
-    const pulseR = baseR + energy * extent * 0.28;
-    const gradient = ctx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, pulseR);
-    gradient.addColorStop(0, rgba(theme.primary, 0.55 + energy * 0.25));
-    gradient.addColorStop(0.55, rgba(theme.secondary, 0.18 + energy * 0.25));
-    gradient.addColorStop(1, rgba(theme.secondary, 0));
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(cx, cy, pulseR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = rgba(theme.primary, 0.35 + energy * 0.35);
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(cx, cy, baseR + Math.sin(state.phase) * 3, 0, Math.PI * 2);
-    ctx.stroke();
-}
-function drawHaloRing(drawContext) {
-    paintCanvasBg(drawContext);
-    const { ctx, data, theme, state } = drawContext;
-    let bassEnergy = 0;
-    const bassBins = Math.max(1, Math.floor(data.length * 0.22));
-    for (let i = 0; i < bassBins; i += 1) {
-        bassEnergy += data[i] ?? 0;
-    }
-    bassEnergy /= bassBins;
-    advanceAudioStreamTempoPhase(state, drawContext.tempo, 0.016 + bassEnergy * 0.02, drawContext.deltaSeconds);
-    const { cx, cy, extent } = resolveCircularVisualizerMetrics(drawContext);
-    const baseR = extent * 0.22;
-    const ringR = baseR + bassEnergy * extent * 0.2;
-    const thickness = 2 + bassEnergy * 7;
-    ctx.strokeStyle = rgba(theme.primary, 0.25 + bassEnergy * 0.55);
-    ctx.lineWidth = thickness;
-    ctx.beginPath();
-    ctx.arc(cx, cy, ringR + Math.sin(state.phase) * 2, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.strokeStyle = rgba(theme.secondary, 0.15 + bassEnergy * 0.35);
-    ctx.lineWidth = Math.max(1, thickness * 0.45);
-    ctx.beginPath();
-    ctx.arc(cx, cy, ringR * 0.72, 0, Math.PI * 2);
-    ctx.stroke();
-    for (let i = 0; i < data.length; i += 4) {
-        const level = data[i] ?? 0;
-        if (level < 0.12) {
-            continue;
-        }
-        const angle = (i / data.length) * Math.PI * 2 + state.phase * 0.15;
-        const dotR = ringR + level * extent * 0.08;
-        const dx = cx + Math.cos(angle) * dotR;
-        const dy = cy + Math.sin(angle) * dotR;
-        ctx.fillStyle = rgba(theme.secondary, 0.2 + level * 0.6);
-        ctx.beginPath();
-        ctx.arc(dx, dy, 1 + level * 2.2, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
 export const FREQUENCY_BARS_PRESET_ID = 'idling-bars';
 export const REMOVED_BAR_VISUALIZER_PRESET_IDS = new Set([
     'shimmer',
@@ -593,6 +501,9 @@ export const REMOVED_BAR_VISUALIZER_PRESET_IDS = new Set([
     'ambient',
     'aurora-veil',
     'starfall',
+    'orbit-swarm',
+    'halo',
+    'pulse',
 ]);
 export const BAR_VISUALIZER_PRESET_DEFINITIONS = [
     {
@@ -645,35 +556,11 @@ export const BAR_VISUALIZER_PRESET_DEFINITIONS = [
         fullscreenLayout: 'canvas',
     },
     {
-        id: 'orbit-swarm',
-        label: 'Orbit swarm',
-        description: 'Orbiting energy particles',
-        dockLayout: 'compact',
-        fullscreenLayout: 'radial',
-        fullscreenOnly: true,
-    },
-    {
         id: 'arc',
         label: 'Arc',
         description: 'Radial arc ring',
         dockLayout: 'compact',
         fullscreenLayout: 'hemisphere',
-        fullscreenOnly: true,
-    },
-    {
-        id: 'halo',
-        label: 'Halo',
-        description: 'Reactive ring field',
-        dockLayout: 'compact',
-        fullscreenLayout: 'radial',
-        fullscreenOnly: true,
-    },
-    {
-        id: 'pulse',
-        label: 'Pulse',
-        description: 'Breathing energy core',
-        dockLayout: 'compact',
-        fullscreenLayout: 'radial',
         fullscreenOnly: true,
     },
 ];
@@ -685,10 +572,7 @@ const PRESET_DRAWERS = {
     dots: drawDots,
     'thread-weave': drawThreadWeave,
     'drift-mist': drawDriftMist,
-    'orbit-swarm': drawOrbitSwarm,
     arc: drawArcSpectrum,
-    halo: drawHaloRing,
-    pulse: drawPulseBlob,
 };
 export function normalizeBarVisualizerPresetId(presetId) {
     if (REMOVED_BAR_VISUALIZER_PRESET_IDS.has(presetId)) {
@@ -700,6 +584,9 @@ export function normalizeBarVisualizerPresetId(presetId) {
         }
         if (presetId === 'starfall') {
             return 'dots';
+        }
+        if (presetId === 'orbit-swarm' || presetId === 'halo' || presetId === 'pulse') {
+            return 'arc';
         }
         if (presetId === 'glass' || presetId === 'peaks' || presetId === 'cascade' || presetId === 'ambient' || presetId === 'prism') {
             return FREQUENCY_BARS_PRESET_ID;

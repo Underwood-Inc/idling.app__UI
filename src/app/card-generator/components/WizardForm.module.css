@@ -42,14 +42,12 @@
   gap: 0.35em;
   width: 100%;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-3xl);
   font-weight: 700;
   margin: 0 0 0.5rem 0;
 }
 
 .wizardDescription {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-md);
   margin: 0;
 }
 
@@ -69,7 +67,6 @@
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: var(--mappy-cursor-pointer, pointer);
-  font-size: var(--font-size-base);
   color: var(--light-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
@@ -99,7 +96,6 @@
 .wizardCollapseChevron {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
-  font-size: var(--font-size-base);
 }
 
 .wizardCollapseChevron--collapsed {
@@ -120,14 +116,12 @@
 
 .wizardHeader h2 {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-3xl);
   font-weight: 700;
   margin: 0 0 0.5rem 0;
 }
 
 .wizardHeader p {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-md);
   margin: 0 0 2rem 0;
 }
 
@@ -153,7 +147,6 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: var(--font-size-base);
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
@@ -238,14 +231,12 @@
   align-items: center;
   gap: 0.35em;
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0 0 0.5rem 0;
 }
 
 .stepContent > p {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   margin: 0 0 2rem 0;
   line-height: 1.6;
 }
@@ -322,21 +313,18 @@
 
 .ratioInfo h4 {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-lg);
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
 
 .ratioInfo p {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
 }
 
 .ratioDimensions {
   color: var(--brand-primary);
-  font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -368,7 +356,6 @@
 
 .labelText {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -382,7 +369,6 @@
   border-radius: 8px;
   padding: 0.875rem 1rem;
   color: var(--light-bg__text-color--primary);
-  font-size: var(--font-size-base);
   transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
@@ -409,7 +395,6 @@
 
 .fieldHint {
   color: var(--dark-bg__text-color--tertiary);
-  font-size: var(--font-size-base);
   line-height: 1.4;
   margin-top: 0.25rem;
 }
@@ -438,7 +423,6 @@
 
 .configSection h4 {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0 0 1rem 0;
   display: flex;
@@ -460,13 +444,11 @@
 
 .configItem span:first-child {
   color: var(--dark-bg__text-color--secondary);
-  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
 .configItem span:last-child {
   color: var(--dark-bg__text-color--primary);
-  font-size: var(--font-size-base);
   font-weight: 600;
 }
 
@@ -495,7 +477,6 @@
 .generateButton {
   padding: 0.875rem 1.5rem;
   border-radius: 8px;
-  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
@@ -542,7 +523,6 @@
 .generateButton {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: white;
-  font-size: var(--font-size-md);
   padding: 1rem 2rem;
 }
 
@@ -583,7 +563,6 @@
   align-items: center;
   gap: 0.35em;
   color: #f59e0b;
-  font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
@@ -628,14 +607,12 @@
   gap: 0.35em;
   color: var(--brand-primary);
   margin: 0 0 0.5rem 0;
-  font-size: var(--font-size-md);
   font-weight: 600;
 }
 
 .proNotice p {
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
-  font-size: var(--font-size-base);
   line-height: 1.4;
 }
 
@@ -658,7 +635,6 @@
   }
 
   .wizardCollapseButton {
-    font-size: var(--font-size-base);
     padding: 0.4375rem 0.875rem;
     height: 32px;
   }
@@ -668,11 +644,9 @@
   }
 
   .wizardTitle {
-    font-size: var(--font-size-2xl);
   }
 
   .wizardDescription {
-    font-size: var(--font-size-base);
   }
 
   .stepIndicator {
@@ -713,7 +687,6 @@
   .stepNumber {
     width: 32px;
     height: 32px;
-    font-size: var(--font-size-base);
   }
 
   .stepLine {
@@ -732,11 +705,9 @@
 
 @media (max-width: 480px) {
   .wizardHeader h2 {
-    font-size: var(--font-size-xl);
   }
 
   .stepContent h3 {
-    font-size: var(--font-size-lg);
   }
 
   .ratioCard {

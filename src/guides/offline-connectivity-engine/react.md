@@ -7,39 +7,17 @@ description: useSyncExternalStore subscription pattern, server snapshot, and non
 
 **In plain terms:** subscribe with `useSyncExternalStore` so hints stay consistent in concurrent rendering. Show status; do **not** disable user actions based on `unavailable`.
 
+`useOceUnavailable()` is the banner switch. `useOceSnapshot()` adds **`streak`**, **`healthContractFailed`**, and thresholds — use it when copy should differ for health-contract failures (idling toasts already do). Field-by-field behavior: [Network flow](/guides/offline-connectivity-engine/network-flow).
+
 ## `useSyncExternalStore` pattern
 
 ```tsx
-import { useSyncExternalStore } from 'react';
-import {
-  getPageConnectivityEngine,
-  type ConnectivitySnapshot,
-  SERVER_OCE_SNAPSHOT,
-} from '@lib/oce/connectivity';
+import { useOceSnapshot, useOceUnavailable } from '@lib/oce';
 
-function subscribe(onStoreChange: () => void): () => void {
-  const engine = getPageConnectivityEngine();
-  return engine.subscribe(onStoreChange);
-}
-
-function getSnapshot(): ConnectivitySnapshot {
-  return getPageConnectivityEngine().getSnapshot();
-}
-
-function getServerSnapshot(): ConnectivitySnapshot {
-  return SERVER_OCE_SNAPSHOT;
-}
-
-export function useConnectivitySnapshot(): ConnectivitySnapshot {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-}
-
-export function useOceUnavailable(): boolean {
-  return useSyncExternalStore(
-    subscribe,
-    () => getPageConnectivityEngine().getSnapshot().unavailable,
-    () => false,
-  );
+export function ConnectivityHint() {
+  const snapshot = useOceSnapshot();
+  const unavailable = useOceUnavailable();
+  // ...
 }
 ```
 
@@ -64,6 +42,8 @@ export function OceStatusBanner() {
 ## Form submit (non-blocking)
 
 ```tsx
+import { OCE, useOceUnavailable } from '@lib/oce';
+
 export function ProfileForm() {
   const unavailable = useOceUnavailable();
   const [pending, setPending] = useState(false);
@@ -72,7 +52,7 @@ export function ProfileForm() {
     event.preventDefault();
     setPending(true);
     try {
-      await fetchWithOce('/api/profile', {
+      await OCE.fetch('/api/profile', {
         method: 'PUT',
         body: new FormData(event.currentTarget),
       });
@@ -99,21 +79,7 @@ export function ProfileForm() {
 
 ## Microfrontend remote
 
-Remotes import the hook; host already called `bootstrapOce()`:
-
-```tsx
-// remote/RemoteRoot.tsx
-import { OceStatusBanner } from './OceStatusBanner';
-
-export function RemoteRoot() {
-  return (
-    <>
-      <OceStatusBanner />
-      <RemoteFeature />
-    </>
-  );
-}
-```
+On idling.app, remotes use the same **`@lib/oce`** module (`OCE.engine` singleton). Import hooks or subscribe to `OCE.engine` from a host-provided reference on other stacks.
 
 ## Testing components
 
@@ -148,7 +114,7 @@ if (unavailable) return <CachedDashboard />;
 return <LiveDashboard />;
 ```
 
-Use suspense/cache for **data**, not for skipping the transport OCE must observe.
+Use suspense/cache for **data**, not for skipping **`OCE.fetch`** calls OCE must see.
 
 ---
 

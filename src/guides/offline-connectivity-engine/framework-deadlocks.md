@@ -5,7 +5,7 @@ description: Pause, continue, ignore, and onlineManager patterns that starve rec
 
 # Framework deadlocks
 
-**In plain terms:** OCE only learns what the transport **actually did**. Frameworks that **pause**, **continue**, or **ignore** can skip the HTTP call or resolve a fallback — then the flag never clears. **FR-OCE-010** requires consumers to record outcomes and **not** wire the OCE flag into “am I allowed to fetch?”
+**In plain terms:** OCE only learns what **actually happened on the wire**. Frameworks that **pause**, **continue**, or **ignore** can skip the HTTP call or resolve a fallback — then the flag never clears. **FR-OCE-010** requires consumers to record outcomes and **not** wire the OCE flag into “am I allowed to fetch?”
 
 ## The core deadlock
 
@@ -48,18 +48,18 @@ flowchart TD
 
 ## FR-OCE-010 narrative
 
-**Requirement:** A consumer that would pause, ignore, or continue **without** an HTTP call still records the outcome. TanStack `networkMode: 'online'` / `paused` must **not** be wired to the OCE flag. A resolved fallback (`errorPolicy: 'ignore'`, axios catch that returns data, a `queryFn` that swallows) does **not** erase a transport failure that already happened, and it must **not** skip the next user-initiated call.
+**Requirement:** A consumer that would pause, ignore, or continue **without** an HTTP call still records the outcome. TanStack `networkMode: 'online'` / `paused` must **not** be wired to the OCE flag. A resolved fallback (`errorPolicy: 'ignore'`, axios catch that returns data, a `queryFn` that swallows) does **not** erase a **failed connection** that already happened, and it must **not** skip the next user-initiated call.
 
 ### Test mindset (specified, not yet implemented)
 
 ```ts
 test('[FR-OCE-010] user-initiated query runs when unavailable is true', () => {
   const baseFetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
-  const engine = createConnectivityEngine({
+  const engine = new ConnectivityEngine({
     healthCheckUrl: '/health',
     failureThreshold: 1,
   });
-  const fetchWithOce = engine.attachFetch(baseFetch);
+  const fetchWithOce = engine.fetch(baseFetch);
   // drive engine to unavailable via failures + failed probe ...
   // assert fetchWithOce still invoked when user triggers action
 });
@@ -68,7 +68,7 @@ test('[FR-OCE-010] user-initiated query runs when unavailable is true', () => {
 ### Integration checklist
 
 1. User-triggered work uses the mode that **still performs the call** (`always`, reject after report, `none` + link that already fetched).
-2. Report at the **transport**, before the framework **continue**.
+2. Report at the **HTTP layer** (or `OCE.fetch`), before the framework **continue**.
 3. Never feed `unavailable` into the framework’s online bit.
 4. UI may show hints; buttons stay enabled (except local validation like empty form).
 
@@ -78,7 +78,7 @@ When `fetchStatus === 'paused'`, no bytes hit the wire. If pause correlates with
 
 ## Apollo `forward()` hiding
 
-Returning `forward(operation)` from `onError` solely to mask `networkError` from observers does not remove the need for reporting at the transport. Prefer `fetchWithOce` on `HttpLink`.
+Returning `forward(operation)` from `onError` solely to mask `networkError` from observers does not remove the need for reporting on **`HttpLink`**. Prefer `fetchWithOce` on `HttpLink`.
 
 ## Axios “continue” interceptors
 
@@ -86,7 +86,7 @@ Returning `forward(operation)` from `onError` solely to mask `networkError` from
 // Forbidden continue
 axios.interceptors.response.use(undefined, (error) => {
   if (error.response?.status === 503) {
-    return { data: getStale() }; // resolved — app thinks OK; user never retries transport
+    return { data: getStale() }; // resolved — app thinks OK; user never retries the network call
   }
   return Promise.reject(error);
 });
@@ -99,7 +99,7 @@ If stale data is shown, still **reject** or trigger a visible retry that calls `
 If the framework has a mode named like `pause`, `online`, `continue`, `ignore`, or `errorPolicy` that skips HTTP or turns rejection into resolved fallback:
 
 1. User work → mode that **performs** the call.
-2. `reporter` or `attachFetch` at the bottom.
+2. `reporter` or `engine.fetch` at the bottom.
 3. OCE flag → **hints only** (banner, metrics), never `disabled` / early `return`.
 
 Related: [Fetch forbidden patterns](/guides/offline-connectivity-engine/recipes-fetch), [Non-blocking rule](/guides/offline-connectivity-engine/index#non-blocking-rule).

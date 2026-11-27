@@ -33,21 +33,18 @@
 
 .loading-button--sm {
   padding: 0.375rem 0.75rem;
-  font-size: var(--font-size-sm);
   line-height: 1.4;
   min-height: 32px;
 }
 
 .loading-button--md {
   padding: 0.5rem 1rem;
-  font-size: var(--font-size-base);
   line-height: 1.5;
   min-height: 40px;
 }
 
 .loading-button--lg {
   padding: 0.75rem 1.5rem;
-  font-size: var(--font-size-lg);
   line-height: 1.5;
   min-height: 48px;
 }

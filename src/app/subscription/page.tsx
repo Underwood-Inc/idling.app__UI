@@ -1,5 +1,6 @@
 'use client';
 
+import { OCE } from '@lib/oce';
 import { SUBSCRIPTION_EN } from '$i18n-source/subscription.en';
 import { resolveCatalogFromLl } from '@molecules/i18n/resolveEnCatalog';
 import { useSearchParams } from 'next/navigation';
@@ -77,7 +78,7 @@ function SubscriptionContent() {
     const fetchSubscriptionData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/subscription?tier=${tier}`);
+        const response = await OCE.fetch(`/api/subscription?tier=${tier}`);
 
         if (!response.ok) {
           throw new Error(copy.fetchFailed);

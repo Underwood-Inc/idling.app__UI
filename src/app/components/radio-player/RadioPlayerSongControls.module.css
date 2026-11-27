@@ -103,7 +103,6 @@
   min-width: 0;
   overflow: hidden;
   color: var(--text-secondary, #a8a096);
-  font-size: var(--font-size-xs, 0.75rem);
   line-height: 1.3;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -112,7 +111,6 @@
 .title {
   min-width: 0;
   flex: 1 1 auto;
-  font-size: var(--font-size-sm);
   line-height: 1.35;
   color: var(--text-primary, #ece8e0);
 }
@@ -121,7 +119,6 @@
   margin: 0;
   padding: 0.85rem 0.95rem;
   color: var(--text-secondary, #a8a096);
-  font-size: var(--font-size-sm);
   line-height: 1.45;
 }
 
@@ -132,7 +129,6 @@
   margin: 0;
   padding: 0.15rem 0.75rem 0;
   color: #9ec8d4;
-  font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
