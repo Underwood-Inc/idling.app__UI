@@ -77,7 +77,7 @@ export function ToastCard({ toast }: ToastCardProps) {
         aria-label="Dismiss notification"
         onClick={() => dismissToast(toast.id)}
       >
-        <SiteIcon id="x" sizeRem={1} aria-hidden />
+        <SiteIcon id="close" sizeRem={1} aria-hidden />
       </button>
       {toast.dismissMode === 'auto' ? (
         <div className="idling-toast__progress" aria-hidden>
