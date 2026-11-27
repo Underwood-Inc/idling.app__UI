@@ -12,10 +12,6 @@ export default defineConfig({
   resolve: {
     alias: {
       'server-only': path.resolve(vitestRoot, 'vitest.stubs/server-only.ts'),
-      '@strixun/api-framework/connectivity': path.resolve(
-        vitestRoot,
-        '../strixun-stream-suite/packages/api-framework/src/connectivity/index.ts'
-      ),
     },
   },
   test: {
