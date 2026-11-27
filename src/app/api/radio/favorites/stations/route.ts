@@ -1,5 +1,5 @@
-import { auth } from '@lib/auth';
 import { resolveRadioStationStreamUrl } from '@lib/radio/resolveRadioStationStreamUrl';
+import { requireRadioApiSession } from '@lib/radio/requireRadioApiSession';
 import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { userRadioStationFavoritesPostgresRepository } from '@plugs/postgres/userRadioFavoritesPostgresRepository';
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,31 +7,22 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-function parseUserId(raw: string | undefined): number | null {
-  if (!raw) {
-    return null;
-  }
-  const userId = Number.parseInt(raw, 10);
-  return Number.isFinite(userId) && userId > 0 ? userId : null;
-}
-
 async function getHandler() {
-  const session = await auth();
-  const userId = parseUserId(session?.user?.id);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const gate = await requireRadioApiSession();
+  if (!gate.ok) {
+    return gate.response;
   }
 
-  const stations = await userRadioStationFavoritesPostgresRepository.list(userId);
+  const stations = await userRadioStationFavoritesPostgresRepository.list(gate.userId);
   return NextResponse.json({ stations });
 }
 
 async function putHandler(request: NextRequest) {
-  const session = await auth();
-  const userId = parseUserId(session?.user?.id);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const gate = await requireRadioApiSession();
+  if (!gate.ok) {
+    return gate.response;
   }
+  const userId = gate.userId;
 
   const body = (await request.json()) as {
     stationName?: string;

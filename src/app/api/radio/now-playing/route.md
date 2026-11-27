@@ -7,6 +7,8 @@ description: ICY/stream title metadata for a named station
 
 Resolves **now playing** metadata for one station id from the radio widget catalog.
 
+**Authentication:** NextAuth session required (`proxy.ts` + `requireRadioApiSession`). Anonymous clients receive **401** `{ code: 'AUTH_REQUIRED' }`.
+
 ## Handler
 
 - **Runtime:** `nodejs`
@@ -23,6 +25,7 @@ Resolves **now playing** metadata for one station id from the radio widget catal
 
 | Status | When |
 | ------ | ---- |
+| `401` | No signed-in app user |
 | `400` | Missing `station` — `{ error: 'station query parameter is required' }` |
 | `404` | Unknown station — `{ error: 'Unknown station' }` |
 | `200` | `RadioNowPlaying` JSON |

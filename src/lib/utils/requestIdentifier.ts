@@ -171,8 +171,8 @@ export function getRateLimitType(
     return 'og-image';
   }
 
-  // Radio playlist proxy (playlist resolves during client playback / probes)
-  if (pathname.startsWith('/api/radio/playlist')) {
+  // Radio APIs (playlist, now-playing, favorites)
+  if (pathname.startsWith('/api/radio/')) {
     return 'radio';
   }
   

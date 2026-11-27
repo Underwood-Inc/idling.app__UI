@@ -15,22 +15,12 @@ Those are two different checks:
 
 | Check | Where it runs | What it decides |
 | ----- | ------------- | --------------- |
-| Host reachability | `GET /api/radio/stations` on the deployed server | Plain HTTP HEAD (GET if the server rejects HEAD). No CORS requirement. The result is the **host's** region, cached five minutes. A station open there and blocked for a listener still looks available until play fails in that browser. |
+| Host reachability | *(removed)* — catalog is baked into `RADIO_STATIONS` | No live `/api/radio/stations` probe on the deployed app. Playback uses the static catalog; reachability is validated in CI (`radioStationCatalog.availability.test.ts`). |
 | Equalizer health | GitHub Actions only | `radioStationCatalog.availability.test.ts` calls `probeEqualizerRadioStream` on `RADIO_STATIONS` when `GITHUB_ACTIONS=true`. Local `pnpm test` skips it. A failure names the station and the reason (missing CORS, non-HTTPS, HTTP status, timeout). |
-
-The page asks `/api/radio/stations`. `probeRadioStationsInBrowser` runs only when that request fails. It is not the region check for a normal visit.
 
 ## HTTP API (audited)
 
-### `GET /api/radio/stations`
-
-**File:** `src/app/api/radio/stations/route.ts`
-
-- Wraps handler with `withRateLimit`.
-- Builds catalog via `buildRadioStationProbeCatalog(RADIO_STATIONS, hostname, true)`.
-- Probes reachability with `probeRadioStationCatalog` (8s timeout per stream via `probeRadioStreamUrl`).
-- Response: JSON probe result from widget catalog.
-- **Cache:** `Cache-Control: public, max-age=300`.
+All `/api/radio/*` routes require a **NextAuth session** for a signed-in idling.app user (`src/proxy.ts`, `requireRadioApiSession`, and `withRateLimit`). Anonymous callers get **401** `AUTH_REQUIRED` — no playlist fetch, metadata read, or favorites access.
 
 ### `GET /api/radio/playlist?url=`
 
@@ -66,7 +56,6 @@ Manifest `start_url` is `/` with `display: standalone` (`public/idling-radio.web
 
 ## Co-located API docs
 
-- [GET /api/radio/stations](/app/api/radio/stations/route)
 - [GET /api/radio/playlist](/app/api/radio/playlist/route)
 - [GET /api/radio/now-playing](/app/api/radio/now-playing/route)
 

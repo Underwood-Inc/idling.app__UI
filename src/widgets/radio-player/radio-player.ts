@@ -818,6 +818,7 @@ export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOpti
       const response = await IdlingOceEmbedRegistry.fetch(
         `${nowPlayingEndpoint}?station=${encodeURIComponent(stationAtFetch)}`,
         {
+          credentials: 'same-origin',
           cache: 'no-store',
           headers: {
             'X-Background-Request': 'true',

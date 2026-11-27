@@ -36,6 +36,7 @@ async function defaultFetchText(url: string): Promise<string> {
     ? browserPlaylistRequestUrl(url)
     : url;
   const response = await IdlingOceEmbedRegistry.fetch(requestUrl, {
+    credentials: 'same-origin',
     headers: {
       Accept: 'application/vnd.apple.mpegurl, audio/x-mpegurl, audio/mpegurl, */*',
       'User-Agent': 'IdlingRadioResolver/1.0',

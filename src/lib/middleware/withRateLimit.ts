@@ -83,6 +83,19 @@ export function withRateLimit(handler: ApiHandler, options: { skipRateLimit?: bo
     // Get session for rate limiting
     const session = await auth();
 
+    if (url.pathname.startsWith('/api/radio/')) {
+      if (!session?.user?.id) {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+            code: 'AUTH_REQUIRED',
+            requiresReauth: true,
+          },
+          { status: 401 }
+        );
+      }
+    }
+
     // Get comprehensive request identifiers for flexible rate limiting
     const identifiers = getRequestIdentifier(req, session);
     const rateLimitType = getRateLimitType(url.pathname);
