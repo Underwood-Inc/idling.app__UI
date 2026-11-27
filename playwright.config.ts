@@ -20,14 +20,7 @@ const testEnvVars = {
 // Apply environment variables
 Object.assign(process.env, testEnvVars);
 
-/**
- * Playwright Configuration - E2E Tests ONLY
- * This is completely separate from Jest (unit/integration tests)
- * 
- * File patterns:
- * - Playwright: e2e slash star star slash star.spec.ts
- * - Jest: src slash star star slash star.test.{ts,tsx}
- */
+/** Playwright E2E (e2e/*.spec.ts). Unit tests use Vitest (src/*.test.ts). */
 export default defineConfig({
   testDir: './e2e',
   

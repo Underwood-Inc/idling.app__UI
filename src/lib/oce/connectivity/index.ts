@@ -9,6 +9,7 @@ export {
   OceProbeDeadline,
   SERVER_OCE_SNAPSHOT,
 } from './types';
+export { useConnectivitySnapshot, useOceUnavailable } from './useConnectivitySnapshot';
 export type {
   ConnectivityEngine,
   ConnectivityEngineConfig,

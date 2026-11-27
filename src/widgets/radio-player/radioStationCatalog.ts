@@ -1028,13 +1028,6 @@ export const RADIO_STATION_DEFINITIONS: RadioStationDefinition[] = [
     blurb: 'World music and electronic from Brest',
   },
   {
-    name: 'Piñata Radio Montpellier',
-    url: 'https://listen.radioking.com/radio/96031/stream/134656',
-    genre: 'community',
-    regionFlag: '🇫🇷',
-    blurb: 'Emerging artists from Montpellier',
-  },
-  {
     name: 'Radio Pinpon Niort',
     url: 'https://listen.radioking.com/radio/142627/stream/182797',
     genre: 'community',
