@@ -359,28 +359,6 @@ a:hover .nav__header {
   .nav__desktop-only {
     display: flex;
   }
-
-  /* Pin header grid: links | brand | search+auth (extra Content was wrapping auth below chrome) */
-  .nav__content > .nav__links.nav__desktop-only {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .nav__content > .nav__brand {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .nav__content > .nav__end {
-    grid-column: 3;
-    grid-row: 1;
-    justify-self: end;
-  }
-
-  /* Search is an item inside nav__end — hide without display:none on the whole column */
-  .nav__end .nav__search.nav__desktop-only {
-    display: flex;
-  }
 }
 
 /* ================================
