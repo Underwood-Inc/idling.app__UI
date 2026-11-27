@@ -6,6 +6,10 @@ Vendored copy of `strixun-stream-suite/packages/api-framework/src/connectivity` 
 |--------|-----|
 | `@lib/oce/connectivity` | `getPageConnectivityEngine`, `createConnectivityEngine`, types |
 | `@lib/oce/idlingFetch` | Page bootstrap: `idlingFetch` + `getIdlingOceEngine()` (`/api/version` probe) |
+| `@lib/oce/oceConnectivityToasts` | `bindOceConnectivityToasts(engine)` → vendored toast hints |
+| `@lib/oce/connectivity` | `useConnectivitySnapshot`, `useOceUnavailable` (React) |
+
+UI wiring: `ToastViewport` + `OceConnectivityToastBridge` in `SiteChromeProviders`.
 
 Keep parity with upstream when OCE changes; run `src/lib/oce/connectivity/connectivity.engine.test.ts` (FR-OCE-001–010).
 
