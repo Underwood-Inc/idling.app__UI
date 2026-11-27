@@ -29,7 +29,7 @@ This workflow runs various tests to ensure code quality and functionality.
 
 - Sets up a PostgreSQL service container
 - Runs database migrations
-- Executes Playwright (E2E) and Jest (Unit/Integration) tests in parallel shards
+- Executes Playwright (E2E) and Vitest (unit/integration) tests in parallel shards
 - **Playwright tests are optional** - they provide feedback but don't block the workflow
 - Combines test reports and coverage
 - Performs SonarCloud analysis
@@ -43,7 +43,7 @@ This workflow runs various tests to ensure code quality and functionality.
 4. Runs database migrations
 5. Installs dependencies and Playwright browsers
 6. Runs Playwright tests in 3 parallel shards (**optional - won't fail workflow**)
-7. Runs Jest tests in 3 parallel shards (**required**)
+7. Runs Vitest tests in 3 parallel shards (**required**)
 8. Combines test reports and coverage
 9. Performs SonarCloud scan
 10. Uploads test reports as artifacts
@@ -52,7 +52,7 @@ This workflow runs various tests to ensure code quality and functionality.
 
 When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates separate test report comments:
 
-- **Unit Test Results**: Shows combined Jest test outcomes from all shards
+- **Unit Test Results**: Shows combined Vitest test outcomes from all shards
 
   - Pass/Fail/Skip counts
   - Test duration
@@ -72,7 +72,7 @@ The following test artifacts are preserved:
 
 - Playwright reports (per shard and combined, 30 days retention) - **optional**
 - Playwright failure traces (per shard, 7 days retention) - **optional**
-- Jest coverage reports (per shard and combined, 30 days retention) - **required**
+- Vitest coverage reports (per shard and combined, 30 days retention) - **required**
 
 To access these artifacts:
 

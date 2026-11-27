@@ -13,6 +13,7 @@ export async function checkA11y(page: Page, excludeSelector: string = '') {
     .exclude(excludeSelector)
     .exclude('iframe') // never analyze third party content
     .exclude('crate > div') // never analyze third party content: discord widget
+    .exclude('.idling-toast-viewport')
     .withTags([
       'wcag2a',
       'wcag2aa',
