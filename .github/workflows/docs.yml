@@ -29,8 +29,6 @@ concurrency:
   group: 'docs-${{ github.ref }}'
   cancel-in-progress: false
 
-env:
-
 jobs:
   # Build documentation
   build:
