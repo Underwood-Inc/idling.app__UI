@@ -1,5 +1,6 @@
 'use client';
 
+import { IDLING_PURGE_USER_SCOPED_STORAGE_EVENT } from '@lib/security/purgeUserScopedClientStorage';
 import React, {
   createContext,
   useCallback,
@@ -198,6 +199,24 @@ export function UserDataBatchProvider({
     },
     [cache]
   );
+
+  useEffect(() => {
+    const resetDecorationCache = () => {
+      setCache({});
+      pendingRequest.current = { userIds: new Set(), callbacks: new Map() };
+    };
+
+    window.addEventListener(
+      IDLING_PURGE_USER_SCOPED_STORAGE_EVENT,
+      resetDecorationCache
+    );
+    return () => {
+      window.removeEventListener(
+        IDLING_PURGE_USER_SCOPED_STORAGE_EVENT,
+        resetDecorationCache
+      );
+    };
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {

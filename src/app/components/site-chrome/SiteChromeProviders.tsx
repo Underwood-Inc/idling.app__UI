@@ -17,6 +17,7 @@ import { AmbientStarfieldProvider } from '../ambient-background';
 import { AmbientBackgroundWrapper } from '../ui/ClientWrappers';
 import { VisualizerModeGate } from '../visualizer-mode/VisualizerModeGate';
 import { IdlingLocaleProvider } from '../locale/IdlingLocaleProvider';
+import { AuthClientSessionGuard } from '../auth/AuthClientSessionGuard';
 
 export interface SiteChromeProvidersProps {
   children: ReactNode;
@@ -28,6 +29,7 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
       <AmbientBackgroundWrapper />
       <MicrosoftClarity />
       <SessionProvider>
+        <AuthClientSessionGuard />
         <ClarityUserIdentifier />
         <IdlingLocaleProvider>
         <UserPreferencesProvider>
