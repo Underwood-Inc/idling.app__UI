@@ -5,6 +5,12 @@ export {
   resetPageConnectivityEngineForTests,
 } from './getPageConnectivityEngine';
 export {
+  IDLING_OCE_HEALTH_CHECK_URL,
+  OCE_CONNECTIVITY_PROBE_HEADER,
+  interpretOceHealthResponse,
+  oceConnectivityProbeHeaders,
+} from './oceHealthProbe';
+export {
   OCE_PROBE_DEADLINE_PRESETS,
   OceProbeDeadline,
   SERVER_OCE_SNAPSHOT,

@@ -472,11 +472,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip authentication and live radio titles — they should never be cached
+  // Auth, live radio, OCE health: never cache or serve stale offline copies
   if (
     event.request.url.includes('/api/auth/') ||
-    event.request.url.includes('/api/radio/now-playing')
+    event.request.url.includes('/api/radio/now-playing') ||
+    event.request.url.includes('/api/version')
   ) {
+    return;
+  }
+
+  const isOceProbe =
+    event.request.headers.get('x-idling-connectivity-probe') === '1';
+  if (isOceProbe) {
     return;
   }
 
