@@ -386,6 +386,7 @@ describe('Offline Connectivity Engine', () => {
   });
 
   test('[FR-OCE-011] navigator online runs health verify and sets lastHealthyAt', async () => {
+    vi.useFakeTimers();
     const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : String(input);
       if (url === HEALTH) {
@@ -397,20 +398,24 @@ describe('Offline Connectivity Engine', () => {
     const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
+      navigatorVerifyDebounceMs: 50,
     });
     const { win, emit } = mockNavigatorWindow();
     engine.attachNavigatorOnLine(win);
 
     emit('online');
+    await vi.advanceTimersByTimeAsync(50);
     await vi.waitFor(() => expect(engine.getSnapshot().lastHealthyAt).not.toBeNull());
     expect(baseFetch).toHaveBeenCalledWith(
       HEALTH,
       expect.objectContaining({ cache: 'no-store' })
     );
     engine.detachNavigatorOnLine();
+    vi.useRealTimers();
   });
 
   test('[FR-OCE-011] navigator offline verifies with health; probe fail sets unavailable', async () => {
+    vi.useFakeTimers();
     const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : String(input);
       if (url === HEALTH) {
@@ -422,28 +427,173 @@ describe('Offline Connectivity Engine', () => {
     const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
+      navigatorVerifyDebounceMs: 50,
     });
     const { win, emit } = mockNavigatorWindow();
     engine.attachNavigatorOnLine(win);
 
     emit('offline');
+    await vi.advanceTimersByTimeAsync(50);
     await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
     engine.detachNavigatorOnLine();
+    vi.useRealTimers();
   });
 
   test('[FR-OCE-011] navigator offline with successful probe stays available', async () => {
+    vi.useFakeTimers();
     const baseFetch = vi.fn(async () => new Response('ok', { status: 200 }));
 
     const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
       baseFetch: baseFetch as typeof fetch,
+      navigatorVerifyDebounceMs: 50,
     });
     const { win, emit } = mockNavigatorWindow();
     engine.attachNavigatorOnLine(win);
 
     emit('offline');
+    await vi.advanceTimersByTimeAsync(50);
     await vi.waitFor(() => expect(engine.getSnapshot().lastHealthyAt).not.toBeNull());
     expect(engine.getSnapshot().unavailable).toBe(false);
     engine.detachNavigatorOnLine();
+    vi.useRealTimers();
+  });
+
+  /**
+   * @description Debounced navigator events and cached health probes
+   * @linked FR-OCE-012
+   */
+  test('[FR-OCE-012] debounced navigator bursts reuse one health GET', async () => {
+    vi.useFakeTimers();
+    let probeCount = 0;
+    const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        probeCount += 1;
+        return new Response('ok', { status: 200 });
+      }
+      throw transportError();
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      baseFetch: baseFetch as typeof fetch,
+      navigatorVerifyDebounceMs: 100,
+      healthProbeReuseMs: 5_000,
+    });
+    const { win, emit } = mockNavigatorWindow();
+    engine.attachNavigatorOnLine(win);
+
+    emit('online');
+    emit('offline');
+    emit('online');
+    await vi.advanceTimersByTimeAsync(100);
+    await vi.waitFor(() => expect(engine.getSnapshot().lastHealthyAt).not.toBeNull());
+    expect(probeCount).toBe(1);
+
+    engine.detachNavigatorOnLine();
+    vi.useRealTimers();
+  });
+
+  test('[FR-OCE-012] cached health probe satisfies a second confirm without hammering', async () => {
+    let probeCount = 0;
+    const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        probeCount += 1;
+        return new Response('ok', { status: 200 });
+      }
+      throw transportError();
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      failureThreshold: 2,
+      healthProbeReuseMs: 10_000,
+      navigatorVerifyDebounceMs: 50,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
+
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
+    await vi.waitFor(() => expect(probeCount).toBe(1));
+    expect(engine.getSnapshot().unavailable).toBe(false);
+
+    vi.useFakeTimers();
+    const { win, emit } = mockNavigatorWindow();
+    engine.attachNavigatorOnLine(win);
+    emit('online');
+    await vi.advanceTimersByTimeAsync(600);
+    expect(probeCount).toBe(1);
+
+    engine.detachNavigatorOnLine();
+    vi.useRealTimers();
+  });
+
+  /**
+   * @description Debounced recovery from unavailable
+   * @linked FR-OCE-013
+   */
+  test('[FR-OCE-014] engine health fetch uses AbortSignal and reset aborts in-flight probe', async () => {
+    const baseFetch = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(abortError()), { once: true });
+        });
+      }
+      throw transportError();
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
+
+    await expect(attachedFetch('/one')).rejects.toThrow();
+    await expect(attachedFetch('/two')).rejects.toThrow();
+    await vi.waitFor(() =>
+      expect(baseFetch).toHaveBeenCalledWith(
+        HEALTH,
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      )
+    );
+
+    engine.resetForTests();
+    expect(baseFetch.mock.calls.filter((c) => c[0] === HEALTH).length).toBe(1);
+  });
+
+  test('[FR-OCE-013] recovery from unavailable debounces before clearing flag', async () => {
+    vi.useFakeTimers();
+    const baseFetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : String(input);
+      if (url === HEALTH) {
+        throw transportError();
+      }
+      if (url === '/ok') {
+        return new Response('ok');
+      }
+      throw transportError();
+    });
+
+    const engine = new ConnectivityEngine({
+      healthCheckUrl: HEALTH,
+      recoveryDebounceMs: 200,
+      baseFetch: baseFetch as typeof fetch,
+    });
+    const attachedFetch = engine.fetch(baseFetch as typeof fetch);
+
+    engine.reporter.reportTransportFailure();
+    engine.reporter.reportTransportFailure();
+    await vi.waitFor(() => expect(engine.getSnapshot().unavailable).toBe(true));
+
+    await attachedFetch('/ok');
+    expect(engine.getSnapshot().unavailable).toBe(true);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(engine.getSnapshot().unavailable).toBe(false);
+
+    vi.useRealTimers();
   });
 });

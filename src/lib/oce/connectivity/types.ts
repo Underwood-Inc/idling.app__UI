@@ -60,6 +60,12 @@ export interface ConnectivityEngineConfig {
    * — OCE never reads `navigator.onLine` directly for settlement.
    */
   listenToNavigatorOnLine?: boolean;
+  /** Reuse the last health probe result within this window (default 4000). */
+  healthProbeReuseMs?: number;
+  /** Debounce `online` / `offline` before health verify (default 600). */
+  navigatorVerifyDebounceMs?: number;
+  /** Debounce clearing `unavailable` after a healthy `Response` (default 800). */
+  recoveryDebounceMs?: number;
 }
 
 export type FetchLike = (
