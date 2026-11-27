@@ -60,6 +60,8 @@ export interface RadioEnAriaCopy {
   signInToFavoriteSongs: string;
   viewSavedSongs: string;
   savedSongs: string;
+  searchSavedSongs: string;
+  clearSavedSongSearch: string;
 }
 
 export interface RadioEnBarCopy {
@@ -75,6 +77,8 @@ export interface RadioEnBarCopy {
   emptyFavorites: string;
   emptySavedSongs: string;
   savedSongsSignIn: string;
+  savedSongsSearchPlaceholder: string;
+  emptySavedSongSearchPrefix: string;
   emptySearchPrefix: string;
   checkingStreamAvailability: string;
 }
@@ -239,6 +243,8 @@ export const RADIO_EN = {
     signInToFavoriteSongs: 'Sign in to favorite songs',
     viewSavedSongs: 'View saved songs',
     savedSongs: 'Saved songs',
+    searchSavedSongs: 'Search saved songs by title, station, or genre',
+    clearSavedSongSearch: 'Clear saved song search',
   },
   bar: {
     pressPlayToStart: 'Press play to start',
@@ -253,6 +259,8 @@ export const RADIO_EN = {
     emptyFavorites: 'No favorite stations match this filter.',
     emptySavedSongs: 'No saved songs yet. Favorite a song while it is playing.',
     savedSongsSignIn: 'Sign in to favorite songs and look them up again later.',
+    savedSongsSearchPlaceholder: 'Search saved songs… ("Don\'t Stop" or #jazz)',
+    emptySavedSongSearchPrefix: 'No saved songs match',
     emptySearchPrefix: 'No stations match',
     checkingStreamAvailability: 'Checking stream availability…',
   },

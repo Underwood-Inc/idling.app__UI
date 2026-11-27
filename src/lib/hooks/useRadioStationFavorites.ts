@@ -3,6 +3,11 @@ import {
   setRadioStationFavorite,
 } from '@widgets/radio-player/radioStationFavoritesIndexedDb';
 import { createRadioStationFavoriteNameSet } from '@widgets/radio-player/radioStationFavorites';
+import { replaceRadioStationFavoritesCache } from '@widgets/radio-player/radioFavoritesIndexedDbCache';
+import {
+  fetchRadioStationFavoritesCloud,
+  putRadioStationFavoriteCloud,
+} from '@widgets/radio-player/radioFavoritesHttpClient';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export interface UseRadioStationFavoritesResult {
@@ -13,25 +18,48 @@ export interface UseRadioStationFavoritesResult {
   toggleFavorite: (stationName: string) => Promise<void>;
 }
 
-export function useRadioStationFavorites(): UseRadioStationFavoritesResult {
+export function useRadioStationFavorites(
+  userId: string | null
+): UseRadioStationFavoritesResult {
   const [favoriteStationNames, setFavoriteStationNames] = useState<string[]>([]);
   const [favoritesLoaded, setFavoritesLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    setFavoritesLoaded(false);
 
-    void (async () => {
-      const names = await listRadioStationFavoriteNames();
-      if (!cancelled) {
-        setFavoriteStationNames(names);
-        setFavoritesLoaded(true);
-      }
-    })();
+    if (userId) {
+      void (async () => {
+        try {
+          const stations = await fetchRadioStationFavoritesCloud();
+          const names = stations.map((station) => station.stationName);
+          if (!cancelled) {
+            setFavoriteStationNames(names);
+            setFavoritesLoaded(true);
+          }
+          void replaceRadioStationFavoritesCache(stations);
+        } catch {
+          const names = await listRadioStationFavoriteNames();
+          if (!cancelled) {
+            setFavoriteStationNames(names);
+            setFavoritesLoaded(true);
+          }
+        }
+      })();
+    } else {
+      void (async () => {
+        const names = await listRadioStationFavoriteNames();
+        if (!cancelled) {
+          setFavoriteStationNames(names);
+          setFavoritesLoaded(true);
+        }
+      })();
+    }
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [userId]);
 
   const favoriteStationNameSet = useMemo(
     () => createRadioStationFavoriteNameSet(favoriteStationNames),
@@ -43,26 +71,36 @@ export function useRadioStationFavorites(): UseRadioStationFavoritesResult {
     [favoriteStationNameSet]
   );
 
-  const toggleFavorite = useCallback(async (stationName: string) => {
-    let nextIsFavorite = false;
+  const toggleFavorite = useCallback(
+    async (stationName: string) => {
+      let nextIsFavorite = false;
 
-    setFavoriteStationNames((current) => {
-      nextIsFavorite = !current.includes(stationName);
-      if (nextIsFavorite) {
-        return [stationName, ...current.filter((name) => name !== stationName)];
+      setFavoriteStationNames((current) => {
+        nextIsFavorite = !current.includes(stationName);
+        if (nextIsFavorite) {
+          return [stationName, ...current.filter((name) => name !== stationName)];
+        }
+
+        return current.filter((name) => name !== stationName);
+      });
+
+      try {
+        if (userId) {
+          const stations = await putRadioStationFavoriteCloud(stationName, nextIsFavorite);
+          const names = stations.map((station) => station.stationName);
+          setFavoriteStationNames(names);
+          void replaceRadioStationFavoritesCache(stations);
+        } else {
+          const names = await setRadioStationFavorite(stationName, nextIsFavorite);
+          setFavoriteStationNames(names);
+        }
+      } catch {
+        const names = await listRadioStationFavoriteNames();
+        setFavoriteStationNames(names);
       }
-
-      return current.filter((name) => name !== stationName);
-    });
-
-    try {
-      const names = await setRadioStationFavorite(stationName, nextIsFavorite);
-      setFavoriteStationNames(names);
-    } catch {
-      const names = await listRadioStationFavoriteNames();
-      setFavoriteStationNames(names);
-    }
-  }, []);
+    },
+    [userId]
+  );
 
   return {
     favoriteStationNames,

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   isRadioSongSaved,
   toggleRadioSongFavoriteList,
@@ -6,9 +6,14 @@ import {
   type RadioSongFavoriteDraft,
 } from '@widgets/radio-player/radioSongFavorites';
 import {
-  listRadioSongFavorites,
-  setRadioSongFavorite,
-} from '@widgets/radio-player/radioSongFavoritesIndexedDb';
+  cacheRadioSongFavoriteToggle,
+  replaceRadioSongFavoritesCache,
+} from '@widgets/radio-player/radioFavoritesIndexedDbCache';
+import {
+  fetchRadioSongFavoritesCloud,
+  putRadioSongFavoriteCloud,
+} from '@widgets/radio-player/radioFavoritesHttpClient';
+import { listRadioSongFavorites } from '@widgets/radio-player/radioSongFavoritesIndexedDb';
 
 export interface UseRadioSongFavoritesResult {
   savedSongs: RadioSongFavorite[];
@@ -20,9 +25,22 @@ export interface UseRadioSongFavoritesResult {
 export function useRadioSongFavorites(userId: string | null): UseRadioSongFavoritesResult {
   const [savedSongs, setSavedSongs] = useState<RadioSongFavorite[]>([]);
   const [savedSongsLoaded, setSavedSongsLoaded] = useState(false);
+  const savedSongsRef = useRef<RadioSongFavorite[]>([]);
+  const epochRef = useRef(0);
+
+  const commitSongs = useCallback((epoch: number, songs: RadioSongFavorite[]) => {
+    if (epoch !== epochRef.current) {
+      return;
+    }
+    savedSongsRef.current = songs;
+    setSavedSongs(songs);
+  }, []);
 
   useEffect(() => {
+    const epoch = ++epochRef.current;
+
     if (!userId) {
+      savedSongsRef.current = [];
       setSavedSongs([]);
       setSavedSongsLoaded(true);
       return undefined;
@@ -32,17 +50,34 @@ export function useRadioSongFavorites(userId: string | null): UseRadioSongFavori
     setSavedSongsLoaded(false);
 
     void (async () => {
-      const songs = await listRadioSongFavorites(userId);
-      if (!cancelled) {
-        setSavedSongs(songs);
+      try {
+        const songs = await fetchRadioSongFavoritesCloud();
+        if (cancelled || epoch !== epochRef.current) {
+          return;
+        }
+        commitSongs(epoch, songs);
         setSavedSongsLoaded(true);
+        void replaceRadioSongFavoritesCache(userId, songs);
+      } catch {
+        try {
+          const songs = await listRadioSongFavorites(userId);
+          if (cancelled || epoch !== epochRef.current) {
+            return;
+          }
+          commitSongs(epoch, songs);
+          setSavedSongsLoaded(true);
+        } catch {
+          if (!cancelled && epoch === epochRef.current) {
+            setSavedSongsLoaded(true);
+          }
+        }
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [commitSongs, userId]);
 
   const toggleSavedSong = useCallback(
     async (draft: RadioSongFavoriteDraft) => {
@@ -50,21 +85,34 @@ export function useRadioSongFavorites(userId: string | null): UseRadioSongFavori
         return;
       }
 
-      let shouldSave = false;
-      setSavedSongs((current) => {
-        shouldSave = !isRadioSongSaved(current, draft.display);
-        return toggleRadioSongFavoriteList(current, draft, Date.now());
-      });
+      // Read the latest list here. A setState updater can be deferred while the
+      // player is rendering, and the persist call would then delete instead of save.
+      // Bumping the epoch also drops an in-flight favorites load that would wipe the row.
+      const epoch = ++epochRef.current;
+      const savedAt = Date.now();
+      const shouldSave = !isRadioSongSaved(savedSongsRef.current, draft.display);
+      const next = toggleRadioSongFavoriteList(savedSongsRef.current, draft, savedAt);
+      savedSongsRef.current = next;
+      setSavedSongs(next);
 
       try {
-        const songs = await setRadioSongFavorite(userId, draft, shouldSave);
+        const songs = await putRadioSongFavoriteCloud(draft, shouldSave);
+        if (epoch !== epochRef.current) {
+          return;
+        }
+        savedSongsRef.current = songs;
         setSavedSongs(songs);
+        void cacheRadioSongFavoriteToggle(userId, draft, shouldSave, savedAt);
       } catch {
-        const songs = await listRadioSongFavorites(userId);
-        setSavedSongs(songs);
+        try {
+          const songs = await listRadioSongFavorites(userId);
+          commitSongs(epoch, songs);
+        } catch {
+          /* keep the optimistic list */
+        }
       }
     },
-    [userId]
+    [commitSongs, userId]
   );
 
   const isSongSaved = useCallback(
