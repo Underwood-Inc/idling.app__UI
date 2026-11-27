@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { resetPageConnectivityEngineForTests } from '@strixun/api-framework/connectivity';
+import { resetPageConnectivityEngineForTests } from './connectivity';
 
 afterEach(() => {
   resetPageConnectivityEngineForTests();

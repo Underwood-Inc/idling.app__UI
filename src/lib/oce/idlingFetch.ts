@@ -1,7 +1,7 @@
 import {
   getPageConnectivityEngine,
   type ConnectivityEngine,
-} from '@strixun/api-framework/connectivity';
+} from './connectivity';
 import { registerIdlingOce } from '../../widgets/radio-player/embedIdlingFetch';
 
 /** Same-origin probe for OCE confirm step (public, unauthenticated). */

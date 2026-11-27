@@ -49,9 +49,6 @@ env:
   WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN: ${{ secrets.NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN }}
-  # Merged strixun PR #40 — api-framework feature-flags exports for OCE
-  STRIXUN_STREAM_SUITE_REF: '47441530507a6cfc913d2263bc8bab9140d40b0d'
-
 jobs:
   setup:
     timeout-minutes: 20
@@ -79,10 +76,6 @@ jobs:
           corepack enable
           corepack install
 
-      - name: Prepare Strixun file dependencies
-        uses: ./.github/actions/prepare-strixun-file-deps
-        with:
-          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       # Output Node.js version for other jobs
       - name: Get Node.js version
@@ -153,10 +146,6 @@ jobs:
           corepack enable
           corepack install
 
-      - name: Prepare Strixun file dependencies
-        uses: ./.github/actions/prepare-strixun-file-deps
-        with:
-          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       # Restore cached dependencies and browsers from setup job
       - name: Restore dependencies and browsers cache
@@ -247,10 +236,6 @@ jobs:
           corepack enable
           corepack install
 
-      - name: Prepare Strixun file dependencies
-        uses: ./.github/actions/prepare-strixun-file-deps
-        with:
-          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       # Restore cached dependencies from setup job
       - name: Restore dependencies cache
@@ -690,10 +675,6 @@ jobs:
           corepack enable
           corepack install
 
-      - name: Prepare Strixun file dependencies
-        uses: ./.github/actions/prepare-strixun-file-deps
-        with:
-          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       # Restore cached dependencies from setup job
       - name: Restore dependencies cache

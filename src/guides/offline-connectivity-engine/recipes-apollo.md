@@ -43,7 +43,7 @@ Apollo's `networkError` covers transport failure **and** non-200 HTTP (`ServerEr
 
 ```tsx
 import { onError } from '@apollo/client/link/error';
-import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
+import { getPageConnectivityEngine } from '@lib/oce/connectivity';
 
 const errorLink = onError(({ networkError }) => {
   if (!networkError) return;

@@ -1,11 +1,6 @@
 const path = require('path');
 const { version } = require('./package.json');
 
-const strixunOceConnectivity = path.resolve(
-  __dirname,
-  '../strixun-stream-suite/packages/api-framework/src/connectivity/index.ts'
-);
-
 const isProduction = process.env.NODE_ENV === 'production';
 
 const globalSecurityHeaders = [
@@ -299,12 +294,7 @@ const nextConfig = {
     // Use version for consistent build IDs across rebuilds
     return `${version.replace(/\./g, '-')}`;
   },
-  transpilePackages: ['@strixun/api-framework'],
   webpack: (config, { webpack, dev }) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@strixun/api-framework/connectivity': strixunOceConnectivity,
-    };
     // In production builds, exclude dev tools entirely
     if (!dev) {
       config.plugins.push(

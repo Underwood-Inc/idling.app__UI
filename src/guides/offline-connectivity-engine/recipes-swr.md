@@ -81,7 +81,7 @@ If you must return a fallback, **rethrow** after showing UI, or report explicitl
 
 ```ts
 import useSWR from 'swr';
-import { getPageConnectivityEngine } from '@strixun/api-framework/connectivity';
+import { getPageConnectivityEngine } from '@lib/oce/connectivity';
 
 async function xhrFetcher(url: string) {
   try {

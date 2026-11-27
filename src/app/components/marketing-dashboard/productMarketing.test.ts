@@ -73,6 +73,15 @@ test('when the home hub is built, Offerings is the featured minecraft chapter an
   expect(offerings?.visual.src).toBe('/marketing/offerings-icon-1x1.png');
 });
 
+test('when Offerings uses BuiltByBit as primary, the CTA label is visible copy', () => {
+  const offerings = getProductMarketingProject('offerings');
+  expect(offerings).toBeTruthy();
+
+  const primary = getHomeProductPrimaryLink(offerings!);
+  expect(primary?.href).toContain('builtbybit.com');
+  expect(primary?.label.trim().length).toBeGreaterThan(0);
+});
+
 test('when a product summary is built for the home spotlight, it uses real showcase sentences', () => {
   const mappy = getProductMarketingProject('mappy');
   const summary = productMarketingSummary(mappy!);

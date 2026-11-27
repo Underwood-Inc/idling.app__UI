@@ -30,7 +30,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  STRIXUN_STREAM_SUITE_REF: '47441530507a6cfc913d2263bc8bab9140d40b0d'
 
 jobs:
   # Build documentation
@@ -52,10 +51,6 @@ jobs:
           corepack enable
           corepack install
 
-      - name: Prepare Strixun file dependencies
-        uses: ./.github/actions/prepare-strixun-file-deps
-        with:
-          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       - name: Get pnpm store directory
         shell: bash
@@ -156,10 +151,6 @@ jobs:
           corepack enable
           corepack install
 
-      - name: Prepare Strixun file dependencies
-        uses: ./.github/actions/prepare-strixun-file-deps
-        with:
-          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       - name: Get pnpm store directory
         shell: bash
