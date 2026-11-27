@@ -91,6 +91,9 @@ function createRuntime(): Runtime {
   const engine = new ConnectivityEngine({
     healthCheckUrl: OCE_HEALTH_URL,
     baseFetch: (input, init) => idlingFetch(native, input, init),
+    healthProbeReuseMs: 4_000,
+    navigatorVerifyDebounceMs: 600,
+    recoveryDebounceMs: 800,
   });
   const fetch = createObservedFetch(engine, native);
   IdlingOceEmbedRegistry.register(fetch, engine);

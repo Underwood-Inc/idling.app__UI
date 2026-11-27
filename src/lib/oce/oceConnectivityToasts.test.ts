@@ -64,6 +64,7 @@ describe('OceConnectivityToastBinder', () => {
 
     const engine = new ConnectivityEngine({
       healthCheckUrl: HEALTH,
+      recoveryDebounceMs: 50,
       baseFetch: baseFetch as typeof fetch,
     });
 
@@ -79,6 +80,7 @@ describe('OceConnectivityToastBinder', () => {
     expect(getToastSnapshot().some((t) => t.dedupeKey === 'oce-network-unavailable')).toBe(true);
 
     engine.reporter.reportResponse();
+    await vi.advanceTimersByTimeAsync(50);
     await vi.waitFor(() => {
       expect(engine.getSnapshot().unavailable).toBe(false);
     });
