@@ -18,7 +18,8 @@ sidebar_position: 0
 6. [Contributing](/guides/contributing) — PR habits and doc rules  
 7. [Documentation coverage](/guides/documentation-coverage) — stubs vs hub pages  
 8. [Source-audit rule](/guides/source-audit) — cite implementation paths in **Sources** footers  
-9. [Idling application](/idling/) — features shipped in this Next.js repo (radio, PWA, tools)
+9. [Idling application](/idling/) — features shipped in this Next.js repo (radio, PWA, tools)  
+10. [Offline Connectivity Engine](/guides/offline-connectivity-engine/) — fetch-backed connectivity hints (signal, not promise)
 
 ```mermaid
 flowchart TD

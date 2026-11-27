@@ -34,6 +34,9 @@ on:
         default: '30'
         type: string
 
+env:
+  STRIXUN_STREAM_SUITE_REF: '47441530507a6cfc913d2263bc8bab9140d40b0d'
+
 jobs:
   generate-debrief:
     runs-on: ubuntu-latest
@@ -61,6 +64,11 @@ jobs:
         run: |
           corepack enable
           corepack install
+
+      - name: Prepare Strixun file dependencies
+        uses: ./.github/actions/prepare-strixun-file-deps
+        with:
+          ref: ${{ env.STRIXUN_STREAM_SUITE_REF }}
 
       - name: 🔧 Install dependencies
         run: pnpm install

@@ -489,7 +489,11 @@ function enhancePanZoom(diagram: MermaidDiagramElement, container: HTMLElement):
 
 export function enhanceMermaidDiagram(diagram: HTMLElement): void {
   if (diagram.hasAttribute('data-enhanced')) return;
+  // Mermaid (and the Docusaurus theme) inject the SVG after the container
+  // mounts. Leave the node unmarked so a later scan can still attach.
+  if (!diagram.querySelector('svg')) return;
 
+  diagram.classList.add('mermaid');
   diagram.setAttribute('data-enhanced', 'true');
 
   let container = diagram.closest('.mermaid-container') as HTMLElement | null;
@@ -507,8 +511,11 @@ export function enhanceMermaidDiagram(diagram: HTMLElement): void {
   enhancePanZoom(diagramElement, container);
 }
 
+const MERMAID_DIAGRAM_SELECTOR = '.mermaid, .docusaurus-mermaid-container';
+
 export function enhanceMermaidDiagrams(root: ParentNode = document): void {
-  root.querySelectorAll('.mermaid').forEach((diagram) => {
+  // querySelectorAll returns each node once, even if it matches both selectors.
+  root.querySelectorAll(MERMAID_DIAGRAM_SELECTOR).forEach((diagram) => {
     enhanceMermaidDiagram(diagram as HTMLElement);
   });
 }

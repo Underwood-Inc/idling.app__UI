@@ -1,4 +1,7 @@
+import { createRequire } from 'node:module';
 import { themes as prismThemes } from 'prism-react-renderer';
+
+const require = createRequire(import.meta.url);
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -143,13 +146,9 @@ const config = {
     },
   ],
 
-  // Custom scripts for enhanced functionality
-  scripts: [
-    {
-      src: '/js/mermaid-viewer.js',
-      async: true,
-    },
-  ],
+  // Interactive Mermaid viewer (pan/zoom). Replaces static/js/mermaid-viewer.js,
+  // which only queried `.mermaid` and never attached to theme diagrams.
+  clientModules: [require.resolve('./src/client/mermaidViewerClient.ts')],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
