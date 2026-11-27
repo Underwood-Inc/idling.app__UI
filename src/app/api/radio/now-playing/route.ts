@@ -1,6 +1,7 @@
 import { fetchStreamNowPlaying } from '@lib/radio/fetchStreamNowPlaying';
 import { buildRadioNowPlaying } from '@lib/radio/parseIcyStreamTitle';
 import type { RadioNowPlaying } from '@lib/radio/radioNowPlaying.types';
+import { requireRadioApiSession } from '@lib/radio/requireRadioApiSession';
 import { withRateLimit } from '@lib/middleware/withRateLimit';
 import {
   buildRadioStationProbeCatalog,
@@ -18,6 +19,11 @@ function resolveStationStreamUrl(station: string, hostname: string): string | nu
 }
 
 async function getHandler(request: NextRequest) {
+  const gate = await requireRadioApiSession();
+  if (!gate.ok) {
+    return gate.response;
+  }
+
   const station = request.nextUrl.searchParams.get('station')?.trim();
 
   if (!station) {

@@ -188,7 +188,7 @@ export const PUBLIC_INFRA_PATHS = [
   '/ads.txt'
 ] as const;
 
-/** API prefixes reachable without a session (health, OG, radio stations, etc.). */
+/** API prefixes reachable without a session (health, OG, etc.). Radio APIs require a signed-in app user. */
 export const PUBLIC_API_ROUTES = [
   '/api/health',
   '/api/status',
@@ -200,7 +200,6 @@ export const PUBLIC_API_ROUTES = [
   '/api/ping',
   '/api/ready',
   '/api/live',
-  '/api/radio/'
 ] as const;
 
 export function isPublicInfraPath(pathname: string): boolean {

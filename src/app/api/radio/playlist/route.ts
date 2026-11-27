@@ -1,4 +1,5 @@
 import { isFetchableRadioPlaylistUrl } from '@lib/radio/radioPlaylistProxy';
+import { requireRadioApiSession } from '@lib/radio/requireRadioApiSession';
 import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,6 +10,11 @@ const MAX_PLAYLIST_CHARS = 256 * 1024;
 const FETCH_TIMEOUT_MS = 8000;
 
 async function getHandler(request: NextRequest) {
+  const gate = await requireRadioApiSession();
+  if (!gate.ok) {
+    return gate.response;
+  }
+
   const raw = request.nextUrl.searchParams.get('url')?.trim() ?? '';
   if (!isFetchableRadioPlaylistUrl(raw)) {
     return NextResponse.json({ error: 'Invalid playlist URL' }, { status: 400 });
