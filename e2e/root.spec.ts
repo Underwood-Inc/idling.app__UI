@@ -18,15 +18,10 @@ test.describe('home /', () => {
     expect(results.violations).toEqual([]);
   });
 
-  test('loads root page', async ({ page, isMobile }) => {
+  test('loads root page', async ({ page }) => {
     await expect(page).toHaveTitle(/Idling.app/);
-    await expect(page.getByTestId(HOME_DASHBOARD)).toBeVisible();
-    await expect(
-      page.getByRole('heading', { level: 1 })
-    ).toBeVisible();
-
-    if (isMobile) {
-      await expect(page.getByTestId(HOME_DASHBOARD)).toBeVisible();
-    }
+    const dashboard = page.getByTestId(HOME_DASHBOARD);
+    await expect(dashboard).toBeVisible();
+    await expect(dashboard.getByRole('heading', { level: 1 })).toBeVisible();
   });
 });
