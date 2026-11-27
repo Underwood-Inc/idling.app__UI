@@ -84,16 +84,12 @@ export class ConnectivityEngine {
   private healthContractFailed = false;
   private lastHealthyAt: number | null = null;
   private readonly listeners = new Set<() => void>();
-  private readonly observedHealthFlights = new Map<string, Promise<HealthFlightResult>>();
   private navigatorOnLineDetach: (() => void) | null = null;
-  private recentHealthProbe: { at: number; result: HealthFlightResult } | null = null;
-  private activeHealthProbe: Promise<HealthFlightResult> | null = null;
-  private healthProbeWaiters: Array<{
-    atGeneration: number;
-    bypassCache: boolean;
-    apply: (result: HealthFlightResult) => void;
-  }> = [];
-  private drainingHealthProbes = false;
+  /** In-flight app fetch to the health URL (e.g. `/api/version`). */
+  private observedHealthFlight: Promise<HealthFlightResult> | null = null;
+  /** Shared engine-owned GET; concurrent callers await the same promise. */
+  private healthProbeFlight: Promise<HealthFlightResult> | null = null;
+  private healthProbeCached: { at: number; result: HealthFlightResult } | null = null;
   private navigatorVerifyTimer: ReturnType<typeof setTimeout> | null = null;
   private navigatorVerifyEvent: 'online' | 'offline' | null = null;
   private recoveryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -316,11 +312,9 @@ export class ConnectivityEngine {
     this.unavailable = false;
     this.healthContractFailed = false;
     this.lastHealthyAt = null;
-    this.recentHealthProbe = null;
-    this.activeHealthProbe = null;
-    this.healthProbeWaiters = [];
-    this.drainingHealthProbes = false;
-    this.observedHealthFlights.clear();
+    this.observedHealthFlight = null;
+    this.healthProbeFlight = null;
+    this.healthProbeCached = null;
     this.publish();
   }
 
@@ -358,24 +352,8 @@ export class ConnectivityEngine {
       this.publish();
       return;
     }
-    void this.confirm(atGeneration);
-  }
-
-  private confirm(atGeneration: number): void {
-    this.requestHealthProbe(
-      atGeneration,
-      (result) => {
-        if (result.kind === 'response') {
-          this.markHealthy(atGeneration);
-          return;
-        }
-        if (result.kind === 'transport-failure') {
-          this.unavailable = true;
-          this.healthContractFailed = Boolean(result.contractFailed);
-          this.publish();
-        }
-      },
-      { bypassCache: true }
+    void this.healthProbe({ fresh: true }).then((result) =>
+      this.applyHealthResult(atGeneration, result, 'confirm')
     );
   }
 
@@ -403,110 +381,80 @@ export class ConnectivityEngine {
     event: 'online' | 'offline',
     atGeneration: number
   ): void {
-    this.requestHealthProbe(
-      atGeneration,
-      (result) => {
-        if (result.kind === 'response') {
-          if (!this.unavailable) {
-            this.markHealthy(atGeneration);
-          } else {
-            this.scheduleDebouncedRecovery(atGeneration);
-          }
-          return;
-        }
-        if (result.kind === 'ignored') {
-          return;
-        }
-        if (event === 'offline') {
-          this.unavailable = true;
-          this.healthContractFailed = Boolean(result.contractFailed);
-          this.publish();
-          return;
-        }
-        this.streak += 1;
-        if (this.streak >= this.failureThreshold) {
-          this.unavailable = true;
-          this.healthContractFailed = Boolean(result.contractFailed);
-        }
-        this.publish();
-      },
-      { bypassCache: false }
+    void this.healthProbe().then((result) =>
+      this.applyHealthResult(atGeneration, result, event)
     );
   }
 
-  private requestHealthProbe(
-    atGeneration: number,
-    apply: (result: HealthFlightResult) => void,
-    options: { bypassCache: boolean }
-  ): void {
-    this.healthProbeWaiters.push({
-      atGeneration,
-      bypassCache: options.bypassCache,
-      apply,
+  /** One health GET — cache, join in-flight app traffic, or issue a single engine probe. */
+  private healthProbe(options?: { fresh?: boolean }): Promise<HealthFlightResult> {
+    const fresh = options?.fresh ?? false;
+    if (!fresh && this.healthProbeCached) {
+      if (Date.now() - this.healthProbeCached.at < this.healthProbeReuseMs) {
+        return Promise.resolve(this.healthProbeCached.result);
+      }
+    }
+    if (this.healthProbeFlight) {
+      return this.healthProbeFlight;
+    }
+    this.healthProbeFlight = this.resolveHealthProbe().finally(() => {
+      this.healthProbeFlight = null;
     });
-    void this.drainHealthProbeWaiters();
+    return this.healthProbeFlight;
   }
 
-  private async drainHealthProbeWaiters(): Promise<void> {
-    if (this.drainingHealthProbes) {
-      return;
-    }
-    this.drainingHealthProbes = true;
-    try {
-      while (this.healthProbeWaiters.length > 0) {
-        const batch = this.healthProbeWaiters.splice(0);
-        const bypassCache = batch.some((w) => w.bypassCache);
-        const result = await this.getHealthProbeResult({ bypassCache });
-        for (const waiter of batch) {
-          if (waiter.atGeneration === this.generation) {
-            waiter.apply(result);
-          }
-        }
-      }
-    } finally {
-      this.drainingHealthProbes = false;
-      if (this.healthProbeWaiters.length > 0) {
-        void this.drainHealthProbeWaiters();
-      }
-    }
-  }
-
-  private cacheHealthProbeResult(result: HealthFlightResult): void {
-    if (result.kind === 'ignored') {
-      return;
-    }
-    this.recentHealthProbe = { at: Date.now(), result };
-  }
-
-  private async getHealthProbeResult(options: {
-    bypassCache: boolean;
-  }): Promise<HealthFlightResult> {
-    if (!options.bypassCache && this.recentHealthProbe) {
-      if (Date.now() - this.recentHealthProbe.at < this.healthProbeReuseMs) {
-        return this.recentHealthProbe.result;
-      }
-    }
-    if (this.activeHealthProbe) {
-      return this.activeHealthProbe;
-    }
-    this.activeHealthProbe = this.fulfillHealthProbe().finally(() => {
-      this.activeHealthProbe = null;
-    });
-    return this.activeHealthProbe;
-  }
-
-  private async fulfillHealthProbe(): Promise<HealthFlightResult> {
-    const observed = this.observedHealthFlights.get(this.healthCheckUrl);
-    if (observed) {
-      const result = await observed;
+  private async resolveHealthProbe(): Promise<HealthFlightResult> {
+    if (this.observedHealthFlight) {
+      const result = await this.observedHealthFlight;
       if (result.kind !== 'ignored') {
-        this.cacheHealthProbeResult(result);
+        this.rememberHealthProbe(result);
         return result;
       }
     }
     const result = await this.runEngineOwnedProbe();
-    this.cacheHealthProbeResult(result);
+    this.rememberHealthProbe(result);
     return result;
+  }
+
+  private rememberHealthProbe(result: HealthFlightResult): void {
+    if (result.kind === 'ignored') {
+      return;
+    }
+    this.healthProbeCached = { at: Date.now(), result };
+  }
+
+  private applyHealthResult(
+    atGeneration: number,
+    result: HealthFlightResult,
+    source: 'confirm' | 'online' | 'offline'
+  ): void {
+    if (atGeneration !== this.generation) {
+      return;
+    }
+    if (result.kind === 'response') {
+      if (this.unavailable) {
+        this.scheduleDebouncedRecovery(atGeneration);
+      } else {
+        this.markHealthy(atGeneration);
+      }
+      return;
+    }
+    if (result.kind === 'ignored') {
+      return;
+    }
+    const contractFailed = Boolean(result.contractFailed);
+    if (source === 'confirm' || source === 'offline') {
+      this.unavailable = true;
+      this.healthContractFailed = contractFailed;
+      this.publish();
+      return;
+    }
+    this.streak += 1;
+    if (this.streak >= this.failureThreshold) {
+      this.unavailable = true;
+      this.healthContractFailed = contractFailed;
+    }
+    this.publish();
   }
 
   private scheduleDebouncedRecovery(atGeneration: number): void {
@@ -547,22 +495,15 @@ export class ConnectivityEngine {
     }
   }
 
-  private trackObservedHealthCall(
-    url: string,
-    flight: Promise<HealthFlightResult>
-  ): void {
+  private trackObservedHealthCall(url: string, flight: Promise<HealthFlightResult>): void {
     if (!urlsMatchHealthCheck(url, this.healthCheckUrl)) {
       return;
     }
-    this.observedHealthFlights.set(this.healthCheckUrl, flight);
-    void flight.then((result) => {
-      if (result.kind !== 'ignored') {
-        this.cacheHealthProbeResult(result);
-      }
-    });
+    this.observedHealthFlight = flight;
+    void flight.then((result) => this.rememberHealthProbe(result));
     void flight.finally(() => {
-      if (this.observedHealthFlights.get(this.healthCheckUrl) === flight) {
-        this.observedHealthFlights.delete(this.healthCheckUrl);
+      if (this.observedHealthFlight === flight) {
+        this.observedHealthFlight = null;
       }
     });
   }
