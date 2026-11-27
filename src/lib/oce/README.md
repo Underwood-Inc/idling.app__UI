@@ -8,7 +8,7 @@
 - OCE tracks whether those requests **got an answer from the server** or **failed to connect**.
 - A **snapshot**, not one bit: **`unavailable`** (confirmed outage), **`streak`** (consecutive connection failures), optional **`healthContractFailed`** (health URL answered but failed your rules), plus **`generation`** / **`failureThreshold`** for tuning and stale-safe updates.
 - **`unavailable: true`** only after **two** consecutive connection failures (default) **and** a failed health check — a single blip does **not** flip the banner.
-- **Recovery is automatic:** when any tracked request **gets a response back** (even 404 or 500), **`unavailable`** clears — you do not tap “go online” or call a reset API.
+- **Recovery is automatic:** when tracked traffic **gets a response back** (even 404 or 500), **`unavailable`** clears — no “go online” API. While already **`unavailable`**, fetch recovery is **debounced** (~800ms on idling) so one lucky packet does not flash toasts; **`reporter.reportResponse()`** recovers immediately when you report success manually.
 - **Timeouts:** **`TimeoutError`** counts as connection failed; user **cancel** (`AbortError`) does not.
 - With **`<OceProvider>`**, idling.app can show **“Network trouble”** / **“Back online”** toasts when that flag changes.
 
@@ -29,9 +29,9 @@
 ## How the signal moves
 
 ```text
-Several requests fail to connect → OCE may show unavailable: true
+Several requests fail to connect → streak rises → at threshold, one health GET
         ↓
-Next OCE.fetch that gets a response from the server → unavailable: false
+Health fails → unavailable: true · Any later Response → unavailable: false (debounced if was offline)
 ```
 
 If the app never uses **`OCE.fetch`**, the signal never updates.
@@ -40,8 +40,9 @@ If the app never uses **`OCE.fetch`**, the signal never updates.
 
 | What happened | Snapshot / UX | OCE API (code) |
 | ------------- | ------------- | -------------- |
-| Server sent a response (any status) | `unavailable=false`, `streak=0` | `response` settlement |
+| Server sent a response (any status) | `unavailable=false`, `streak=0` (debounced ~800ms if was offline) | `response` settlement |
 | One connection failure (threshold 2) | `streak=1`, still available | No health probe yet |
+| Streak hits threshold (default 2) → one health GET | May probe; still available if probe OK | Confirm at exact threshold only |
 | Two failures + health probe fails | `unavailable=true` | Confirm sets outage |
 | Health answered but wrong contract (opt-in) | `healthContractFailed=true` | `interpretHealthResponse` |
 | Request failed before any response (DNS, timeout, …) | `streak++` | Connection-failed settlement |
@@ -245,7 +246,8 @@ For XHR-only stacks, WebSockets, or native bridges with no `fetch` adapter, use 
 
 | Doc | |
 | --- | --- |
-| [Network flow](/guides/offline-connectivity-engine/network-flow) | Snapshot fields, mermaid scenarios, timeouts |
+| [Network flow](/guides/offline-connectivity-engine/network-flow) | Snapshot fields, mermaid scenarios, timeouts, recovery debounce |
+| [Configuration](/guides/offline-connectivity-engine/configuration) | `healthProbeReuseMs`, navigator/recovery debounce, probe presets |
 | [Getting started](/guides/offline-connectivity-engine/getting-started) | Full guide |
 | [Framework recipes ×10](/guides/offline-connectivity-engine/recipes-index) | Axios, TanStack Query, SWR, … |
 | [Reporter](/guides/offline-connectivity-engine/reporter) | Non-`fetch` requests |

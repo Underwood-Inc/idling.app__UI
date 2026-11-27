@@ -28,6 +28,16 @@ export type ConnectivityEngineConfig = {
   probeDeadline?: OceProbeDeadline;
   /** Default: any Response clears probe suspicion */
   interpretHealthResponse?: (response: Response) => boolean;
+  /** Reuse a recent health outcome within this window (default 4000). */
+  healthProbeReuseMs?: number;
+  /** Debounce `online`/`offline` before health verify (default 600). */
+  navigatorVerifyDebounceMs?: number;
+  /** Debounce clearing `unavailable` after fetch `Response` (default 800). */
+  recoveryDebounceMs?: number;
+  /** Default true — listen to window online/offline and verify with health */
+  listenToNavigatorOnLine?: boolean;
+  /** Transport for engine-owned probes only; observed fetch uses app stack */
+  baseFetch?: typeof fetch;
 };
 
 export const defaultConnectivityConfig: Required<
@@ -76,10 +86,12 @@ Confirm step **must** give up. A hung probe is “lie-fi”: the socket never an
 Axios default `timeout: 0` means the **client** request is not aborted — it does **not** copy onto the probe. The probe still uses a preset and aborts with `TimeoutError`, which counts as failed confirm (FR-OCE-009).
 
 ```ts
-// Engine-owned probe (conceptual)
-const ms = OCE_PROBE_DEADLINE_MS[config.probeDeadline ?? 'Interactive'];
-const timer = AbortSignal.timeout(ms);
-const signal = AbortSignal.any([probeController.signal, timer]);
+// Engine-owned probe (matches ConnectivityEngine — one AbortController at a time)
+const owner = new AbortController();
+const signal = mergeAbortSignals(
+  owner.signal,
+  AbortSignal.timeout(OCE_PROBE_DEADLINE_MS[config.probeDeadline ?? 'Interactive']),
+);
 
 await baseFetch(healthCheckUrl, {
   method: 'GET',
@@ -90,6 +102,18 @@ await baseFetch(healthCheckUrl, {
 ```
 
 **One page, one preset:** the host picks **one** `probeDeadline` for the shared probe. Remotes do not override (same rule as `healthCheckUrl`).
+
+## Timing (idling.app defaults)
+
+| Option | Default | Role |
+| ------ | ------- | ---- |
+| `healthProbeReuseMs` | `4000` | Avoid back-to-back engine GETs when outcome is still fresh |
+| `navigatorVerifyDebounceMs` | `600` | Coalesce browser `online`/`offline` flicker |
+| `recoveryDebounceMs` | `800` | Wait for stable `Response` before clearing `unavailable` from fetch |
+
+`reporter.reportResponse()` does **not** use recovery debounce — manual success clears immediately.
+
+Set in `OCE.ts` when constructing `ConnectivityEngine`.
 
 ### Picking a preset
 
@@ -108,7 +132,9 @@ Chrome-style captive portal detection treats **204** (or empty 200) as internet 
 Opt in when portal detection matters:
 
 ```ts
-const engine = OCE.engine => response.status === 204,
+new ConnectivityEngine({
+  healthCheckUrl: '/api/version',
+  interpretHealthResponse: (response) => response.status === 204,
 });
 ```
 
