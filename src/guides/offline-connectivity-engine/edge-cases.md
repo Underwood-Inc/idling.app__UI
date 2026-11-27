@@ -15,7 +15,7 @@ MDN states [`Navigator.onLine`](https://developer.mozilla.org/en-US/docs/Web/API
 | Captive portal returns 200 HTML | Ordinary API `Response`s clear the flag. Default probe also sees a `Response` and does **not** set `unavailable`. Opt in to [204-only](/guides/offline-connectivity-engine/configuration#optional-204-contract-interprethealthresponse) for portal detection (Chrome-style). |
 | HTTP 500 / 404 | `Response`. Flag clears. App is unhealthy, not “offline.” |
 | Single connection blip | Streak `1`. No probe. `unavailable` stays false. |
-| Ten parallel failures | One probe. Streak reaches threshold once; mutex keeps streak consistent. |
+| Ten parallel failures | One shared **`healthProbe`** flight; **`generation`** ignores stale settlements after recovery. |
 | Success while probe in flight | Generation bumps; probe result discarded (FR-OCE-004). |
 | User aborts request (`AbortError`) | Streak unchanged; `reportIgnored` / classify `ignored`. |
 | User request `TimeoutError` | Counts as **failed connection**; increments streak. |
@@ -25,7 +25,7 @@ MDN states [`Navigator.onLine`](https://developer.mozilla.org/en-US/docs/Web/API
 | Quiet tab (no traffic) | No heartbeat timer in v1. Flag stays at last observation. |
 | Axios `timeout: 0` | Client request not aborted. Probe still uses preset deadline; never “wait forever.” |
 | Two remotes want different `probeDeadline` | Host preset wins — one engine, one probe budget. |
-| Second bundle calls `new ConnectivityEngine` | `Symbol.for` singleton returns existing engine (FR-OCE-007). |
+| Second bundle calls `new ConnectivityEngine` | Host must export **one** engine (idling: module singleton in `OCE.ts`). A second constructor is a wiring bug (FR-OCE-007). |
 | Cross-origin iframe | Separate engine; cannot read parent flag. |
 | Another browser tab | Separate engine; each tab recovers from its own traffic. |
 | Lie-fi (TCP hang) | Probe `TimeoutError` ends confirm; counts as failed confirm (FR-OCE-009). |
@@ -77,9 +77,12 @@ Many remotes failing together increments streak once per settled failure at the 
 | FR-OCE-004 | Probe discard on generation bump |
 | FR-OCE-005 | Abort vs timeout classification |
 | FR-OCE-006 | Non-blocking when already unavailable |
-| FR-OCE-007 | Singleton identity |
+| FR-OCE-007 | One host engine / `OCE.fetch` per page |
 | FR-OCE-008 | Reuse in-flight health URL call |
 | FR-OCE-009 | Probe preset deadlines only |
+| FR-OCE-012 | Navigator debounce + probe result cache |
+| FR-OCE-013 | Debounced recovery from `unavailable` on fetch `Response` |
+| FR-OCE-014 | Engine health GET `AbortSignal` + abort on teardown |
 
 ---
 

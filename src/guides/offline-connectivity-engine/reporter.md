@@ -25,7 +25,7 @@ reporter.reportTransportFailure(); // No answer — connection problem
 reporter.reportIgnored();          // Cancelled on purpose
 ```
 
-Reporter calls use the **same** streak, threshold, and health-check rules as **`OCE.fetch`**.
+Reporter calls use the **same** streak, threshold, and health-check rules as **`OCE.fetch`**. **`reportResponse()`** calls **`markHealthy`** directly — no recovery debounce — so prefer it when you need instant “back online” from non-`fetch` transports.
 
 Use reporter for:
 

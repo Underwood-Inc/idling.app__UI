@@ -15,7 +15,7 @@ It publishes a **snapshot** (not a single hidden bit): chiefly **`unavailable`**
 1. **Confirmed offline** — **`unavailable: true`** only after **`failureThreshold`** consecutive **connection failures** (default **2**) **and** a shared health GET fails (on idling: **`/api/version`**). One failure alone is a **blip**: higher **`streak`**, still **`unavailable: false`**, **no** health call.
 2. **How it learns** — HTTP through **`OCE.fetch`** or **`OCE.reporter`**. **`online`/`offline` events** trigger health verify; OCE does **not** trust **`navigator.onLine`** alone ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine)).
 3. **`lastHealthyAt`** — UTC ms in **`useOceSnapshot()`** / **`useOceLastHealthyAt()`** when connectivity was last **confirmed** healthy.
-4. **Gets better (automatic)** — Any tracked **`Response`** — including 404, 500, or a **successful health check after a streak** — sets **`unavailable: false`** and clears **`streak`**. No “reconnect” API.
+4. **Gets better (automatic)** — Any tracked **`Response`** — including 404, 500, or a **successful health check after a streak** — sets **`unavailable: false`** and clears **`streak`**. No “reconnect” API. While **`unavailable`**, fetch **`Response`** recovery is **debounced** (idling default **800ms**); **`reporter.reportResponse()`** is immediate.
 5. **UX** — Banners and `<OceProvider>` toasts (“Network trouble” / “Back online”; different copy when **`healthContractFailed`**). **Do not** disable actions when **`unavailable`** is true.
 6. **Timeouts** — **`TimeoutError`** on user traffic or on the health probe counts as **connection failed**; **`AbortError`** (cancel) does **not** increment **`streak`**.
 
@@ -26,7 +26,7 @@ flowchart LR
     F[Connection failed] --> S[streak++]
     I[User cancel] --> N[streak unchanged]
   end
-  S --> T{streak >= threshold?}
+  S --> T{streak == threshold?}
   T -->|No| OK2[Still available]
   T -->|Yes| H[One health check]
   H -->|OK| OK

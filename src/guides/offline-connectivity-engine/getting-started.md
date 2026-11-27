@@ -22,12 +22,12 @@ Read **`OCE.engine.getSnapshot()`** (or **`useOceSnapshot()`**):
 
 - **How it learns:** **`OCE.fetch`** or **`reporter`**. Each settlement: **Response**, **connection failed** (including **`TimeoutError`**), or **ignored** ( **`AbortError`** ).
 - **Blip vs outage:** Default threshold **2** — first failure raises **`streak`** only; second failure triggers **one** shared health GET before **`unavailable`** may flip.
-- **Automatic recovery:** Any tracked **`Response`** clears **`unavailable`** immediately (404/500 count). No “go online” API.
+- **Automatic recovery:** Any tracked **`Response`** clears **`unavailable`** (404/500 count). No “go online” API. While already offline, fetch recovery is **debounced** (~800ms on idling); **`reporter.reportResponse()`** clears immediately.
 - **UX:** `<OceProvider>` toasts; banners via **`useOceUnavailable()`** — never block buttons.
 
 ```mermaid
 flowchart TD
-  A[Connection failed] --> B{streak >= 2?}
+  A[Connection failed] --> B{streak == threshold?}
   B -->|No| C[unavailable stays false]
   B -->|Yes| D[Health GET once]
   D --> E{Probe OK?}
@@ -169,7 +169,7 @@ OCE.fetch(url, init)
 
 | Outcome | OCE behavior |
 | ------- | ------------- |
-| **`Response` returned** (any HTTP status, including 4xx/5xx) | **Server answered** — `unavailable=false`, `streak=0` |
+| **`Response` returned** (any HTTP status, including 4xx/5xx) | **Server answered** — `unavailable=false`, `streak=0` (debounced if was offline) |
 | **`fetch` rejects** (DNS, reset, CORS throw, **`TimeoutError`**) | **`streak++`** — still `unavailable=false` if below threshold |
 | **`AbortError`** (user cancel, idling SW cache marker) | **Ignored** — no streak change |
 | **`streak` ≥ threshold (default **2**)** | **One** shared health GET (`/api/version` on idling) |

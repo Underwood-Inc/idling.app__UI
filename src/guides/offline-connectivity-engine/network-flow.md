@@ -64,7 +64,7 @@ sequenceDiagram
 
 Every tracked call (`OCE.fetch` or `reporter`) ends in one of three outcomes:
 
-1. **`response`** — server sent something back → **recover immediately** (`unavailable = false`, `streak = 0`).
+1. **`response`** — server sent something back → **recover** (`unavailable = false`, `streak = 0`). If already offline, **`OCE.fetch`** debounces (~800ms idling); **`reporter.reportResponse()`** is immediate.
 2. **Connection failed** — no `Response` (DNS, reset, **`TimeoutError`**, …) → **`streak += 1`**; maybe run **one** health confirm.
 3. **`ignored`** — user cancel (`AbortError`), or idling SW cache marker → **no streak change**.
 
@@ -75,7 +75,7 @@ flowchart TD
   kind -->|Response| recover[Recover: unavailable=false, streak=0, generation+1]
   kind -->|Ignored| noop[No streak change]
   kind -->|Connection failed| streak[streak += 1]
-  streak --> thresh{streak >= failureThreshold?}
+  streak --> thresh{streak === failureThreshold?}
   thresh -->|No| hintOff[unavailable stays false — single blip]
   thresh -->|Yes| probe[Single shared health GET]
   probe --> pout{Health result}
@@ -162,8 +162,8 @@ sequenceDiagram
   App->>OCE: OCE.fetch /api/me
   OCE->>Server: request
   Server-->>OCE: 404 or 500 Response
-  Note over OCE: unavailable=false immediately
-  Note over App: Toast "Back online" if was unavailable
+  Note over OCE: debounce ~800ms, then unavailable=false
+  Note over App: Toast "Back online" after stable recovery
 ```
 
 HTTP errors are still **responses** — your app shows “not found” / “server error”; OCE treats them as **connected**.
