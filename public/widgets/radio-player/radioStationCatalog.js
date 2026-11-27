@@ -795,13 +795,6 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Alternative sounds from Rotterdam',
     },
     {
-        name: 'Palanga Street Radio',
-        url: 'https://stream.palanga.live:8443/palanga128.mp3',
-        genre: 'community',
-        regionFlag: '🇱🇹',
-        blurb: 'DIY community radio from Lithuania',
-    },
-    {
         name: 'Radio Reverb Brighton',
         url: 'https://edge-audio-03-gos2.sharp-stream.com/radioreverb.mp3',
         genre: 'community',
