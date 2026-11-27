@@ -100,6 +100,7 @@ $z-index-tooltip: 1200;
   --text-primary: #{$text-primary};
   --text-secondary: #{$text-secondary};
   --text-muted: #{$text-muted};
+  --text-tertiary: #{$text-secondary};
 
   /* Glass/Translucent Effects */
   --glass-bg-light: #{$glass-bg-light};
@@ -147,13 +148,11 @@ $z-index-tooltip: 1200;
   --z-index-modal: #{$z-index-modal};
   --z-index-overlay: #{$z-index-overlay};
   --z-index-tooltip: #{$z-index-tooltip};
+
+  /* Docs main column fills the area beside the sidebar. */
+  --ifm-container-width: 100%;
+  --ifm-container-width-xl: 100%;
 }
 
-/* Dark theme overrides */
-html[data-theme='dark'] {
-  --ifm-color-primary: var(--brand-primary);
-  --ifm-color-primary-dark: var(--brand-primary-dark);
-  --ifm-color-primary-light: var(--brand-primary-light);
-  --ifm-background-color: var(--dark-bg-primary);
-  --ifm-background-surface-color: var(--dark-bg-secondary);
-} 
+/* Infima / Docusaurus brand primary tokens — see infima-brand.scss */
+ 

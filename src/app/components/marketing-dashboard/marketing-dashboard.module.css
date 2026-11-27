@@ -261,13 +261,13 @@
 }
 
 .hub__minecraftDesc {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
   line-height: 1.35;
 }
 
 .hub__minecraftCta {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
