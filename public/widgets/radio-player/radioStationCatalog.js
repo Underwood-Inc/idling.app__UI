@@ -3,14 +3,11 @@
  *
  * Included when the broadcaster publishes device/player URLs (public service, community,
  * or official external-player links). Also supports HLS (.m3u8) and playlist (.pls / .m3u)
- * URLs that resolve to playable streams. The equalizer attaches through Web Audio, so a
- * stream must be HTTPS and answer Origin https://idling.app with Access-Control-Allow-Origin
- * of * or that origin. Excluded: direct hotlinks that forbid third-party embedding
- * (e.g. SomaFM ToS), creator-only catalogs (Chillhop/Lofi Girl livestreams),
- * YouTube-only delivery, and streams that omit CORS, stay on HTTP, or never connect.
+ * URLs that resolve to playable streams. Excluded: direct hotlinks that forbid third-party
+ * embedding (e.g. SomaFM ToS), creator-only catalogs (Chillhop/Lofi Girl livestreams),
+ * and YouTube-only delivery.
  *
- * Runtime reachability is probed in the visitor's browser when the radio UI mounts.
- * Equalizer CORS is rechecked in GitHub Actions only.
+ * Availability is still filtered at runtime by `/api/radio/stations` probing.
  */
 export const RADIO_STATION_DEFINITIONS = [
     {
@@ -26,6 +23,20 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'eclectic',
         regionFlag: '🇪🇺',
         blurb: 'Same Radio Paradise feed, EU edge server',
+    },
+    {
+        name: 'Jazz24',
+        url: 'https://live.wostreaming.net/direct/ppm-jazz24mp3-ibc1',
+        genre: 'jazz',
+        regionFlag: '🇺🇸',
+        blurb: '24/7 jazz from American Public Media',
+    },
+    {
+        name: 'WFMU Freeform',
+        url: 'https://stream0.wfmu.org/freeform-128k.mp3',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Listener-supported freeform from New Jersey',
     },
     {
         name: 'WNYC',
@@ -103,6 +114,34 @@ export const RADIO_STATION_DEFINITIONS = [
         supportsTrackMetadata: false,
     },
     {
+        name: 'Radio Swiss Jazz',
+        url: 'https://stream.srg-ssr.ch/m/rsj/mp3_128',
+        genre: 'jazz',
+        regionFlag: '🇨🇭',
+        blurb: 'Swiss public jazz service',
+    },
+    {
+        name: 'Radio Swiss Classic',
+        url: 'https://stream.srg-ssr.ch/m/rsc_de/mp3_128',
+        genre: 'classical',
+        regionFlag: '🇨🇭',
+        blurb: 'Swiss public classical service',
+    },
+    {
+        name: 'Radio Swiss Pop',
+        url: 'https://stream.srg-ssr.ch/m/rsp/mp3_128',
+        genre: 'eclectic',
+        regionFlag: '🇨🇭',
+        blurb: 'Swiss public pop and rock',
+    },
+    {
+        name: 'Couleur 3',
+        url: 'https://stream.srg-ssr.ch/m/couleur3/mp3_128',
+        genre: 'electronic',
+        regionFlag: '🇨🇭',
+        blurb: 'Alternative and electronic from RTS',
+    },
+    {
         name: 'FluxFM',
         url: 'https://channels.fluxfm.de/FluxFM/externalembedflxhp/stream.mp3',
         genre: 'electronic',
@@ -153,11 +192,33 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Community radio from Perth',
     },
     {
+        name: 'RNZ National',
+        url: 'https://radionz.co.nz/audio/national',
+        genre: 'public',
+        regionFlag: '🇳🇿',
+        blurb: 'Radio New Zealand National',
+        supportsTrackMetadata: false,
+    },
+    {
         name: 'CodeRadio',
         url: 'https://coderadio-admin-v2.freecodecamp.org/listen/coderadio/radio.mp3',
         genre: 'electronic',
         regionFlag: '🎧',
         blurb: '24/7 coding music from freeCodeCamp',
+    },
+    {
+        name: 'ChillSynth FM',
+        url: 'https://stream.chillsynth.fm/chillsynth.mp3',
+        genre: 'electronic',
+        regionFlag: '🌃',
+        blurb: 'Synthwave and retrowave for focus',
+    },
+    {
+        name: 'ChillSynth Dark',
+        url: 'https://stream.chillsynth.fm/darksynth.mp3',
+        genre: 'electronic',
+        regionFlag: '🌃',
+        blurb: 'Darker synthwave from ChillSynth FM',
     },
     {
         name: 'atma.fm',
@@ -209,6 +270,20 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'University of Virginia community radio',
     },
     {
+        name: 'Walm Jazz Classics',
+        url: 'https://icecast.walmradio.com:8443/jazz',
+        genre: 'jazz',
+        regionFlag: '🇺🇸',
+        blurb: 'Jazz classics from Walm Radio',
+    },
+    {
+        name: 'Walm Classic Vinyl',
+        url: 'https://icecast.walmradio.com:8443/classic',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Classic vinyl from Walm Radio',
+    },
+    {
         name: 'Relaxing Jazz',
         url: 'https://443-1.autopo.st/171/stream/3/',
         genre: 'jazz',
@@ -232,6 +307,13 @@ export const RADIO_STATION_DEFINITIONS = [
         supportsTrackMetadata: false,
     },
     {
+        name: 'Epic Lounge Piano Jazz',
+        url: 'https://stream.epic-lounge.com/piano-jazz-bar',
+        genre: 'jazz',
+        regionFlag: '🎹',
+        blurb: 'Piano jazz bar atmosphere',
+    },
+    {
         name: 'Resonance FM',
         url: 'https://stream.resonance.fm/resonance',
         genre: 'community',
@@ -247,6 +329,22 @@ export const RADIO_STATION_DEFINITIONS = [
         supportsTrackMetadata: false,
     },
     {
+        name: 'ABC Triple J',
+        url: 'https://live-radio01.mediahuis.com.au/2TJW/mp3/',
+        genre: 'eclectic',
+        regionFlag: '🇦🇺',
+        blurb: 'Alternative music from ABC Australia',
+        supportsTrackMetadata: false,
+    },
+    {
+        name: 'CBC Music',
+        url: 'https://cbcliveradio-lh.akamaihd.net/i/CBLTOR_1@118420/master.m3u8',
+        genre: 'eclectic',
+        regionFlag: '🇨🇦',
+        blurb: 'Canadian music discovery from CBC',
+        supportsTrackMetadata: false,
+    },
+    {
         name: 'ORF FM4',
         url: 'https://orf-live.ors-shoutcast.at/fm4-q2a',
         genre: 'electronic',
@@ -259,6 +357,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'eclectic',
         regionFlag: '🇺🇸',
         blurb: 'Indie rock and pop from Minnesota Public Radio',
+    },
+    {
+        name: 'NPR Program Stream',
+        url: 'https://npr-ice.streamguys1.com/live.mp3',
+        genre: 'news',
+        regionFlag: '🇺🇸',
+        blurb: 'National Public Radio news and talk',
     },
     {
         name: 'WBEZ Chicago',
@@ -280,6 +385,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'classical',
         regionFlag: '🇺🇸',
         blurb: 'Classical and opera from Chicago',
+    },
+    {
+        name: 'Classical KDFC',
+        url: 'https://playerservices.streamtheworld.com/api/livestream-redirect/KDFCFMAAC.aac',
+        genre: 'classical',
+        regionFlag: '🇺🇸',
+        blurb: 'San Francisco Bay Area classical',
     },
     {
         name: 'WMNR Fine Arts',
@@ -367,6 +479,13 @@ export const RADIO_STATION_DEFINITIONS = [
         supportsTrackMetadata: false,
     },
     {
+        name: 'Radio Swiss Classic (FR)',
+        url: 'https://stream.srg-ssr.ch/m/rsc_fr/mp3_128',
+        genre: 'classical',
+        regionFlag: '🇨🇭',
+        blurb: 'Swiss public classical in French',
+    },
+    {
         name: 'BR Klassik',
         url: 'https://streams.br.de/br-klassik_2.m3u',
         genre: 'classical',
@@ -395,6 +514,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'News from Bavarian public radio',
     },
     {
+        name: 'FluxFM FluxLounge',
+        url: 'https://streams.fluxfm.de/lounge/mp3-128/audio/play.m3u',
+        genre: 'ambient',
+        regionFlag: '🇩🇪',
+        blurb: 'Soft pop and acoustic from FluxFM Berlin',
+    },
+    {
         name: 'BBC Radio 6 Music',
         url: 'https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d320000.norewind.m3u8',
         genre: 'eclectic',
@@ -417,6 +543,36 @@ export const RADIO_STATION_DEFINITIONS = [
         regionFlag: '🇬🇧',
         blurb: 'News, drama, and comedy from the BBC',
         supportsTrackMetadata: false,
+    },
+    {
+        name: 'ABC Double J',
+        url: 'https://live-radio01.mediahuis.com.au/2JJJ/mp3/',
+        genre: 'eclectic',
+        regionFlag: '🇦🇺',
+        blurb: 'Alternative and youth music from ABC Australia',
+        supportsTrackMetadata: false,
+    },
+    {
+        name: 'ABC Classic',
+        url: 'https://live-radio01.mediahuis.com.au/2ABCFM/mp3/',
+        genre: 'classical',
+        regionFlag: '🇦🇺',
+        blurb: 'Classical music from ABC Australia',
+        supportsTrackMetadata: false,
+    },
+    {
+        name: 'Concertzender Jazz',
+        url: 'https://streams.greenhost.nl:8006/jazz',
+        genre: 'jazz',
+        regionFlag: '🇳🇱',
+        blurb: 'Jazz from Dutch public broadcaster Concertzender',
+    },
+    {
+        name: 'Concertzender Barok',
+        url: 'https://streams.greenhost.nl:8080/barok',
+        genre: 'classical',
+        regionFlag: '🇳🇱',
+        blurb: 'Baroque music from Concertzender Netherlands',
     },
     {
         name: 'WBGO Jazz',
@@ -470,6 +626,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Continuous music from KCRW Santa Monica',
     },
     {
+        name: 'KALX Berkeley',
+        url: 'https://stream.kalx.berkeley.edu:8443/kalx-128.mp3',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Freeform radio from UC Berkeley',
+    },
+    {
         name: 'WXYC Chapel Hill',
         url: 'https://audio-mp3.ibiblio.org/wxyc.mp3',
         genre: 'community',
@@ -489,6 +652,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'community',
         regionFlag: '🇺🇸',
         blurb: 'Underground rock from Loyola Marymount',
+    },
+    {
+        name: 'KZSU Stanford',
+        url: 'https://kzsu-streams.stanford.edu/kzsu-1-256.mp3',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Freeform student radio from Stanford',
     },
     {
         name: 'WMSE Milwaukee',
@@ -524,6 +694,27 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'community',
         regionFlag: '🇺🇸',
         blurb: 'Community radio from Richmond, Virginia',
+    },
+    {
+        name: 'WFMU Sheena\'s Jungle Room',
+        url: 'https://stream0.wfmu.org/sheena',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Garage, surf, and rockabilly from WFMU',
+    },
+    {
+        name: 'WWOZ New Orleans',
+        url: 'https://wwoz.streamguys1.com/wwoz-128.mp3',
+        genre: 'jazz',
+        regionFlag: '🇺🇸',
+        blurb: 'New Orleans jazz, funk, and soul',
+    },
+    {
+        name: 'Folk Alley',
+        url: 'https://freshgrass.streamguys1.com/folkalley-128mp3',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Folk, roots, and Americana',
     },
     {
         name: 'Alpha Boys School Radio',
@@ -576,6 +767,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Jazz, soul, and global sounds from London',
     },
     {
+        name: 'Rinse UK',
+        url: 'https://admin.stream.rinse.fm/proxy/rinse_uk/stream',
+        genre: 'electronic',
+        regionFlag: '🇬🇧',
+        blurb: 'Grime, garage, and dubstep from East London',
+    },
+    {
         name: 'Noods Radio',
         url: 'https://noods-radio.radiocult.fm/stream',
         genre: 'eclectic',
@@ -595,6 +793,20 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'electronic',
         regionFlag: '🇳🇱',
         blurb: 'Alternative sounds from Rotterdam',
+    },
+    {
+        name: 'Palanga Street Radio',
+        url: 'https://stream.palanga.live:8443/palanga128.mp3',
+        genre: 'community',
+        regionFlag: '🇱🇹',
+        blurb: 'DIY community radio from Lithuania',
+    },
+    {
+        name: 'Radio Reverb Brighton',
+        url: 'https://edge-audio-03-gos2.sharp-stream.com/radioreverb.mp3',
+        genre: 'community',
+        regionFlag: '🇬🇧',
+        blurb: 'Community radio from Brighton',
     },
     {
         name: 'Le Mellotron',
@@ -623,6 +835,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'jazz',
         regionFlag: '🇧🇪',
         blurb: 'Electronic and jazz from a Brussels park kiosk',
+    },
+    {
+        name: 'LYL Radio Lyon',
+        url: 'https://icecast.lyl.live/live',
+        genre: 'community',
+        regionFlag: '🇫🇷',
+        blurb: 'DIY radio from Lyon',
     },
     {
         name: 'Loose FM London',
@@ -717,6 +936,13 @@ export const RADIO_STATION_DEFINITIONS = [
         supportsTrackMetadata: false,
     },
     {
+        name: 'Funky Radio',
+        url: 'https://funkyradio.streamingmedia.it/play.mp3',
+        genre: 'eclectic',
+        regionFlag: '🇮🇹',
+        blurb: 'Classic funk from vinyl — 1963 to 1982',
+    },
+    {
         name: 'International Rare Groove',
         url: 'https://s131.radiolize.com/radio/8110/radio.mp3',
         genre: 'jazz',
@@ -724,11 +950,25 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Soul, funk, and jazz from London',
     },
     {
+        name: 'Jamaica Dancehall Radio',
+        url: 'https://stream.jamaicadancehallradio.com/listen/jamaica_dancehall_radio/radio.mp3',
+        genre: 'eclectic',
+        regionFlag: '🇯🇲',
+        blurb: 'Reggae and dancehall from Jamaica',
+    },
+    {
         name: 'Dr Dick\'s Dub Shack',
         url: 'https://streamer.radio.co/s0635c8b0d/listen',
         genre: 'eclectic',
         regionFlag: '🇧🇲',
         blurb: 'Deep dub and roots from Bermuda',
+    },
+    {
+        name: 'Celtic Music Radio',
+        url: 'https://stream.celticmusicradio.net:8000/celticmusic.mp3',
+        genre: 'eclectic',
+        regionFlag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+        blurb: 'Scottish folk, roots, and traditional music',
     },
     {
         name: 'Lahmacun Radio',
@@ -743,6 +983,20 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'eclectic',
         regionFlag: '🇮🇪',
         blurb: 'Traditional Irish music',
+    },
+    {
+        name: 'Vintage Obscura Radio',
+        url: 'https://radio.vintageobscura.net/stream',
+        genre: 'eclectic',
+        regionFlag: '🌐',
+        blurb: 'Pre-2000 rarities sourced from the Reddit community',
+    },
+    {
+        name: 'Rainwave Game',
+        url: 'https://relay.rainwave.cc/game.ogg',
+        genre: 'electronic',
+        regionFlag: '🎮',
+        blurb: 'Interactive video game music with listener voting',
     },
     {
         name: 'ISEKOI Radio',
@@ -764,6 +1018,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'eclectic',
         regionFlag: '🇺🇸',
         blurb: 'AAA rock, indie, and folk from the Hudson Valley',
+    },
+    {
+        name: 'Totally Wired Radio',
+        url: 'https://totallywired.out.airtime.pro/totallywired_a',
+        genre: 'jazz',
+        regionFlag: '🇬🇧',
+        blurb: 'Soul, mod, and rare groove from Acid Jazz Records',
     },
     {
         name: 'Bondi Radio Sydney',
@@ -801,11 +1062,61 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Community broadcasts from Bushwick, Brooklyn',
     },
     {
+        name: 'Hollow Earth Radio Seattle',
+        url: 'https://centova.rockhost.com:8001/stream',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Freeform underground from Seattle',
+    },
+    {
         name: 'Dandelion Radio',
         url: 'https://www.dandelionradio.com/DandelionRadio.pls',
         genre: 'eclectic',
         regionFlag: '🇬🇧',
         blurb: 'Inspired by John Peel — home of the Festive 50',
+    },
+    {
+        name: 'LuxuriaMusic',
+        url: 'https://ice10.securenetsystems.net/LUXOMP3',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Surf, bossa nova, exotica, and space-age lounge',
+    },
+    {
+        name: 'Psychedelicized',
+        url: 'https://cast1.asurahosting.com/proxy/psychedelicized/stream',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: '60s–70s psychedelic and garage rock',
+    },
+    {
+        name: 'The Retro Attic',
+        url: 'https://psn3.prostreaming.net:2199/tunein/theretro.pls',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: '50s–70s oldies and forgotten tracks',
+    },
+    {
+        name: 'Intergalactic FM',
+        url: 'https://radio.intergalactic.fm/1.m3u',
+        genre: 'electronic',
+        regionFlag: '🇳🇱',
+        blurb: 'Electro, disco, and deep cuts from The Hague',
+    },
+    {
+        name: 'RTÉ Radio 1',
+        url: 'https://liveaudio.rte.ie/hls-radio/radio1/chunklist.m3u8',
+        genre: 'news',
+        regionFlag: '🇮🇪',
+        blurb: 'National news and talk from Ireland',
+        supportsTrackMetadata: false,
+    },
+    {
+        name: 'WUCF Jazz Orlando',
+        url: 'https://peridot.streamguys.com:7830/WUCF',
+        genre: 'jazz',
+        regionFlag: '🇺🇸',
+        blurb: 'Jazz and public radio from Orlando',
     },
     {
         name: 'KUSF San Francisco',
@@ -858,6 +1169,27 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Late-night archives — Alan Watts, Terence McKenna, and more',
     },
     {
+        name: 'Ancient FM',
+        url: 'https://mediaserv73.live-streams.nl:18058/stream',
+        genre: 'classical',
+        regionFlag: '🏰',
+        blurb: 'Medieval and Renaissance on period instruments',
+    },
+    {
+        name: 'Linn Classical',
+        url: 'https://radio.linn.co.uk:8004/autodj.m3u',
+        genre: 'classical',
+        regionFlag: '🎻',
+        blurb: 'High-fidelity classical from Linn Records',
+    },
+    {
+        name: 'Radio Caprice Piano Blues',
+        url: 'https://79.111.14.76:8002/pianoblues',
+        genre: 'jazz',
+        regionFlag: '🇷🇺',
+        blurb: 'Piano blues and boogie-woogie',
+    },
+    {
         name: 'J-Club Bandstand',
         url: 'https://cast1.torontocast.com:2060/stream',
         genre: 'jazz',
@@ -872,6 +1204,20 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Classic jazz from the 40s–70s',
     },
     {
+        name: 'Walm Old Time Radio',
+        url: 'https://icecast.walmradio.com:8443/otr',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Big band, swing, and vintage audio dramas',
+    },
+    {
+        name: 'Radio Dismuke',
+        url: 'https://stream2.early1900s.org:8000/',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Popular music and jazz from 1925–1935',
+    },
+    {
         name: 'Mechanical Music Radio',
         url: 'https://global.citrus3.com:2020/stream/mechanicalmusicradio',
         genre: 'classical',
@@ -884,6 +1230,27 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'classical',
         regionFlag: '🎬',
         blurb: 'Movie soundtracks and orchestral scores',
+    },
+    {
+        name: 'Streaming Soundtracks',
+        url: 'https://hi5.streamingsoundtracks.com/',
+        genre: 'classical',
+        regionFlag: '🎬',
+        blurb: 'Scores from movies, TV, and anime',
+    },
+    {
+        name: 'SceneSat Demoscene',
+        url: 'https://oscar.scenesat.com:8000/scenesatmax',
+        genre: 'electronic',
+        regionFlag: '💾',
+        blurb: 'Demoscene and tracker module music',
+    },
+    {
+        name: 'Slay Radio C64',
+        url: 'https://www.slayradio.org/tune_in.php/128kbps/listen.m3u',
+        genre: 'electronic',
+        regionFlag: '🇨🇴',
+        blurb: 'Commodore 64 remixes with live community shows',
     },
     {
         name: 'CVGM Chiptune',
@@ -907,6 +1274,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'CD-era console and anime soundtracks',
     },
     {
+        name: 'Dansbandskanalen',
+        url: 'https://fm09-ice.stream.khz.se/fm09_mp3',
+        genre: 'eclectic',
+        regionFlag: '🇸🇪',
+        blurb: 'Swedish dansband music',
+    },
+    {
         name: 'Gladys Palmera Colección',
         url: 'https://streams.radio.co/s496c4d2e8/listen',
         genre: 'eclectic',
@@ -919,6 +1293,20 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'jazz',
         regionFlag: '🇯🇵',
         blurb: 'Jazz and bossa nova from Kobe, Japan',
+    },
+    {
+        name: 'listen.moe Anime',
+        url: 'https://listen.moe/stream',
+        genre: 'electronic',
+        regionFlag: '🇯🇵',
+        blurb: 'Anime and J-pop from volunteer curators',
+    },
+    {
+        name: 'Radio Nula Classic',
+        url: 'https://strm.radionula.com/channel4',
+        genre: 'jazz',
+        regionFlag: '🇸🇮',
+        blurb: 'Soul, funk, disco, and hip-hop from Ljubljana',
     },
     {
         name: 'Retro Soul Radio UK',
@@ -984,6 +1372,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Ambient and drone from A Strangely Isolated Place',
     },
     {
+        name: 'Echoes Cryosleep',
+        url: 'https://streams.echoesofbluemars.org:8000/cryosleep',
+        genre: 'ambient',
+        regionFlag: '🌌',
+        blurb: 'Beatless drone for sleep and deep focus',
+    },
+    {
         name: 'Moon Phase Radio',
         url: 'https://cp12.serverse.com/proxy/moonphase/stream',
         genre: 'ambient',
@@ -1005,6 +1400,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Natural soundscapes without music',
     },
     {
+        name: 'Radio Schizoid Chillout',
+        url: 'https://94.130.113.214:8000/chill',
+        genre: 'ambient',
+        regionFlag: '🇮🇳',
+        blurb: 'Psychedelic chillout and ambient from India',
+    },
+    {
         name: 'La Patate Douce',
         url: 'https://listen.radioking.com/radio/285742/stream/331753',
         genre: 'electronic',
@@ -1017,6 +1419,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'eclectic',
         regionFlag: '🇫🇷',
         blurb: 'World grooves, jazz, and psych-folk',
+    },
+    {
+        name: 'Radio Sofa Paris',
+        url: 'https://listen.radioking.com/radio/292531/stream/338878',
+        genre: 'electronic',
+        regionFlag: '🇫🇷',
+        blurb: 'Dub, reggae, and electronic collective',
     },
     {
         name: 'Nebulah Radio Brest',
@@ -1040,6 +1449,13 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Community radio from Niort, France',
     },
     {
+        name: 'Funky Ass Tunes Dublin',
+        url: 'https://ams1.reliastream.com/proxy/john12/stream',
+        genre: 'jazz',
+        regionFlag: '🇮🇪',
+        blurb: 'Funk, soul, rare groove, and lounge from Dublin',
+    },
+    {
         name: 'Boogaloo Radio London',
         url: 'https://streams.radio.co/sb88c742f0/listen',
         genre: 'eclectic',
@@ -1047,11 +1463,25 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Rock and soul from The Boogaloo pub, Highgate',
     },
     {
+        name: 'Ace Cafe Radio London',
+        url: 'https://listen.radioking.com/radio/69079/stream/106852',
+        genre: 'eclectic',
+        regionFlag: '🇬🇧',
+        blurb: 'Rock \'n\' roll from London\'s Ace Cafe',
+    },
+    {
         name: 'Yacht Rock Miami',
         url: 'https://usa20.fastcast4u.com:4100/1753014835',
         genre: 'eclectic',
         regionFlag: '🇺🇸',
         blurb: 'Yacht rock from Miami',
+    },
+    {
+        name: 'The SoCal Sound',
+        url: 'https://stream.thesocalsound.org/1',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Rock, pop, and indie from California',
     },
     {
         name: 'Live Jam Radio',
@@ -1068,11 +1498,39 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Live rock recordings',
     },
     {
+        name: 'Morow Progressive Rock',
+        url: 'https://www.morow.com/morow.pls',
+        genre: 'eclectic',
+        regionFlag: '🇫🇷',
+        blurb: 'Progressive rock from Paris',
+    },
+    {
+        name: 'Delicious Agony Prog',
+        url: 'https://www.deliciousagony.com/listen.pls',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Progressive rock rarities and full albums',
+    },
+    {
         name: 'Prog Palace Radio',
         url: 'https://cheetah.streemlion.com/progpalace64',
         genre: 'eclectic',
         regionFlag: '🇺🇸',
         blurb: 'Progressive rock and metal',
+    },
+    {
+        name: 'Grateful Dead Radio',
+        url: 'https://cassini.shoutca.st:8574/',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Grateful Dead family bands and projects',
+    },
+    {
+        name: 'Nugs.net Radio',
+        url: 'https://radio.nugs.net/nugsnet',
+        genre: 'eclectic',
+        regionFlag: '🇺🇸',
+        blurb: 'Live rock and jam band recordings',
     },
     {
         name: 'BAGeL Radio',
@@ -1131,6 +1589,20 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Exotica, Hawaiian, and lounge music',
     },
     {
+        name: 'Flower Power Radio',
+        url: 'https://uk1.streamingpulse.com:7000/',
+        genre: 'eclectic',
+        regionFlag: '🇬🇧',
+        blurb: '60s and 70s rock and pop',
+    },
+    {
+        name: 'Majestic Jukebox',
+        url: 'https://uk3.internet-radio.com/proxy/majesticjukebox/live',
+        genre: 'eclectic',
+        regionFlag: '🇬🇧',
+        blurb: '40s–80s jazz, rock, and swing',
+    },
+    {
         name: 'Van Morrison Radio',
         url: 'https://streaming.exclusive.radio/er/vanmorrison/icecast.audio',
         genre: 'eclectic',
@@ -1166,11 +1638,46 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'Community dubstep, garage, and grime since 2004',
     },
     {
+        name: 'Skylab Radio Melbourne',
+        url: 'https://stream.skylab-radio.com:8000/live',
+        genre: 'electronic',
+        regionFlag: '🇦🇺',
+        blurb: 'Experimental electronic from Melbourne',
+    },
+    {
         name: 'Dogglounge Deep House',
         url: 'https://dogglounge.com/listen.pls',
         genre: 'electronic',
         regionFlag: '🌐',
         blurb: 'Deep house and live DJ sets worldwide',
+    },
+    {
+        name: 'After Hours FM Trance',
+        url: 'https://fr.ah.fm:8000/',
+        genre: 'electronic',
+        regionFlag: '🇳🇱',
+        blurb: 'Trance and progressive DJ sets',
+    },
+    {
+        name: 'Radio Caprice Minimal',
+        url: 'https://213.141.131.10:8000/minimalism',
+        genre: 'electronic',
+        regionFlag: '🇷🇺',
+        blurb: 'Minimal tech house',
+    },
+    {
+        name: 'Radio Dy10 Nantes',
+        url: 'https://flux.radiody10.com/fallback.m3u',
+        genre: 'electronic',
+        regionFlag: '🇫🇷',
+        blurb: 'Dance and trippy electronic from Nantes',
+    },
+    {
+        name: 'Bad Radio Phonk NZ',
+        url: 'https://server.badradio.biz:8000/stream',
+        genre: 'electronic',
+        regionFlag: '🇳🇿',
+        blurb: 'Phonk and dark trap from New Zealand',
     },
     {
         name: 'laut.fm Hyperpop',
@@ -1185,6 +1692,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'jazz',
         regionFlag: '🇩🇪',
         blurb: 'Deep funk, Latin, and jazz remixes',
+    },
+    {
+        name: '313.FM Detroit Techno',
+        url: 'https://icecast.ofdoom.com:8000/burst.mp3',
+        genre: 'electronic',
+        regionFlag: '🇺🇸',
+        blurb: 'Detroit techno and underground electronic',
     },
     {
         name: '54house.fm',
@@ -1215,11 +1729,25 @@ export const RADIO_STATION_DEFINITIONS = [
         blurb: 'New indie and alternative from Ireland',
     },
     {
+        name: 'KCHUNG Radio LA',
+        url: 'https://kchungradio.out.airtime.pro/kchungradio_a',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Artist-led collective in Chinatown Los Angeles',
+    },
+    {
         name: 'KPISS Brooklyn',
         url: 'https://das-edge14-live365-dal02.cdnstream.com/a18444',
         genre: 'community',
         regionFlag: '🇺🇸',
         blurb: 'DJ-run freeform — The Golden Stream',
+    },
+    {
+        name: 'Wave Farm Transmission Arts',
+        url: 'https://audio.wavefarm.org/pondstation.mp3',
+        genre: 'community',
+        regionFlag: '🇺🇸',
+        blurb: 'Experimental sound art from Acra, New York',
     },
     {
         name: 'TildeRadio Tildeverse',
@@ -1234,6 +1762,13 @@ export const RADIO_STATION_DEFINITIONS = [
         genre: 'public',
         regionFlag: '📚',
         blurb: 'Audiobooks, poetry, and classic plays',
+    },
+    {
+        name: 'Historyradio.org',
+        url: 'https://stream.radiojar.com/6bmecgg3wd5tv',
+        genre: 'public',
+        regionFlag: '📜',
+        blurb: 'Literature, speeches, and audiobooks',
     },
     {
         name: 'Old Time Radio',
@@ -1251,12 +1786,27 @@ export const RADIO_STATION_DEFINITIONS = [
         supportsTrackMetadata: false,
     },
     {
+        name: 'RNZ Concert',
+        url: 'https://radionz.co.nz/audio/concert',
+        genre: 'classical',
+        regionFlag: '🇳🇿',
+        blurb: 'Classical and jazz from Radio New Zealand',
+        supportsTrackMetadata: false,
+    },
+    {
         name: 'CBC Radio One Toronto',
         url: 'https://cbcradiolive.akamaized.net/hls/live/2041036/ES_R1ETR/master.m3u8',
         genre: 'news',
         regionFlag: '🇨🇦',
         blurb: 'Canadian public radio news from Toronto',
         supportsTrackMetadata: false,
+    },
+    {
+        name: 'VRT Studio Brussel',
+        url: 'https://progressive-live.digitalradio.be/stubru_vlt_mp3',
+        genre: 'electronic',
+        regionFlag: '🇧🇪',
+        blurb: 'Alternative and electronic from Flemish public radio',
     },
     {
         name: 'NPO Radio 4 Classical',
