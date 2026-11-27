@@ -7,6 +7,7 @@ import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics'
 import { useRadioDockInlineVisualizer } from '@lib/hooks/useRadioDockInlineVisualizer';
 import { useRadioMediaSession } from '@lib/hooks/useRadioMediaSession';
 import { useRadioStationFavorites } from '@lib/hooks/useRadioStationFavorites';
+import { IDLING_PURGE_USER_SCOPED_STORAGE_EVENT } from '@lib/security/purgeUserScopedClientStorage';
 import { useRadioSongFavorites } from '@lib/hooks/useRadioSongFavorites';
 import { resolveRadioSongFavoriteUserId } from '@widgets/radio-player/radioSongFavorites';
 import { useSession } from 'next-auth/react';
@@ -209,6 +210,24 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const { data: session, status: sessionStatus } = useSession();
   const signedInUserId = resolveRadioSongFavoriteUserId(sessionStatus, session?.user?.id);
+
+  useEffect(() => {
+    const closeSavedSongsOnPurge = () => {
+      setActivePanel((panel) => (panel === 'savedSongs' ? null : panel));
+    };
+
+    window.addEventListener(
+      IDLING_PURGE_USER_SCOPED_STORAGE_EVENT,
+      closeSavedSongsOnPurge
+    );
+    return () => {
+      window.removeEventListener(
+        IDLING_PURGE_USER_SCOPED_STORAGE_EVENT,
+        closeSavedSongsOnPurge
+      );
+    };
+  }, []);
+
   const {
     favoriteStationNames,
     favoriteStationNameSet,

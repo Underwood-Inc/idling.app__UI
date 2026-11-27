@@ -9,6 +9,10 @@ Migration `migrations/0062-create-user-radio-favorites.sql`:
 - `user_radio_station_favorites` — `user_id`, `station_name`, `stream_url`, `favorited_at`
 - `user_radio_song_favorites` — `user_id`, `song_key`, display metadata, `station_name`, `station_genre`, `saved_at`
 
+## Sign-out / mount / account switch
+
+See [auth-client-session.md](./auth-client-session.md). `purgeUserScopedClientStorage` clears radio favorite IDB stores on anonymous mount, sign-out, and account switch (not only on radio sign-out).
+
 ## Run migrations manually
 
 ### Windows PowerShell (local `.env.local`)
