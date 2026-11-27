@@ -31,6 +31,6 @@ describe('radio station catalog availability', () => {
 
       expect(result.failures, report || 'catalog streams responded').toEqual([]);
     },
-    180_000
+    { timeout: 180_000, retry: 2 }
   );
 });
