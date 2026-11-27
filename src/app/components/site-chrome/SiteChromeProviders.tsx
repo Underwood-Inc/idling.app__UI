@@ -9,16 +9,17 @@ import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { SessionProvider } from 'next-auth/react';
-import type { ReactNode } from 'react';
 import { ToastViewport } from '@molecules/toast/ToastViewport';
-import { RadioPlayerMountWrapper } from '../radio-player/RadioPlayerMountWrapper';
+import type { ReactNode } from 'react';
+import { AuthClientSessionGuard } from '../auth/AuthClientSessionGuard';
+import { AmbientStarfieldProvider } from '../ambient-background';
+import { IdlingLocaleProvider } from '../locale/IdlingLocaleProvider';
 import { OceConnectivityToastBridge } from '../oce/OceConnectivityToastBridge';
+import { RadioPlayerMountWrapper } from '../radio-player/RadioPlayerMountWrapper';
 import { RadioPwaStandaloneVisualizerBootstrap } from '../radio-pwa/RadioPwaStandaloneVisualizerBootstrap';
 import { ServiceWorkerRegistration } from '../service-worker/ServiceWorkerRegistration';
 import { AmbientBackgroundWrapper } from '../ui/ClientWrappers';
 import { VisualizerModeGate } from '../visualizer-mode/VisualizerModeGate';
-import { IdlingLocaleProvider } from '../locale/IdlingLocaleProvider';
-import { AmbientStarfieldProvider } from '../ambient-background';
 
 export interface SiteChromeProvidersProps {
   children: ReactNode;
@@ -30,6 +31,7 @@ export function SiteChromeProviders({ children }: SiteChromeProvidersProps) {
       <AmbientBackgroundWrapper />
       <MicrosoftClarity />
       <SessionProvider>
+        <AuthClientSessionGuard />
         <ClarityUserIdentifier />
         <IdlingLocaleProvider>
         <UserPreferencesProvider>
