@@ -651,6 +651,49 @@ jobs:
         env:
           NODE_ENV: production
 
+  next-production-build:
+    timeout-minutes: 25
+    name: Next.js Production Build
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: actions
+    env:
+      AUTH_TRUST_HOST: true
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'fallback-secret-for-testing-only' }}
+      NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN: ${{ secrets.NEXT_PUBLIC_WEB_INSTALL_ORIGIN_TRIAL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack install
+
+      - name: Restore dependencies cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
+
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Production build (same as deploy)
+        run: pnpm build
+        env:
+          CI: true
+
   vitest-tests:
     timeout-minutes: 15
     name: Vitest Tests
@@ -921,6 +964,20 @@ jobs:
               console.log('❌ Some Playwright tests failed (non-blocking)');
             }
 
+  next-build-status:
+    name: Next.js Build Status
+    needs: next-production-build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Report Next.js build
+        run: |
+          echo "Next.js production build: ${{ needs.next-production-build.result }}"
+          if [[ "${{ needs.next-production-build.result }}" != "success" ]]; then
+            echo "::error::Next.js production build failed (blocks deploy)"
+            exit 1
+          fi
+
   vitest-status:
     name: Vitest Status
     needs: vitest-tests
@@ -967,7 +1024,7 @@ jobs:
   # Final status job
   tests-complete:
     name: Quality Assurance Complete
-    needs: [vitest-status, playwright-status, documentation-status, sonar]
+    needs: [vitest-status, next-build-status, playwright-status, documentation-status, sonar]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -976,12 +1033,13 @@ jobs:
           echo "🧪 Quality Assurance Complete"
           echo "============================"
           echo "Vitest: ${{ needs.vitest-status.result }}"
+          echo "Next.js build: ${{ needs.next-build-status.result }}"
           echo "Playwright: ${{ needs.playwright-status.result }}"
           echo "Documentation: ${{ needs.documentation-status.result }}"
           echo "SonarCloud: ${{ needs.sonar.result }}"
 
-          if [[ "${{ needs.vitest-status.result }}" == "success" ]]; then
-            echo "✅ All required tests passed"
+          if [[ "${{ needs.vitest-status.result }}" == "success" && "${{ needs.next-build-status.result }}" == "success" ]]; then
+            echo "✅ All required tests and production build passed"
             if [[ "${{ needs.documentation-status.result }}" == "success" ]]; then
               echo "✅ Documentation coverage analysis completed"
             else
